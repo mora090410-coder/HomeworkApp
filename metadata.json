@@ -1,0 +1,7 @@
+{
+  "name": "HOMEWORK - Family Economy",
+  "description": "A premium family economy app blending academic performance with household responsibilities. Tracks grades to calculate hourly rates and manages allowances based on completed tasks.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
