@@ -65,7 +65,7 @@ export default function App() {
     if (!familyId) return;
 
     // Subscribe to changes for this family
-    const channel = supabase.channel('db-changes')
+    const channel = supabase.channel(`db-changes-${familyId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: `family_id=eq.${familyId}` }, () => {
         queryClient.invalidateQueries({ queryKey: ['children'] });
       })
@@ -423,7 +423,7 @@ export default function App() {
             <div className="flex flex-wrap items-center gap-3 mb-8">
               <button onClick={() => setIsAddChildModalOpen(true)} className="group bg-gradient-to-r from-cardinal to-[#b30000] text-white font-medium px-6 py-3.5 rounded-xl shadow-lg hover:-translate-y-0.5 transition-all flex items-center gap-2 cursor-pointer"><UserPlus className="w-[18px] h-[18px]" /><span className="hidden sm:inline">Add Child</span></button>
               <button onClick={() => { setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }} disabled={!hasChildren} className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-medium bg-white/5 text-white disabled:opacity-50 cursor-pointer"><Calendar className="w-[18px] h-[18px]" /><span className="hidden sm:inline">Add Open Task</span></button>
-              <button onClick={() => { setIsOpenTaskMode(false); setSelectedChildId(""); setIsAddTaskModalOpen(true); }} className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-medium bg-white/5 text-white hover:bg-white/10 cursor-pointer"><Calendar className="w-[18px] h-[18px]" /><span className="hidden sm:inline">Create Draft</span></button>
+              <button onClick={() => { setIsOpenTaskMode(false); setSelectedChildId(""); setIsAddTaskModalOpen(true); }} disabled={!hasChildren} className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-medium bg-white/5 text-white hover:bg-white/10 disabled:opacity-50 cursor-pointer"><Calendar className="w-[18px] h-[18px]" /><span className="hidden sm:inline">Create Draft</span></button>
               <button onClick={() => { if (hasChildren) { setSelectedChildId(children[0].id); setIsAdvanceModalOpen(true); } }} disabled={!hasChildren} className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-medium bg-white/5 text-white disabled:opacity-50 cursor-pointer"><Plus className="w-[18px] h-[18px]" /><span className="hidden sm:inline">Add Advance</span></button>
             </div>
 

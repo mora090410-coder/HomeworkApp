@@ -72,9 +72,17 @@ const PinModal: React.FC<PinModalProps> = ({
 
         if (mode === 'VERIFY') {
           let isValid = false;
+          // STRICT SECURITY: Always prefer async server verification if provided.
           if (onVerify) {
-            isValid = await onVerify(pin);
+            try {
+              isValid = await onVerify(pin);
+            } catch (e) {
+              console.error("PIN verification failed", e);
+              isValid = false;
+            }
           } else if (storedPin) {
+            // Legacy/Local check - acceptable only for non-critical parent re-entry if locally stored
+            console.warn("Using local PIN check - insecure for high value actions");
             isValid = pin === storedPin;
           }
 
@@ -158,8 +166,8 @@ const PinModal: React.FC<PinModalProps> = ({
           <div className="flex gap-4 mb-12 h-4 items-center">
             {[0, 1, 2, 3].map(i => (
               <div key={i} className={`rounded-full transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${pin.length > i
-                  ? (error ? 'w-4 h-4 bg-red-600 shadow-[0_0_15px_rgba(220,38,38,0.5)] scale-110' : 'w-4 h-4 bg-gradient-to-br from-[#990000] to-[#FFCC00] shadow-[0_0_10px_rgba(255,204,0,0.4)] scale-110')
-                  : 'w-4 h-4 bg-[#333333]'
+                ? (error ? 'w-4 h-4 bg-red-600 shadow-[0_0_15px_rgba(220,38,38,0.5)] scale-110' : 'w-4 h-4 bg-gradient-to-br from-[#990000] to-[#FFCC00] shadow-[0_0_10px_rgba(255,204,0,0.4)] scale-110')
+                : 'w-4 h-4 bg-[#333333]'
                 }`}
               />
             ))}

@@ -21,10 +21,12 @@ export const FamilyService = {
         const storedProfile = localStorage.getItem('homework-active-profile');
         if (storedProfile) {
             try {
-                const { familyId } = JSON.parse(storedProfile);
-                if (familyId) {
-                    const { data } = await supabase.from('families').select('*').eq('id', familyId).single();
-                    if (data) return data;
+                const { profileId } = JSON.parse(storedProfile);
+                if (profileId) {
+                    // Fetch the *actual* family attached to this profile from DB to be safe
+                    const { data: profile } = await supabase.from('profiles').select('family:families(id, name)').eq('id', profileId).single();
+                    // @ts-ignore
+                    if (profile && profile.family) return profile.family;
                 }
             } catch (e) {
                 console.error("Failed to parse stored profile", e);
