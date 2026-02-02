@@ -17,8 +17,24 @@ export interface DBProfile {
 
 export const FamilyService = {
     async getCurrentFamily(): Promise<{ id: string, name: string } | null> {
+        // 1. Try to get from persisted active profile
+        const storedProfile = localStorage.getItem('homework-active-profile');
+        if (storedProfile) {
+            try {
+                const { familyId } = JSON.parse(storedProfile);
+                if (familyId) {
+                    const { data } = await supabase.from('families').select('*').eq('id', familyId).single();
+                    if (data) return data;
+                }
+            } catch (e) {
+                console.error("Failed to parse stored profile", e);
+            }
+        }
+
+        // 2. Fallback: Get first family (Legacy/Dev mode) or prompt user in real app
+        // Ideally we'd redirect to /login if no session, but for MVP we fallback.
         const { data } = await supabase.from('families').select('*').limit(1).single();
-        return data; // Simple default for now. Real app would filter by auth user.
+        return data;
     },
 
     async generateInvite(familyId: string, role: 'ADMIN' | 'MEMBER' = 'MEMBER'): Promise<string> {
@@ -102,28 +118,47 @@ export const FamilyService = {
     },
 
     async getChildren(familyId: string): Promise<Child[]> {
-        const { data } = await supabase.from('profiles')
+        // 1. Fetch all children profiles
+        const { data: profiles } = await supabase.from('profiles')
             .select('*')
             .eq('family_id', familyId)
             .eq('role', 'CHILD');
-        if (!data) return [];
 
-        // Map DB structure to App structure
-        const childrenPromises = data.map(async (p: DBProfile) => {
-            const { data: tasks } = await supabase.from('tasks').select('*').eq('profile_id', p.id).neq('status', 'PAID');
-            const { data: history } = await supabase.from('ledger').select('*').eq('profile_id', p.id).order('created_at', { ascending: false }).limit(20);
+        if (!profiles || profiles.length === 0) return [];
+
+        const profileIds = profiles.map(p => p.id);
+
+        // 2. Bulk fetch tasks for all these children
+        const { data: allTasks } = await supabase.from('tasks')
+            .select('*')
+            .in('profile_id', profileIds)
+            .neq('status', 'PAID');
+
+        // 3. Bulk fetch history (limit 20 per child is hard in simple SQL without lateral join, 
+        // so we fetch last 100 global for family or just fetch recent by date and filter).
+        // Optimization: Fetch last 200 items for these profiles.
+        const { data: allHistory } = await supabase.from('ledger')
+            .select('*')
+            .in('profile_id', profileIds)
+            .order('created_at', { ascending: false })
+            .limit(200);
+
+        // 4. Map data in memory
+        return profiles.map((p: DBProfile) => {
+            const childTasks = (allTasks || []).filter(t => t.profile_id === p.id);
+            const childHistory = (allHistory || []).filter(h => h.profile_id === p.id).slice(0, 20); // Enforce limit in memory
 
             return {
                 id: p.id,
                 familyId: p.family_id,
                 name: p.name,
-                pin: '****',
+                pin: '****', // Masked
                 gradeLevel: p.grade_level,
                 balance: p.balance,
                 subjects: p.subjects as Subject[],
                 rates: p.rates as Record<Grade, number>,
                 role: p.role,
-                customTasks: (tasks || []).map(t => ({
+                customTasks: childTasks.map(t => ({
                     id: t.id,
                     familyId: t.family_id,
                     name: t.name,
@@ -132,7 +167,7 @@ export const FamilyService = {
                     rejectionComment: t.rejection_comment,
                     assigneeId: t.profile_id
                 })),
-                history: (history || []).map(h => ({
+                history: childHistory.map(h => ({
                     id: h.id,
                     date: h.created_at,
                     amount: h.amount,
@@ -142,8 +177,6 @@ export const FamilyService = {
                 }))
             } as Child;
         });
-
-        return Promise.all(childrenPromises);
     },
 
     async createChild(familyId: string, child: Partial<Child>): Promise<Child> {
@@ -254,28 +287,12 @@ export const FamilyService = {
     },
 
     async addAdvance(childId: string, amount: number, memo: string, category: string) {
-        // For MVP: Insert Ledger, Update Balance.
-        const { error } = await supabase.from('ledger').insert({
-            profile_id: childId,
-            amount: -amount, // Negative for Spending/Advance
-            memo,
-            type: 'ADVANCE',
-            category
+        const { error } = await supabase.rpc('add_advance', {
+            p_child_id: childId,
+            p_amount: amount,
+            p_memo: memo,
+            p_category: category
         });
-
         if (error) throw error;
-
-        // Manual balance update since RPC isn't set up for this yet
-        // In real app, use RPC or trigger
-        // This is "unsafe" if concurrent but fine for MVP
-        // Actually, we can just grab the current profile and update it - simplistic approach
-        // Better:
-        // update profiles set balance = balance - amount where id = childId
-        // But supabase-js .update() takes fixed values. 
-        // We'll trust the ledger is source of truth or just do a read-update cycle for now.
-        const { data: profile } = await supabase.from('profiles').select('balance').eq('id', childId).single();
-        if (profile) {
-            await supabase.from('profiles').update({ balance: profile.balance - amount }).eq('id', childId);
-        }
     }
 };

@@ -18,6 +18,7 @@ import AddChildModal, { NewChildData } from './components/AddChildModal';
 import SettingsModal from './components/SettingsModal';
 import AssignTaskModal from './components/AssignTaskModal';
 import AddAdvanceModal from './components/AddAdvanceModal';
+import FamilyActivityFeed from './components/FamilyActivityFeed';
 
 type ViewMode = 'INTRO' | 'LANDING' | 'PARENT' | 'CHILD' | 'JOIN';
 
@@ -96,6 +97,23 @@ export default function App() {
   const [parentPin, setParentPin] = useState<string | null>(localStorage.getItem('homework-app-pin-v1'));
   const [viewMode, setViewMode] = useState<ViewMode>('INTRO');
   const [activeChildId, setActiveChildId] = useState<string | null>(null);
+
+  // Restore session
+  React.useEffect(() => {
+    const stored = localStorage.getItem('homework-active-profile');
+    if (stored) {
+      try {
+        const { profileId, role } = JSON.parse(stored);
+        if (role === 'CHILD' && profileId) {
+          setActiveChildId(profileId);
+          setViewMode('CHILD');
+        } else if (role === 'ADMIN' || (role === undefined && !profileId)) {
+          // Parent mode
+          setViewMode('PARENT');
+        }
+      } catch (e) { }
+    }
+  }, []);
   const [pendingLoginChildId, setPendingLoginChildId] = useState<string | null>(null);
 
   // Modals
@@ -188,6 +206,7 @@ export default function App() {
       setIsChildPinModalOpen(true);
     } else {
       setActiveChildId(childId);
+      localStorage.setItem('homework-active-profile', JSON.stringify({ familyId, profileId: childId, role: child?.role }));
       setViewMode('CHILD');
     }
   };
@@ -206,6 +225,8 @@ export default function App() {
     // Ignoring this complexity for the "big refactor" step, focusing on data sync first.
     if (pendingLoginChildId) {
       setActiveChildId(pendingLoginChildId);
+      const child = children.find(c => c.id === pendingLoginChildId);
+      localStorage.setItem('homework-active-profile', JSON.stringify({ familyId, profileId: pendingLoginChildId, role: child?.role }));
       setViewMode('CHILD');
       setPendingLoginChildId(null);
       setIsChildPinModalOpen(false);
@@ -349,7 +370,19 @@ export default function App() {
       <>
         <LandingScreen childrenData={children} onSelectChild={handleLoginChild} onSelectParent={handleLoginParent} />
         <PinModal isOpen={isPinModalOpen} onClose={() => setIsPinModalOpen(false)} onSuccess={handlePinSuccess} storedPin={parentPin} onSetPin={setParentPin} />
-        <PinModal isOpen={isChildPinModalOpen} onClose={() => setIsChildPinModalOpen(false)} onSuccess={handleChildPinSuccess} storedPin={pendingLoginChild?.pin || null} title={`Enter PIN for ${pendingLoginChild?.name}`} subtitle="Identity Verification" />
+        <PinModal
+          isOpen={isChildPinModalOpen}
+          onClose={() => setIsChildPinModalOpen(false)}
+          onSuccess={handleChildPinSuccess}
+          storedPin={null} // Don't use stored check
+          onVerify={async (pin) => {
+            // In real app, pendingLoginChildId would be verified by server
+            // FamilyService.verifyPin(pendingLoginChildId, pin)
+            return FamilyService.verifyPin(pendingLoginChildId!, pin);
+          }}
+          title={`Enter PIN for ${pendingLoginChild?.name}`}
+          subtitle="Identity Verification"
+        />
       </>
     );
   }
@@ -378,6 +411,11 @@ export default function App() {
             <header className="flex justify-between items-center mb-10">
               <div className="flex items-center gap-3"><span className="text-2xl font-[590] tracking-tight text-white">HomeWork</span><span className="px-2 py-0.5 rounded-md bg-white/10 border border-white/5 text-[11px] font-bold tracking-wider text-gray-400 uppercase">Parent</span></div>
               <div className="flex items-center gap-3">
+                {/* Invite only for ADMIN role - simplified check: if I am in Parent mode, I am effectively Admin for now, 
+                    but strictly we should check the active profile's role if we had one. 
+                    However, 'Parent' view is generic 'Admin' view. 
+                    Let's assume anyone in Parent view is Admin. 
+                */}
                 <button onClick={handleGenerateInvite} className="h-11 px-4 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-all gap-2 cursor-pointer border-dashed"><Share2 className="w-4 h-4" /><span className="text-xs font-bold uppercase tracking-wider">Invite</span></button>
                 <button onClick={handleLogout} className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-gold hover:border-gold/30 hover:bg-white/10 transition-all cursor-pointer active:scale-95"><LogOut className="w-5 h-5" /></button>
               </div>
@@ -389,28 +427,24 @@ export default function App() {
               <button onClick={() => { if (hasChildren) { setSelectedChildId(children[0].id); setIsAdvanceModalOpen(true); } }} disabled={!hasChildren} className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-medium bg-white/5 text-white disabled:opacity-50 cursor-pointer"><Plus className="w-[18px] h-[18px]" /><span className="hidden sm:inline">Add Advance</span></button>
             </div>
 
-            {hasChildren && children.length < 2 && (
-              <div className="mb-12 p-5 bg-[#FFCC00]/5 border border-[#FFCC00]/20 rounded-2xl flex items-start gap-4 animate-in slide-in-from-left-4 duration-500">
-                <div className="w-10 h-10 rounded-full bg-[#FFCC00]/10 flex items-center justify-center shrink-0">
-                  <ShieldCheck className="w-5 h-5 text-[#FFCC00]" />
+            {/* Activity Feed Section */}
+            {hasChildren && (
+              <div className="mb-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="col-span-2">
+                  {/* Main Children Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {children.map(child => (
+                      <ChildCard key={child.id} child={child} siblings={children.filter(c => c.id !== child.id)} onEditSettings={(c) => setChildToEdit(c)} onUpdateGrades={(c) => setChildToUpdateGrades(c)} onAssignTask={(c) => { setSelectedChildId(c.id); setIsAddTaskModalOpen(true); }} onDeleteTask={(cid, tid) => statusTaskMutation.mutate({ taskId: tid, status: 'DELETED' })} onEditTask={(t) => { setEditingTask({ childId: child.id, task: t }); setIsAddTaskModalOpen(true); }} onReassignTask={(t, to) => { }} onApproveTask={handleApproveTask} onRejectTask={(cid, t) => { setTaskToReject({ childId: cid, task: t }); setRejectionComment(''); }} onPayTask={handlePayTask} onUndoApproval={handleUndoApproval} />
+                    ))}
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-sm font-bold text-[#FFCC00] mb-1">Family Setup Tip</h4>
-                  <p className="text-xs text-[#888] leading-relaxed">
-                    Set up child profiles with unique PINs. Use the <b>"Open Task"</b> button to add chores that any child can claim.
-                    <button onClick={() => { if (children[0]) setChildToEdit(children[0]) }} className="ml-2 text-white hover:underline">Open Settings</button> to manage payscales.
-                  </p>
+                <div className="col-span-1">
+                  <FamilyActivityFeed familyId={familyId!} />
                 </div>
               </div>
             )}
 
-            {children.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {children.map(child => (
-                  <ChildCard key={child.id} child={child} siblings={children.filter(c => c.id !== child.id)} onEditSettings={(c) => setChildToEdit(c)} onUpdateGrades={(c) => setChildToUpdateGrades(c)} onAssignTask={(c) => { setSelectedChildId(c.id); setIsAddTaskModalOpen(true); }} onDeleteTask={(cid, tid) => statusTaskMutation.mutate({ taskId: tid, status: 'DELETED' })} onEditTask={(t) => { setEditingTask({ childId: child.id, task: t }); setIsAddTaskModalOpen(true); }} onReassignTask={(t, to) => { }} onApproveTask={handleApproveTask} onRejectTask={(cid, t) => { setTaskToReject({ childId: cid, task: t }); setRejectionComment(''); }} onPayTask={handlePayTask} onUndoApproval={handleUndoApproval} />
-                ))}
-              </div>
-            ) : (
+            {!hasChildren && (
               <div className="rounded-[24px] border border-white/5 bg-white/[0.02] min-h-[400px] flex flex-col items-center justify-center text-center p-8">
                 <Users className="w-16 h-16 text-white/20 mb-6" />
                 <h2 className="text-2xl font-bold mb-2">No children added yet</h2>
