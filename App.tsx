@@ -60,6 +60,17 @@ export default function App() {
     enabled: !!familyId
   });
 
+  // Fetch Admin Profile for Identity Verification
+  const { data: adminProfile } = useQuery({
+    queryKey: ['adminProfile', familyId],
+    queryFn: async () => {
+      if (!familyId) return null;
+      const { data } = await supabase.from('profiles').select('id, name').eq('family_id', familyId).eq('role', 'ADMIN').limit(1).single();
+      return data;
+    },
+    enabled: !!familyId
+  });
+
   // Real-time Updates
   React.useEffect(() => {
     if (!familyId) return;
@@ -94,7 +105,6 @@ export default function App() {
   }, []);
 
   // Local UI State
-  const [parentPin, setParentPin] = useState<string | null>(localStorage.getItem('homework-app-pin-v1'));
   const [viewMode, setViewMode] = useState<ViewMode>('INTRO');
   const [activeChildId, setActiveChildId] = useState<string | null>(null);
 
@@ -369,7 +379,18 @@ export default function App() {
     return (
       <>
         <LandingScreen childrenData={children} onSelectChild={handleLoginChild} onSelectParent={handleLoginParent} />
-        <PinModal isOpen={isPinModalOpen} onClose={() => setIsPinModalOpen(false)} onSuccess={handlePinSuccess} storedPin={parentPin} onSetPin={setParentPin} />
+        <PinModal
+          isOpen={isPinModalOpen}
+          onClose={() => setIsPinModalOpen(false)}
+          onSuccess={handlePinSuccess}
+          storedPin={null} // No local storage
+          onVerify={async (pin) => {
+            if (!adminProfile) return false;
+            return FamilyService.verifyPin(adminProfile.id, pin);
+          }}
+          title="Admin Access"
+          subtitle="Enter your secure PIN"
+        />
         <PinModal
           isOpen={isChildPinModalOpen}
           onClose={() => setIsChildPinModalOpen(false)}
@@ -466,7 +487,13 @@ export default function App() {
           onResetAll={() => { }}
         />
         <AssignTaskModal isOpen={isAddTaskModalOpen} onClose={() => { setIsAddTaskModalOpen(false); setEditingTask(null); }} childName={children.find(c => c.id === (editingTask?.childId || selectedChildId))?.name} isOpenTask={isOpenTaskMode} initialTask={editingTask ? { name: editingTask.task.name, minutes: editingTask.task.baselineMinutes } : undefined} onAssign={handleSaveTask} />
-        <AddAdvanceModal isOpen={isAdvanceModalOpen} onClose={() => setIsAdvanceModalOpen(false)} childrenData={children} onAdd={(cid, amt, cat, memo) => { /* Add Advance Service Call */ }} />
+        <AddAdvanceModal
+          isOpen={isAdvanceModalOpen}
+          onClose={() => setIsAdvanceModalOpen(false)}
+          childrenData={children}
+          initialChildId={selectedChildId}
+          onAdd={(cid, amt, cat, memo) => addAdvanceMutation.mutate({ childId: cid, amount: amt, category: cat, memo: memo })}
+        />
 
         {taskToReject && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">

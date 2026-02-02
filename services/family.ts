@@ -17,13 +17,12 @@ export interface DBProfile {
 
 export const FamilyService = {
     async getCurrentFamily(): Promise<{ id: string, name: string } | null> {
-        // 1. Try to get from persisted active profile
+        // 1. Try to get from persisted active profile (Fast Path)
         const storedProfile = localStorage.getItem('homework-active-profile');
         if (storedProfile) {
             try {
                 const { profileId } = JSON.parse(storedProfile);
                 if (profileId) {
-                    // Fetch the *actual* family attached to this profile from DB to be safe
                     const { data: profile } = await supabase.from('profiles').select('family:families(id, name)').eq('id', profileId).single();
                     // @ts-ignore
                     if (profile && profile.family) return profile.family;
@@ -33,10 +32,21 @@ export const FamilyService = {
             }
         }
 
-        // 2. Fallback: Get first family (Legacy/Dev mode) or prompt user in real app
-        // Ideally we'd redirect to /login if no session, but for MVP we fallback.
-        const { data } = await supabase.from('families').select('*').limit(1).single();
-        return data;
+        // 2. Fallback: Authenticated User Check (Source of Truth)
+        // If no local session, check if we have a valid Supabase Auth user and get their profiles
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            // Find the first profile linked to this user (for MVP, we assume 1:1 or prioritize first)
+            // Note: In this MVP schema, we don't strictly link auth.users to profiles yet (it's invites based).
+            // But if we DID, this is where it would be.
+            // Since we are "Invite/Device based" for this beta without full Auth UI, we rely on the Profile ID being stored.
+            // IF we had auth, we'd do:
+            // const { data } = await supabase.from('profiles').select('family:families(*)').eq('user_id', user.id).limit(1).single();
+        }
+
+        // 3. FINAL HARDENING: Return null if no session.
+        // DO NOT return the first family in the DB.
+        return null;
     },
 
     async generateInvite(familyId: string, role: 'ADMIN' | 'MEMBER' = 'MEMBER'): Promise<string> {
