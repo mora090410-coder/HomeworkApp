@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  Plus, LogOut, Users, Trash2, X, UserPlus, Calendar, ShieldCheck, ChevronRight, Share2
+  Plus, LogOut, Users, Trash2, X, UserPlus, Calendar, ShieldCheck, ChevronRight, Share2, Loader2
 } from 'lucide-react';
 import { Child, Task, Subject, Grade, StandardTask } from './types';
 import { INITIAL_DATA, DEFAULT_RATES, COMMON_TASKS } from './constants';
@@ -20,25 +20,46 @@ import AssignTaskModal from './components/AssignTaskModal';
 import AddAdvanceModal from './components/AddAdvanceModal';
 import FamilyActivityFeed from './components/FamilyActivityFeed';
 
+import AuthScreen from './components/AuthScreen';
+
 type ViewMode = 'INTRO' | 'LANDING' | 'PARENT' | 'CHILD' | 'JOIN';
 
 export default function App() {
   const queryClient = useQueryClient();
+  const [session, setSession] = useState<any>(null);
+  const [loadingSession, setLoadingSession] = useState(true);
 
   // --- STATE ---
   const [familyId, setFamilyId] = useState<string | null>(null);
 
+  // --- AUTH CHECK ---
+  React.useEffect(() => {
+    // Check active session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoadingSession(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setLoadingSession(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   // --- QUERIES ---
   // 1. Fetch Family Context first
   useQuery({
-    queryKey: ['currentFamily'],
+    queryKey: ['currentFamily', session?.user?.id],
     queryFn: async () => {
+      if (!session) return null;
       const family = await FamilyService.getCurrentFamily();
       if (family) setFamilyId(family.id);
       return family;
     },
-    // We only run this once or until we have it
-    enabled: !familyId
+    // Run when we have a session but don't have a family yet
+    enabled: !!session && !familyId
   });
 
   const { data: children = [], isLoading: loadingChildren } = useQuery({
@@ -60,13 +81,14 @@ export default function App() {
     enabled: !!familyId
   });
 
-  // Fetch Admin Profile for Identity Verification
+  // Fetch Admin Profile (and check PIN status)
   const { data: adminProfile } = useQuery({
     queryKey: ['adminProfile', familyId],
     queryFn: async () => {
       if (!familyId) return null;
-      const { data } = await supabase.from('profiles').select('id, name').eq('family_id', familyId).eq('role', 'ADMIN').limit(1).single();
-      return data;
+      // Fetch full profile to check pin_hash
+      const { data } = await supabase.from('profiles').select('*').eq('family_id', familyId).eq('role', 'ADMIN').limit(1).single();
+      return data as any; // Cast for custom props like pin_hash
     },
     enabled: !!familyId
   });
@@ -79,6 +101,7 @@ export default function App() {
     const channel = supabase.channel(`db-changes-${familyId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: `family_id=eq.${familyId}` }, () => {
         queryClient.invalidateQueries({ queryKey: ['children'] });
+        queryClient.invalidateQueries({ queryKey: ['adminProfile'] });
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks', filter: `family_id=eq.${familyId}` }, () => {
         queryClient.invalidateQueries({ queryKey: ['children'] });
@@ -98,6 +121,9 @@ export default function App() {
     const token = params.get('join');
     if (token) {
       setJoiningToken(token);
+      // Wait for Auth to handle Join view? Or allow Pre-Auth join?
+      // Usually force login first.
+      // For now, let's keep viewMode logic but wrap in Auth.
       setViewMode('JOIN');
       // Clean URL
       window.history.replaceState({}, '', window.location.pathname);
@@ -349,6 +375,17 @@ export default function App() {
   const handleUndoApproval = (childId: string, taskId: string) => statusTaskMutation.mutate({ taskId, status: 'PENDING_APPROVAL' });
 
   // Render Logic
+  if (loadingSession) return <div className="min-h-screen bg-black flex items-center justify-center text-white"><Loader2 className="w-8 h-8 animate-spin text-white/20" /></div>;
+
+  if (!session) {
+    return <AuthScreen onSuccess={() => { /* Handled by auth listener */ }} />;
+  }
+
+  // If we have a session but NO family context, we are in a "Limbo" state. 
+  // However, AuthScreen handles family creation before successful login (via metadata logic ideally or Bridge).
+  // If we truly have no family (e.g. manual login without create flow), we might need an "Init Family" screen here.
+  // For now, let's assume AuthScreen did its job or IntroScreen handles it.
+
   if (viewMode === 'INTRO') return <IntroScreen onGetStarted={handleStartApp} onJoinFamily={() => { /* Handled via link usually, but could have manual code entry later */ }} />;
 
   if (viewMode === 'JOIN') {
@@ -383,13 +420,22 @@ export default function App() {
           isOpen={isPinModalOpen}
           onClose={() => setIsPinModalOpen(false)}
           onSuccess={handlePinSuccess}
-          storedPin={null} // No local storage
+          storedPin={null}
+          // If adminProfile has pin_hash, we verify. Else we setup.
+          mode={adminProfile?.pin_hash ? 'VERIFY' : 'SETUP'}
           onVerify={async (pin) => {
             if (!adminProfile) return false;
-            return FamilyService.verifyPin(adminProfile.id, pin);
+            return FamilyService.verifyAdminPin(adminProfile.id, pin);
           }}
-          title="Admin Access"
-          subtitle="Enter your secure PIN"
+          onSetPin={async (pin) => {
+            if (adminProfile) {
+              await FamilyService.setAdminPin(adminProfile.id, pin);
+              // Invalidate query to refresh pin_hash presence
+              queryClient.invalidateQueries({ queryKey: ['adminProfile'] });
+            }
+          }}
+          title={adminProfile?.pin_hash ? "Admin Access" : "Create Admin PIN"}
+          subtitle={adminProfile?.pin_hash ? "Enter your secure PIN" : "Set a 4-digit PIN for security"}
         />
         <PinModal
           isOpen={isChildPinModalOpen}

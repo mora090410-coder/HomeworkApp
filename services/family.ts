@@ -306,5 +306,59 @@ export const FamilyService = {
             p_category: category
         });
         if (error) throw error;
+    },
+
+    // --- AUTH & INIT ---
+
+    async createFamilyForUser(userId: string, familyName: string, userName: string) {
+        // 1. Create Family
+        const { data: family, error: familyError } = await supabase.from('families').insert({ name: familyName }).select().single();
+        if (familyError) throw familyError;
+
+        // 2. Create Admin Profile (Linked to Auth User conceptually via email or just ID if we had the column)
+        // Since we don't have user_id in profiles yet (MVP schema), we rely on this process being atomic in the app flow.
+        // We will store the returned profile ID in 'homework-active-profile' for now to maintain session.
+        // Ideally we would add user_id to profiles.
+        const { data: profile, error: profileError } = await supabase.from('profiles').insert({
+            family_id: family.id,
+            name: userName,
+            role: 'ADMIN',
+            grade_level: 'Adult',
+            balance: 0,
+            subjects: [],
+            rates: {}
+        }).select().single();
+
+        if (profileError) throw profileError;
+
+        return { family, profile };
+    },
+
+    async setAdminPin(profileId: string, pin: string) {
+        // Simple hash (In real app use bcrypt on server or robust lib)
+        // Using a simple btoa for now to demonstrate structure, but request asked for hash.
+        // We really should use a library or just store plain text for MVP if hashing is complex without deps.
+        // Let's assume we store it as is for MVP but treating it as "secure" flow.
+        // Actually, let's do a simple SHA-256 via Web Crypto API since we are in browser.
+        const msgBuffer = new TextEncoder().encode(pin);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+        const { error } = await supabase.from('profiles').update({ pin_hash: hashHex }).eq('id', profileId);
+        if (error) throw error;
+    },
+
+    async verifyAdminPin(profileId: string, pin: string): Promise<boolean> {
+        // 1. Hash the input
+        const msgBuffer = new TextEncoder().encode(pin);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+        // 2. Fetch stored hash
+        const { data } = await supabase.from('profiles').select('pin_hash').eq('id', profileId).single();
+
+        return data?.pin_hash === hashHex;
     }
 };
