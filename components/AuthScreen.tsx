@@ -44,6 +44,7 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
                 email,
                 password,
                 options: {
+                    emailRedirectTo: window.location.origin, // Force redirect to current origin (e.g. localhost:5173) instead of Supabase default (localhost:3000)
                     data: {
                         full_name: name,
                         family_name: mode === 'SIGNUP_CREATE' ? familyName : undefined,
