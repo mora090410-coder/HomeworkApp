@@ -36,7 +36,7 @@ export default function FamilyActivityFeed({ familyId }: FamilyActivityFeedProps
         return (
             <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-8 text-center flex flex-col items-center">
                 <Clock className="w-8 h-8 text-white/40 mb-3" />
-                <p className="text-[#888] text-sm font-medium">No financial activity yet. Chores completed and advances recorded will appear here.</p>
+                <p className="text-[#888] text-sm font-medium">No financial activity yet. Chores and advances will appear here.</p>
             </div>
         );
     }
