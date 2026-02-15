@@ -10,7 +10,6 @@ import {
   getDocs,
   limit,
   query,
-  runTransaction,
   serverTimestamp,
   setDoc,
   updateDoc,
@@ -18,8 +17,10 @@ import {
 } from 'firebase/firestore';
 import {
   AdvanceCategory,
+  ChoreCatalogItem,
   Child,
   Grade,
+  GradeConfig,
   Household,
   Profile,
   Role,
@@ -27,8 +28,10 @@ import {
   Task,
   TaskStatus,
   Transaction,
-} from '../types';
-import { db, ensureFirebaseConfigured } from './firebase';
+} from '@/types';
+import { db, ensureFirebaseConfigured } from '@/services/firebase';
+import { ledgerService } from '@/services/ledgerService';
+import { centsToDollars, dollarsToCents } from '@/utils';
 
 const ACTIVE_PROFILE_STORAGE_KEY = 'homework-active-profile';
 const DEFAULT_INVITE_EXPIRY_HOURS = 24;
@@ -206,7 +209,38 @@ const parseRates = (value: unknown): Record<Grade, number> => {
   }, {} as Record<Grade, number>);
 };
 
+const parseBalanceCents = (source: Record<string, unknown>): number => {
+  if (typeof source.balanceCents === 'number' && Number.isFinite(source.balanceCents)) {
+    return Math.round(source.balanceCents);
+  }
+
+  if (typeof source.balance === 'number' && Number.isFinite(source.balance)) {
+    return dollarsToCents(source.balance);
+  }
+
+  return 0;
+};
+
+const mapGradeConfigs = (
+  source: Record<string, unknown>,
+  fallbackRates: Record<Grade, number>,
+): GradeConfig[] => {
+  return Object.values(Grade).map((grade) => {
+    const rawCents = source[grade];
+    if (typeof rawCents === 'number' && Number.isFinite(rawCents)) {
+      return { grade, valueCents: Math.round(rawCents) };
+    }
+
+    return {
+      grade,
+      valueCents: dollarsToCents(fallbackRates[grade] ?? 0),
+    };
+  });
+};
+
 const mapProfile = (profileId: string, householdId: string, source: Record<string, unknown>): Profile => {
+  const balanceCents = parseBalanceCents(source);
+
   return {
     id: profileId,
     householdId,
@@ -217,7 +251,8 @@ const mapProfile = (profileId: string, householdId: string, source: Record<strin
     gradeLevel: typeof source.gradeLevel === 'string' ? source.gradeLevel : 'Unknown',
     subjects: parseSubjects(source.subjects),
     rates: parseRates(source.rates),
-    balance: typeof source.balance === 'number' && Number.isFinite(source.balance) ? source.balance : 0,
+    balanceCents,
+    balance: centsToDollars(balanceCents),
   };
 };
 
@@ -231,6 +266,7 @@ const mapTask = (taskId: string, householdId: string, source: Record<string, unk
     status: parseTaskStatus(source.status),
     rejectionComment: typeof source.rejectionComment === 'string' ? source.rejectionComment : undefined,
     assigneeId: typeof source.assigneeId === 'string' ? source.assigneeId : null,
+    catalogItemId: typeof source.catalogItemId === 'string' ? source.catalogItemId : null,
   };
 };
 
@@ -246,10 +282,33 @@ const mapTransaction = (
     profileId: typeof source.profileId === 'string' ? source.profileId : undefined,
     profileName: typeof source.profileName === 'string' ? source.profileName : undefined,
     date: toIsoString(source.date),
-    amount: typeof source.amount === 'number' ? source.amount : 0,
+    amountCents:
+      typeof source.amountCents === 'number' && Number.isFinite(source.amountCents)
+        ? Math.round(source.amountCents)
+        : undefined,
+    amount:
+      typeof source.amount === 'number' && Number.isFinite(source.amount)
+        ? source.amount
+        : centsToDollars(
+            typeof source.amountCents === 'number' && Number.isFinite(source.amountCents)
+              ? Math.round(source.amountCents)
+              : 0,
+          ),
     memo: typeof source.memo === 'string' ? source.memo : '',
-    type: source.type === 'ADVANCE' ? 'ADVANCE' : 'EARNING',
+    type:
+      source.type === 'ADVANCE' || source.type === 'ADJUSTMENT' || source.type === 'EARNING'
+        ? source.type
+        : 'EARNING',
     category: parseAdvanceCategory(source.category),
+    taskId: typeof source.taskId === 'string' ? source.taskId : undefined,
+    balanceAfterCents:
+      typeof source.balanceAfterCents === 'number' && Number.isFinite(source.balanceAfterCents)
+        ? Math.round(source.balanceAfterCents)
+        : undefined,
+    balanceAfter:
+      typeof source.balanceAfter === 'number' && Number.isFinite(source.balanceAfter)
+        ? source.balanceAfter
+        : undefined,
   };
 };
 
@@ -266,6 +325,35 @@ const getTasksCollectionRef = (householdId: string) => {
 const getTransactionsCollectionRef = (householdId: string) => {
   const firestore = getFirestore();
   return collection(firestore, `households/${householdId}/transactions`);
+};
+
+const getChoreCatalogCollectionRef = (householdId: string) => {
+  const firestore = getFirestore();
+  return collection(firestore, `households/${householdId}/chore_catalog`);
+};
+
+const getProfileTransactionsCollectionRef = (householdId: string, profileId: string) => {
+  const firestore = getFirestore();
+  return collection(firestore, `households/${householdId}/profiles/${profileId}/transactions`);
+};
+
+const mapChoreCatalogItem = (
+  choreId: string,
+  householdId: string,
+  source: Record<string, unknown>,
+): ChoreCatalogItem => {
+  return {
+    id: choreId,
+    householdId,
+    familyId: householdId,
+    name: typeof source.name === 'string' ? source.name : 'Untitled Chore',
+    baselineMinutes:
+      typeof source.baselineMinutes === 'number' && Number.isFinite(source.baselineMinutes)
+        ? source.baselineMinutes
+        : 0,
+    createdAt: toIsoString(source.createdAt),
+    updatedAt: toIsoString(source.updatedAt),
+  };
 };
 
 const resolveProfileLocationById = async (
@@ -391,6 +479,7 @@ export const householdService = {
         gradeLevel: 'Adult',
         subjects: [],
         rates: defaultRates(),
+        balanceCents: 0,
         balance: 0,
       };
 
@@ -452,7 +541,7 @@ export const householdService = {
     try {
       const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
 
-      const [childrenSnapshot, tasksSnapshot, transactionsSnapshot] = await Promise.all([
+      const [childrenSnapshot, tasksSnapshot, legacyTransactionsSnapshot] = await Promise.all([
         getDocs(query(getProfilesCollectionRef(safeHouseholdId), where('role', '==', 'CHILD'))),
         getDocs(getTasksCollectionRef(safeHouseholdId)),
         getDocs(getTransactionsCollectionRef(safeHouseholdId)),
@@ -462,7 +551,7 @@ export const householdService = {
         mapTask(taskDoc.id, safeHouseholdId, taskDoc.data() as Record<string, unknown>),
       );
 
-      const allTransactions = transactionsSnapshot.docs.map((transactionDoc) =>
+      const legacyTransactions = legacyTransactionsSnapshot.docs.map((transactionDoc) =>
         mapTransaction(
           transactionDoc.id,
           safeHouseholdId,
@@ -470,17 +559,31 @@ export const householdService = {
         ),
       );
 
-      const sortedTransactions = allTransactions.sort((left, right) => {
-        return new Date(right.date).getTime() - new Date(left.date).getTime();
-      });
+      const profileTransactionsByProfileId = new Map<string, Transaction[]>();
+      await Promise.all(
+        childrenSnapshot.docs.map(async (childDoc) => {
+          const profileTransactionsSnapshot = await getDocs(
+            getProfileTransactionsCollectionRef(safeHouseholdId, childDoc.id),
+          );
+          const profileTransactions = profileTransactionsSnapshot.docs.map((transactionDoc) =>
+            mapTransaction(
+              transactionDoc.id,
+              safeHouseholdId,
+              transactionDoc.data() as Record<string, unknown>,
+            ),
+          );
+          profileTransactionsByProfileId.set(childDoc.id, profileTransactions);
+        }),
+      );
 
       return childrenSnapshot.docs.map((childDoc) => {
         const profile = mapProfile(childDoc.id, safeHouseholdId, childDoc.data() as Record<string, unknown>);
         const childTasks = allTasks.filter(
           (task) => task.assigneeId === childDoc.id && task.status !== 'PAID' && task.status !== 'DELETED',
         );
-        const childHistory = sortedTransactions
+        const childHistory = [...(profileTransactionsByProfileId.get(childDoc.id) ?? []), ...legacyTransactions]
           .filter((transaction) => transaction.profileId === childDoc.id)
+          .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime())
           .slice(0, 20);
 
         return {
@@ -529,6 +632,53 @@ export const householdService = {
     }
   },
 
+  async getChoreCatalog(householdId: string): Promise<ChoreCatalogItem[]> {
+    try {
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+      const catalogSnapshot = await getDocs(getChoreCatalogCollectionRef(safeHouseholdId));
+
+      return catalogSnapshot.docs
+        .map((catalogDoc) =>
+          mapChoreCatalogItem(
+            catalogDoc.id,
+            safeHouseholdId,
+            catalogDoc.data() as Record<string, unknown>,
+          ),
+        )
+        .sort((left, right) => left.name.localeCompare(right.name));
+    } catch (error) {
+      throw normalizeError('Failed to load chore catalog', error);
+    }
+  },
+
+  async getGradeConfigs(householdId: string): Promise<GradeConfig[]> {
+    try {
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+      const configRef = doc(getFirestore(), `households/${safeHouseholdId}/settings/grade_configs`);
+      const configSnapshot = await getDoc(configRef);
+
+      if (configSnapshot.exists()) {
+        const payload = configSnapshot.data() as Record<string, unknown>;
+        return mapGradeConfigs(payload, defaultRates());
+      }
+
+      const adminSnapshot = await getDocs(
+        query(getProfilesCollectionRef(safeHouseholdId), where('role', '==', 'ADMIN'), limit(1)),
+      );
+      if (!adminSnapshot.empty) {
+        const adminRates = parseRates((adminSnapshot.docs[0].data() as Record<string, unknown>).rates);
+        return Object.values(Grade).map((grade) => ({
+          grade,
+          valueCents: dollarsToCents(adminRates[grade] ?? 0),
+        }));
+      }
+
+      return mapGradeConfigs({}, defaultRates());
+    } catch (error) {
+      throw normalizeError('Failed to load grade configs', error);
+    }
+  },
+
   async createChild(householdId: string, child: Partial<Child>): Promise<Child> {
     try {
       const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
@@ -546,6 +696,7 @@ export const householdService = {
         gradeLevel,
         subjects,
         rates,
+        balanceCents: 0,
         balance: 0,
       };
 
@@ -568,7 +719,11 @@ export const householdService = {
     }
   },
 
-  async createTask(householdId: string, task: Task): Promise<Task> {
+  async createTask(
+    householdId: string,
+    task: Task,
+    options?: { saveToCatalog?: boolean; catalogItemId?: string | null },
+  ): Promise<Task> {
     try {
       const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
       const safeTaskName = assertNonEmptyString(task.name, 'task.name');
@@ -587,6 +742,12 @@ export const householdService = {
         status,
         rejectionComment: task.rejectionComment,
         assigneeId: typeof task.assigneeId === 'string' ? task.assigneeId : null,
+        catalogItemId:
+          typeof options?.catalogItemId === 'string'
+            ? options.catalogItemId
+            : typeof task.catalogItemId === 'string'
+              ? task.catalogItemId
+              : null,
       };
 
       await setDoc(taskRef, {
@@ -594,6 +755,27 @@ export const householdService = {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
+
+      if (options?.saveToCatalog) {
+        const normalizedCatalogId = safeTaskName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const catalogDocId =
+          normalizedCatalogId.length > 0
+            ? normalizedCatalogId
+            : `${safeTaskName.toLowerCase()}-${Math.floor(Date.now() / 1000)}`;
+        const catalogRef = doc(getChoreCatalogCollectionRef(safeHouseholdId), catalogDocId);
+
+        await setDoc(
+          catalogRef,
+          {
+            householdId: safeHouseholdId,
+            name: safeTaskName,
+            baselineMinutes: firestoreTask.baselineMinutes,
+            updatedAt: serverTimestamp(),
+            createdAt: serverTimestamp(),
+          },
+          { merge: true },
+        );
+      }
 
       return {
         id: taskRef.id,
@@ -638,6 +820,12 @@ export const householdService = {
       }
       if (typeof updates.assigneeId === 'string') {
         updatePayload.assigneeId = updates.assigneeId;
+      }
+      if (updates.catalogItemId === null) {
+        updatePayload.catalogItemId = null;
+      }
+      if (typeof updates.catalogItemId === 'string') {
+        updatePayload.catalogItemId = updates.catalogItemId;
       }
 
       await updateDoc(taskRef, updatePayload);
@@ -684,59 +872,41 @@ export const householdService = {
     }
   },
 
-  async addEarning(profileId: string, taskId: string, amount: number, memo: string): Promise<void> {
+  async addEarning(
+    profileId: string,
+    taskId: string,
+    amountCents: number,
+    memo: string,
+    householdId?: string,
+  ): Promise<void> {
     try {
       const safeProfileId = assertNonEmptyString(profileId, 'profileId');
       const safeTaskId = assertNonEmptyString(taskId, 'taskId');
       const safeMemo = assertNonEmptyString(memo, 'memo');
 
-      if (!Number.isFinite(amount) || amount <= 0) {
-        throw new Error('amount must be a positive number.');
+      const firestore = getFirestore();
+
+      const normalizedAmountCents = Math.round(amountCents);
+      if (!Number.isFinite(normalizedAmountCents) || normalizedAmountCents <= 0) {
+        throw new Error('amountCents must be a positive integer.');
       }
 
-      const resolvedProfile = await resolveProfileLocationById(safeProfileId);
-      if (!resolvedProfile) {
+      const resolvedProfileHouseholdId =
+        typeof householdId === 'string' && householdId.trim().length > 0
+          ? householdId.trim()
+          : (await resolveProfileLocationById(safeProfileId))?.householdId;
+
+      if (!resolvedProfileHouseholdId) {
         throw new Error('Profile not found.');
       }
 
-      const firestore = getFirestore();
-      const profileRef = doc(
+      await ledgerService.recordTaskPayment({
         firestore,
-        `households/${resolvedProfile.householdId}/profiles/${resolvedProfile.profileId}`,
-      );
-      const taskRef = doc(firestore, `households/${resolvedProfile.householdId}/tasks/${safeTaskId}`);
-      const transactionRef = doc(collection(firestore, `households/${resolvedProfile.householdId}/transactions`));
-
-      await runTransaction(firestore, async (transaction) => {
-        const profileSnapshot = await transaction.get(profileRef);
-        if (!profileSnapshot.exists()) {
-          throw new Error('Profile was removed before earning could be recorded.');
-        }
-
-        const currentBalance =
-          typeof profileSnapshot.data().balance === 'number' ? profileSnapshot.data().balance : 0;
-        const nextBalance = currentBalance + amount;
-
-        transaction.update(profileRef, {
-          balance: nextBalance,
-          updatedAt: serverTimestamp(),
-        });
-
-        transaction.set(transactionRef, {
-          householdId: resolvedProfile.householdId,
-          profileId: safeProfileId,
-          amount,
-          memo: safeMemo,
-          type: 'EARNING',
-          category: null,
-          date: serverTimestamp(),
-          createdAt: serverTimestamp(),
-        });
-
-        transaction.update(taskRef, {
-          status: 'PAID',
-          updatedAt: serverTimestamp(),
-        });
+        householdId: resolvedProfileHouseholdId,
+        profileId: safeProfileId,
+        taskId: safeTaskId,
+        amountCents: normalizedAmountCents,
+        memo: safeMemo,
       });
     } catch (error) {
       throw normalizeError('Failed to apply earning', error);
@@ -745,62 +915,78 @@ export const householdService = {
 
   async addAdvance(
     profileId: string,
-    amount: number,
+    amountCents: number,
     memo: string,
     category: string,
+    householdId?: string,
   ): Promise<void> {
     try {
       const safeProfileId = assertNonEmptyString(profileId, 'profileId');
       const safeMemo = assertNonEmptyString(memo, 'memo');
 
-      if (!Number.isFinite(amount) || amount <= 0) {
-        throw new Error('amount must be a positive number.');
+      const safeCategory = parseAdvanceCategory(category) ?? 'Other';
+
+      const firestore = getFirestore();
+
+      const normalizedAmountCents = Math.round(amountCents);
+      if (!Number.isFinite(normalizedAmountCents) || normalizedAmountCents <= 0) {
+        throw new Error('amountCents must be a positive integer.');
       }
 
-      const safeCategory = parseAdvanceCategory(category) ?? 'Other';
-      const resolvedProfile = await resolveProfileLocationById(safeProfileId);
+      const resolvedProfileHouseholdId =
+        typeof householdId === 'string' && householdId.trim().length > 0
+          ? householdId.trim()
+          : (await resolveProfileLocationById(safeProfileId))?.householdId;
 
-      if (!resolvedProfile) {
+      if (!resolvedProfileHouseholdId) {
         throw new Error('Profile not found.');
       }
 
-      const firestore = getFirestore();
-      const profileRef = doc(
+      await ledgerService.recordAdvance({
         firestore,
-        `households/${resolvedProfile.householdId}/profiles/${resolvedProfile.profileId}`,
-      );
-      const transactionRef = doc(collection(firestore, `households/${resolvedProfile.householdId}/transactions`));
-
-      await runTransaction(firestore, async (transaction) => {
-        const profileSnapshot = await transaction.get(profileRef);
-
-        if (!profileSnapshot.exists()) {
-          throw new Error('Profile was removed before advance could be recorded.');
-        }
-
-        const currentBalance =
-          typeof profileSnapshot.data().balance === 'number' ? profileSnapshot.data().balance : 0;
-        const signedAmount = Math.abs(amount) * -1;
-        const nextBalance = currentBalance + signedAmount;
-
-        transaction.update(profileRef, {
-          balance: nextBalance,
-          updatedAt: serverTimestamp(),
-        });
-
-        transaction.set(transactionRef, {
-          householdId: resolvedProfile.householdId,
-          profileId: safeProfileId,
-          amount: signedAmount,
-          memo: safeMemo,
-          type: 'ADVANCE',
-          category: safeCategory,
-          date: serverTimestamp(),
-          createdAt: serverTimestamp(),
-        });
+        householdId: resolvedProfileHouseholdId,
+        profileId: safeProfileId,
+        amountCents: normalizedAmountCents,
+        memo: safeMemo,
+        category: safeCategory,
       });
     } catch (error) {
       throw normalizeError('Failed to apply advance', error);
+    }
+  },
+
+  async addManualAdjustment(
+    profileId: string,
+    amountCents: number,
+    memo: string,
+    householdId?: string,
+  ): Promise<void> {
+    try {
+      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+      const safeMemo = assertNonEmptyString(memo, 'memo');
+      const normalizedAmountCents = Math.round(amountCents);
+      if (!Number.isFinite(normalizedAmountCents) || normalizedAmountCents === 0) {
+        throw new Error('amountCents must be a non-zero integer.');
+      }
+
+      const resolvedProfileHouseholdId =
+        typeof householdId === 'string' && householdId.trim().length > 0
+          ? householdId.trim()
+          : (await resolveProfileLocationById(safeProfileId))?.householdId;
+
+      if (!resolvedProfileHouseholdId) {
+        throw new Error('Profile not found.');
+      }
+
+      await ledgerService.recordManualAdjustment({
+        firestore: getFirestore(),
+        householdId: resolvedProfileHouseholdId,
+        profileId: safeProfileId,
+        amountCents: normalizedAmountCents,
+        memo: safeMemo,
+      });
+    } catch (error) {
+      throw normalizeError('Failed to apply manual adjustment', error);
     }
   },
 
@@ -927,6 +1113,7 @@ export const householdService = {
         gradeLevel: role === 'CHILD' ? 'Unknown' : 'Adult',
         subjects: [],
         rates: defaultRates(),
+        balanceCents: 0,
         balance: 0,
       };
 
@@ -965,7 +1152,7 @@ export const householdService = {
       const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
       const safeMaxItems = Number.isFinite(maxItems) && maxItems > 0 ? Math.floor(maxItems) : DEFAULT_ACTIVITY_LIMIT;
 
-      const [profilesSnapshot, transactionsSnapshot] = await Promise.all([
+      const [profilesSnapshot, legacyTransactionsSnapshot] = await Promise.all([
         getDocs(getProfilesCollectionRef(safeHouseholdId)),
         getDocs(getTransactionsCollectionRef(safeHouseholdId)),
       ]);
@@ -978,19 +1165,38 @@ export const householdService = {
         }
       });
 
-      const history = transactionsSnapshot.docs
-        .map((transactionDoc) => {
-          const baseTransaction = mapTransaction(
-            transactionDoc.id,
-            safeHouseholdId,
-            transactionDoc.data() as Record<string, unknown>,
-          );
+      const profileTransactions = (
+        await Promise.all(
+          profilesSnapshot.docs.map(async (profileDoc) => {
+            const transactionsSnapshot = await getDocs(
+              getProfileTransactionsCollectionRef(safeHouseholdId, profileDoc.id),
+            );
+            return transactionsSnapshot.docs.map((transactionDoc) =>
+              mapTransaction(
+                transactionDoc.id,
+                safeHouseholdId,
+                transactionDoc.data() as Record<string, unknown>,
+              ),
+            );
+          }),
+        )
+      ).flat();
 
-          if (baseTransaction.profileId) {
-            baseTransaction.profileName = profileNameById.get(baseTransaction.profileId) ?? 'Unknown';
+      const legacyTransactions = legacyTransactionsSnapshot.docs.map((transactionDoc) =>
+        mapTransaction(
+          transactionDoc.id,
+          safeHouseholdId,
+          transactionDoc.data() as Record<string, unknown>,
+        ),
+      );
+
+      const history = [...profileTransactions, ...legacyTransactions]
+        .map((transactionDoc) => {
+          if (transactionDoc.profileId) {
+            transactionDoc.profileName = profileNameById.get(transactionDoc.profileId) ?? 'Unknown';
           }
 
-          return baseTransaction;
+          return transactionDoc;
         })
         .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime())
         .slice(0, safeMaxItems);

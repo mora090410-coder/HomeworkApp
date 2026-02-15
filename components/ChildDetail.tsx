@@ -1,8 +1,17 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Child, Grade, Task, StandardTask } from '../types';
-import { calculateHourlyRate, formatCurrency, calculateTaskValue, getTaskIcon } from '../utils';
-import { DEFAULT_RATES } from '../constants';
+import { Child, Grade, StandardTask, Task } from '@/types';
+import {
+  calculateHourlyRate,
+  calculateTaskValue,
+  calculateTaskValueCents,
+  centsToDollars,
+  dollarsToCents,
+  formatCurrency,
+  getTaskIcon,
+  getTransactionAmountCents,
+} from '@/utils';
+import { DEFAULT_RATES } from '@/constants';
 import { 
   Clock, 
   Check, 
@@ -14,7 +23,6 @@ import {
   Target, 
   Hourglass, 
   AlertCircle,
-  TrendingUp,
   Lightbulb
 } from 'lucide-react';
 
@@ -54,27 +62,38 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
   }, [child.balance]);
 
   const hourlyRate = calculateHourlyRate(child.subjects, child.rates || DEFAULT_RATES);
+  const hourlyRateCents = dollarsToCents(hourlyRate);
+  const balanceCents = typeof child.balanceCents === 'number' ? child.balanceCents : Math.round(child.balance * 100);
+  const balance = centsToDollars(balanceCents);
+  const hasDebt = balanceCents < 0;
+  const recentTransactions = [...child.history]
+    .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime())
+    .slice(0, 12);
   
   // Earnings Calculations
-  const readyToCollect = child.customTasks
+  const readyToCollectCents = child.customTasks
     .filter(t => t.status === 'PENDING_PAYMENT')
-    .reduce((sum, t) => sum + calculateTaskValue(t.baselineMinutes, hourlyRate), 0);
+    .reduce((sum, t) => sum + calculateTaskValueCents(t.baselineMinutes, hourlyRateCents), 0);
+  const readyToCollect = centsToDollars(readyToCollectCents);
   
-  const inReview = child.customTasks
+  const inReviewCents = child.customTasks
     .filter(t => t.status === 'PENDING_APPROVAL')
-    .reduce((sum, t) => sum + calculateTaskValue(t.baselineMinutes, hourlyRate), 0);
+    .reduce((sum, t) => sum + calculateTaskValueCents(t.baselineMinutes, hourlyRateCents), 0);
+  const inReview = centsToDollars(inReviewCents);
   
-  const canEarnToday = availableTasks
-    .reduce((sum, t) => sum + calculateTaskValue(t.baselineMinutes, hourlyRate), 0);
+  const canEarnTodayCents = availableTasks
+    .reduce((sum, t) => sum + calculateTaskValueCents(t.baselineMinutes, hourlyRateCents), 0);
+  const canEarnToday = centsToDollars(canEarnTodayCents);
 
   // Weekly total calculation
   const startOfWeek = new Date();
   startOfWeek.setHours(0, 0, 0, 0);
   startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay()); // Sunday start
 
-  const paidThisWeek = child.history
+  const paidThisWeekCents = child.history
     .filter(tx => tx.type === 'EARNING' && new Date(tx.date) >= startOfWeek)
-    .reduce((sum, tx) => sum + tx.amount, 0);
+    .reduce((sum, tx) => sum + getTransactionAmountCents(tx), 0);
+  const paidThisWeek = centsToDollars(paidThisWeekCents);
   
   const totalEarnedThisWeek = paidThisWeek + readyToCollect;
 
@@ -84,6 +103,20 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
   const waitingApproval = child.customTasks.filter(t => t.status === 'PENDING_APPROVAL');
   const rejectedTasks = child.customTasks.filter(t => t.status === 'ASSIGNED' && t.rejectionComment);
   const readyCollectTasks = child.customTasks.filter(t => t.status === 'PENDING_PAYMENT');
+
+  const formatLedgerDate = (value: string): string => {
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) {
+      return 'Unknown date';
+    }
+
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    }).format(parsed);
+  };
 
   const handleConfirmCompletion = () => {
     if (taskToComplete) {
@@ -185,7 +218,22 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
               <span className="text-5xl font-bold text-white">{formatCurrency(hourlyRate)}</span>
               <span className="text-xl text-gray-600 font-medium">/hr</span>
             </div>
-            {/* Mocking a rate change for visualization if needed, but per data for now just rate */}
+            <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">Current Balance</p>
+              <div className="flex items-center gap-2">
+                <span
+                  className="text-2xl font-bold"
+                  style={{ color: hasDebt ? '#b30000' : '#4ade80' }}
+                >
+                  {formatCurrency(balance)}
+                </span>
+                {hasDebt && (
+                  <span className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold uppercase tracking-wider bg-[#b30000]/20 text-[#b30000]">
+                    Debt
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="mt-8 bg-[#FFCC00]/5 border border-[#FFCC00]/10 rounded-2xl p-5 relative overflow-hidden">
@@ -200,6 +248,53 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
           </div>
         </div>
       </div>
+
+      <section>
+        <div className="mb-6 flex items-end justify-between gap-3">
+          <div>
+            <h3 className="text-xl font-bold text-white mb-1">Transaction History</h3>
+            <p className="text-sm text-gray-500">Professional ledger of earnings, advances, and adjustments</p>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] overflow-hidden">
+          {recentTransactions.length === 0 && (
+            <div className="p-8 text-sm text-gray-500 text-center">No transactions recorded yet.</div>
+          )}
+
+          {recentTransactions.length > 0 && (
+            <div className="divide-y divide-white/[0.06]">
+              {recentTransactions.map((transaction) => {
+                const amountCents = getTransactionAmountCents(transaction);
+                const amount = centsToDollars(Math.abs(amountCents));
+                const isNegative = amountCents < 0;
+                return (
+                  <div key={transaction.id} className="p-4 md:p-5 flex items-center justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="text-sm md:text-base text-white font-semibold truncate">
+                        {transaction.memo || (transaction.type === 'ADVANCE' ? 'Advance' : 'Task Payment')}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">{formatLedgerDate(transaction.date)}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-[0.625rem] font-bold uppercase tracking-wider text-gray-500 mb-1">
+                        {transaction.type}
+                      </p>
+                      <p
+                        className="text-base font-bold"
+                        style={{ color: isNegative ? '#b30000' : '#4ade80' }}
+                      >
+                        {isNegative ? '-' : '+'}
+                        {formatCurrency(amount)}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Academics Section */}
       <section>

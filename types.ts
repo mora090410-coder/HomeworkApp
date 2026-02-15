@@ -23,6 +23,11 @@ export type TaskStatus =
   | 'PAID'
   | 'DELETED';
 
+export interface GradeConfig {
+  grade: Grade;
+  valueCents: number;
+}
+
 export interface Household {
   id: string;
   name: string;
@@ -51,6 +56,17 @@ export interface Task {
   status?: TaskStatus;
   rejectionComment?: string;
   assigneeId?: string | null;
+  catalogItemId?: string | null;
+}
+
+export interface ChoreCatalogItem {
+  id: string;
+  householdId: string;
+  familyId?: string;
+  name: string;
+  baselineMinutes: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export type AdvanceCategory =
@@ -67,11 +83,15 @@ export interface Transaction {
   familyId?: string;
   date: string;
   amount: number;
+  amountCents?: number;
   memo: string;
-  type: 'EARNING' | 'ADVANCE';
+  type: 'EARNING' | 'ADVANCE' | 'ADJUSTMENT';
   category?: AdvanceCategory;
   profileId?: string;
   profileName?: string;
+  taskId?: string;
+  balanceAfter?: number;
+  balanceAfterCents?: number;
 }
 
 export interface Profile {
@@ -85,6 +105,7 @@ export interface Profile {
   subjects: Subject[];
   rates: Record<Grade, number>;
   balance: number;
+  balanceCents?: number;
 }
 
 export interface Child {
@@ -96,6 +117,7 @@ export interface Child {
   gradeLevel: string;
   subjects: Subject[];
   balance: number;
+  balanceCents?: number;
   history: Transaction[];
   customTasks: Task[];
   rates: Record<Grade, number>;

@@ -1,25 +1,118 @@
+import { GRADE_VALUES } from '@/constants';
+import { Grade, GradeConfig, Subject, Transaction } from '@/types';
 
-import { Subject, Grade } from './types';
-import { GRADE_VALUES } from './constants';
+const DEFAULT_RATE_MAP: Record<Grade, number> = GRADE_VALUES;
 
-export const calculateHourlyRate = (subjects: Subject[], rates: Record<Grade, number> = GRADE_VALUES): number => {
-  if (!subjects.length) return 0;
-  
-  // Sum of all subject values
-  return subjects.reduce((total, subject) => {
-    return total + (rates[subject.grade] || 0);
+const roundToCents = (value: number): number => {
+  return Math.round((value + Number.EPSILON) * 100);
+};
+
+const normalizeCents = (value: number): number => {
+  if (!Number.isFinite(value)) {
+    return 0;
+  }
+
+  return Math.round(value);
+};
+
+export const dollarsToCents = (amount: number): number => {
+  return roundToCents(amount);
+};
+
+export const centsToDollars = (amountCents: number): number => {
+  return normalizeCents(amountCents) / 100;
+};
+
+export const parseCurrencyInputToCents = (value: string): number => {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    return 0;
+  }
+
+  const parsed = Number.parseFloat(value);
+  if (!Number.isFinite(parsed)) {
+    return 0;
+  }
+
+  return dollarsToCents(parsed);
+};
+
+export const buildRateMapFromGradeConfigs = (
+  gradeConfigs: GradeConfig[] | undefined,
+  fallbackRates: Record<Grade, number> = DEFAULT_RATE_MAP,
+): Record<Grade, number> => {
+  const fallbackCents = Object.values(Grade).reduce((accumulator, grade) => {
+    accumulator[grade] = dollarsToCents(fallbackRates[grade] ?? 0);
+    return accumulator;
+  }, {} as Record<Grade, number>);
+
+  if (!Array.isArray(gradeConfigs) || gradeConfigs.length === 0) {
+    return Object.values(Grade).reduce((accumulator, grade) => {
+      accumulator[grade] = centsToDollars(fallbackCents[grade]);
+      return accumulator;
+    }, {} as Record<Grade, number>);
+  }
+
+  const configuredCents = gradeConfigs.reduce((accumulator, config) => {
+    if (Object.values(Grade).includes(config.grade)) {
+      accumulator[config.grade] = normalizeCents(config.valueCents);
+    }
+
+    return accumulator;
+  }, { ...fallbackCents });
+
+  return Object.values(Grade).reduce((accumulator, grade) => {
+    accumulator[grade] = centsToDollars(configuredCents[grade]);
+    return accumulator;
+  }, {} as Record<Grade, number>);
+};
+
+export const calculateHourlyRateCents = (
+  subjects: Subject[],
+  rates: Record<Grade, number> = DEFAULT_RATE_MAP,
+): number => {
+  if (!Array.isArray(subjects) || subjects.length === 0) {
+    return 0;
+  }
+
+  return subjects.reduce((totalCents, subject) => {
+    const gradeRate = rates[subject.grade] ?? 0;
+    return totalCents + dollarsToCents(gradeRate);
   }, 0);
 };
 
+export const calculateHourlyRate = (
+  subjects: Subject[],
+  rates: Record<Grade, number> = DEFAULT_RATE_MAP,
+): number => {
+  return centsToDollars(calculateHourlyRateCents(subjects, rates));
+};
+
+export const calculateTaskValueCents = (minutes: number, hourlyRateCents: number): number => {
+  if (!Number.isFinite(minutes) || minutes <= 0 || !Number.isFinite(hourlyRateCents) || hourlyRateCents <= 0) {
+    return 0;
+  }
+
+  return Math.round((normalizeCents(hourlyRateCents) * minutes) / 60);
+};
+
 export const calculateTaskValue = (minutes: number, hourlyRate: number): number => {
-  return (minutes / 60) * hourlyRate;
+  const cents = calculateTaskValueCents(minutes, dollarsToCents(hourlyRate));
+  return centsToDollars(cents);
+};
+
+export const getTransactionAmountCents = (transaction: Transaction): number => {
+  if (typeof transaction.amountCents === 'number' && Number.isFinite(transaction.amountCents)) {
+    return normalizeCents(transaction.amountCents);
+  }
+
+  return dollarsToCents(transaction.amount);
 };
 
 export const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
-    minimumFractionDigits: 2
+    minimumFractionDigits: 2,
   }).format(amount);
 };
 
@@ -29,7 +122,7 @@ export const getNextGrade = (current: Grade): Grade => {
   return grades[(index + 1) % grades.length];
 };
 
-export const getTaskIcon = (name: string) => {
+export const getTaskIcon = (name: string): string => {
   const lower = name.toLowerCase();
   if (lower.includes('clean') || lower.includes('room') || lower.includes('tidy')) return '🧹';
   if (lower.includes('wash') || lower.includes('dish') || lower.includes('plate')) return '🧽';

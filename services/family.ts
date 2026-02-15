@@ -1,6 +1,6 @@
-import { auth } from './firebase';
-import { householdService } from './householdService';
-import { Child, Profile, Role, Task, Transaction } from '../types';
+import { auth } from '@/services/firebase';
+import { householdService } from '@/services/householdService';
+import { Child, ChoreCatalogItem, GradeConfig, Profile, Role, Task, Transaction } from '@/types';
 
 const hashPin = async (pin: string): Promise<string> => {
   const safePin = pin.trim();
@@ -97,22 +97,30 @@ export const FamilyService = {
     return createdChild;
   },
 
-  async createOpenTask(householdId: string, task: Task): Promise<void> {
+  async createOpenTask(
+    householdId: string,
+    task: Task,
+    options?: { saveToCatalog?: boolean; catalogItemId?: string | null },
+  ): Promise<void> {
     await householdService.createTask(householdId, {
       ...task,
       householdId,
       status: 'OPEN',
       assigneeId: null,
-    });
+    }, options);
   },
 
-  async saveDraftTask(householdId: string, task: Task): Promise<void> {
+  async saveDraftTask(
+    householdId: string,
+    task: Task,
+    options?: { saveToCatalog?: boolean; catalogItemId?: string | null },
+  ): Promise<void> {
     await householdService.createTask(householdId, {
       ...task,
       householdId,
       status: 'DRAFT',
       assigneeId: task.assigneeId ?? null,
-    });
+    }, options);
   },
 
   async verifyPin(childId: string, pin: string): Promise<boolean> {
@@ -120,13 +128,18 @@ export const FamilyService = {
     return householdService.verifyProfilePinHash(childId, pinHash);
   },
 
-  async assignTask(childId: string, task: Task, householdId: string): Promise<void> {
+  async assignTask(
+    childId: string,
+    task: Task,
+    householdId: string,
+    options?: { saveToCatalog?: boolean; catalogItemId?: string | null },
+  ): Promise<void> {
     await householdService.createTask(householdId, {
       ...task,
       householdId,
       assigneeId: childId,
       status: 'ASSIGNED',
-    });
+    }, options);
   },
 
   async claimTask(childId: string, taskId: string): Promise<void> {
@@ -148,12 +161,41 @@ export const FamilyService = {
     await householdService.updateChildById(childId, updates);
   },
 
-  async payTask(childId: string, taskId: string, amount: number, memo: string): Promise<void> {
-    await householdService.addEarning(childId, taskId, amount, memo);
+  async payTask(
+    householdId: string,
+    childId: string,
+    taskId: string,
+    amountCents: number,
+    memo: string,
+  ): Promise<void> {
+    await householdService.addEarning(childId, taskId, amountCents, memo, householdId);
   },
 
-  async addAdvance(childId: string, amount: number, memo: string, category: string): Promise<void> {
-    await householdService.addAdvance(childId, amount, memo, category);
+  async addAdvance(
+    householdId: string,
+    childId: string,
+    amountCents: number,
+    memo: string,
+    category: string,
+  ): Promise<void> {
+    await householdService.addAdvance(childId, amountCents, memo, category, householdId);
+  },
+
+  async addManualAdjustment(
+    householdId: string,
+    childId: string,
+    amountCents: number,
+    memo: string,
+  ): Promise<void> {
+    await householdService.addManualAdjustment(childId, amountCents, memo, householdId);
+  },
+
+  async getGradeConfigs(householdId: string): Promise<GradeConfig[]> {
+    return householdService.getGradeConfigs(householdId);
+  },
+
+  async getChoreCatalog(householdId: string): Promise<ChoreCatalogItem[]> {
+    return householdService.getChoreCatalog(householdId);
   },
 
   async createFamilyForUser(userId: string, familyName: string, userName: string): Promise<{ family: { id: string; name: string }; profile: DBProfile }> {

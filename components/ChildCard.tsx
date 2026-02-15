@@ -1,7 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
-import { Child, Task } from '../types';
-import { calculateHourlyRate, formatCurrency, calculateTaskValue, getTaskIcon } from '../utils';
+import { Child, Task } from '@/types';
+import {
+  calculateHourlyRate,
+  calculateTaskValue,
+  calculateTaskValueCents,
+  centsToDollars,
+  dollarsToCents,
+  formatCurrency,
+  getTaskIcon,
+  getTransactionAmountCents,
+} from '@/utils';
 import { 
   Settings, 
   ChevronDown, 
@@ -64,6 +73,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
   const [activeSubmenuId, setActiveSubmenuId] = useState<string | null>(null);
 
   const hourlyRate = calculateHourlyRate(child.subjects, child.rates);
+  const hourlyRateCents = dollarsToCents(hourlyRate);
   
   // TASK GROUPING LOGIC
   const awaitingApproval = child.customTasks?.filter(t => t.status === 'PENDING_APPROVAL') || [];
@@ -71,11 +81,20 @@ const ChildCard: React.FC<ChildCardProps> = ({
   const inProgress = child.customTasks?.filter(t => t.status === 'ASSIGNED' || !t.status) || [];
 
   // STATS CALCULATIONS
-  const earnedAmount = readyToPay.reduce((sum, t) => sum + calculateTaskValue(t.baselineMinutes, hourlyRate), 0);
-  const pendingAmount = [...inProgress, ...awaitingApproval].reduce((sum, t) => sum + calculateTaskValue(t.baselineMinutes, hourlyRate), 0);
+  const earnedAmountCents = readyToPay.reduce(
+    (sum, task) => sum + calculateTaskValueCents(task.baselineMinutes, hourlyRateCents),
+    0,
+  );
+  const pendingAmountCents = [...inProgress, ...awaitingApproval].reduce(
+    (sum, task) => sum + calculateTaskValueCents(task.baselineMinutes, hourlyRateCents),
+    0,
+  );
   const paidAmount = child.history
     .filter(tx => tx.type === 'EARNING')
-    .reduce((sum, tx) => sum + tx.amount, 0);
+    .reduce((sum, tx) => sum + getTransactionAmountCents(tx), 0);
+  const earnedAmount = centsToDollars(earnedAmountCents);
+  const pendingAmount = centsToDollars(pendingAmountCents);
+  const paidAmountDollars = centsToDollars(paidAmount);
 
   useEffect(() => {
     const handleGlobalClick = () => {
@@ -152,7 +171,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
           </div>
           <div className="flex flex-col gap-1 border-l border-white/[0.06] pl-4">
              <span className="text-[0.6875rem] font-bold text-[#666] uppercase tracking-wider">Paid</span>
-             <span className="text-[1.5rem] font-[590] text-[#60a5fa] tracking-tight">{formatCurrency(paidAmount)}</span>
+             <span className="text-[1.5rem] font-[590] text-[#60a5fa] tracking-tight">{formatCurrency(paidAmountDollars)}</span>
           </div>
         </div>
 

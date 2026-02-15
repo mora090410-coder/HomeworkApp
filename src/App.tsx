@@ -3,22 +3,28 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { signOut, User, onAuthStateChanged } from 'firebase/auth';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { Calendar, Loader2, LogOut, Plus, Share2, UserPlus, Users } from 'lucide-react';
-import { Child, Grade, Profile, Task } from './types';
-import { COMMON_TASKS, DEFAULT_RATES } from '../constants';
-import { calculateHourlyRate, calculateTaskValue } from '../utils';
-import { FamilyService } from '../services/family';
-import { auth, db, isFirebaseConfigured } from './services/firebase';
-import { householdService } from './services/householdService';
-import AuthScreen from './components/AuthScreen';
-import LandingScreen from './components/LandingScreen';
-import PinModal from './components/PinModal';
-import ChildCard from '../components/ChildCard';
-import ChildDetail from '../components/ChildDetail';
-import AddChildModal, { NewChildData } from '../components/AddChildModal';
-import SettingsModal from '../components/SettingsModal';
-import AssignTaskModal from '../components/AssignTaskModal';
-import AddAdvanceModal from '../components/AddAdvanceModal';
-import FamilyActivityFeed from '../components/FamilyActivityFeed';
+import { COMMON_TASKS, DEFAULT_RATES } from '@/constants';
+import AddAdvanceModal from '@/components/AddAdvanceModal';
+import AddChildModal, { NewChildData } from '@/components/AddChildModal';
+import AssignTaskModal, { AssignTaskPayload } from '@/components/AssignTaskModal';
+import ChildCard from '@/components/ChildCard';
+import ChildDetail from '@/components/ChildDetail';
+import FamilyActivityFeed from '@/components/FamilyActivityFeed';
+import SettingsModal from '@/components/SettingsModal';
+import AuthScreen from '@/components/AuthScreen';
+import LandingScreen from '@/components/LandingScreen';
+import PinModal from '@/components/PinModal';
+import { FamilyService } from '@/services/family';
+import { auth, db, isFirebaseConfigured } from '@/services/firebase';
+import { householdService } from '@/services/householdService';
+import { Child, Grade, GradeConfig, Profile, Task } from '@/types';
+import {
+  buildRateMapFromGradeConfigs,
+  calculateHourlyRate,
+  calculateTaskValueCents,
+  centsToDollars,
+  dollarsToCents,
+} from '@/utils';
 
 type FamilyAuthStage = 'UNAUTHENTICATED' | 'HOUSEHOLD_LOADED' | 'PROFILE_SELECTED' | 'AUTHORIZED';
 
@@ -74,6 +80,13 @@ const mapFirestoreProfile = (
   householdId: string,
   source: Record<string, unknown>,
 ): Profile => {
+  const balanceCents =
+    typeof source.balanceCents === 'number'
+      ? Math.round(source.balanceCents)
+      : typeof source.balance === 'number'
+        ? dollarsToCents(source.balance)
+        : 0;
+
   return {
     id: profileId,
     householdId,
@@ -90,7 +103,8 @@ const mapFirestoreProfile = (
       source.rates && typeof source.rates === 'object'
         ? (source.rates as Profile['rates'])
         : defaultRates(),
-    balance: typeof source.balance === 'number' ? source.balance : 0,
+    balanceCents,
+    balance: centsToDollars(balanceCents),
   };
 };
 
@@ -325,6 +339,18 @@ export default function App() {
     enabled: familyAuth.stage === 'AUTHORIZED' && !!householdId,
   });
 
+  const { data: gradeConfigs = [] } = useQuery<GradeConfig[]>({
+    queryKey: ['gradeConfigs', householdId],
+    queryFn: () => (householdId ? FamilyService.getGradeConfigs(householdId) : Promise.resolve([])),
+    enabled: familyAuth.stage === 'AUTHORIZED' && !!householdId,
+  });
+
+  const { data: choreCatalog = [] } = useQuery({
+    queryKey: ['choreCatalog', householdId],
+    queryFn: () => (householdId ? FamilyService.getChoreCatalog(householdId) : Promise.resolve([])),
+    enabled: familyAuth.stage === 'AUTHORIZED' && !!householdId,
+  });
+
   const [isAdvanceModalOpen, setIsAdvanceModalOpen] = useState(false);
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
   const [isAddChildModalOpen, setIsAddChildModalOpen] = useState(false);
@@ -336,7 +362,15 @@ export default function App() {
   const [rejectionComment, setRejectionComment] = useState('');
   const [inviteLink, setInviteLink] = useState<string | null>(null);
 
-  const hasChildren = children.length > 0;
+  const effectiveRateMap = useMemo(() => {
+    return buildRateMapFromGradeConfigs(gradeConfigs, DEFAULT_RATES);
+  }, [gradeConfigs]);
+
+  const childrenWithRateMap = useMemo(() => {
+    return children.map((child) => ({ ...child, rates: effectiveRateMap }));
+  }, [children, effectiveRateMap]);
+
+  const hasChildren = childrenWithRateMap.length > 0;
 
   const createChildMutation = useMutation({
     mutationFn: (child: Partial<Child>) => {
@@ -356,39 +390,50 @@ export default function App() {
   });
 
   const assignTaskMutation = useMutation({
-    mutationFn: (vars: { childId: string; task: Task }) => {
+    mutationFn: (vars: {
+      childId: string;
+      task: Task;
+      options?: { saveToCatalog?: boolean; catalogItemId?: string | null };
+    }) => {
       if (!householdId) {
         return Promise.reject(new Error('No household selected.'));
       }
 
-      return FamilyService.assignTask(vars.childId, vars.task, householdId);
+      return FamilyService.assignTask(vars.childId, vars.task, householdId, vars.options);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['children'] });
       queryClient.invalidateQueries({ queryKey: ['openTasks'] });
+      queryClient.invalidateQueries({ queryKey: ['choreCatalog'] });
     },
   });
 
   const createOpenTaskMutation = useMutation({
-    mutationFn: (task: Task) => {
+    mutationFn: (vars: { task: Task; options?: { saveToCatalog?: boolean; catalogItemId?: string | null } }) => {
       if (!householdId) {
         return Promise.reject(new Error('No household selected.'));
       }
 
-      return FamilyService.createOpenTask(householdId, task);
+      return FamilyService.createOpenTask(householdId, vars.task, vars.options);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['openTasks'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['openTasks'] });
+      queryClient.invalidateQueries({ queryKey: ['choreCatalog'] });
+    },
   });
 
   const saveDraftTaskMutation = useMutation({
-    mutationFn: (task: Task) => {
+    mutationFn: (vars: { task: Task; options?: { saveToCatalog?: boolean; catalogItemId?: string | null } }) => {
       if (!householdId) {
         return Promise.reject(new Error('No household selected.'));
       }
 
-      return FamilyService.saveDraftTask(householdId, task);
+      return FamilyService.saveDraftTask(householdId, vars.task, vars.options);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['children'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['children'] });
+      queryClient.invalidateQueries({ queryKey: ['choreCatalog'] });
+    },
   });
 
   const statusTaskMutation = useMutation({
@@ -409,15 +454,27 @@ export default function App() {
   });
 
   const payTaskMutation = useMutation({
-    mutationFn: (vars: { childId: string; taskId: string; amount: number; memo: string }) => {
-      return FamilyService.payTask(vars.childId, vars.taskId, vars.amount, vars.memo);
+    mutationFn: (vars: { childId: string; taskId: string; amountCents: number; memo: string }) => {
+      if (!householdId) {
+        return Promise.reject(new Error('No household selected.'));
+      }
+      return FamilyService.payTask(householdId, vars.childId, vars.taskId, vars.amountCents, vars.memo);
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['children'] }),
   });
 
   const addAdvanceMutation = useMutation({
-    mutationFn: (vars: { childId: string; amount: number; memo: string; category: string }) => {
-      return FamilyService.addAdvance(vars.childId, vars.amount, vars.memo, vars.category);
+    mutationFn: (vars: { childId: string; amountCents: number; memo: string; category: string }) => {
+      if (!householdId) {
+        return Promise.reject(new Error('No household selected.'));
+      }
+      return FamilyService.addAdvance(
+        householdId,
+        vars.childId,
+        vars.amountCents,
+        vars.memo,
+        vars.category,
+      );
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['children'] }),
   });
@@ -426,7 +483,8 @@ export default function App() {
     createChildMutation.mutate({
       ...data,
       subjects: data.subjects.map((subject) => ({ ...subject, id: crypto.randomUUID() })),
-      rates: DEFAULT_RATES,
+      rates: effectiveRateMap,
+      balanceCents: 0,
       balance: 0,
       history: [],
       customTasks: [],
@@ -435,7 +493,7 @@ export default function App() {
   };
 
   const handleUpdateGrade = (childId: string, subjectId: string, newGrade: Grade) => {
-    const child = children.find((candidate) => candidate.id === childId);
+    const child = childrenWithRateMap.find((candidate) => candidate.id === childId);
     if (!child) {
       return;
     }
@@ -447,42 +505,62 @@ export default function App() {
     updateChildMutation.mutate({ id: childId, updates: { subjects: updatedSubjects } });
   };
 
-  const handleSaveTask = (taskName: string, minutes: number) => {
+  const handleSaveTask = (payload: AssignTaskPayload) => {
     if (!householdId) {
       return;
     }
 
+    const catalogItem =
+      typeof payload.catalogItemId === 'string'
+        ? choreCatalog.find((item) => item.id === payload.catalogItemId)
+        : undefined;
+    const name = catalogItem?.name ?? payload.taskName;
+    const baselineMinutes = catalogItem?.baselineMinutes ?? payload.minutes;
+
     const task: Task = {
       id: crypto.randomUUID(),
       householdId,
-      name: taskName,
-      baselineMinutes: minutes,
+      name,
+      baselineMinutes,
       status: 'OPEN',
+      catalogItemId: catalogItem?.id ?? null,
+    };
+
+    const mutationOptions = {
+      saveToCatalog: Boolean(payload.saveToCatalog && !catalogItem),
+      catalogItemId: catalogItem?.id ?? null,
     };
 
     if (isOpenTaskMode) {
-      createOpenTaskMutation.mutate(task);
+      createOpenTaskMutation.mutate({ task, options: mutationOptions });
     } else if (selectedChildId) {
-      assignTaskMutation.mutate({ childId: selectedChildId, task: { ...task, status: 'ASSIGNED' } });
+      assignTaskMutation.mutate({
+        childId: selectedChildId,
+        task: { ...task, status: 'ASSIGNED' },
+        options: mutationOptions,
+      });
     } else {
-      saveDraftTaskMutation.mutate({ ...task, status: 'DRAFT', assigneeId: null });
+      saveDraftTaskMutation.mutate({
+        task: { ...task, status: 'DRAFT', assigneeId: null },
+        options: mutationOptions,
+      });
     }
 
     setIsAddTaskModalOpen(false);
   };
 
   const handlePayTask = (childId: string, task: Task) => {
-    const child = children.find((candidate) => candidate.id === childId);
+    const child = childrenWithRateMap.find((candidate) => candidate.id === childId);
     if (!child) {
       return;
     }
 
     const rate = calculateHourlyRate(child.subjects, child.rates);
-    const earnings = calculateTaskValue(task.baselineMinutes, rate);
+    const earningsCents = calculateTaskValueCents(task.baselineMinutes, dollarsToCents(rate));
     payTaskMutation.mutate({
       childId,
       taskId: task.id,
-      amount: earnings,
+      amountCents: earningsCents,
       memo: `Completed: ${task.name}`,
     });
   };
@@ -561,7 +639,7 @@ export default function App() {
   const activeProfile = familyAuth.activeProfile;
 
   if (activeProfile.role === 'CHILD') {
-    const activeChild = children.find((child) => child.id === activeProfile.id);
+    const activeChild = childrenWithRateMap.find((child) => child.id === activeProfile.id);
 
     if (!activeChild) {
       return (
@@ -642,7 +720,7 @@ export default function App() {
             <Calendar className="w-[18px] h-[18px]" />
             <span className="hidden sm:inline">Create Draft</span>
           </button>
-          <button type="button" onClick={() => { if (hasChildren) { setSelectedChildId(children[0].id); setIsAdvanceModalOpen(true); } }} disabled={!hasChildren} className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-medium bg-white/5 text-white disabled:opacity-50">
+          <button type="button" onClick={() => { if (hasChildren) { setSelectedChildId(childrenWithRateMap[0].id); setIsAdvanceModalOpen(true); } }} disabled={!hasChildren} className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-medium bg-white/5 text-white disabled:opacity-50">
             <Plus className="w-[18px] h-[18px]" />
             <span className="hidden sm:inline">Add Advance</span>
           </button>
@@ -656,11 +734,11 @@ export default function App() {
           <div className="mb-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="col-span-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {children.map((child) => (
+                {childrenWithRateMap.map((child) => (
                   <ChildCard
                     key={child.id}
                     child={child}
-                    siblings={children.filter((candidate) => candidate.id !== child.id)}
+                    siblings={childrenWithRateMap.filter((candidate) => candidate.id !== child.id)}
                     onEditSettings={(candidate) => setChildToEdit(candidate)}
                     onUpdateGrades={() => undefined}
                     onAssignTask={(candidate) => { setSelectedChildId(candidate.id); setIsAddTaskModalOpen(true); }}
@@ -703,17 +781,18 @@ export default function App() {
         <AssignTaskModal
           isOpen={isAddTaskModalOpen}
           onClose={() => { setIsAddTaskModalOpen(false); setEditingTask(null); }}
-          childName={children.find((child) => child.id === (editingTask?.childId || selectedChildId))?.name}
+          childName={childrenWithRateMap.find((child) => child.id === (editingTask?.childId || selectedChildId))?.name}
           isOpenTask={isOpenTaskMode}
+          catalogItems={choreCatalog}
           initialTask={editingTask ? { name: editingTask.task.name, minutes: editingTask.task.baselineMinutes } : undefined}
           onAssign={handleSaveTask}
         />
         <AddAdvanceModal
           isOpen={isAdvanceModalOpen}
           onClose={() => setIsAdvanceModalOpen(false)}
-          childrenData={children}
+          childrenData={childrenWithRateMap}
           initialChildId={selectedChildId}
-          onAdd={(childId, amount, category, memo) => addAdvanceMutation.mutate({ childId, amount, category, memo })}
+          onAdd={(childId, amountCents, category, memo) => addAdvanceMutation.mutate({ childId, amountCents, category, memo })}
         />
 
         {taskToReject && (

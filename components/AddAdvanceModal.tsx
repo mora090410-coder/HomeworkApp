@@ -1,14 +1,15 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { X, ChevronDown } from 'lucide-react';
-import { Child, AdvanceCategory } from '../types';
+import { AdvanceCategory, Child } from '@/types';
+import { parseCurrencyInputToCents } from '@/utils';
 
 interface AddAdvanceModalProps {
   isOpen: boolean;
   onClose: () => void;
   childrenData: Child[];
   initialChildId?: string;
-  onAdd: (childId: string, amount: number, category: AdvanceCategory, memo: string) => void;
+  onAdd: (childId: string, amountCents: number, category: AdvanceCategory, memo: string) => void;
 }
 
 const CATEGORIES: AdvanceCategory[] = [
@@ -48,19 +49,17 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen, initialChildId, childrenData]);
 
-  const handleSubmit = () => {
+  const handleSubmit = (): void => {
     if (childId && amount && memo) {
-      const numAmount = parseFloat(amount);
-      // STRICT VALIDATION: Amount must be strictly positive
-      if (!isNaN(numAmount) && numAmount > 0) {
-        onAdd(childId, numAmount, category, memo);
+      const amountCents = parseCurrencyInputToCents(amount);
+      if (amountCents > 0) {
+        onAdd(childId, amountCents, category, memo);
         onClose();
       }
     }
   };
 
-  // STRICT VALIDATION: Disable button if amount is 0 or negative
-  const isValid = childId && amount && !isNaN(parseFloat(amount)) && parseFloat(amount) > 0 && memo.trim().length > 0;
+  const isValid = childId && parseCurrencyInputToCents(amount) > 0 && memo.trim().length > 0;
 
   if (!isOpen) return null;
 
