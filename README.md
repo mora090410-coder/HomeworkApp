@@ -15,7 +15,7 @@ A multi-tenant application for managing family chores, allowances, and tasks.
 ## Tech Stack
 
 - **Frontend**: React + Vite + TypeScript + Tailwind CSS
-- **Backend/Database**: A single Supabase project
+- **Backend/Database**: Firebase Auth + Firestore + Messaging
 - **State Management**: TanStack Query (React Query)
 - **Deployment**: Vercel
 
@@ -23,7 +23,7 @@ A multi-tenant application for managing family chores, allowances, and tasks.
 
 1.  **Clone the repository**
 2.  **Install dependencies**: `npm install`
-3.  **Environment Setup**: Copy `.env.example` to `.env` and fill in your Supabase credentials.
+3.  **Environment Setup**: Copy `.env.example` to `.env` and fill in your Firebase credentials.
 4.  **Run Locally**: `npm run dev`
 
 ## Deployment

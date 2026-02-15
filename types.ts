@@ -1,4 +1,3 @@
-
 export enum Grade {
   A_PLUS = 'A+',
   A = 'A',
@@ -10,15 +9,26 @@ export enum Grade {
   C = 'C',
   C_MINUS = 'C-',
   D = 'D',
-  F = 'F'
+  F = 'F',
 }
 
 export type Role = 'CHILD' | 'ADMIN' | 'MEMBER';
 
-export interface Family {
+export type TaskStatus =
+  | 'DRAFT'
+  | 'OPEN'
+  | 'ASSIGNED'
+  | 'PENDING_APPROVAL'
+  | 'PENDING_PAYMENT'
+  | 'PAID'
+  | 'DELETED';
+
+export interface Household {
   id: string;
   name: string;
 }
+
+export type Family = Household;
 
 export interface Subject {
   id: string;
@@ -34,30 +44,55 @@ export interface StandardTask {
 
 export interface Task {
   id: string;
-  familyId: string;
+  householdId: string;
+  familyId?: string;
   name: string;
   baselineMinutes: number;
-  status?: 'DRAFT' | 'OPEN' | 'ASSIGNED' | 'PENDING_APPROVAL' | 'PENDING_PAYMENT';
+  status?: TaskStatus;
   rejectionComment?: string;
-  assigneeId?: string | null; // Can be null for Drafts
+  assigneeId?: string | null;
 }
 
-export type AdvanceCategory = 'Food/Drinks' | 'Entertainment' | 'Clothes' | 'School Supplies' | 'Toys/Games' | 'Other';
+export type AdvanceCategory =
+  | 'Food/Drinks'
+  | 'Entertainment'
+  | 'Clothes'
+  | 'School Supplies'
+  | 'Toys/Games'
+  | 'Other';
 
 export interface Transaction {
   id: string;
+  householdId: string;
+  familyId?: string;
   date: string;
   amount: number;
   memo: string;
   type: 'EARNING' | 'ADVANCE';
   category?: AdvanceCategory;
+  profileId?: string;
+  profileName?: string;
+}
+
+export interface Profile {
+  id: string;
+  householdId: string;
+  familyId?: string;
+  name: string;
+  role: Role;
+  pinHash?: string;
+  gradeLevel: string;
+  subjects: Subject[];
+  rates: Record<Grade, number>;
+  balance: number;
 }
 
 export interface Child {
   id: string;
-  familyId: string;
+  householdId: string;
+  familyId?: string;
   name: string;
-  pin?: string; // New: 4-digit security PIN
+  pin?: string;
   gradeLevel: string;
   subjects: Subject[];
   balance: number;
