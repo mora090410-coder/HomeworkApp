@@ -14,9 +14,9 @@ import SettingsModal from '@/components/SettingsModal';
 import AuthScreen from '@/components/AuthScreen';
 import LandingScreen from '@/components/LandingScreen';
 import PinModal from '@/components/PinModal';
-import { FamilyService } from '@/services/family';
 import { auth, db, isFirebaseConfigured } from '@/services/firebase';
 import { householdService } from '@/services/householdService';
+import { notificationService } from '@/services/notificationService';
 import { Child, Grade, GradeConfig, Profile, Task } from '@/types';
 import {
   buildRateMapFromGradeConfigs,
@@ -329,25 +329,25 @@ export default function App() {
 
   const { data: children = [], isLoading: loadingChildren } = useQuery({
     queryKey: ['children', householdId],
-    queryFn: () => (householdId ? FamilyService.getChildren(householdId) : Promise.resolve([])),
+    queryFn: () => (householdId ? householdService.getChildren(householdId) : Promise.resolve([])),
     enabled: familyAuth.stage === 'AUTHORIZED' && !!householdId,
   });
 
   const { data: openTasks = [], isLoading: loadingOpenTasks } = useQuery({
     queryKey: ['openTasks', householdId],
-    queryFn: () => (householdId ? FamilyService.getOpenTasks(householdId) : Promise.resolve([])),
+    queryFn: () => (householdId ? householdService.getOpenTasks(householdId) : Promise.resolve([])),
     enabled: familyAuth.stage === 'AUTHORIZED' && !!householdId,
   });
 
   const { data: gradeConfigs = [] } = useQuery<GradeConfig[]>({
     queryKey: ['gradeConfigs', householdId],
-    queryFn: () => (householdId ? FamilyService.getGradeConfigs(householdId) : Promise.resolve([])),
+    queryFn: () => (householdId ? householdService.getGradeConfigs(householdId) : Promise.resolve([])),
     enabled: familyAuth.stage === 'AUTHORIZED' && !!householdId,
   });
 
   const { data: choreCatalog = [] } = useQuery({
     queryKey: ['choreCatalog', householdId],
-    queryFn: () => (householdId ? FamilyService.getChoreCatalog(householdId) : Promise.resolve([])),
+    queryFn: () => (householdId ? householdService.getChoreCatalog(householdId) : Promise.resolve([])),
     enabled: familyAuth.stage === 'AUTHORIZED' && !!householdId,
   });
 
@@ -377,14 +377,14 @@ export default function App() {
       if (!householdId) {
         return Promise.reject(new Error('No household selected.'));
       }
-      return FamilyService.createChild(householdId, child);
+      return householdService.createChild(householdId, child);
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['children'] }),
   });
 
   const updateChildMutation = useMutation({
     mutationFn: (vars: { id: string; updates: Partial<Child> }) => {
-      return FamilyService.updateChild(vars.id, vars.updates);
+      return householdService.updateChildById(vars.id, vars.updates);
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['children'] }),
   });
@@ -399,12 +399,28 @@ export default function App() {
         return Promise.reject(new Error('No household selected.'));
       }
 
-      return FamilyService.assignTask(vars.childId, vars.task, householdId, vars.options);
+      return householdService.createTask(
+        householdId,
+        {
+          ...vars.task,
+          householdId,
+          assigneeId: vars.childId,
+          status: 'ASSIGNED',
+        },
+        vars.options,
+      );
     },
-    onSuccess: () => {
+    onSuccess: async (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ['children'] });
       queryClient.invalidateQueries({ queryKey: ['openTasks'] });
       queryClient.invalidateQueries({ queryKey: ['choreCatalog'] });
+      if (householdId) {
+        await notificationService.notifyTaskAssigned({
+          householdId,
+          taskId: vars.task.id,
+          targetProfileId: vars.childId,
+        });
+      }
     },
   });
 
@@ -414,7 +430,16 @@ export default function App() {
         return Promise.reject(new Error('No household selected.'));
       }
 
-      return FamilyService.createOpenTask(householdId, vars.task, vars.options);
+      return householdService.createTask(
+        householdId,
+        {
+          ...vars.task,
+          householdId,
+          status: 'OPEN',
+          assigneeId: null,
+        },
+        vars.options,
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['openTasks'] });
@@ -428,7 +453,16 @@ export default function App() {
         return Promise.reject(new Error('No household selected.'));
       }
 
-      return FamilyService.saveDraftTask(householdId, vars.task, vars.options);
+      return householdService.createTask(
+        householdId,
+        {
+          ...vars.task,
+          householdId,
+          status: 'DRAFT',
+          assigneeId: vars.task.assigneeId ?? null,
+        },
+        vars.options,
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['children'] });
@@ -438,14 +472,32 @@ export default function App() {
 
   const statusTaskMutation = useMutation({
     mutationFn: (vars: { taskId: string; status: string; comment?: string }) => {
-      return FamilyService.updateTaskStatus(vars.taskId, vars.status, vars.comment);
+      return householdService.updateTaskById(vars.taskId, {
+        status: vars.status as Task['status'],
+        rejectionComment: typeof vars.comment === 'string' ? vars.comment : '',
+      });
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['children'] }),
+    onSuccess: async (_, vars) => {
+      queryClient.invalidateQueries({ queryKey: ['children'] });
+      if (!householdId) {
+        return;
+      }
+      if (vars.status === 'PENDING_APPROVAL') {
+        await notificationService.notifyTaskPendingApproval({
+          householdId,
+          taskId: vars.taskId,
+        });
+      }
+    },
   });
 
   const claimTaskMutation = useMutation({
     mutationFn: (vars: { childId: string; taskId: string }) => {
-      return FamilyService.claimTask(vars.childId, vars.taskId);
+      return householdService.updateTaskById(vars.taskId, {
+        assigneeId: vars.childId,
+        status: 'ASSIGNED',
+        rejectionComment: '',
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['children'] });
@@ -458,9 +510,24 @@ export default function App() {
       if (!householdId) {
         return Promise.reject(new Error('No household selected.'));
       }
-      return FamilyService.payTask(householdId, vars.childId, vars.taskId, vars.amountCents, vars.memo);
+      return householdService.addEarning(
+        vars.childId,
+        vars.taskId,
+        vars.amountCents,
+        vars.memo,
+        householdId,
+      );
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['children'] }),
+    onSuccess: async (_, vars) => {
+      queryClient.invalidateQueries({ queryKey: ['children'] });
+      if (householdId) {
+        await notificationService.notifyTaskPaid({
+          householdId,
+          taskId: vars.taskId,
+          targetProfileId: vars.childId,
+        });
+      }
+    },
   });
 
   const addAdvanceMutation = useMutation({
@@ -468,12 +535,12 @@ export default function App() {
       if (!householdId) {
         return Promise.reject(new Error('No household selected.'));
       }
-      return FamilyService.addAdvance(
-        householdId,
+      return householdService.addAdvance(
         vars.childId,
         vars.amountCents,
         vars.memo,
-        vars.category,
+        vars.category as 'Food/Drinks' | 'Entertainment' | 'Clothes' | 'School Supplies' | 'Toys/Games' | 'Other',
+        householdId,
       );
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['children'] }),
@@ -571,7 +638,7 @@ export default function App() {
     }
 
     try {
-      const invite = await FamilyService.generateInvite(householdId, 'ADMIN');
+      const invite = await householdService.generateInvite(householdId, 'ADMIN');
       setInviteLink(invite);
     } catch {
       setInviteLink(null);
@@ -590,6 +657,21 @@ export default function App() {
       </div>
     );
   }
+
+  React.useEffect(() => {
+    if (
+      familyAuth.stage !== 'AUTHORIZED' ||
+      !familyAuth.activeProfile?.id ||
+      !familyAuth.householdId
+    ) {
+      return;
+    }
+
+    void notificationService.initializePushNotifications(
+      familyAuth.householdId,
+      familyAuth.activeProfile.id,
+    );
+  }, [familyAuth.stage, familyAuth.activeProfile?.id, familyAuth.householdId]);
 
   if (familyAuth.isInitializing) {
     return (

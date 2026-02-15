@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowDownLeft, ArrowUpRight, Clock, Receipt } from 'lucide-react';
-import { FamilyService } from '../services/family';
+import { householdService } from '../services/householdService';
 
 interface FamilyActivityFeedProps {
   familyId: string;
@@ -10,7 +10,7 @@ interface FamilyActivityFeedProps {
 export default function FamilyActivityFeed({ familyId }: FamilyActivityFeedProps) {
   const { data: history = [], isLoading } = useQuery({
     queryKey: ['familyHistory', familyId],
-    queryFn: async () => FamilyService.getHouseholdActivity(familyId),
+    queryFn: async () => householdService.getHouseholdActivity(familyId),
     enabled: familyId.length > 0,
     refetchInterval: 10000,
   });

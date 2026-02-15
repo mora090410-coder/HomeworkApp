@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
 import { auth, isFirebaseConfigured } from '../services/firebase';
-import { FamilyService } from '../../services/family';
 import { householdService } from '../services/householdService';
 
 interface AuthScreenProps {
@@ -91,7 +90,7 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
       const credentials = await createUserWithEmailAndPassword(auth, email.trim(), password);
 
       if (mode === 'SIGNUP_CREATE') {
-        const { family, profile } = await FamilyService.createFamilyForUser(
+        const { household, profile } = await householdService.createHouseholdForUser(
           credentials.user.uid,
           householdName.trim(),
           name.trim(),
@@ -100,8 +99,8 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
         localStorage.setItem(
           ACTIVE_PROFILE_STORAGE_KEY,
           JSON.stringify({
-            householdId: family.id,
-            familyId: family.id,
+            householdId: household.id,
+            familyId: household.id,
             profileId: profile.id,
             role: profile.role,
           }),
@@ -113,7 +112,11 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
           throw new Error('Invite code is required to join an existing household.');
         }
 
-        const profile = await FamilyService.acceptInvite(inviteCode.trim(), name.trim());
+        const profile = await householdService.acceptInvite(
+          inviteCode.trim(),
+          name.trim(),
+          credentials.user.uid,
+        );
         localStorage.setItem(
           ACTIVE_PROFILE_STORAGE_KEY,
           JSON.stringify({
