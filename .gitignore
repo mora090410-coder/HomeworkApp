@@ -116,3 +116,6 @@ dist
 
 # Supabase
 supabase/config.toml
+
+# Local git worktrees
+.worktrees/
