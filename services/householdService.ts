@@ -115,7 +115,11 @@ const getFirestore = () => {
 
 const normalizeError = (context: string, error: unknown): Error => {
   if (error instanceof Error) {
-    return new Error(`${context}: ${error.message}`);
+    const wrapped = new Error(`${context}: ${error.message}`);
+    if ('code' in error && typeof (error as Record<string, unknown>).code === 'string') {
+      (wrapped as Error & { code: string }).code = (error as Error & { code: string }).code;
+    }
+    return wrapped;
   }
 
   return new Error(`${context}: Unknown error`);
@@ -544,10 +548,10 @@ const mapTransaction = (
       typeof source.amount === 'number' && Number.isFinite(source.amount)
         ? source.amount
         : centsToDollars(
-            typeof source.amountCents === 'number' && Number.isFinite(source.amountCents)
-              ? Math.round(source.amountCents)
-              : 0,
-          ),
+          typeof source.amountCents === 'number' && Number.isFinite(source.amountCents)
+            ? Math.round(source.amountCents)
+            : 0,
+        ),
     memo: typeof source.memo === 'string' ? source.memo : '',
     type:
       source.type === 'ADVANCE' || source.type === 'ADJUSTMENT' || source.type === 'EARNING'

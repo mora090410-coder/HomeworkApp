@@ -208,11 +208,12 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
       });
       onSuccess();
     } catch (error: unknown) {
-      const serverMessage =
-        error instanceof Error && 'code' in error && typeof error.message === 'string'
-          ? error.message
-          : null;
-      setErrorMessage(serverMessage ?? 'Username or PIN is incorrect.');
+      let displayMessage = 'Username or PIN is incorrect.';
+      if (error instanceof Error && 'code' in error && typeof error.message === 'string') {
+        const colonIndex = error.message.indexOf(': ');
+        displayMessage = colonIndex >= 0 ? error.message.slice(colonIndex + 2) : error.message;
+      }
+      setErrorMessage(displayMessage);
     } finally {
       setLoading(false);
     }
@@ -241,8 +242,8 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
                 <button
                   type="button"
                   className={`rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${loginVariant === 'PARENT'
-                      ? 'bg-white text-black'
-                      : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                    ? 'bg-white text-black'
+                    : 'text-gray-300 hover:bg-white/10 hover:text-white'
                     }`}
                   onClick={() => {
                     setLoginVariant('PARENT');
@@ -255,8 +256,8 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
                 <button
                   type="button"
                   className={`rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${loginVariant === 'CHILD'
-                      ? 'bg-[#b30000] text-white'
-                      : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                    ? 'bg-[#b30000] text-white'
+                    : 'text-gray-300 hover:bg-white/10 hover:text-white'
                     }`}
                   onClick={() => {
                     setLoginVariant('CHILD');
