@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { signOut, User, onAuthStateChanged } from 'firebase/auth';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { Calendar, Loader2, LogOut, Plus, Share2, UserPlus, Users } from 'lucide-react';
+import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { COMMON_TASKS, DEFAULT_RATES } from '@/constants';
 import AddAdvanceModal from '@/components/AddAdvanceModal';
 import AddChildModal, { NewChildData } from '@/components/AddChildModal';
@@ -13,6 +14,7 @@ import FamilyActivityFeed from '@/components/FamilyActivityFeed';
 import SettingsModal from '@/components/SettingsModal';
 import AuthScreen from '@/components/AuthScreen';
 import LandingScreen from '@/components/LandingScreen';
+import MarketingLandingPage from '@/components/MarketingLandingPage';
 import PinModal from '@/components/PinModal';
 import { auth, db, isFirebaseConfigured } from '@/services/firebase';
 import { householdService } from '@/services/householdService';
@@ -322,7 +324,7 @@ function useFamilyAuth(): FamilyAuthState {
   };
 }
 
-export default function App() {
+function DashboardPage() {
   const queryClient = useQueryClient();
   const familyAuth = useFamilyAuth();
   const householdId = familyAuth.householdId;
@@ -682,7 +684,7 @@ export default function App() {
   }
 
   if (familyAuth.stage === 'UNAUTHENTICATED') {
-    return <AuthScreen onSuccess={() => undefined} />;
+    return <Navigate to="/login" replace />;
   }
 
   if (familyAuth.stage === 'HOUSEHOLD_LOADED' || familyAuth.stage === 'PROFILE_SELECTED') {
@@ -916,5 +918,107 @@ export default function App() {
         )}
       </div>
     </div>
+  );
+}
+
+function useAuthPresence() {
+  const [isResolved, setIsResolved] = React.useState(false);
+  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!auth || !isFirebaseConfigured) {
+      setIsResolved(true);
+      setIsAuthenticated(false);
+      return;
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
+        setIsAuthenticated(false);
+        setIsResolved(true);
+        return;
+      }
+
+      try {
+        const linkedHousehold = await householdService.getCurrentHousehold(currentUser.uid);
+        setIsAuthenticated(Boolean(linkedHousehold));
+      } catch {
+        setIsAuthenticated(false);
+      } finally {
+        setIsResolved(true);
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
+  return { isResolved, isAuthenticated };
+}
+
+function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
+  const { isResolved, isAuthenticated } = useAuthPresence();
+
+  if (!isResolved) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center text-white">
+        <Loader2 className="w-8 h-8 animate-spin text-white/30" />
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function LoginRoute() {
+  const navigate = useNavigate();
+  return <AuthScreen initialMode="LOGIN" onSuccess={() => navigate('/dashboard', { replace: true })} />;
+}
+
+function SignupRoute() {
+  const navigate = useNavigate();
+  return (
+    <AuthScreen
+      initialMode="SIGNUP_CREATE"
+      onSuccess={() => navigate('/dashboard', { replace: true })}
+    />
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={(
+            <PublicOnlyRoute>
+              <MarketingLandingPage />
+            </PublicOnlyRoute>
+          )}
+        />
+        <Route
+          path="/login"
+          element={(
+            <PublicOnlyRoute>
+              <LoginRoute />
+            </PublicOnlyRoute>
+          )}
+        />
+        <Route
+          path="/signup"
+          element={(
+            <PublicOnlyRoute>
+              <SignupRoute />
+            </PublicOnlyRoute>
+          )}
+        />
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }

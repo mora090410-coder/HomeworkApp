@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { auth, isFirebaseConfigured } from '../services/firebase';
 import { householdService } from '../services/householdService';
 
 interface AuthScreenProps {
   onSuccess: () => void;
+  initialMode?: 'LOGIN' | 'SIGNUP_CREATE' | 'SIGNUP_JOIN';
 }
 
 const ACTIVE_PROFILE_STORAGE_KEY = 'homework-active-profile';
@@ -41,8 +43,10 @@ const persistHouseholdSession = (householdId: string): void => {
   }
 };
 
-export default function AuthScreen({ onSuccess }: AuthScreenProps) {
-  const [mode, setMode] = useState<'LOGIN' | 'SIGNUP_INIT' | 'SIGNUP_CREATE' | 'SIGNUP_JOIN'>('LOGIN');
+export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScreenProps) {
+  const [mode, setMode] = useState<'LOGIN' | 'SIGNUP_INIT' | 'SIGNUP_CREATE' | 'SIGNUP_JOIN'>(
+    initialMode === 'LOGIN' ? 'LOGIN' : initialMode,
+  );
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
@@ -50,6 +54,10 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
   const [inviteCode, setInviteCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    setMode(initialMode === 'LOGIN' ? 'LOGIN' : initialMode);
+  }, [initialMode]);
 
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
@@ -172,9 +180,9 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
               </button>
 
               <div className="text-center mt-4">
-                <button type="button" onClick={() => setMode('SIGNUP_INIT')} className="text-sm text-gray-400 hover:text-white transition-colors">
+                <Link to="/signup" className="text-sm text-gray-400 hover:text-white transition-colors">
                   Don&apos;t have an account? <span className="text-[#b30000] font-medium">Sign Up</span>
-                </button>
+                </Link>
               </div>
             </form>
           )}
@@ -196,9 +204,9 @@ export default function AuthScreen({ onSuccess }: AuthScreenProps) {
               </button>
 
               <div className="text-center mt-6">
-                <button type="button" onClick={() => setMode('LOGIN')} className="text-sm text-gray-400 hover:text-white transition-colors">
+                <Link to="/login" className="text-sm text-gray-400 hover:text-white transition-colors">
                   Already have an account? <span className="text-[#b30000] font-medium">Log In</span>
-                </button>
+                </Link>
               </div>
             </div>
           )}
