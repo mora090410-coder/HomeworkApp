@@ -12,6 +12,7 @@ interface AppConfig {
     messagingSenderId: string;
     appId: string;
     vapidKey: string;
+    functionsRegion: string;
   };
 }
 
@@ -34,5 +35,6 @@ export const appConfig: AppConfig = {
     messagingSenderId: readEnv('VITE_FIREBASE_MESSAGING_SENDER_ID'),
     appId: readEnv('VITE_FIREBASE_APP_ID'),
     vapidKey: readEnv('VITE_FIREBASE_VAPID_KEY'),
+    functionsRegion: readEnv('VITE_FIREBASE_FUNCTIONS_REGION') || 'us-central1',
   },
 };

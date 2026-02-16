@@ -14,6 +14,7 @@ import {
   updateDoc,
   where,
 } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
 import {
   AdvanceCategory,
   ChoreCatalogItem,
@@ -29,7 +30,7 @@ import {
   TaskStatus,
   Transaction,
 } from '@/types';
-import { auth, db, ensureFirebaseConfigured } from '@/services/firebase';
+import { auth, db, ensureFirebaseConfigured, functions } from '@/services/firebase';
 import { ledgerService } from '@/services/ledgerService';
 import { centsToDollars, dollarsToCents } from '@/utils';
 
@@ -37,6 +38,31 @@ const ACTIVE_PROFILE_STORAGE_KEY = 'homework-active-profile';
 const DEFAULT_INVITE_EXPIRY_HOURS = 24;
 const DEFAULT_ACTIVITY_LIMIT = 10;
 const DEFAULT_PROFILE_SETUP_EXPIRY_HOURS = 24;
+const CALLABLE_RETRY_LIMIT = 3;
+const CALLABLE_BACKOFF_BASE_MS = 250;
+
+interface ValidateProfileSetupLinkRequest {
+  profileId: string;
+  token: string;
+  householdId?: string;
+}
+
+interface ValidateProfileSetupLinkResponse {
+  householdId: string;
+  profile: {
+    id: string;
+    name: string;
+    avatarColor?: string;
+  };
+}
+
+interface CompleteProfileSetupRequest {
+  householdId: string;
+  profileId: string;
+  token: string;
+  pin: string;
+  avatarColor: string;
+}
 
 type FirestoreProfile = Omit<Profile, 'id' | 'familyId'>;
 
@@ -71,6 +97,65 @@ const normalizeError = (context: string, error: unknown): Error => {
   }
 
   return new Error(`${context}: Unknown error`);
+};
+
+const sleep = (durationMs: number): Promise<void> => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, durationMs);
+  });
+};
+
+const getCallableErrorCode = (error: unknown): string | null => {
+  if (!error || typeof error !== 'object') {
+    return null;
+  }
+
+  const code = (error as { code?: unknown }).code;
+  if (typeof code !== 'string' || code.length === 0) {
+    return null;
+  }
+
+  if (code.startsWith('functions/')) {
+    return code.slice('functions/'.length);
+  }
+
+  return code;
+};
+
+const isRetryableCallableError = (error: unknown): boolean => {
+  const code = getCallableErrorCode(error);
+  if (!code) {
+    return false;
+  }
+
+  return (
+    code === 'unavailable' ||
+    code === 'deadline-exceeded' ||
+    code === 'resource-exhausted' ||
+    code === 'aborted' ||
+    code === 'internal'
+  );
+};
+
+const callWithExponentialBackoff = async <TResult>(operation: () => Promise<TResult>): Promise<TResult> => {
+  let attempt = 0;
+  while (attempt < CALLABLE_RETRY_LIMIT) {
+    try {
+      return await operation();
+    } catch (error) {
+      attempt += 1;
+      const shouldRetry = isRetryableCallableError(error) && attempt < CALLABLE_RETRY_LIMIT;
+      if (!shouldRetry) {
+        throw error;
+      }
+
+      const backoffMs = CALLABLE_BACKOFF_BASE_MS * 2 ** (attempt - 1);
+      const jitterMs = Math.floor(Math.random() * CALLABLE_BACKOFF_BASE_MS);
+      await sleep(backoffMs + jitterMs);
+    }
+  }
+
+  throw new Error('Callable operation failed unexpectedly.');
 };
 
 const readStoredActiveProfile = (): StoredActiveProfile | null => {
@@ -324,6 +409,28 @@ const mapProfile = (profileId: string, householdId: string, source: Record<strin
     setupStatus: parseProfileSetupStatus(source.setupStatus),
     inviteLastSentAt: toNullableIsoString(source.inviteLastSentAt),
     setupCompletedAt: toNullableIsoString(source.setupCompletedAt),
+  };
+};
+
+const mapSetupProfileFromCallable = (
+  householdId: string,
+  source: ValidateProfileSetupLinkResponse['profile'],
+): Profile => {
+  return {
+    id: source.id,
+    householdId,
+    familyId: householdId,
+    name: source.name,
+    role: 'CHILD',
+    avatarColor: source.avatarColor,
+    gradeLevel: 'Unknown',
+    subjects: [],
+    rates: defaultRates(),
+    balanceCents: 0,
+    balance: 0,
+    setupStatus: 'INVITE_SENT',
+    inviteLastSentAt: null,
+    setupCompletedAt: null,
   };
 };
 
@@ -1340,6 +1447,53 @@ export const householdService = {
       const safeToken = assertNonEmptyString(token, 'token');
       const safeHouseholdId =
         typeof householdId === 'string' && householdId.trim().length > 0 ? householdId.trim() : undefined;
+
+      if (functions) {
+        const callable = httpsCallable<ValidateProfileSetupLinkRequest, ValidateProfileSetupLinkResponse>(
+          functions,
+          'validateProfileSetupLink',
+        );
+        try {
+          const result = await callWithExponentialBackoff(() => {
+            return callable({
+              profileId: safeProfileId,
+              token: safeToken,
+              householdId: safeHouseholdId,
+            });
+          });
+
+          const payload = result.data;
+          if (!payload || typeof payload !== 'object') {
+            throw new Error('Profile setup link is invalid.');
+          }
+          if (typeof payload.householdId !== 'string' || payload.householdId.trim().length === 0) {
+            throw new Error('Profile setup link is invalid.');
+          }
+          if (!payload.profile || typeof payload.profile !== 'object') {
+            throw new Error('Profile setup link is invalid.');
+          }
+          const profilePayload = payload.profile;
+          if (typeof profilePayload.id !== 'string' || typeof profilePayload.name !== 'string') {
+            throw new Error('Profile setup link is invalid.');
+          }
+
+          return {
+            householdId: payload.householdId,
+            profile: mapSetupProfileFromCallable(payload.householdId, {
+              id: profilePayload.id,
+              name: profilePayload.name,
+              avatarColor:
+                typeof profilePayload.avatarColor === 'string' ? profilePayload.avatarColor : undefined,
+            }),
+          };
+        } catch (callableError) {
+          const code = getCallableErrorCode(callableError);
+          if (code !== 'not-found' && code !== 'unimplemented') {
+            throw callableError;
+          }
+        }
+      }
+
       const resolvedProfile = await resolveProfileLocationById(safeProfileId, safeHouseholdId);
       if (!resolvedProfile) {
         throw new Error('Profile setup link is invalid.');
@@ -1392,7 +1546,6 @@ export const householdService = {
     avatarColor: string;
   }): Promise<void> {
     try {
-      const firestore = getFirestore();
       const safeHouseholdId = assertNonEmptyString(input.householdId, 'householdId');
       const safeProfileId = assertNonEmptyString(input.profileId, 'profileId');
       const safeToken = assertNonEmptyString(input.token, 'token');
@@ -1403,6 +1556,31 @@ export const householdService = {
         throw new Error('PIN must be exactly 4 digits.');
       }
 
+      if (functions) {
+        const callable = httpsCallable<CompleteProfileSetupRequest, { success: boolean }>(
+          functions,
+          'completeProfileSetup',
+        );
+        try {
+          await callWithExponentialBackoff(() => {
+            return callable({
+              householdId: safeHouseholdId,
+              profileId: safeProfileId,
+              token: safeToken,
+              pin: safePin,
+              avatarColor: safeAvatarColor,
+            });
+          });
+          return;
+        } catch (callableError) {
+          const code = getCallableErrorCode(callableError);
+          if (code !== 'not-found' && code !== 'unimplemented') {
+            throw callableError;
+          }
+        }
+      }
+
+      const firestore = getFirestore();
       const pinHash = await hashPin(safePin);
       const candidateTokenHash = await hashToken(safeToken);
       const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);

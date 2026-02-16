@@ -1,6 +1,7 @@
 import { FirebaseApp, FirebaseOptions, getApp, getApps, initializeApp } from 'firebase/app';
 import { Auth, getAuth } from 'firebase/auth';
 import { Firestore, getFirestore } from 'firebase/firestore';
+import { Functions, getFunctions } from 'firebase/functions';
 import { Messaging, getMessaging, isSupported } from 'firebase/messaging';
 import { appConfig } from '@/services/config';
 
@@ -8,6 +9,7 @@ interface FirebaseServices {
   app: FirebaseApp | null;
   auth: Auth | null;
   db: Firestore | null;
+  functions: Functions | null;
   messaging: Messaging | null;
   isConfigured: boolean;
 }
@@ -41,6 +43,7 @@ const createFirebaseServices = (): FirebaseServices => {
       app: null,
       auth: null,
       db: null,
+      functions: null,
       messaging: null,
       isConfigured: false,
     };
@@ -49,11 +52,13 @@ const createFirebaseServices = (): FirebaseServices => {
   const app = getApps().length > 0 ? getApp() : initializeApp(rawFirebaseConfig as FirebaseOptions);
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const functions = getFunctions(app, appConfig.firebase.functionsRegion);
 
   return {
     app,
     auth,
     db,
+    functions,
     messaging: null,
     isConfigured: true,
   };
@@ -80,6 +85,7 @@ const services = getFirebaseServices();
 export const firebaseApp = services.app;
 export const auth = services.auth;
 export const db = services.db;
+export const functions = services.functions;
 export const isFirebaseConfigured = services.isConfigured;
 
 let messagingSingletonPromise: Promise<Messaging | null> | null = null;

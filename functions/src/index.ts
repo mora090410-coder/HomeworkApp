@@ -3,17 +3,34 @@ import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 import { getMessaging } from 'firebase-admin/messaging';
 import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import { logger } from 'firebase-functions';
+import { HttpsError, onCall } from 'firebase-functions/v2/https';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
+import { createHash } from 'crypto';
 import { functionsConfig } from './config';
 
 initializeApp();
 
 const db = getFirestore();
+const FUNCTION_REGION = 'us-central1';
 
 type GradeScale = Record<string, number>;
 
 interface SubjectEntry {
   grade?: string;
+}
+
+interface ValidateProfileSetupLinkRequest {
+  householdId: string;
+  profileId: string;
+  token: string;
+}
+
+interface CompleteProfileSetupRequest {
+  householdId: string;
+  profileId: string;
+  token: string;
+  pin: string;
+  avatarColor: string;
 }
 
 const defaultGradeScale: GradeScale = {
@@ -113,11 +130,135 @@ const writeRateChangeLedgerEntries = async (params: {
   await Promise.all([householdTransactionRef.set(payload), profileTransactionRef.set(payload)]);
 };
 
+const assertNonEmptyString = (value: unknown, field: string): string => {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    throw new HttpsError('invalid-argument', `${field} must be a non-empty string.`);
+  }
+
+  return value.trim();
+};
+
+const hashValue = (value: string, field: string): string => {
+  const safeValue = assertNonEmptyString(value, field);
+  return createHash('sha256').update(safeValue).digest('hex');
+};
+
+const readTimestampOrNull = (value: unknown): Timestamp | null => {
+  return value instanceof Timestamp ? value : null;
+};
+
+export const validateProfileSetupLink = onCall(
+  {
+    region: FUNCTION_REGION,
+  },
+  async (request): Promise<{ householdId: string; profile: { id: string; name: string; avatarColor?: string } }> => {
+    const payload = request.data as Partial<ValidateProfileSetupLinkRequest>;
+    const householdId = assertNonEmptyString(payload.householdId, 'householdId');
+    const profileId = assertNonEmptyString(payload.profileId, 'profileId');
+    const token = assertNonEmptyString(payload.token, 'token');
+
+    const profileRef = db.doc(`households/${householdId}/profiles/${profileId}`);
+    const profileSnapshot = await profileRef.get();
+    if (!profileSnapshot.exists) {
+      throw new HttpsError('not-found', 'Profile setup link is invalid.');
+    }
+
+    const profileData = profileSnapshot.data() ?? {};
+    const storedTokenHash = profileData.setupTokenHash;
+    const expiresAt = readTimestampOrNull(profileData.setupTokenExpiresAt);
+    const usedAt = readTimestampOrNull(profileData.setupTokenUsedAt);
+
+    if (typeof storedTokenHash !== 'string' || storedTokenHash.length === 0) {
+      throw new HttpsError('not-found', 'Profile setup link is invalid.');
+    }
+    if (!expiresAt || expiresAt.toMillis() < Date.now()) {
+      throw new HttpsError('failed-precondition', 'Profile setup link has expired.');
+    }
+    if (usedAt) {
+      throw new HttpsError('failed-precondition', 'Profile setup link has already been used.');
+    }
+
+    const candidateTokenHash = hashValue(token, 'token');
+    if (candidateTokenHash !== storedTokenHash) {
+      throw new HttpsError('permission-denied', 'Profile setup link is invalid.');
+    }
+
+    return {
+      householdId,
+      profile: {
+        id: profileSnapshot.id,
+        name: typeof profileData.name === 'string' ? profileData.name : 'Child',
+        avatarColor: typeof profileData.avatarColor === 'string' ? profileData.avatarColor : undefined,
+      },
+    };
+  },
+);
+
+export const completeProfileSetup = onCall(
+  {
+    region: FUNCTION_REGION,
+  },
+  async (request): Promise<{ success: true }> => {
+    const payload = request.data as Partial<CompleteProfileSetupRequest>;
+    const householdId = assertNonEmptyString(payload.householdId, 'householdId');
+    const profileId = assertNonEmptyString(payload.profileId, 'profileId');
+    const token = assertNonEmptyString(payload.token, 'token');
+    const pin = assertNonEmptyString(payload.pin, 'pin');
+    const avatarColor = assertNonEmptyString(payload.avatarColor, 'avatarColor');
+
+    if (!/^\d{4}$/.test(pin)) {
+      throw new HttpsError('invalid-argument', 'PIN must be exactly 4 digits.');
+    }
+
+    const pinHash = hashValue(pin, 'pin');
+    const candidateTokenHash = hashValue(token, 'token');
+    const profileRef = db.doc(`households/${householdId}/profiles/${profileId}`);
+
+    await db.runTransaction(async (transaction) => {
+      const profileSnapshot = await transaction.get(profileRef);
+      if (!profileSnapshot.exists) {
+        throw new HttpsError('not-found', 'Profile setup link is invalid.');
+      }
+
+      const profileData = profileSnapshot.data() ?? {};
+      const storedTokenHash = profileData.setupTokenHash;
+      const expiresAt = readTimestampOrNull(profileData.setupTokenExpiresAt);
+      const usedAt = readTimestampOrNull(profileData.setupTokenUsedAt);
+
+      if (typeof storedTokenHash !== 'string' || storedTokenHash.length === 0) {
+        throw new HttpsError('not-found', 'Profile setup link is invalid.');
+      }
+      if (!expiresAt || expiresAt.toMillis() < Date.now()) {
+        throw new HttpsError('failed-precondition', 'Profile setup link has expired.');
+      }
+      if (usedAt) {
+        throw new HttpsError('failed-precondition', 'Profile setup link has already been used.');
+      }
+      if (candidateTokenHash !== storedTokenHash) {
+        throw new HttpsError('permission-denied', 'Profile setup link is invalid.');
+      }
+
+      const now = Timestamp.now();
+      transaction.update(profileRef, {
+        pinHash,
+        avatarColor,
+        setupTokenHash: null,
+        setupTokenUsedAt: now,
+        setupStatus: 'SETUP_COMPLETE',
+        setupCompletedAt: now,
+        updatedAt: now,
+      });
+    });
+
+    return { success: true };
+  },
+);
+
 export const sundayNightRecalculation = onSchedule(
   {
     schedule: '0 21 * * 0',
     timeZone: functionsConfig.timezone,
-    region: 'us-central1',
+    region: FUNCTION_REGION,
   },
   async () => {
     const householdsSnapshot = await db.collection('households').get();
@@ -200,7 +341,7 @@ const getAdminTokens = async (householdId: string): Promise<string[]> => {
 export const taskNotifications = onDocumentCreated(
   {
     document: 'households/{householdId}/notification_events/{eventId}',
-    region: 'us-central1',
+    region: FUNCTION_REGION,
   },
   async (event) => {
     const payload = event.data?.data();
