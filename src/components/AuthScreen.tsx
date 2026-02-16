@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  signInWithCustomToken,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
 import { ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { auth, isFirebaseConfigured } from '../services/firebase';
@@ -71,8 +75,11 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
   const [mode, setMode] = useState<'LOGIN' | 'SIGNUP_INIT' | 'SIGNUP_CREATE' | 'SIGNUP_JOIN'>(
     initialMode === 'LOGIN' ? 'LOGIN' : initialMode,
   );
+  const [loginVariant, setLoginVariant] = useState<'PARENT' | 'CHILD'>('PARENT');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [childUsername, setChildUsername] = useState('');
+  const [childPin, setChildPin] = useState('');
   const [name, setName] = useState('');
   const [householdName, setHouseholdName] = useState('');
   const [inviteCode, setInviteCode] = useState('');
@@ -81,6 +88,7 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
 
   React.useEffect(() => {
     setMode(initialMode === 'LOGIN' ? 'LOGIN' : initialMode);
+    setLoginVariant('PARENT');
   }, [initialMode]);
 
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
@@ -177,6 +185,35 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
     }
   };
 
+  const handleChildLogin = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+    event.preventDefault();
+    setLoading(true);
+    setErrorMessage(null);
+
+    try {
+      if (!isFirebaseConfigured || !auth) {
+        throw new Error('Firebase Auth is not configured. Add VITE_FIREBASE_* keys first.');
+      }
+
+      const childSession = await householdService.childLogin({
+        username: childUsername,
+        pin: childPin,
+      });
+
+      await signInWithCustomToken(auth, childSession.token);
+      persistHouseholdSession({
+        householdId: childSession.householdId,
+        profileId: childSession.profileId,
+        role: childSession.role,
+      });
+      onSuccess();
+    } catch {
+      setErrorMessage('Username or PIN is incorrect.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-6 text-white font-sans relative">
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-0" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' /%3E%3C/svg%3E")` }}></div>
@@ -195,29 +232,100 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
 
         <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-8 shadow-2xl">
           {mode === 'LOGIN' && (
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Email</label>
-                <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-[#b30000]" required />
-              </div>
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Password</label>
-                <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-[#b30000]" required />
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-black/20 p-1">
+                <button
+                  type="button"
+                  className={`rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${
+                    loginVariant === 'PARENT'
+                      ? 'bg-white text-black'
+                      : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                  }`}
+                  onClick={() => {
+                    setLoginVariant('PARENT');
+                    setErrorMessage(null);
+                  }}
+                  aria-label="Parent sign in"
+                >
+                  Parent Sign In
+                </button>
+                <button
+                  type="button"
+                  className={`rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${
+                    loginVariant === 'CHILD'
+                      ? 'bg-[#b30000] text-white'
+                      : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                  }`}
+                  onClick={() => {
+                    setLoginVariant('CHILD');
+                    setErrorMessage(null);
+                  }}
+                  aria-label="Child sign in"
+                >
+                  Child Sign In
+                </button>
               </div>
 
-              {errorMessage && <div className="text-red-400 text-sm bg-red-500/10 p-3 rounded-xl border border-red-500/20">{errorMessage}</div>}
+              {loginVariant === 'PARENT' ? (
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Email</label>
+                    <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-[#b30000]" required />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Password</label>
+                    <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-[#b30000]" required />
+                  </div>
 
-              <button type="submit" disabled={loading} className="w-full py-3.5 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
-                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                Sign In
-              </button>
+                  {errorMessage && <div className="text-red-400 text-sm bg-red-500/10 p-3 rounded-xl border border-red-500/20">{errorMessage}</div>}
 
-              <div className="text-center mt-4">
-                <Link to="/signup" className="text-sm text-gray-400 hover:text-white transition-colors">
-                  Don&apos;t have an account? <span className="text-[#b30000] font-medium">Sign Up</span>
-                </Link>
-              </div>
-            </form>
+                  <button type="submit" disabled={loading} className="w-full py-3.5 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                    {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                    Sign In
+                  </button>
+
+                  <div className="text-center mt-4">
+                    <Link to="/signup" className="text-sm text-gray-400 hover:text-white transition-colors">
+                      Don&apos;t have an account? <span className="text-[#b30000] font-medium">Sign Up</span>
+                    </Link>
+                  </div>
+                </form>
+              ) : (
+                <form onSubmit={handleChildLogin} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Username</label>
+                    <input
+                      type="text"
+                      value={childUsername}
+                      onChange={(event) => setChildUsername(event.target.value)}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-[#b30000]"
+                      required
+                      aria-label="Child username"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">PIN (4 digits)</label>
+                    <input
+                      type="password"
+                      value={childPin}
+                      onChange={(event) => setChildPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
+                      inputMode="numeric"
+                      maxLength={4}
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-[#b30000]"
+                      required
+                      aria-label="Child PIN"
+                    />
+                  </div>
+
+                  {errorMessage && <div className="text-red-400 text-sm bg-red-500/10 p-3 rounded-xl border border-red-500/20">{errorMessage}</div>}
+
+                  <button type="submit" disabled={loading} className="w-full py-3.5 bg-gradient-to-r from-[#b30000] to-[#7a0000] text-white font-bold rounded-xl shadow-lg hover:shadow-[#b30000]/20 transition-all flex items-center justify-center gap-2">
+                    {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                    Child Sign In
+                  </button>
+                </form>
+              )}
+            </div>
           )}
 
           {mode === 'SIGNUP_INIT' && (

@@ -38,6 +38,8 @@ import {
   centsToDollars,
   dollarsToCents,
 } from '@/utils';
+import { isValidChildUsername, normalizeChildUsername } from '@/src/features/auth/childCredentials';
+import { shouldBypassPinVerification } from '@/src/features/auth/sessionGate';
 
 type FamilyAuthStage = 'UNAUTHENTICATED' | 'HOUSEHOLD_LOADED' | 'PROFILE_SELECTED' | 'AUTHORIZED';
 
@@ -312,6 +314,18 @@ function useFamilyAuth(): FamilyAuthState {
           return;
         }
 
+        const storedSession = readPersistedSession();
+        if (
+          shouldBypassPinVerification({
+            persistedRole: storedSession.role,
+            persistedProfileId: storedSession.profileId,
+            activeProfileId: selectedProfile.id,
+          })
+        ) {
+          setStage('AUTHORIZED');
+          return;
+        }
+
         if (selectedProfile.pinHash && selectedProfile.pinHash.length > 0) {
           setStage('PROFILE_SELECTED');
           return;
@@ -529,6 +543,20 @@ function DashboardPage() {
   const updateChildMutation = useMutation({
     mutationFn: (vars: { id: string; updates: Partial<Child> }) => {
       return householdService.updateChildById(vars.id, vars.updates);
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['children'] }),
+  });
+
+  const resetChildPinMutation = useMutation({
+    mutationFn: (vars: { profileId: string; newPin: string }) => {
+      if (!householdId) {
+        return Promise.reject(new Error('No household selected.'));
+      }
+      return householdService.adminResetChildPin({
+        householdId,
+        profileId: vars.profileId,
+        newPin: vars.newPin,
+      });
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['children'] }),
   });
@@ -1115,6 +1143,9 @@ function DashboardPage() {
           }}
           onImportAll={() => undefined}
           onResetAll={() => undefined}
+          onResetPin={async (childId, newPin) => {
+            await resetChildPinMutation.mutateAsync({ profileId: childId, newPin });
+          }}
         />
         <AssignTaskModal
           isOpen={isAddTaskModalOpen}
@@ -1212,6 +1243,7 @@ function SetupProfileRoute() {
   const [householdId, setHouseholdId] = React.useState<string | null>(null);
   const [profileName, setProfileName] = React.useState('Profile');
   const [avatarColor, setAvatarColor] = React.useState('#ef4444');
+  const [username, setUsername] = React.useState('');
   const [pin, setPin] = React.useState('');
   const [confirmPin, setConfirmPin] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -1236,6 +1268,9 @@ function SetupProfileRoute() {
         setProfileName(result.profile.name);
         if (result.profile.avatarColor) {
           setAvatarColor(result.profile.avatarColor);
+        }
+        if (result.profile.loginUsername) {
+          setUsername(result.profile.loginUsername);
         }
         setError(null);
       })
@@ -1265,6 +1300,10 @@ function SetupProfileRoute() {
       setError('Setup link is invalid.');
       return;
     }
+    if (!isValidChildUsername(username)) {
+      setError('Username must be 3-24 characters and use letters, numbers, dot, dash, or underscore.');
+      return;
+    }
     if (!/^\d{4}$/.test(pin)) {
       setError('PIN must be exactly 4 digits.');
       return;
@@ -1283,6 +1322,7 @@ function SetupProfileRoute() {
         token,
         pin,
         avatarColor,
+        username: normalizeChildUsername(username),
       });
       persistSession({
         householdId,
@@ -1308,13 +1348,13 @@ function SetupProfileRoute() {
         ) : isComplete ? (
           <div className="text-center py-6">
             <h1 className="text-2xl font-semibold">Setup Complete</h1>
-            <p className="mt-3 text-sm text-gray-400">Your profile is ready. You can now open HomeWork and sign in.</p>
+            <p className="mt-3 text-sm text-gray-400">Your profile is ready. Use Child Sign In with your username and PIN on any device.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <h1 className="text-2xl font-semibold">Set Up {profileName}</h1>
-              <p className="mt-2 text-sm text-gray-400">Choose an avatar color and create your 4-digit PIN.</p>
+              <p className="mt-2 text-sm text-gray-400">Choose a username, avatar color, and create your 4-digit PIN.</p>
             </div>
 
             <div>
@@ -1331,6 +1371,20 @@ function SetupProfileRoute() {
                   />
                 ))}
               </div>
+            </div>
+
+            <div>
+              <label htmlFor="setup-username" className="mb-1 block text-xs uppercase tracking-wide text-gray-400">Username</label>
+              <input
+                id="setup-username"
+                type="text"
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                maxLength={24}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white outline-none placeholder:text-gray-500 focus:border-[#b30000]/60"
+                placeholder="emma_01"
+                aria-label="Setup Username"
+              />
             </div>
 
             <div>

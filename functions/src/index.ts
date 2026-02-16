@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase-admin/app';
-import { getFirestore, Timestamp } from 'firebase-admin/firestore';
+import { getAuth } from 'firebase-admin/auth';
+import { FieldPath, getFirestore, Timestamp } from 'firebase-admin/firestore';
 import { getMessaging } from 'firebase-admin/messaging';
 import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import { logger } from 'firebase-functions';
@@ -7,6 +8,7 @@ import { HttpsError, onCall } from 'firebase-functions/v2/https';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { createHash } from 'crypto';
 import { functionsConfig } from './config';
+import { isUsernameFormatValid, normalizeUsernameForLookup } from './childAuthUtils';
 
 initializeApp();
 
@@ -31,6 +33,26 @@ interface CompleteProfileSetupRequest {
   token: string;
   pin: string;
   avatarColor: string;
+  username: string;
+}
+
+interface ChildLoginRequest {
+  username: string;
+  pin: string;
+  householdId?: string;
+}
+
+interface ChildLoginResponse {
+  token: string;
+  householdId: string;
+  profileId: string;
+  role: 'CHILD';
+}
+
+interface AdminResetChildPinRequest {
+  householdId: string;
+  profileId: string;
+  newPin: string;
 }
 
 const defaultGradeScale: GradeScale = {
@@ -147,75 +169,148 @@ const readTimestampOrNull = (value: unknown): Timestamp | null => {
   return value instanceof Timestamp ? value : null;
 };
 
+const assertObjectPayload = (value: unknown): Record<string, unknown> => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new HttpsError('invalid-argument', 'Request payload must be an object.');
+  }
+
+  return value as Record<string, unknown>;
+};
+
+const readOptionalNonEmptyString = (value: unknown): string | undefined => {
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+
+  const safeValue = value.trim();
+  return safeValue.length > 0 ? safeValue : undefined;
+};
+
+const extractHouseholdIdFromProfilePath = (path: string): string => {
+  const segments = path.split('/');
+  if (segments.length !== 4 || segments[0] !== 'households' || segments[2] !== 'profiles') {
+    throw new HttpsError('internal', 'Profile path is malformed.');
+  }
+
+  return segments[1];
+};
+
+const resolveHouseholdIdForProfile = async (profileId: string): Promise<string> => {
+  const matchingProfilesSnapshot = await db
+    .collectionGroup('profiles')
+    .where(FieldPath.documentId(), '==', profileId)
+    .limit(2)
+    .get();
+
+  if (matchingProfilesSnapshot.empty) {
+    throw new HttpsError('not-found', 'Profile setup link is invalid.');
+  }
+
+  if (matchingProfilesSnapshot.size > 1) {
+    throw new HttpsError('failed-precondition', 'Profile setup link is ambiguous.');
+  }
+
+  return extractHouseholdIdFromProfilePath(matchingProfilesSnapshot.docs[0].ref.path);
+};
+
+const rethrowUnexpectedError = (context: string, error: unknown): never => {
+  if (error instanceof HttpsError) {
+    throw error;
+  }
+
+  logger.error(`${context} failed`, { error });
+  throw new HttpsError('internal', `${context} failed.`);
+};
+
+const assertAuthenticatedUserId = (authPayload: unknown): string => {
+  if (!authPayload || typeof authPayload !== 'object') {
+    throw new HttpsError('unauthenticated', 'Authentication is required.');
+  }
+
+  const uid = (authPayload as { uid?: unknown }).uid;
+  if (typeof uid !== 'string' || uid.trim().length === 0) {
+    throw new HttpsError('unauthenticated', 'Authentication is required.');
+  }
+
+  return uid.trim();
+};
+
+const assertAdminMembership = async (userId: string, householdId: string): Promise<void> => {
+  const membershipSnapshot = await db.doc(`users/${userId}/households/${householdId}`).get();
+  if (!membershipSnapshot.exists) {
+    throw new HttpsError('permission-denied', 'Admin membership is required.');
+  }
+
+  const role = membershipSnapshot.data()?.role;
+  if (role !== 'ADMIN') {
+    throw new HttpsError('permission-denied', 'Admin membership is required.');
+  }
+};
+
+const resolveChildProfileByUsername = async (params: {
+  username: string;
+  householdId?: string;
+}): Promise<{ householdId: string; profileId: string; pinHash: string }> => {
+  const normalizedUsername = normalizeUsernameForLookup(assertNonEmptyString(params.username, 'username'));
+  if (!isUsernameFormatValid(normalizedUsername)) {
+    throw new HttpsError('invalid-argument', 'Username format is invalid.');
+  }
+
+  const requestedHouseholdId = readOptionalNonEmptyString(params.householdId);
+  const profileSnapshot = await db
+    .collectionGroup('profiles')
+    .where('loginUsernameCanonical', '==', normalizedUsername)
+    .limit(10)
+    .get();
+
+  const matches = profileSnapshot.docs
+    .map((docSnapshot) => {
+      const payload = docSnapshot.data();
+      const role = payload.role;
+      const pinHash = payload.pinHash;
+      if (role !== 'CHILD' || typeof pinHash !== 'string' || pinHash.length === 0) {
+        return null;
+      }
+
+      const householdId = extractHouseholdIdFromProfilePath(docSnapshot.ref.path);
+      if (requestedHouseholdId && requestedHouseholdId !== householdId) {
+        return null;
+      }
+
+      return {
+        householdId,
+        profileId: docSnapshot.id,
+        pinHash,
+      };
+    })
+    .filter((candidate): candidate is { householdId: string; profileId: string; pinHash: string } => {
+      return candidate !== null;
+    });
+
+  if (matches.length !== 1) {
+    throw new HttpsError('permission-denied', 'Username or PIN is incorrect.');
+  }
+
+  return matches[0];
+};
+
 export const validateProfileSetupLink = onCall(
   {
     region: FUNCTION_REGION,
   },
-  async (request): Promise<{ householdId: string; profile: { id: string; name: string; avatarColor?: string } }> => {
-    const payload = request.data as Partial<ValidateProfileSetupLinkRequest>;
-    const householdId = assertNonEmptyString(payload.householdId, 'householdId');
-    const profileId = assertNonEmptyString(payload.profileId, 'profileId');
-    const token = assertNonEmptyString(payload.token, 'token');
+  async (request): Promise<{
+    householdId: string;
+    profile: { id: string; name: string; avatarColor?: string; loginUsername?: string };
+  }> => {
+    try {
+      const payload = assertObjectPayload(request.data);
+      const profileId = assertNonEmptyString(payload.profileId, 'profileId');
+      const token = assertNonEmptyString(payload.token, 'token');
+      const requestedHouseholdId = readOptionalNonEmptyString(payload.householdId);
+      const householdId = requestedHouseholdId ?? (await resolveHouseholdIdForProfile(profileId));
 
-    const profileRef = db.doc(`households/${householdId}/profiles/${profileId}`);
-    const profileSnapshot = await profileRef.get();
-    if (!profileSnapshot.exists) {
-      throw new HttpsError('not-found', 'Profile setup link is invalid.');
-    }
-
-    const profileData = profileSnapshot.data() ?? {};
-    const storedTokenHash = profileData.setupTokenHash;
-    const expiresAt = readTimestampOrNull(profileData.setupTokenExpiresAt);
-    const usedAt = readTimestampOrNull(profileData.setupTokenUsedAt);
-
-    if (typeof storedTokenHash !== 'string' || storedTokenHash.length === 0) {
-      throw new HttpsError('not-found', 'Profile setup link is invalid.');
-    }
-    if (!expiresAt || expiresAt.toMillis() < Date.now()) {
-      throw new HttpsError('failed-precondition', 'Profile setup link has expired.');
-    }
-    if (usedAt) {
-      throw new HttpsError('failed-precondition', 'Profile setup link has already been used.');
-    }
-
-    const candidateTokenHash = hashValue(token, 'token');
-    if (candidateTokenHash !== storedTokenHash) {
-      throw new HttpsError('permission-denied', 'Profile setup link is invalid.');
-    }
-
-    return {
-      householdId,
-      profile: {
-        id: profileSnapshot.id,
-        name: typeof profileData.name === 'string' ? profileData.name : 'Child',
-        avatarColor: typeof profileData.avatarColor === 'string' ? profileData.avatarColor : undefined,
-      },
-    };
-  },
-);
-
-export const completeProfileSetup = onCall(
-  {
-    region: FUNCTION_REGION,
-  },
-  async (request): Promise<{ success: true }> => {
-    const payload = request.data as Partial<CompleteProfileSetupRequest>;
-    const householdId = assertNonEmptyString(payload.householdId, 'householdId');
-    const profileId = assertNonEmptyString(payload.profileId, 'profileId');
-    const token = assertNonEmptyString(payload.token, 'token');
-    const pin = assertNonEmptyString(payload.pin, 'pin');
-    const avatarColor = assertNonEmptyString(payload.avatarColor, 'avatarColor');
-
-    if (!/^\d{4}$/.test(pin)) {
-      throw new HttpsError('invalid-argument', 'PIN must be exactly 4 digits.');
-    }
-
-    const pinHash = hashValue(pin, 'pin');
-    const candidateTokenHash = hashValue(token, 'token');
-    const profileRef = db.doc(`households/${householdId}/profiles/${profileId}`);
-
-    await db.runTransaction(async (transaction) => {
-      const profileSnapshot = await transaction.get(profileRef);
+      const profileRef = db.doc(`households/${householdId}/profiles/${profileId}`);
+      const profileSnapshot = await profileRef.get();
       if (!profileSnapshot.exists) {
         throw new HttpsError('not-found', 'Profile setup link is invalid.');
       }
@@ -234,23 +329,196 @@ export const completeProfileSetup = onCall(
       if (usedAt) {
         throw new HttpsError('failed-precondition', 'Profile setup link has already been used.');
       }
+
+      const candidateTokenHash = hashValue(token, 'token');
       if (candidateTokenHash !== storedTokenHash) {
         throw new HttpsError('permission-denied', 'Profile setup link is invalid.');
       }
 
-      const now = Timestamp.now();
-      transaction.update(profileRef, {
-        pinHash,
-        avatarColor,
-        setupTokenHash: null,
-        setupTokenUsedAt: now,
-        setupStatus: 'SETUP_COMPLETE',
-        setupCompletedAt: now,
-        updatedAt: now,
-      });
-    });
+      return {
+        householdId,
+        profile: {
+          id: profileSnapshot.id,
+          name: typeof profileData.name === 'string' ? profileData.name : 'Child',
+          avatarColor: typeof profileData.avatarColor === 'string' ? profileData.avatarColor : undefined,
+          loginUsername:
+            typeof profileData.loginUsername === 'string' ? profileData.loginUsername : undefined,
+        },
+      };
+    } catch (error) {
+      return rethrowUnexpectedError('validateProfileSetupLink', error);
+    }
+  },
+);
 
-    return { success: true };
+export const completeProfileSetup = onCall(
+  {
+    region: FUNCTION_REGION,
+  },
+  async (request): Promise<{ success: true }> => {
+    try {
+      const payload = assertObjectPayload(request.data);
+      const profileId = assertNonEmptyString(payload.profileId, 'profileId');
+      const token = assertNonEmptyString(payload.token, 'token');
+      const pin = assertNonEmptyString(payload.pin, 'pin');
+      const avatarColor = assertNonEmptyString(payload.avatarColor, 'avatarColor');
+      const username = normalizeUsernameForLookup(assertNonEmptyString(payload.username, 'username'));
+      const requestedHouseholdId = readOptionalNonEmptyString(payload.householdId);
+      const householdId = requestedHouseholdId ?? (await resolveHouseholdIdForProfile(profileId));
+
+      if (!/^\d{4}$/.test(pin)) {
+        throw new HttpsError('invalid-argument', 'PIN must be exactly 4 digits.');
+      }
+      if (!isUsernameFormatValid(username)) {
+        throw new HttpsError(
+          'invalid-argument',
+          'Username must be 3-24 characters and use letters, numbers, dot, dash, or underscore.',
+        );
+      }
+
+      const pinHash = hashValue(pin, 'pin');
+      const candidateTokenHash = hashValue(token, 'token');
+      const profileRef = db.doc(`households/${householdId}/profiles/${profileId}`);
+
+      await db.runTransaction(async (transaction) => {
+        const profileSnapshot = await transaction.get(profileRef);
+        if (!profileSnapshot.exists) {
+          throw new HttpsError('not-found', 'Profile setup link is invalid.');
+        }
+
+        const profileData = profileSnapshot.data() ?? {};
+        const storedTokenHash = profileData.setupTokenHash;
+        const expiresAt = readTimestampOrNull(profileData.setupTokenExpiresAt);
+        const usedAt = readTimestampOrNull(profileData.setupTokenUsedAt);
+
+        if (typeof storedTokenHash !== 'string' || storedTokenHash.length === 0) {
+          throw new HttpsError('not-found', 'Profile setup link is invalid.');
+        }
+        if (!expiresAt || expiresAt.toMillis() < Date.now()) {
+          throw new HttpsError('failed-precondition', 'Profile setup link has expired.');
+        }
+        if (usedAt) {
+          throw new HttpsError('failed-precondition', 'Profile setup link has already been used.');
+        }
+        if (candidateTokenHash !== storedTokenHash) {
+          throw new HttpsError('permission-denied', 'Profile setup link is invalid.');
+        }
+
+        const existingUsernameSnapshot = await transaction.get(
+          db
+            .collection(`households/${householdId}/profiles`)
+            .where('loginUsernameCanonical', '==', username)
+            .limit(2),
+        );
+        const hasConflict = existingUsernameSnapshot.docs.some((docSnapshot) => docSnapshot.id !== profileId);
+        if (hasConflict) {
+          throw new HttpsError('already-exists', 'Username is already taken in this household.');
+        }
+
+        const now = Timestamp.now();
+        transaction.update(profileRef, {
+          pinHash,
+          loginUsername: username,
+          loginUsernameCanonical: username,
+          avatarColor,
+          setupTokenHash: null,
+          setupTokenUsedAt: now,
+          setupStatus: 'SETUP_COMPLETE',
+          setupCompletedAt: now,
+          updatedAt: now,
+        });
+      });
+
+      return { success: true };
+    } catch (error) {
+      return rethrowUnexpectedError('completeProfileSetup', error);
+    }
+  },
+);
+
+export const childLogin = onCall(
+  {
+    region: FUNCTION_REGION,
+  },
+  async (request): Promise<ChildLoginResponse> => {
+    try {
+      const payload = assertObjectPayload(request.data);
+      const pin = assertNonEmptyString(payload.pin, 'pin');
+      const username = assertNonEmptyString(payload.username, 'username');
+      const householdId = readOptionalNonEmptyString(payload.householdId);
+
+      if (!/^\d{4}$/.test(pin)) {
+        throw new HttpsError('invalid-argument', 'PIN must be exactly 4 digits.');
+      }
+
+      const resolvedProfile = await resolveChildProfileByUsername({
+        username,
+        householdId,
+      });
+      const candidatePinHash = hashValue(pin, 'pin');
+      if (candidatePinHash !== resolvedProfile.pinHash) {
+        throw new HttpsError('permission-denied', 'Username or PIN is incorrect.');
+      }
+
+      const token = await getAuth().createCustomToken(
+        `child:${resolvedProfile.householdId}:${resolvedProfile.profileId}`,
+        {
+          role: 'CHILD',
+          householdId: resolvedProfile.householdId,
+          profileId: resolvedProfile.profileId,
+        },
+      );
+
+      return {
+        token,
+        householdId: resolvedProfile.householdId,
+        profileId: resolvedProfile.profileId,
+        role: 'CHILD',
+      };
+    } catch (error) {
+      return rethrowUnexpectedError('childLogin', error);
+    }
+  },
+);
+
+export const adminResetChildPin = onCall(
+  {
+    region: FUNCTION_REGION,
+  },
+  async (request): Promise<{ success: true }> => {
+    try {
+      const userId = assertAuthenticatedUserId(request.auth);
+      const payload = assertObjectPayload(request.data);
+      const householdId = assertNonEmptyString(payload.householdId, 'householdId');
+      const profileId = assertNonEmptyString(payload.profileId, 'profileId');
+      const newPin = assertNonEmptyString(payload.newPin, 'newPin');
+
+      if (!/^\d{4}$/.test(newPin)) {
+        throw new HttpsError('invalid-argument', 'newPin must be exactly 4 digits.');
+      }
+
+      await assertAdminMembership(userId, householdId);
+
+      const profileRef = db.doc(`households/${householdId}/profiles/${profileId}`);
+      const profileSnapshot = await profileRef.get();
+      if (!profileSnapshot.exists) {
+        throw new HttpsError('not-found', 'Child profile not found.');
+      }
+
+      const role = profileSnapshot.data()?.role;
+      if (role !== 'CHILD') {
+        throw new HttpsError('failed-precondition', 'Target profile must be a child.');
+      }
+
+      await profileRef.update({
+        pinHash: hashValue(newPin, 'newPin'),
+        updatedAt: Timestamp.now(),
+      });
+
+      return { success: true };
+    } catch (error) {
+      return rethrowUnexpectedError('adminResetChildPin', error);
+    }
   },
 );
 

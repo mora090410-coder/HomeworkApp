@@ -30,6 +30,7 @@ import {
   TaskStatus,
   Transaction,
 } from '@/types';
+import { isValidChildUsername, normalizeChildUsername } from '@/src/features/auth/childCredentials';
 import { auth, db, ensureFirebaseConfigured, functions } from '@/services/firebase';
 import { ledgerService } from '@/services/ledgerService';
 import { centsToDollars, dollarsToCents } from '@/utils';
@@ -53,6 +54,7 @@ interface ValidateProfileSetupLinkResponse {
     id: string;
     name: string;
     avatarColor?: string;
+    loginUsername?: string;
   };
 }
 
@@ -62,6 +64,26 @@ interface CompleteProfileSetupRequest {
   token: string;
   pin: string;
   avatarColor: string;
+  username: string;
+}
+
+interface ChildLoginRequest {
+  username: string;
+  pin: string;
+  householdId?: string;
+}
+
+interface ChildLoginResponse {
+  token: string;
+  householdId: string;
+  profileId: string;
+  role: 'CHILD';
+}
+
+interface AdminResetChildPinRequest {
+  householdId: string;
+  profileId: string;
+  newPin: string;
 }
 
 type FirestoreProfile = Omit<Profile, 'id' | 'familyId'>;
@@ -182,6 +204,53 @@ const assertNonEmptyString = (value: unknown, field: string): string => {
   }
 
   return value.trim();
+};
+
+export const buildChildLoginPayload = (input: {
+  username: string;
+  pin: string;
+  householdId?: string;
+}): ChildLoginRequest => {
+  const username = normalizeChildUsername(assertNonEmptyString(input.username, 'username'));
+  const pin = assertNonEmptyString(input.pin, 'pin');
+  const householdId =
+    typeof input.householdId === 'string' && input.householdId.trim().length > 0
+      ? input.householdId.trim()
+      : undefined;
+
+  if (!isValidChildUsername(username)) {
+    throw new Error('username must be 3-24 characters and use letters, numbers, dot, dash, or underscore.');
+  }
+
+  if (!/^\d{4}$/.test(pin)) {
+    throw new Error('PIN must be exactly 4 digits.');
+  }
+
+  return {
+    username,
+    pin,
+    householdId,
+  };
+};
+
+export const buildAdminResetPinPayload = (input: {
+  householdId: string;
+  profileId: string;
+  newPin: string;
+}): AdminResetChildPinRequest => {
+  const householdId = assertNonEmptyString(input.householdId, 'householdId');
+  const profileId = assertNonEmptyString(input.profileId, 'profileId');
+  const newPin = assertNonEmptyString(input.newPin, 'newPin');
+
+  if (!/^\d{4}$/.test(newPin)) {
+    throw new Error('newPin must be exactly 4 digits.');
+  }
+
+  return {
+    householdId,
+    profileId,
+    newPin,
+  };
 };
 
 const hashPin = async (pin: string): Promise<string> => {
@@ -400,6 +469,9 @@ const mapProfile = (profileId: string, householdId: string, source: Record<strin
     name: typeof source.name === 'string' ? source.name : 'Unknown Profile',
     role: parseRole(source.role),
     pinHash: typeof source.pinHash === 'string' ? source.pinHash : undefined,
+    loginUsername: typeof source.loginUsername === 'string' ? source.loginUsername : undefined,
+    loginUsernameCanonical:
+      typeof source.loginUsernameCanonical === 'string' ? source.loginUsernameCanonical : undefined,
     avatarColor: typeof source.avatarColor === 'string' ? source.avatarColor : undefined,
     gradeLevel: typeof source.gradeLevel === 'string' ? source.gradeLevel : 'Unknown',
     subjects: parseSubjects(source.subjects),
@@ -422,6 +494,10 @@ const mapSetupProfileFromCallable = (
     familyId: householdId,
     name: source.name,
     role: 'CHILD',
+    loginUsername: source.loginUsername,
+    loginUsernameCanonical: source.loginUsername
+      ? normalizeChildUsername(source.loginUsername)
+      : undefined,
     avatarColor: source.avatarColor,
     gradeLevel: 'Unknown',
     subjects: [],
@@ -1011,6 +1087,104 @@ export const householdService = {
     }
   },
 
+  async childLogin(input: { username: string; pin: string; householdId?: string }): Promise<ChildLoginResponse> {
+    try {
+      const payload = buildChildLoginPayload(input);
+
+      if (!functions) {
+        throw new Error('Child sign-in requires Firebase Functions configuration.');
+      }
+
+      const callable = httpsCallable<ChildLoginRequest, ChildLoginResponse>(functions, 'childLogin');
+      const result = await callWithExponentialBackoff(() => callable(payload));
+      const response = result.data;
+
+      if (!response || typeof response !== 'object') {
+        throw new Error('Child sign-in failed.');
+      }
+
+      if (
+        typeof response.token !== 'string' ||
+        typeof response.householdId !== 'string' ||
+        typeof response.profileId !== 'string' ||
+        response.role !== 'CHILD'
+      ) {
+        throw new Error('Child sign-in failed.');
+      }
+
+      return response;
+    } catch (error) {
+      throw normalizeError('Failed child sign-in', error);
+    }
+  },
+
+  async adminResetChildPin(input: {
+    householdId: string;
+    profileId: string;
+    newPin: string;
+  }): Promise<void> {
+    try {
+      const payload = buildAdminResetPinPayload(input);
+
+      if (functions) {
+        const callable = httpsCallable<AdminResetChildPinRequest, { success: true }>(
+          functions,
+          'adminResetChildPin',
+        );
+        await callWithExponentialBackoff(() => callable(payload));
+        return;
+      }
+
+      await householdService.setProfilePinInHousehold(payload.householdId, payload.profileId, payload.newPin);
+    } catch (error) {
+      throw normalizeError('Failed to reset child PIN', error);
+    }
+  },
+
+  async updateChildUsername(input: {
+    householdId: string;
+    profileId: string;
+    username: string;
+  }): Promise<void> {
+    try {
+      const firestore = getFirestore();
+      const householdId = assertNonEmptyString(input.householdId, 'householdId');
+      const profileId = assertNonEmptyString(input.profileId, 'profileId');
+      const username = normalizeChildUsername(assertNonEmptyString(input.username, 'username'));
+
+      if (!isValidChildUsername(username)) {
+        throw new Error('username must be 3-24 characters and use letters, numbers, dot, dash, or underscore.');
+      }
+
+      const existingUsernameQuery = await getDocs(
+        query(
+          getProfilesCollectionRef(householdId),
+          where('loginUsernameCanonical', '==', username),
+          limit(2),
+        ),
+      );
+
+      const hasConflict = existingUsernameQuery.docs.some((profileDoc) => profileDoc.id !== profileId);
+      if (hasConflict) {
+        throw new Error('Username is already used by another child profile.');
+      }
+
+      const profileRef = doc(firestore, `households/${householdId}/profiles/${profileId}`);
+      const profileSnapshot = await getDoc(profileRef);
+      if (!profileSnapshot.exists()) {
+        throw new Error('Profile not found in this household.');
+      }
+
+      await updateDoc(profileRef, {
+        loginUsername: username,
+        loginUsernameCanonical: username,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (error) {
+      throw normalizeError('Failed to update child username', error);
+    }
+  },
+
   async createTask(
     householdId: string,
     task: Task,
@@ -1156,6 +1330,29 @@ export const householdService = {
       }
       if (updates.rates && typeof updates.rates === 'object') {
         updatePayload.rates = parseRates(updates.rates);
+      }
+      if (typeof updates.loginUsername === 'string') {
+        const normalizedUsername = normalizeChildUsername(updates.loginUsername);
+        if (!isValidChildUsername(normalizedUsername)) {
+          throw new Error(
+            'username must be 3-24 characters and use letters, numbers, dot, dash, or underscore.',
+          );
+        }
+        const existingUsernameSnapshot = await getDocs(
+          query(
+            getProfilesCollectionRef(resolvedProfile.householdId),
+            where('loginUsernameCanonical', '==', normalizedUsername),
+            limit(2),
+          ),
+        );
+        const hasConflict = existingUsernameSnapshot.docs.some((profileDoc) => {
+          return profileDoc.id !== resolvedProfile.profileId;
+        });
+        if (hasConflict) {
+          throw new Error('Username is already used by another child profile.');
+        }
+        updatePayload.loginUsername = normalizedUsername;
+        updatePayload.loginUsernameCanonical = normalizedUsername;
       }
 
       await updateDoc(profileRef, updatePayload);
@@ -1484,6 +1681,10 @@ export const householdService = {
               name: profilePayload.name,
               avatarColor:
                 typeof profilePayload.avatarColor === 'string' ? profilePayload.avatarColor : undefined,
+              loginUsername:
+                typeof profilePayload.loginUsername === 'string'
+                  ? profilePayload.loginUsername
+                  : undefined,
             }),
           };
         } catch (callableError) {
@@ -1544,6 +1745,7 @@ export const householdService = {
     token: string;
     pin: string;
     avatarColor: string;
+    username: string;
   }): Promise<void> {
     try {
       const safeHouseholdId = assertNonEmptyString(input.householdId, 'householdId');
@@ -1551,9 +1753,15 @@ export const householdService = {
       const safeToken = assertNonEmptyString(input.token, 'token');
       const safePin = assertNonEmptyString(input.pin, 'pin');
       const safeAvatarColor = assertNonEmptyString(input.avatarColor, 'avatarColor');
+      const safeUsername = normalizeChildUsername(assertNonEmptyString(input.username, 'username'));
 
       if (!/^\d{4}$/.test(safePin)) {
         throw new Error('PIN must be exactly 4 digits.');
+      }
+      if (!isValidChildUsername(safeUsername)) {
+        throw new Error(
+          'Username must be 3-24 characters and use letters, numbers, dot, dash, or underscore.',
+        );
       }
 
       if (functions) {
@@ -1569,6 +1777,7 @@ export const householdService = {
               token: safeToken,
               pin: safePin,
               avatarColor: safeAvatarColor,
+              username: safeUsername,
             });
           });
           return;
@@ -1609,8 +1818,24 @@ export const householdService = {
           throw new Error('Profile setup link is invalid.');
         }
 
+        const existingUsernameSnapshot = await transaction.get(
+          query(
+            getProfilesCollectionRef(safeHouseholdId),
+            where('loginUsernameCanonical', '==', safeUsername),
+            limit(2),
+          ),
+        );
+        const hasConflict = existingUsernameSnapshot.docs.some((docSnapshot) => {
+          return docSnapshot.id !== safeProfileId;
+        });
+        if (hasConflict) {
+          throw new Error('Username is already taken in this household.');
+        }
+
         transaction.update(profileRef, {
           pinHash,
+          loginUsername: safeUsername,
+          loginUsernameCanonical: safeUsername,
           avatarColor: safeAvatarColor,
           setupTokenHash: null,
           setupTokenUsedAt: Timestamp.now(),

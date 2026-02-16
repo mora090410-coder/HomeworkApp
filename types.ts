@@ -102,6 +102,8 @@ export interface Profile {
   name: string;
   role: Role;
   pinHash?: string;
+  loginUsername?: string;
+  loginUsernameCanonical?: string;
   avatarColor?: string;
   gradeLevel: string;
   subjects: Subject[];
@@ -119,6 +121,8 @@ export interface Child {
   familyId?: string;
   name: string;
   pin?: string;
+  loginUsername?: string;
+  loginUsernameCanonical?: string;
   gradeLevel: string;
   subjects: Subject[];
   balance: number;

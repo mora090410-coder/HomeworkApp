@@ -9,6 +9,7 @@ interface SettingsModalProps {
   onClose: () => void;
   child: Child | null;
   onSave: (childId: string, updates: Partial<Child>) => void;
+  onResetPin?: (childId: string, newPin: string) => Promise<void> | void;
   onDelete: (childId: string) => void;
   onImportAll?: (data: string) => void;
   onResetAll?: () => void;
@@ -35,13 +36,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose, 
   child, 
   onSave, 
+  onResetPin,
   onDelete,
   onImportAll,
   onResetAll
 }) => {
   const [activeTab, setActiveTab] = useState<'profile' | 'subjects' | 'payscale' | 'data'>('profile');
   const [name, setName] = useState('');
-  const [pin, setPin] = useState('');
+  const [username, setUsername] = useState('');
   const [gradeLevel, setGradeLevel] = useState('');
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [baseValue, setBaseValue] = useState(5.00);
@@ -49,11 +51,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [importText, setImportText] = useState('');
   const [copySuccess, setCopySuccess] = useState(false);
+  const [resetPinValue, setResetPinValue] = useState('');
+  const [confirmResetPinValue, setConfirmResetPinValue] = useState('');
+  const [credentialMessage, setCredentialMessage] = useState<string | null>(null);
+  const [isResettingPin, setIsResettingPin] = useState(false);
 
   useEffect(() => {
     if (child && isOpen) {
       setName(child.name);
-      setPin(child.pin || '');
+      setUsername(child.loginUsername || '');
       setGradeLevel(child.gradeLevel);
       setSubjects(JSON.parse(JSON.stringify(child.subjects)));
       setBaseValue(5.00); 
@@ -62,6 +68,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       setShowDeleteConfirm(false);
       setImportText('');
       setCopySuccess(false);
+      setResetPinValue('');
+      setConfirmResetPinValue('');
+      setCredentialMessage(null);
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -118,13 +127,46 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     if (!child) return;
     const updates: Partial<Child> = {
       name: name.trim() || child.name,
-      pin: pin.trim() || undefined,
+      loginUsername: username.trim() || undefined,
       gradeLevel: gradeLevel || child.gradeLevel,
       subjects: subjects.map(s => ({ ...s, name: s.name.trim() || 'Untitled' })),
       rates: calculatedRates as Record<Grade, number>
     };
     onSave(child.id, updates);
     onClose();
+  };
+
+  const handleResetPin = async () => {
+    if (!child || !onResetPin) {
+      return;
+    }
+
+    if (!/^\d{4}$/.test(resetPinValue)) {
+      setCredentialMessage('PIN must be exactly 4 digits.');
+      return;
+    }
+
+    if (resetPinValue !== confirmResetPinValue) {
+      setCredentialMessage('PINs do not match.');
+      return;
+    }
+
+    setIsResettingPin(true);
+    setCredentialMessage(null);
+    try {
+      await onResetPin(child.id, resetPinValue);
+      setCredentialMessage('PIN reset successfully.');
+      setResetPinValue('');
+      setConfirmResetPinValue('');
+    } catch (error) {
+      if (error instanceof Error) {
+        setCredentialMessage(error.message);
+      } else {
+        setCredentialMessage('Failed to reset PIN.');
+      }
+    } finally {
+      setIsResettingPin(false);
+    }
   };
 
   if (!isOpen || !child) return null;
@@ -164,9 +206,52 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[0.8125rem] font-bold text-[#666] uppercase mb-2 ml-1">PIN (4 digits)</label>
-                      <input type="password" maxLength={4} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))} className="w-full px-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white outline-none focus:border-[#FFCC00]/40 transition-all" />
+                      <label className="block text-[0.8125rem] font-bold text-[#666] uppercase mb-2 ml-1">Username</label>
+                      <input
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="w-full px-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white outline-none focus:border-[#FFCC00]/40 transition-all"
+                        aria-label="Username"
+                      />
                     </div>
+                </div>
+                <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 space-y-3">
+                  <h4 className="text-sm font-semibold text-white">Reset PIN</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      type="password"
+                      maxLength={4}
+                      value={resetPinValue}
+                      onChange={(e) => setResetPinValue(e.target.value.replace(/\D/g, ''))}
+                      className="w-full px-4 py-3 rounded-xl bg-black border border-white/[0.1] text-white outline-none focus:border-[#FFCC00]/40 transition-all"
+                      placeholder="New PIN"
+                      aria-label="New PIN"
+                    />
+                    <input
+                      type="password"
+                      maxLength={4}
+                      value={confirmResetPinValue}
+                      onChange={(e) => setConfirmResetPinValue(e.target.value.replace(/\D/g, ''))}
+                      className="w-full px-4 py-3 rounded-xl bg-black border border-white/[0.1] text-white outline-none focus:border-[#FFCC00]/40 transition-all"
+                      placeholder="Confirm PIN"
+                      aria-label="Confirm PIN"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { void handleResetPin(); }}
+                    disabled={isResettingPin}
+                    className="w-full py-3 rounded-xl font-bold bg-white/5 border border-white/10 text-white hover:bg-white/10 disabled:opacity-60 transition-all"
+                    aria-label="Reset PIN"
+                  >
+                    {isResettingPin ? 'Resetting...' : 'Reset PIN'}
+                  </button>
+                  {credentialMessage && (
+                    <p className={`text-sm ${credentialMessage.includes('success') ? 'text-emerald-400' : 'text-red-400'}`}>
+                      {credentialMessage}
+                    </p>
+                  )}
                 </div>
             </div>
           )}
