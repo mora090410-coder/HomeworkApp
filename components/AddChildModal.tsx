@@ -13,7 +13,6 @@ interface SubjectInput {
 
 export interface NewChildData {
   name: string;
-  pin?: string;
   gradeLevel: string;
   subjects: { name: string; grade: Grade }[];
 }
@@ -36,7 +35,6 @@ const LETTER_GRADES = Object.keys(DEFAULT_RATES) as Grade[];
 const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd }) => {
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
-  const [pin, setPin] = useState('');
   const [gradeLevel, setGradeLevel] = useState('');
   const [subjects, setSubjects] = useState<SubjectInput[]>([
     { id: '1', name: 'Math', grade: Grade.B },
@@ -50,7 +48,6 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
     if (isOpen) {
       setStep(1);
       setName('');
-      setPin('');
       setGradeLevel('');
       setSubjects([
         { id: '1', name: 'Math', grade: Grade.B },
@@ -69,7 +66,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
     return subjects.reduce((total, sub) => total + (DEFAULT_RATES[sub.grade] || 0), 0);
   }, [subjects]);
 
-  const isValidStep1 = name.trim().length > 0 && gradeLevel.length > 0 && (pin.length === 0 || pin.length === 4);
+  const isValidStep1 = name.trim().length > 0 && gradeLevel.length > 0;
 
   const handleAddSubject = () => {
     setSubjects(prev => [
@@ -102,7 +99,6 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
   const handleFinish = () => {
     onAdd({
       name: name.trim(),
-      pin: pin.trim() || undefined,
       gradeLevel,
       subjects: subjects.map(({ name, grade }) => ({ name: name || 'Untitled Subject', grade }))
     });
@@ -149,20 +145,14 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
                     <label className="text-[0.9375rem] font-[510] text-[#999] ml-1">Name</label>
                     <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Emily" className="w-full px-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white outline-none focus:border-[#FFCC00]/40 transition-all" autoFocus />
                  </div>
-                 <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <label className="text-[0.9375rem] font-[510] text-[#999] ml-1">Grade Level</label>
-                        <div className="relative">
-                            <select value={gradeLevel} onChange={(e) => setGradeLevel(e.target.value)} className="w-full px-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white appearance-none outline-none focus:border-[#FFCC00]/40 transition-all cursor-pointer">
-                                <option value="" disabled>Select grade</option>
-                                {SCHOOL_GRADES.map(g => (<option key={g} value={g} className="bg-[#1a1a1a]">{g}</option>))}
-                            </select>
-                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#666] pointer-events-none" />
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-[0.9375rem] font-[510] text-[#999] ml-1">PIN (Optional)</label>
-                        <input type="password" maxLength={4} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))} placeholder="4 digits" className="w-full px-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white outline-none focus:border-[#FFCC00]/40 transition-all" />
+                 <div className="space-y-2">
+                    <label className="text-[0.9375rem] font-[510] text-[#999] ml-1">Grade Level</label>
+                    <div className="relative">
+                        <select value={gradeLevel} onChange={(e) => setGradeLevel(e.target.value)} className="w-full px-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white appearance-none outline-none focus:border-[#FFCC00]/40 transition-all cursor-pointer">
+                            <option value="" disabled>Select grade</option>
+                            {SCHOOL_GRADES.map(g => (<option key={g} value={g} className="bg-[#1a1a1a]">{g}</option>))}
+                        </select>
+                        <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#666] pointer-events-none" />
                     </div>
                  </div>
                </div>
@@ -221,7 +211,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
                   </div>
                </div>
                <div className="bg-white/[0.02] rounded-xl border border-white/[0.06] overflow-hidden text-sm">
-                  <div className="flex justify-between px-4 py-3 border-b border-white/[0.04]"><span className="text-[#888]">PIN Protection</span><span className="text-white font-medium">{pin ? 'Enabled' : 'Disabled'}</span></div>
+                  <div className="flex justify-between px-4 py-3 border-b border-white/[0.04]"><span className="text-[#888]">Profile Security</span><span className="text-white font-medium">Child sets PIN via invite</span></div>
                   <div className="flex justify-between px-4 py-3 border-b border-white/[0.04]"><span className="text-[#888]">Grade Level</span><span className="text-white font-medium">{gradeLevel}</span></div>
                </div>
             </div>
