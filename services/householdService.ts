@@ -48,6 +48,12 @@ interface StoredActiveProfile {
   role?: Role;
 }
 
+interface HouseholdMembership {
+  householdId: string;
+  role: Role;
+  profileId: string | null;
+}
+
 const getFirestore = () => {
   ensureFirebaseConfigured('Firestore');
 
@@ -441,7 +447,10 @@ const resolveTaskLocationById = async (
 };
 
 export const householdService = {
-  async getUserRoleInHousehold(userId: string, householdId: string): Promise<Role | null> {
+  async getUserHouseholdMembership(
+    userId: string,
+    householdId: string,
+  ): Promise<HouseholdMembership | null> {
     try {
       const firestore = getFirestore();
       const safeUserId = assertNonEmptyString(userId, 'userId');
@@ -450,14 +459,44 @@ export const householdService = {
         doc(firestore, `users/${safeUserId}/households/${safeHouseholdId}`),
       );
 
-      if (!membershipSnapshot.exists()) {
+      if (membershipSnapshot.exists()) {
+        const payload = membershipSnapshot.data() as Record<string, unknown>;
+        const profileId = typeof payload.profileId === 'string' ? payload.profileId : null;
+        return {
+          householdId: safeHouseholdId,
+          role: parseRole(payload.role),
+          profileId,
+        };
+      }
+
+      const householdSnapshot = await getDoc(doc(firestore, `households/${safeHouseholdId}`));
+      if (!householdSnapshot.exists()) {
         return null;
       }
 
-      return parseRole((membershipSnapshot.data() as Record<string, unknown>).role);
+      const householdPayload = householdSnapshot.data() as Record<string, unknown>;
+      const ownerUserId = typeof householdPayload.ownerUserId === 'string' ? householdPayload.ownerUserId : '';
+      if (ownerUserId !== safeUserId) {
+        return null;
+      }
+
+      const adminProfileSnapshot = await getDocs(
+        query(getProfilesCollectionRef(safeHouseholdId), where('role', '==', 'ADMIN'), limit(1)),
+      );
+
+      return {
+        householdId: safeHouseholdId,
+        role: 'ADMIN',
+        profileId: adminProfileSnapshot.empty ? null : adminProfileSnapshot.docs[0].id,
+      };
     } catch (error) {
-      throw normalizeError('Failed to load user household role', error);
+      throw normalizeError('Failed to load user household membership', error);
     }
+  },
+
+  async getUserRoleInHousehold(userId: string, householdId: string): Promise<Role | null> {
+    const membership = await householdService.getUserHouseholdMembership(userId, householdId);
+    return membership?.role ?? null;
   },
 
   async getCurrentHousehold(userId?: string): Promise<Household | null> {

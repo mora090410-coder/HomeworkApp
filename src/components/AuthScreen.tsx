@@ -20,11 +20,25 @@ const normalizeErrorMessage = (error: unknown): string => {
   return 'Unexpected authentication failure.';
 };
 
-const persistHouseholdSession = (householdId: string): void => {
+interface PersistHouseholdSessionInput {
+  householdId: string;
+  profileId?: string;
+  role?: 'ADMIN' | 'CHILD' | 'MEMBER';
+}
+
+const persistHouseholdSession = ({ householdId, profileId, role }: PersistHouseholdSessionInput): void => {
   const existingRaw = localStorage.getItem(ACTIVE_PROFILE_STORAGE_KEY);
 
   if (!existingRaw) {
-    localStorage.setItem(ACTIVE_PROFILE_STORAGE_KEY, JSON.stringify({ householdId, familyId: householdId }));
+    localStorage.setItem(
+      ACTIVE_PROFILE_STORAGE_KEY,
+      JSON.stringify({
+        householdId,
+        familyId: householdId,
+        ...(profileId ? { profileId } : {}),
+        ...(role ? { role } : {}),
+      }),
+    );
     return;
   }
 
@@ -36,10 +50,20 @@ const persistHouseholdSession = (householdId: string): void => {
         ...existing,
         householdId,
         familyId: householdId,
+        ...(profileId ? { profileId } : {}),
+        ...(role ? { role } : {}),
       }),
     );
   } catch {
-    localStorage.setItem(ACTIVE_PROFILE_STORAGE_KEY, JSON.stringify({ householdId, familyId: householdId }));
+    localStorage.setItem(
+      ACTIVE_PROFILE_STORAGE_KEY,
+      JSON.stringify({
+        householdId,
+        familyId: householdId,
+        ...(profileId ? { profileId } : {}),
+        ...(role ? { role } : {}),
+      }),
+    );
   }
 };
 
@@ -76,7 +100,16 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
         throw new Error('No household is linked to this account. Ask an admin for an invite.');
       }
 
-      persistHouseholdSession(household.id);
+      const membership = await householdService.getUserHouseholdMembership(
+        credentials.user.uid,
+        household.id,
+      );
+
+      persistHouseholdSession({
+        householdId: household.id,
+        ...(membership?.profileId ? { profileId: membership.profileId } : {}),
+        ...(membership?.role ? { role: membership.role } : {}),
+      });
       onSuccess();
     } catch (error) {
       setErrorMessage(normalizeErrorMessage(error));
