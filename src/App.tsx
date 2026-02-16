@@ -256,10 +256,6 @@ function useFamilyAuth(): FamilyAuthState {
           return;
         }
 
-        if (!activeProfileId) {
-          return;
-        }
-
         if (canManageProfiles) {
           const adminProfile = nextProfiles.find((profile) => profile.role === 'ADMIN') ?? null;
           if (adminProfile) {
@@ -275,6 +271,10 @@ function useFamilyAuth(): FamilyAuthState {
             setStage('AUTHORIZED');
             return;
           }
+        }
+
+        if (!activeProfileId) {
+          return;
         }
 
         const selectedProfile = nextProfiles.find((profile) => profile.id === activeProfileId) ?? null;
