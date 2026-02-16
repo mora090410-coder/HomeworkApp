@@ -34,6 +34,7 @@ interface ChildCardProps {
   siblings?: Child[];
   onEditSettings: (child: Child) => void;
   onUpdateGrades: (child: Child) => void;
+  onInviteChild: (child: Child) => void;
   onAssignTask: (child: Child) => void;
   onDeleteTask: (childId: string, taskId: string) => void;
   onEditTask: (task: Task) => void;
@@ -59,6 +60,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
   siblings = [],
   onEditSettings, 
   onUpdateGrades, 
+  onInviteChild,
   onAssignTask,
   onDeleteTask,
   onEditTask,
@@ -74,6 +76,19 @@ const ChildCard: React.FC<ChildCardProps> = ({
 
   const hourlyRate = calculateHourlyRate(child.subjects, child.rates);
   const hourlyRateCents = dollarsToCents(hourlyRate);
+  const setupStatus = child.setupStatus ?? 'PROFILE_CREATED';
+  const setupLabel =
+    setupStatus === 'INVITE_SENT'
+      ? 'Invite Sent'
+      : setupStatus === 'SETUP_COMPLETE'
+        ? 'Ready'
+        : 'Setup Pending';
+  const setupBadgeClass =
+    setupStatus === 'INVITE_SENT'
+      ? 'border-[#facc15]/30 bg-[#facc15]/10 text-[#fde047]'
+      : setupStatus === 'SETUP_COMPLETE'
+        ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300'
+        : 'border-sky-400/30 bg-sky-400/10 text-sky-300';
   
   // TASK GROUPING LOGIC
   const awaitingApproval = child.customTasks?.filter(t => t.status === 'PENDING_APPROVAL') || [];
@@ -144,6 +159,9 @@ const ChildCard: React.FC<ChildCardProps> = ({
           <div>
             <h2 className="text-[1.75rem] font-[590] text-white tracking-tight mb-1">{child.name}</h2>
             <p className="text-[0.9375rem] text-[#888] font-medium">{child.gradeLevel}</p>
+            <span className={`mt-3 inline-flex items-center rounded-full border px-2.5 py-1 text-[0.6875rem] font-semibold uppercase tracking-wide ${setupBadgeClass}`}>
+              {setupLabel}
+            </span>
           </div>
           
           <div className="flex items-center gap-3">
@@ -175,7 +193,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <button 
             onClick={() => onUpdateGrades(child)}
             className="group/btn relative flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-[#1a1a1a] border border-white/[0.08] hover:border-[#FFCC00]/40 transition-all active:scale-[0.98] overflow-hidden cursor-pointer"
@@ -192,6 +210,17 @@ const ChildCard: React.FC<ChildCardProps> = ({
              <div className="absolute inset-0 bg-gradient-to-r from-[#990000] to-[#FFCC00] opacity-0 group-hover/btn:opacity-10 transition-opacity duration-300" />
              <Plus className="w-4 h-4 text-white group-hover/btn:text-[#FFCC00] transition-colors" />
              <span className="text-sm font-medium text-white group-hover/btn:text-[#FFCC00] transition-colors">Assign Task</span>
+          </button>
+
+          <button
+            onClick={() => onInviteChild(child)}
+            className="group/btn relative flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-[#1a1a1a] border border-white/[0.08] hover:border-[#FFCC00]/40 transition-all active:scale-[0.98] overflow-hidden cursor-pointer"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-[#990000] to-[#FFCC00] opacity-0 group-hover/btn:opacity-10 transition-opacity duration-300" />
+            <UserPlus className="w-4 h-4 text-white group-hover/btn:text-[#FFCC00] transition-colors" />
+            <span className="text-sm font-medium text-white group-hover/btn:text-[#FFCC00] transition-colors">
+              {setupStatus === 'SETUP_COMPLETE' ? 'Reinvite' : 'Invite'}
+            </span>
           </button>
         </div>
 

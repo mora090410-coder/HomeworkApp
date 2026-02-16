@@ -23,13 +23,14 @@ import ChildDetail from '@/components/ChildDetail';
 import FamilyActivityFeed from '@/components/FamilyActivityFeed';
 import SettingsModal from '@/components/SettingsModal';
 import AuthScreen from '@/components/AuthScreen';
+import AdminSetupRail from '@/components/AdminSetupRail';
 import LandingScreen from '@/components/LandingScreen';
 import MarketingLandingPage from '@/components/MarketingLandingPage';
 import PinModal from '@/components/PinModal';
 import { auth, db, isFirebaseConfigured } from '@/services/firebase';
 import { householdService } from '@/services/householdService';
 import { notificationService } from '@/services/notificationService';
-import { Child, Grade, GradeConfig, Profile, Task } from '@/types';
+import { Child, Grade, GradeConfig, Profile, ProfileSetupStatus, Task } from '@/types';
 import {
   buildRateMapFromGradeConfigs,
   calculateHourlyRate,
@@ -90,6 +91,24 @@ const defaultRates = () => {
   }, {} as Record<Grade, number>);
 };
 
+const parseProfileSetupStatus = (value: unknown): ProfileSetupStatus => {
+  if (value === 'INVITE_SENT' || value === 'SETUP_COMPLETE' || value === 'PROFILE_CREATED') {
+    return value;
+  }
+  return 'PROFILE_CREATED';
+};
+
+const parseOptionalIsoString = (value: unknown): string | null => {
+  if (typeof value === 'string' && value.length > 0) {
+    return value;
+  }
+  if (value && typeof value === 'object' && 'toDate' in value) {
+    const timestampLike = value as { toDate: () => Date };
+    return timestampLike.toDate().toISOString();
+  }
+  return null;
+};
+
 const mapFirestoreProfile = (
   profileId: string,
   householdId: string,
@@ -121,6 +140,9 @@ const mapFirestoreProfile = (
         : defaultRates(),
     balanceCents,
     balance: centsToDollars(balanceCents),
+    setupStatus: parseProfileSetupStatus(source.setupStatus),
+    inviteLastSentAt: parseOptionalIsoString(source.inviteLastSentAt),
+    setupCompletedAt: parseOptionalIsoString(source.setupCompletedAt),
   };
 };
 
@@ -465,6 +487,12 @@ function DashboardPage() {
   }, [children, effectiveRateMap]);
 
   const hasChildren = childrenWithRateMap.length > 0;
+  const pendingSetupCount = childrenWithRateMap.filter(
+    (child) => (child.setupStatus ?? 'PROFILE_CREATED') !== 'SETUP_COMPLETE',
+  ).length;
+  const inviteSentCount = childrenWithRateMap.filter(
+    (child) => (child.setupStatus ?? 'PROFILE_CREATED') === 'INVITE_SENT',
+  ).length;
 
   const createChildMutation = useMutation({
     mutationFn: (child: Partial<Child>) => {
@@ -771,6 +799,24 @@ function DashboardPage() {
     }
   };
 
+  const toProfileFromChild = (child: Child): Profile => ({
+    id: child.id,
+    householdId: householdId ?? '',
+    familyId: householdId ?? '',
+    name: child.name,
+    role: child.role,
+    pinHash: undefined,
+    avatarColor: undefined,
+    gradeLevel: child.gradeLevel,
+    subjects: child.subjects,
+    rates: child.rates,
+    balance: child.balance,
+    balanceCents: child.balanceCents,
+    setupStatus: child.setupStatus,
+    inviteLastSentAt: child.inviteLastSentAt,
+    setupCompletedAt: child.setupCompletedAt,
+  });
+
   const handleDeleteProfile = async (profile: Profile) => {
     if (!householdId || profile.role === 'ADMIN') {
       return;
@@ -982,38 +1028,60 @@ function DashboardPage() {
         </div>
 
         {hasChildren ? (
-          <div className="mb-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="col-span-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {childrenWithRateMap.map((child) => (
-                  <ChildCard
-                    key={child.id}
-                    child={child}
-                    siblings={childrenWithRateMap.filter((candidate) => candidate.id !== child.id)}
-                    onEditSettings={(candidate) => setChildToEdit(candidate)}
-                    onUpdateGrades={(candidate) => setChildToEdit(candidate)}
-                    onAssignTask={(candidate) => { setSelectedChildId(candidate.id); setIsAddTaskModalOpen(true); }}
-                    onDeleteTask={(childId, taskId) => statusTaskMutation.mutate({ taskId, status: 'DELETED' })}
-                    onEditTask={(task) => { setEditingTask({ childId: child.id, task }); setIsAddTaskModalOpen(true); }}
-                    onReassignTask={() => undefined}
-                    onApproveTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_PAYMENT' })}
-                    onRejectTask={(childId, task) => { setTaskToReject({ childId, task }); setRejectionComment(''); }}
-                    onPayTask={handlePayTask}
-                    onUndoApproval={(childId, taskId) => statusTaskMutation.mutate({ taskId, status: 'PENDING_APPROVAL' })}
-                  />
-                ))}
+          <div className="mb-12">
+            <div className="mb-6 rounded-2xl border border-white/10 bg-white/[0.02] px-5 py-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-white">Family command center is active.</p>
+                <p className="text-xs text-gray-400">
+                  {pendingSetupCount} profile{pendingSetupCount === 1 ? '' : 's'} awaiting setup completion.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-semibold text-gray-300">
+                  Invite Sent: {inviteSentCount}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsAddChildModalOpen(true)}
+                  className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white hover:bg-white/10"
+                >
+                  Add Another Child
+                </button>
               </div>
             </div>
-            <div className="col-span-1">
-              <FamilyActivityFeed familyId={householdId!} />
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="col-span-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {childrenWithRateMap.map((child) => (
+                    <ChildCard
+                      key={child.id}
+                      child={child}
+                      siblings={childrenWithRateMap.filter((candidate) => candidate.id !== child.id)}
+                      onEditSettings={(candidate) => setChildToEdit(candidate)}
+                      onUpdateGrades={(candidate) => setChildToEdit(candidate)}
+                      onInviteChild={(candidate) => {
+                        void handleGenerateProfileSetupLink(toProfileFromChild(candidate));
+                      }}
+                      onAssignTask={(candidate) => { setSelectedChildId(candidate.id); setIsAddTaskModalOpen(true); }}
+                      onDeleteTask={(childId, taskId) => statusTaskMutation.mutate({ taskId, status: 'DELETED' })}
+                      onEditTask={(task) => { setEditingTask({ childId: child.id, task }); setIsAddTaskModalOpen(true); }}
+                      onReassignTask={() => undefined}
+                      onApproveTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_PAYMENT' })}
+                      onRejectTask={(childId, task) => { setTaskToReject({ childId, task }); setRejectionComment(''); }}
+                      onPayTask={handlePayTask}
+                      onUndoApproval={(childId, taskId) => statusTaskMutation.mutate({ taskId, status: 'PENDING_APPROVAL' })}
+                    />
+                  ))}
+                </div>
+              </div>
+              <div className="col-span-1">
+                <FamilyActivityFeed familyId={householdId!} />
+              </div>
             </div>
           </div>
         ) : (
-          <div className="rounded-[24px] border border-white/5 bg-white/[0.02] min-h-[320px] flex flex-col items-center justify-center text-center p-8">
-            <Users className="w-16 h-16 text-white/20 mb-6" />
-            <h2 className="text-2xl font-bold mb-2">No children added yet</h2>
-            <button type="button" onClick={() => setIsAddChildModalOpen(true)} className="px-8 py-3 bg-white text-black font-bold rounded-xl mt-4">Add First Child</button>
-          </div>
+          <AdminSetupRail completedSteps={0} onStartAddChild={() => setIsAddChildModalOpen(true)} />
         )}
 
         <AddChildModal isOpen={isAddChildModalOpen} onClose={() => setIsAddChildModalOpen(false)} onAdd={handleCreateChild} />
@@ -1100,20 +1168,7 @@ function DashboardPage() {
                     key={child.id}
                     type="button"
                     onClick={() => {
-                      void handleGenerateProfileSetupLink({
-                        id: child.id,
-                        householdId: householdId ?? '',
-                        familyId: householdId ?? '',
-                        name: child.name,
-                        role: child.role,
-                        pinHash: undefined,
-                        avatarColor: undefined,
-                        gradeLevel: child.gradeLevel,
-                        subjects: child.subjects,
-                        rates: child.rates,
-                        balance: child.balance,
-                        balanceCents: child.balanceCents,
-                      });
+                      void handleGenerateProfileSetupLink(toProfileFromChild(child));
                       setIsInviteModalOpen(false);
                     }}
                     className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left hover:bg-white/10"
