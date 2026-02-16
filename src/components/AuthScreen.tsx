@@ -207,8 +207,12 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
         role: childSession.role,
       });
       onSuccess();
-    } catch {
-      setErrorMessage('Username or PIN is incorrect.');
+    } catch (error: unknown) {
+      const serverMessage =
+        error instanceof Error && 'code' in error && typeof error.message === 'string'
+          ? error.message
+          : null;
+      setErrorMessage(serverMessage ?? 'Username or PIN is incorrect.');
     } finally {
       setLoading(false);
     }
@@ -236,11 +240,10 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
               <div className="grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-black/20 p-1">
                 <button
                   type="button"
-                  className={`rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${
-                    loginVariant === 'PARENT'
+                  className={`rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${loginVariant === 'PARENT'
                       ? 'bg-white text-black'
                       : 'text-gray-300 hover:bg-white/10 hover:text-white'
-                  }`}
+                    }`}
                   onClick={() => {
                     setLoginVariant('PARENT');
                     setErrorMessage(null);
@@ -251,11 +254,10 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
                 </button>
                 <button
                   type="button"
-                  className={`rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${
-                    loginVariant === 'CHILD'
+                  className={`rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${loginVariant === 'CHILD'
                       ? 'bg-[#b30000] text-white'
                       : 'text-gray-300 hover:bg-white/10 hover:text-white'
-                  }`}
+                    }`}
                   onClick={() => {
                     setLoginVariant('CHILD');
                     setErrorMessage(null);

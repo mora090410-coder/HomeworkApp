@@ -287,8 +287,25 @@ const resolveChildProfileByUsername = async (params: {
       return candidate !== null;
     });
 
-  if (matches.length !== 1) {
-    throw new HttpsError('permission-denied', 'Username or PIN is incorrect.');
+  if (matches.length === 0) {
+    logger.warn('childLogin lookup: zero matches', {
+      normalizedUsername,
+      householdIdProvided: !!requestedHouseholdId,
+      totalDocsScanned: profileSnapshot.size,
+    });
+    throw new HttpsError('not-found', 'No child profile matches that username.');
+  }
+
+  if (matches.length > 1) {
+    logger.warn('childLogin lookup: ambiguous matches', {
+      normalizedUsername,
+      matchCount: matches.length,
+      householdIdProvided: !!requestedHouseholdId,
+    });
+    throw new HttpsError(
+      'failed-precondition',
+      'Multiple profiles share that username. Contact your household admin.',
+    );
   }
 
   return matches[0];
@@ -457,6 +474,11 @@ export const childLogin = onCall(
       });
       const candidatePinHash = hashValue(pin, 'pin');
       if (candidatePinHash !== resolvedProfile.pinHash) {
+        logger.warn('childLogin: PIN mismatch', {
+          username,
+          householdId: resolvedProfile.householdId,
+          profileId: resolvedProfile.profileId,
+        });
         throw new HttpsError('permission-denied', 'Username or PIN is incorrect.');
       }
 
