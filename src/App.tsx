@@ -3,7 +3,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { signOut, User, onAuthStateChanged } from 'firebase/auth';
 import { collection, onSnapshot, query } from 'firebase/firestore';
 import { Calendar, Loader2, LogOut, Plus, Share2, UserPlus, Users } from 'lucide-react';
-import { BrowserRouter, Navigate, Route, Routes, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import { COMMON_TASKS, DEFAULT_RATES } from '@/constants';
 import { appConfig } from '@/services/config';
 import AddAdvanceModal from '@/components/AddAdvanceModal';
@@ -30,6 +39,7 @@ import {
 } from '@/utils';
 
 type FamilyAuthStage = 'UNAUTHENTICATED' | 'HOUSEHOLD_LOADED' | 'PROFILE_SELECTED' | 'AUTHORIZED';
+const DESIGNATED_ADMIN_EMAIL = 'mora090410@gmail.com';
 
 interface PersistedSession {
   householdId?: string;
@@ -251,6 +261,26 @@ function useFamilyAuth(): FamilyAuthState {
           return;
         }
 
+        const isDesignatedAdmin =
+          user?.email?.trim().toLowerCase() === DESIGNATED_ADMIN_EMAIL && canManageProfiles;
+
+        if (isDesignatedAdmin) {
+          const adminProfile = nextProfiles.find((profile) => profile.role === 'ADMIN') ?? null;
+          if (adminProfile) {
+            if (activeProfileId !== adminProfile.id) {
+              setActiveProfileId(adminProfile.id);
+              persistSession({
+                householdId,
+                familyId: householdId,
+                profileId: adminProfile.id,
+                role: adminProfile.role,
+              });
+            }
+            setStage('AUTHORIZED');
+            return;
+          }
+        }
+
         const selectedProfile = nextProfiles.find((profile) => profile.id === activeProfileId) ?? null;
 
         if (!selectedProfile) {
@@ -279,7 +309,7 @@ function useFamilyAuth(): FamilyAuthState {
     );
 
     return unsubscribeProfiles;
-  }, [householdId, activeProfileId, stage]);
+  }, [householdId, activeProfileId, stage, canManageProfiles, user?.email]);
 
   const activeProfile = useMemo(() => {
     if (!activeProfileId) {
@@ -390,6 +420,8 @@ function useFamilyAuth(): FamilyAuthState {
 
 function DashboardPage() {
   const queryClient = useQueryClient();
+  const location = useLocation();
+  const navigate = useNavigate();
   const familyAuth = useFamilyAuth();
   const householdId = familyAuth.householdId;
 
@@ -426,8 +458,8 @@ function DashboardPage() {
   const [childToEdit, setChildToEdit] = useState<Child | null>(null);
   const [taskToReject, setTaskToReject] = useState<{ childId: string; task: Task } | null>(null);
   const [rejectionComment, setRejectionComment] = useState('');
-  const [inviteLink, setInviteLink] = useState<string | null>(null);
   const [profileSetupLink, setProfileSetupLink] = useState<string | null>(null);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [createProfileError, setCreateProfileError] = useState<string | null>(null);
 
   const effectiveRateMap = useMemo(() => {
@@ -723,17 +755,11 @@ function DashboardPage() {
   };
 
   const handleGenerateInvite = async () => {
-    if (!householdId) {
+    if (!childrenWithRateMap.length) {
+      alert('Add at least one child profile before sending setup invites.');
       return;
     }
-
-    try {
-      const invite = await householdService.generateInvite(householdId, 'ADMIN');
-      setInviteLink(invite);
-    } catch {
-      setInviteLink(null);
-      alert('Unable to generate invite right now.');
-    }
+    setIsInviteModalOpen(true);
   };
 
   const handleGenerateProfileSetupLink = async (profile: Profile) => {
@@ -798,6 +824,21 @@ function DashboardPage() {
       familyAuth.activeProfile.id,
     );
   }, [familyAuth.stage, familyAuth.activeProfile?.id, familyAuth.householdId]);
+
+  React.useEffect(() => {
+    if (familyAuth.stage !== 'AUTHORIZED' || !familyAuth.activeProfile) {
+      return;
+    }
+
+    if (familyAuth.activeProfile.role === 'ADMIN' && location.pathname === '/dashboard') {
+      navigate('/admin-dashboard', { replace: true });
+      return;
+    }
+
+    if (familyAuth.activeProfile.role !== 'ADMIN' && location.pathname === '/admin-dashboard') {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [familyAuth.stage, familyAuth.activeProfile, location.pathname, navigate]);
 
   if (familyAuth.isInitializing) {
     return (
@@ -971,7 +1012,7 @@ function DashboardPage() {
                     child={child}
                     siblings={childrenWithRateMap.filter((candidate) => candidate.id !== child.id)}
                     onEditSettings={(candidate) => setChildToEdit(candidate)}
-                    onUpdateGrades={() => undefined}
+                    onUpdateGrades={(candidate) => setChildToEdit(candidate)}
                     onAssignTask={(candidate) => { setSelectedChildId(candidate.id); setIsAddTaskModalOpen(true); }}
                     onDeleteTask={(childId, taskId) => statusTaskMutation.mutate({ taskId, status: 'DELETED' })}
                     onEditTask={(task) => { setEditingTask({ childId: child.id, task }); setIsAddTaskModalOpen(true); }}
@@ -1005,7 +1046,26 @@ function DashboardPage() {
             updateChildMutation.mutate({ id, updates });
             setChildToEdit(null);
           }}
-          onDelete={() => undefined}
+          onDelete={(childId) => {
+            const child = childrenWithRateMap.find((candidate) => candidate.id === childId);
+            if (!child || !householdId) {
+              return;
+            }
+            void handleDeleteProfile({
+              id: child.id,
+              householdId,
+              familyId: householdId,
+              name: child.name,
+              role: child.role,
+              pinHash: undefined,
+              avatarColor: undefined,
+              gradeLevel: child.gradeLevel,
+              subjects: child.subjects,
+              rates: child.rates,
+              balance: child.balance,
+              balanceCents: child.balanceCents,
+            });
+          }}
           onImportAll={() => undefined}
           onResetAll={() => undefined}
         />
@@ -1049,17 +1109,42 @@ function DashboardPage() {
           </div>
         )}
 
-        {inviteLink && (
+        {isInviteModalOpen && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setInviteLink(null)} />
-            <div className="relative w-full max-w-[480px] bg-[#1a1a1a] rounded-[24px] border border-white/[0.06] p-10 text-center">
-              <h3 className="text-xl font-bold mb-4">Invite Co-Parent</h3>
-              <p className="text-gray-400 mb-6 text-sm">Share this secure link to add another admin to your household.</p>
-              <div className="flex items-center gap-2 bg-white/5 p-3 rounded-xl mb-6 border border-white/10">
-                <code className="text-xs text-[#ffb3b3] flex-1 truncate">{inviteLink}</code>
-                <button type="button" onClick={() => { void navigator.clipboard.writeText(inviteLink); }} className="text-xs font-bold bg-white/10 px-3 py-1.5 rounded-lg hover:bg-white/20">COPY</button>
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setIsInviteModalOpen(false)} />
+            <div className="relative w-full max-w-[560px] bg-[#1a1a1a] rounded-[24px] border border-white/[0.06] p-8 text-left">
+              <h3 className="text-xl font-bold mb-2">Invite Child Device</h3>
+              <p className="text-gray-400 mb-5 text-sm">Choose a child profile to generate a unique setup URL.</p>
+              <div className="space-y-2 max-h-[320px] overflow-auto pr-1">
+                {childrenWithRateMap.map((child) => (
+                  <button
+                    key={child.id}
+                    type="button"
+                    onClick={() => {
+                      void handleGenerateProfileSetupLink({
+                        id: child.id,
+                        householdId: householdId ?? '',
+                        familyId: householdId ?? '',
+                        name: child.name,
+                        role: child.role,
+                        pinHash: undefined,
+                        avatarColor: undefined,
+                        gradeLevel: child.gradeLevel,
+                        subjects: child.subjects,
+                        rates: child.rates,
+                        balance: child.balance,
+                        balanceCents: child.balanceCents,
+                      });
+                      setIsInviteModalOpen(false);
+                    }}
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left hover:bg-white/10"
+                  >
+                    <div className="text-sm font-semibold text-white">{child.name}</div>
+                    <div className="text-xs text-gray-400">{child.gradeLevel}</div>
+                  </button>
+                ))}
               </div>
-              <button type="button" onClick={() => setInviteLink(null)} className="w-full py-3 bg-white/10 rounded-xl font-bold hover:bg-white/15">Close</button>
+              <button type="button" onClick={() => setIsInviteModalOpen(false)} className="mt-5 w-full py-3 bg-white/10 rounded-xl font-bold hover:bg-white/15">Close</button>
             </div>
           </div>
         )}
@@ -1163,6 +1248,12 @@ function SetupProfileRoute() {
         token,
         pin,
         avatarColor,
+      });
+      persistSession({
+        householdId,
+        familyId: householdId,
+        profileId: id,
+        role: 'CHILD',
       });
       setIsComplete(true);
     } catch (submitError) {
@@ -1350,6 +1441,7 @@ export default function App() {
         />
         <Route path="/setup-profile/:id" element={<SetupProfileRoute />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/admin-dashboard" element={<DashboardPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
