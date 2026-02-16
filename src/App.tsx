@@ -43,6 +43,7 @@ interface FamilyAuthState {
   householdId: string | null;
   profiles: Profile[];
   activeProfile: Profile | null;
+  canManageProfiles: boolean;
   isInitializing: boolean;
   isProfilesLoading: boolean;
   selectProfile: (profileId: string) => void;
@@ -99,6 +100,7 @@ const mapFirestoreProfile = (
         ? source.role
         : 'MEMBER',
     pinHash: typeof source.pinHash === 'string' ? source.pinHash : undefined,
+    avatarColor: typeof source.avatarColor === 'string' ? source.avatarColor : undefined,
     gradeLevel: typeof source.gradeLevel === 'string' ? source.gradeLevel : 'Unknown',
     subjects: Array.isArray(source.subjects) ? (source.subjects as Profile['subjects']) : [],
     rates:
@@ -118,6 +120,7 @@ function useFamilyAuth(): FamilyAuthState {
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [isProfilesLoading, setIsProfilesLoading] = useState(false);
+  const [canManageProfiles, setCanManageProfiles] = useState(false);
 
   React.useEffect(() => {
     if (!auth || !isFirebaseConfigured) {
@@ -134,6 +137,7 @@ function useFamilyAuth(): FamilyAuthState {
         setHouseholdId(null);
         setProfiles([]);
         setActiveProfileId(null);
+        setCanManageProfiles(false);
         setIsInitializing(false);
         return;
       }
@@ -146,6 +150,7 @@ function useFamilyAuth(): FamilyAuthState {
           setHouseholdId(null);
           setProfiles([]);
           setActiveProfileId(null);
+          setCanManageProfiles(false);
           setIsInitializing(false);
           return;
         }
@@ -164,6 +169,7 @@ function useFamilyAuth(): FamilyAuthState {
         setHouseholdId(null);
         setProfiles([]);
         setActiveProfileId(null);
+        setCanManageProfiles(false);
       } finally {
         setIsInitializing(false);
       }
@@ -171,6 +177,31 @@ function useFamilyAuth(): FamilyAuthState {
 
     return unsubscribeAuth;
   }, []);
+
+  React.useEffect(() => {
+    if (!user || !householdId) {
+      setCanManageProfiles(false);
+      return;
+    }
+
+    let isMounted = true;
+    void householdService
+      .getUserRoleInHousehold(user.uid, householdId)
+      .then((role) => {
+        if (isMounted) {
+          setCanManageProfiles(role === 'ADMIN');
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setCanManageProfiles(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user, householdId]);
 
   React.useEffect(() => {
     if (!householdId || !db) {
@@ -315,6 +346,7 @@ function useFamilyAuth(): FamilyAuthState {
     householdId,
     profiles,
     activeProfile,
+    canManageProfiles,
     isInitializing,
     isProfilesLoading,
     selectProfile,
@@ -363,6 +395,7 @@ function DashboardPage() {
   const [taskToReject, setTaskToReject] = useState<{ childId: string; task: Task } | null>(null);
   const [rejectionComment, setRejectionComment] = useState('');
   const [inviteLink, setInviteLink] = useState<string | null>(null);
+  const [createProfileError, setCreateProfileError] = useState<string | null>(null);
 
   const effectiveRateMap = useMemo(() => {
     return buildRateMapFromGradeConfigs(gradeConfigs, DEFAULT_RATES);
@@ -382,6 +415,15 @@ function DashboardPage() {
       return householdService.createChild(householdId, child);
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['children'] }),
+  });
+
+  const createProfileMutation = useMutation({
+    mutationFn: (payload: { name: string; pin: string; avatarColor?: string }) => {
+      if (!householdId) {
+        return Promise.reject(new Error('No household selected.'));
+      }
+      return householdService.createProfile(householdId, payload);
+    },
   });
 
   const updateChildMutation = useMutation({
@@ -696,6 +738,20 @@ function DashboardPage() {
           isLoading={familyAuth.isProfilesLoading}
           selectedProfileId={activeProfile?.id ?? null}
           onSelectProfile={familyAuth.selectProfile}
+          canAddProfile={familyAuth.canManageProfiles}
+          isCreatingProfile={createProfileMutation.isPending}
+          createProfileError={createProfileError}
+          onCreateProfile={async ({ name, pin, avatarColor }) => {
+            try {
+              setCreateProfileError(null);
+              await createProfileMutation.mutateAsync({ name, pin, avatarColor });
+            } catch (error) {
+              const message =
+                error instanceof Error ? error.message : 'Unable to create profile right now.';
+              setCreateProfileError(message);
+              throw error;
+            }
+          }}
           onSignOut={() => {
             void familyAuth.signOutUser();
           }}

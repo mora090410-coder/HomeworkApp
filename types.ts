@@ -101,6 +101,7 @@ export interface Profile {
   name: string;
   role: Role;
   pinHash?: string;
+  avatarColor?: string;
   gradeLevel: string;
   subjects: Subject[];
   rates: Record<Grade, number>;

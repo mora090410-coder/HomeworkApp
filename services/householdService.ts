@@ -248,6 +248,7 @@ const mapProfile = (profileId: string, householdId: string, source: Record<strin
     name: typeof source.name === 'string' ? source.name : 'Unknown Profile',
     role: parseRole(source.role),
     pinHash: typeof source.pinHash === 'string' ? source.pinHash : undefined,
+    avatarColor: typeof source.avatarColor === 'string' ? source.avatarColor : undefined,
     gradeLevel: typeof source.gradeLevel === 'string' ? source.gradeLevel : 'Unknown',
     subjects: parseSubjects(source.subjects),
     rates: parseRates(source.rates),
@@ -403,6 +404,25 @@ const resolveTaskLocationById = async (
 };
 
 export const householdService = {
+  async getUserRoleInHousehold(userId: string, householdId: string): Promise<Role | null> {
+    try {
+      const firestore = getFirestore();
+      const safeUserId = assertNonEmptyString(userId, 'userId');
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+      const membershipSnapshot = await getDoc(
+        doc(firestore, `users/${safeUserId}/households/${safeHouseholdId}`),
+      );
+
+      if (!membershipSnapshot.exists()) {
+        return null;
+      }
+
+      return parseRole((membershipSnapshot.data() as Record<string, unknown>).role);
+    } catch (error) {
+      throw normalizeError('Failed to load user household role', error);
+    }
+  },
+
   async getCurrentHousehold(userId?: string): Promise<Household | null> {
     try {
       const firestore = getFirestore();
@@ -716,6 +736,50 @@ export const householdService = {
       };
     } catch (error) {
       throw normalizeError('Failed to create child profile', error);
+    }
+  },
+
+  async createProfile(
+    householdId: string,
+    payload: { name: string; pin: string; avatarColor?: string },
+  ): Promise<Profile> {
+    try {
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+      const profileName = assertNonEmptyString(payload.name, 'profile.name');
+      const pin = assertNonEmptyString(payload.pin, 'profile.pin');
+
+      if (!/^\d{4}$/.test(pin)) {
+        throw new Error('profile.pin must be exactly 4 digits.');
+      }
+
+      const pinHash = await hashPin(pin);
+      const profileRef = doc(getProfilesCollectionRef(safeHouseholdId));
+      const profile: FirestoreProfile = {
+        householdId: safeHouseholdId,
+        name: profileName,
+        role: 'CHILD',
+        pinHash,
+        avatarColor: typeof payload.avatarColor === 'string' ? payload.avatarColor : '#3b82f6',
+        gradeLevel: 'Unknown',
+        subjects: [],
+        rates: defaultRates(),
+        balanceCents: 0,
+        balance: 0,
+      };
+
+      await setDoc(profileRef, {
+        ...profile,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+
+      return {
+        ...profile,
+        id: profileRef.id,
+        familyId: safeHouseholdId,
+      };
+    } catch (error) {
+      throw normalizeError('Failed to create profile', error);
     }
   },
 
