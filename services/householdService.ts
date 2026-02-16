@@ -2,10 +2,8 @@ import {
   Timestamp,
   addDoc,
   collection,
-  collectionGroup,
   deleteDoc,
   doc,
-  documentId,
   getDoc,
   getDocs,
   limit,
@@ -30,7 +28,7 @@ import {
   TaskStatus,
   Transaction,
 } from '@/types';
-import { db, ensureFirebaseConfigured } from '@/services/firebase';
+import { auth, db, ensureFirebaseConfigured } from '@/services/firebase';
 import { ledgerService } from '@/services/ledgerService';
 import { centsToDollars, dollarsToCents } from '@/utils';
 
@@ -348,6 +346,43 @@ const getProfileTransactionsCollectionRef = (householdId: string, profileId: str
   return collection(firestore, `households/${householdId}/profiles/${profileId}/transactions`);
 };
 
+const getCandidateHouseholdIds = async (householdId?: string): Promise<string[]> => {
+  const candidateHouseholdIds = new Set<string>();
+  const addCandidateHouseholdId = (candidateId?: string) => {
+    if (typeof candidateId !== 'string') {
+      return;
+    }
+
+    const trimmedCandidateId = candidateId.trim();
+    if (trimmedCandidateId.length === 0) {
+      return;
+    }
+
+    candidateHouseholdIds.add(trimmedCandidateId);
+  };
+
+  addCandidateHouseholdId(householdId);
+
+  const storedProfile = readStoredActiveProfile();
+  addCandidateHouseholdId(storedProfile?.householdId);
+  addCandidateHouseholdId(storedProfile?.familyId);
+
+  const currentUserId = auth?.currentUser?.uid;
+  if (currentUserId) {
+    try {
+      const firestore = getFirestore();
+      const membershipsSnapshot = await getDocs(collection(firestore, `users/${currentUserId}/households`));
+      membershipsSnapshot.docs.forEach((membershipDoc) => {
+        addCandidateHouseholdId(membershipDoc.id);
+      });
+    } catch {
+      // Ignore membership lookup failures and continue with known candidates.
+    }
+  }
+
+  return Array.from(candidateHouseholdIds);
+};
+
 const mapChoreCatalogItem = (
   choreId: string,
   householdId: string,
@@ -369,48 +404,40 @@ const mapChoreCatalogItem = (
 
 const resolveProfileLocationById = async (
   profileId: string,
+  householdId?: string,
 ): Promise<{ householdId: string; profileId: string } | null> => {
+  const safeProfileId = assertNonEmptyString(profileId, 'profileId');
   const firestore = getFirestore();
-  const profileQuery = query(
-    collectionGroup(firestore, 'profiles'),
-    where(documentId(), '==', profileId),
-    limit(1),
-  );
-  const profileSnapshot = await getDocs(profileQuery);
+  const candidateHouseholdIds = await getCandidateHouseholdIds(householdId);
 
-  if (profileSnapshot.empty) {
-    return null;
+  for (const candidateHouseholdId of candidateHouseholdIds) {
+    const profileSnapshot = await getDoc(
+      doc(firestore, `households/${candidateHouseholdId}/profiles/${safeProfileId}`),
+    );
+    if (profileSnapshot.exists()) {
+      return { householdId: candidateHouseholdId, profileId: safeProfileId };
+    }
   }
 
-  const match = profileSnapshot.docs[0];
-  const householdId = match.ref.parent.parent?.id;
-
-  if (!householdId) {
-    return null;
-  }
-
-  return { householdId, profileId: match.id };
+  return null;
 };
 
 const resolveTaskLocationById = async (
   taskId: string,
+  householdId?: string,
 ): Promise<{ householdId: string; taskId: string } | null> => {
+  const safeTaskId = assertNonEmptyString(taskId, 'taskId');
   const firestore = getFirestore();
-  const taskQuery = query(collectionGroup(firestore, 'tasks'), where(documentId(), '==', taskId), limit(1));
-  const taskSnapshot = await getDocs(taskQuery);
+  const candidateHouseholdIds = await getCandidateHouseholdIds(householdId);
 
-  if (taskSnapshot.empty) {
-    return null;
+  for (const candidateHouseholdId of candidateHouseholdIds) {
+    const taskSnapshot = await getDoc(doc(firestore, `households/${candidateHouseholdId}/tasks/${safeTaskId}`));
+    if (taskSnapshot.exists()) {
+      return { householdId: candidateHouseholdId, taskId: safeTaskId };
+    }
   }
 
-  const match = taskSnapshot.docs[0];
-  const householdId = match.ref.parent.parent?.id;
-
-  if (!householdId) {
-    return null;
-  }
-
-  return { householdId, taskId: match.id };
+  return null;
 };
 
 export const householdService = {
@@ -1205,7 +1232,11 @@ export const householdService = {
       });
 
       const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-      return `${baseUrl}/setup-profile/${safeProfileId}?token=${encodeURIComponent(rawToken)}`;
+      const setupLinkQuery = new URLSearchParams({
+        token: rawToken,
+        householdId: safeHouseholdId,
+      });
+      return `${baseUrl}/setup-profile/${safeProfileId}?${setupLinkQuery.toString()}`;
     } catch (error) {
       throw normalizeError('Failed to generate profile setup link', error);
     }
@@ -1214,11 +1245,14 @@ export const householdService = {
   async validateProfileSetupLink(
     profileId: string,
     token: string,
+    householdId?: string,
   ): Promise<{ householdId: string; profile: Profile }> {
     try {
       const safeProfileId = assertNonEmptyString(profileId, 'profileId');
       const safeToken = assertNonEmptyString(token, 'token');
-      const resolvedProfile = await resolveProfileLocationById(safeProfileId);
+      const safeHouseholdId =
+        typeof householdId === 'string' && householdId.trim().length > 0 ? householdId.trim() : undefined;
+      const resolvedProfile = await resolveProfileLocationById(safeProfileId, safeHouseholdId);
       if (!resolvedProfile) {
         throw new Error('Profile setup link is invalid.');
       }

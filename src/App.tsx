@@ -1151,6 +1151,7 @@ function SetupProfileRoute() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') ?? '';
+  const householdIdFromLink = searchParams.get('householdId') ?? '';
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [householdId, setHouseholdId] = React.useState<string | null>(null);
@@ -1171,7 +1172,7 @@ function SetupProfileRoute() {
 
     let isMounted = true;
     void householdService
-      .validateProfileSetupLink(id, token)
+      .validateProfileSetupLink(id, token, householdIdFromLink)
       .then((result) => {
         if (!isMounted) {
           return;
@@ -1200,7 +1201,7 @@ function SetupProfileRoute() {
     return () => {
       isMounted = false;
     };
-  }, [id, token]);
+  }, [id, token, householdIdFromLink]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
