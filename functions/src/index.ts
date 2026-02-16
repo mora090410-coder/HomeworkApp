@@ -482,14 +482,28 @@ export const childLogin = onCall(
         throw new HttpsError('permission-denied', 'Username or PIN is incorrect.');
       }
 
-      const token = await getAuth().createCustomToken(
-        `child:${resolvedProfile.householdId}:${resolvedProfile.profileId}`,
-        {
-          role: 'CHILD',
-          householdId: resolvedProfile.householdId,
-          profileId: resolvedProfile.profileId,
-        },
-      );
+      let token: string;
+      try {
+        token = await getAuth().createCustomToken(
+          `child:${resolvedProfile.householdId}:${resolvedProfile.profileId}`,
+          {
+            role: 'CHILD',
+            householdId: resolvedProfile.householdId,
+            profileId: resolvedProfile.profileId,
+          },
+        );
+      } catch (tokenError: unknown) {
+        const errObj = tokenError as Record<string, unknown>;
+        logger.error('childLogin: createCustomToken failed', {
+          message: errObj.message,
+          code: errObj.code,
+          details: errObj.details,
+          name: errObj.name,
+          stack: errObj.stack ? String(errObj.stack).slice(0, 500) : undefined,
+          uid: `child:${resolvedProfile.householdId}:${resolvedProfile.profileId}`,
+        });
+        throw tokenError;
+      }
 
       return {
         token,
