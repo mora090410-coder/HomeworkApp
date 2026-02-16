@@ -10,6 +10,7 @@ import {
   getDocs,
   limit,
   query,
+  runTransaction,
   serverTimestamp,
   setDoc,
   updateDoc,
@@ -36,6 +37,7 @@ import { centsToDollars, dollarsToCents } from '@/utils';
 const ACTIVE_PROFILE_STORAGE_KEY = 'homework-active-profile';
 const DEFAULT_INVITE_EXPIRY_HOURS = 24;
 const DEFAULT_ACTIVITY_LIMIT = 10;
+const DEFAULT_PROFILE_SETUP_EXPIRY_HOURS = 24;
 
 type FirestoreProfile = Omit<Profile, 'id' | 'familyId'>;
 
@@ -95,6 +97,14 @@ const assertNonEmptyString = (value: unknown, field: string): string => {
 const hashPin = async (pin: string): Promise<string> => {
   const safePin = assertNonEmptyString(pin, 'pin');
   const payload = new TextEncoder().encode(safePin);
+  const digest = await crypto.subtle.digest('SHA-256', payload);
+  const bytes = Array.from(new Uint8Array(digest));
+  return bytes.map((byte) => byte.toString(16).padStart(2, '0')).join('');
+};
+
+const hashToken = async (token: string): Promise<string> => {
+  const safeToken = assertNonEmptyString(token, 'token');
+  const payload = new TextEncoder().encode(safeToken);
   const digest = await crypto.subtle.digest('SHA-256', payload);
   const bytes = Array.from(new Uint8Array(digest));
   return bytes.map((byte) => byte.toString(16).padStart(2, '0')).join('');
@@ -741,18 +751,16 @@ export const householdService = {
 
   async createProfile(
     householdId: string,
-    payload: { name: string; pin: string; avatarColor?: string },
+    payload: { name: string; pin?: string; avatarColor?: string },
   ): Promise<Profile> {
     try {
       const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
       const profileName = assertNonEmptyString(payload.name, 'profile.name');
-      const pin = assertNonEmptyString(payload.pin, 'profile.pin');
-
-      if (!/^\d{4}$/.test(pin)) {
-        throw new Error('profile.pin must be exactly 4 digits.');
+      const pin = typeof payload.pin === 'string' ? payload.pin.trim() : '';
+      if (pin && !/^\d{4}$/.test(pin)) {
+        throw new Error('profile.pin must be exactly 4 digits when provided.');
       }
-
-      const pinHash = await hashPin(pin);
+      const pinHash = pin ? await hashPin(pin) : '';
       const profileRef = doc(getProfilesCollectionRef(safeHouseholdId));
       const profile: FirestoreProfile = {
         householdId: safeHouseholdId,
@@ -1113,6 +1121,228 @@ export const householdService = {
   async verifyProfilePin(profileId: string, pin: string): Promise<boolean> {
     const candidatePinHash = await hashPin(pin);
     return householdService.verifyProfilePinHash(profileId, candidatePinHash);
+  },
+
+  async setProfilePinInHousehold(householdId: string, profileId: string, pin: string): Promise<void> {
+    try {
+      const firestore = getFirestore();
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+      const safePin = assertNonEmptyString(pin, 'pin');
+
+      if (!/^\d{4}$/.test(safePin)) {
+        throw new Error('pin must be exactly 4 digits.');
+      }
+
+      const pinHash = await hashPin(safePin);
+      const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);
+      const profileSnapshot = await getDoc(profileRef);
+
+      if (!profileSnapshot.exists()) {
+        throw new Error('Profile not found in this household.');
+      }
+
+      await updateDoc(profileRef, {
+        pinHash,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (error) {
+      throw normalizeError('Failed to save profile PIN', error);
+    }
+  },
+
+  async verifyProfilePinInHousehold(
+    householdId: string,
+    profileId: string,
+    pin: string,
+  ): Promise<boolean> {
+    try {
+      const firestore = getFirestore();
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+      const safePin = assertNonEmptyString(pin, 'pin');
+      const candidatePinHash = await hashPin(safePin);
+
+      const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);
+      const profileSnapshot = await getDoc(profileRef);
+      if (!profileSnapshot.exists()) {
+        return false;
+      }
+
+      const storedPinHash = (profileSnapshot.data() as Record<string, unknown>).pinHash;
+      return typeof storedPinHash === 'string' && storedPinHash === candidatePinHash;
+    } catch (error) {
+      throw normalizeError('Failed to verify profile PIN', error);
+    }
+  },
+
+  async generateProfileSetupLink(householdId: string, profileId: string): Promise<string> {
+    try {
+      const firestore = getFirestore();
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+      const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);
+      const profileSnapshot = await getDoc(profileRef);
+
+      if (!profileSnapshot.exists()) {
+        throw new Error('Profile not found in this household.');
+      }
+
+      const rawToken =
+        typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID().replace(/-/g, '')
+          : `${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`;
+      const tokenHash = await hashToken(rawToken);
+      const expiresAt = Timestamp.fromDate(
+        new Date(Date.now() + DEFAULT_PROFILE_SETUP_EXPIRY_HOURS * 60 * 60 * 1000),
+      );
+
+      await updateDoc(profileRef, {
+        setupTokenHash: tokenHash,
+        setupTokenExpiresAt: expiresAt,
+        setupTokenUsedAt: null,
+        updatedAt: serverTimestamp(),
+      });
+
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+      return `${baseUrl}/setup-profile/${safeProfileId}?token=${encodeURIComponent(rawToken)}`;
+    } catch (error) {
+      throw normalizeError('Failed to generate profile setup link', error);
+    }
+  },
+
+  async validateProfileSetupLink(
+    profileId: string,
+    token: string,
+  ): Promise<{ householdId: string; profile: Profile }> {
+    try {
+      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+      const safeToken = assertNonEmptyString(token, 'token');
+      const resolvedProfile = await resolveProfileLocationById(safeProfileId);
+      if (!resolvedProfile) {
+        throw new Error('Profile setup link is invalid.');
+      }
+
+      const firestore = getFirestore();
+      const profileRef = doc(
+        firestore,
+        `households/${resolvedProfile.householdId}/profiles/${resolvedProfile.profileId}`,
+      );
+      const profileSnapshot = await getDoc(profileRef);
+      if (!profileSnapshot.exists()) {
+        throw new Error('Profile setup link is invalid.');
+      }
+
+      const payload = profileSnapshot.data() as Record<string, unknown>;
+      const storedTokenHash = payload.setupTokenHash;
+      const expiresAt = payload.setupTokenExpiresAt;
+      const usedAt = payload.setupTokenUsedAt;
+
+      if (typeof storedTokenHash !== 'string' || storedTokenHash.length === 0) {
+        throw new Error('Profile setup link is invalid.');
+      }
+      if (!(expiresAt instanceof Timestamp) || expiresAt.toMillis() < Date.now()) {
+        throw new Error('Profile setup link has expired.');
+      }
+      if (usedAt instanceof Timestamp) {
+        throw new Error('Profile setup link has already been used.');
+      }
+
+      const candidateTokenHash = await hashToken(safeToken);
+      if (candidateTokenHash !== storedTokenHash) {
+        throw new Error('Profile setup link is invalid.');
+      }
+
+      return {
+        householdId: resolvedProfile.householdId,
+        profile: mapProfile(resolvedProfile.profileId, resolvedProfile.householdId, payload),
+      };
+    } catch (error) {
+      throw normalizeError('Failed to validate profile setup link', error);
+    }
+  },
+
+  async completeProfileSetup(input: {
+    householdId: string;
+    profileId: string;
+    token: string;
+    pin: string;
+    avatarColor: string;
+  }): Promise<void> {
+    try {
+      const firestore = getFirestore();
+      const safeHouseholdId = assertNonEmptyString(input.householdId, 'householdId');
+      const safeProfileId = assertNonEmptyString(input.profileId, 'profileId');
+      const safeToken = assertNonEmptyString(input.token, 'token');
+      const safePin = assertNonEmptyString(input.pin, 'pin');
+      const safeAvatarColor = assertNonEmptyString(input.avatarColor, 'avatarColor');
+
+      if (!/^\d{4}$/.test(safePin)) {
+        throw new Error('PIN must be exactly 4 digits.');
+      }
+
+      const pinHash = await hashPin(safePin);
+      const candidateTokenHash = await hashToken(safeToken);
+      const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);
+
+      await runTransaction(firestore, async (transaction) => {
+        const profileSnapshot = await transaction.get(profileRef);
+        if (!profileSnapshot.exists()) {
+          throw new Error('Profile setup link is invalid.');
+        }
+
+        const payload = profileSnapshot.data() as Record<string, unknown>;
+        const storedTokenHash = payload.setupTokenHash;
+        const expiresAt = payload.setupTokenExpiresAt;
+        const usedAt = payload.setupTokenUsedAt;
+
+        if (typeof storedTokenHash !== 'string' || storedTokenHash.length === 0) {
+          throw new Error('Profile setup link is invalid.');
+        }
+        if (!(expiresAt instanceof Timestamp) || expiresAt.toMillis() < Date.now()) {
+          throw new Error('Profile setup link has expired.');
+        }
+        if (usedAt instanceof Timestamp) {
+          throw new Error('Profile setup link has already been used.');
+        }
+        if (candidateTokenHash !== storedTokenHash) {
+          throw new Error('Profile setup link is invalid.');
+        }
+
+        transaction.update(profileRef, {
+          pinHash,
+          avatarColor: safeAvatarColor,
+          setupTokenHash: null,
+          setupTokenUsedAt: Timestamp.now(),
+          updatedAt: serverTimestamp(),
+        });
+      });
+    } catch (error) {
+      throw normalizeError('Failed to complete profile setup', error);
+    }
+  },
+
+  async deleteProfileInHousehold(householdId: string, profileId: string): Promise<void> {
+    try {
+      const firestore = getFirestore();
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+      const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);
+      const profileSnapshot = await getDoc(profileRef);
+
+      if (!profileSnapshot.exists()) {
+        throw new Error('Profile not found in this household.');
+      }
+
+      const role = parseRole((profileSnapshot.data() as Record<string, unknown>).role);
+      if (role === 'ADMIN') {
+        throw new Error('Admin profiles cannot be deleted.');
+      }
+
+      await deleteDoc(profileRef);
+    } catch (error) {
+      throw normalizeError('Failed to delete profile', error);
+    }
   },
 
   async generateInvite(householdId: string, role: 'ADMIN' | 'MEMBER'): Promise<string> {

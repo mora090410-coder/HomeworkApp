@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2, LogOut, Plus, Shield, UserRound, Users, X } from 'lucide-react';
+import { Link2, Loader2, LogOut, Plus, Shield, Trash2, UserRound, Users, X } from 'lucide-react';
 import { Profile } from '../types';
 
 interface LandingScreenProps {
@@ -8,10 +8,13 @@ interface LandingScreenProps {
   selectedProfileId: string | null;
   onSelectProfile: (profileId: string) => void;
   canAddProfile: boolean;
+  isAdminUser: boolean;
   isCreatingProfile: boolean;
   createProfileError: string | null;
   profilesError: string | null;
-  onCreateProfile: (payload: { name: string; pin: string; avatarColor: string }) => Promise<void>;
+  onCreateProfile: (payload: { name: string; pin?: string; avatarColor: string }) => Promise<void>;
+  onDeleteProfile: (profile: Profile) => Promise<void>;
+  onGenerateSetupLink: (profile: Profile) => Promise<void>;
   onSignOut: () => void;
 }
 
@@ -33,10 +36,13 @@ export default function LandingScreen({
   selectedProfileId,
   onSelectProfile,
   canAddProfile,
+  isAdminUser,
   isCreatingProfile,
   createProfileError,
   profilesError,
   onCreateProfile,
+  onDeleteProfile,
+  onGenerateSetupLink,
   onSignOut,
 }: LandingScreenProps) {
   const [isAddProfileOpen, setIsAddProfileOpen] = React.useState(false);
@@ -71,14 +77,14 @@ export default function LandingScreen({
       return;
     }
 
-    if (!/^\d{4}$/.test(pin)) {
-      setFormError('PIN must be exactly 4 digits.');
+    if (pin.length > 0 && !/^\d{4}$/.test(pin)) {
+      setFormError('PIN must be exactly 4 digits when provided.');
       return;
     }
 
     setFormError(null);
     try {
-      await onCreateProfile({ name: trimmedName, pin, avatarColor });
+      await onCreateProfile({ name: trimmedName, pin: pin.length > 0 ? pin : undefined, avatarColor });
       closeAddProfile();
     } catch {
       // Parent owns surfaced errors.
@@ -144,16 +150,19 @@ export default function LandingScreen({
               {profiles.map((profile) => {
                 const isSelected = profile.id === selectedProfileId;
                 return (
-                  <button
+                  <div
                     key={profile.id}
-                    type="button"
-                    onClick={() => onSelectProfile(profile.id)}
                     className={`group rounded-2xl border p-6 text-left transition-all ${isSelected
                       ? 'border-[#b30000] bg-[#b30000]/10 shadow-[0_0_0_1px_rgba(179,0,0,0.5)]'
                       : 'border-white/10 bg-white/[0.03] hover:border-[#b30000]/50 hover:bg-white/[0.06]'
                       }`}
-                    aria-label={`Select profile ${profile.name}`}
                   >
+                    <button
+                      type="button"
+                      onClick={() => onSelectProfile(profile.id)}
+                      className="w-full text-left"
+                      aria-label={`Select profile ${profile.name}`}
+                    >
                     <div
                       className={`mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full border ${
                         profile.role === 'ADMIN'
@@ -171,7 +180,34 @@ export default function LandingScreen({
                     </div>
                     <div className="text-lg font-semibold text-white">{profile.name}</div>
                     <div className="mt-1 text-xs uppercase tracking-wide text-gray-400">{profile.role}</div>
-                  </button>
+                    </button>
+
+                    {isAdminUser && profile.role === 'CHILD' && (
+                      <div className="mt-4 flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            void onGenerateSetupLink(profile);
+                          }}
+                          className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-gray-200 hover:bg-white/10"
+                          aria-label={`Generate setup link for ${profile.name}`}
+                        >
+                          <Link2 className="h-3.5 w-3.5" />
+                          Generate Setup Link
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            void onDeleteProfile(profile);
+                          }}
+                          className="inline-flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-red-300 hover:bg-red-500/20"
+                          aria-label={`Delete profile ${profile.name}`}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 );
               })}
             </div>
@@ -218,7 +254,7 @@ export default function LandingScreen({
 
               <div>
                 <label htmlFor="profile-pin" className="mb-1 block text-xs uppercase tracking-wide text-gray-400">
-                  4-digit PIN
+                  4-digit PIN (optional)
                 </label>
                 <input
                   id="profile-pin"

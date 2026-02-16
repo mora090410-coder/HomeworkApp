@@ -3,8 +3,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { signOut, User, onAuthStateChanged } from 'firebase/auth';
 import { collection, onSnapshot, query } from 'firebase/firestore';
 import { Calendar, Loader2, LogOut, Plus, Share2, UserPlus, Users } from 'lucide-react';
-import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { COMMON_TASKS, DEFAULT_RATES } from '@/constants';
+import { appConfig } from '@/services/config';
 import AddAdvanceModal from '@/components/AddAdvanceModal';
 import AddChildModal, { NewChildData } from '@/components/AddChildModal';
 import AssignTaskModal, { AssignTaskPayload } from '@/components/AssignTaskModal';
@@ -426,6 +427,7 @@ function DashboardPage() {
   const [taskToReject, setTaskToReject] = useState<{ childId: string; task: Task } | null>(null);
   const [rejectionComment, setRejectionComment] = useState('');
   const [inviteLink, setInviteLink] = useState<string | null>(null);
+  const [profileSetupLink, setProfileSetupLink] = useState<string | null>(null);
   const [createProfileError, setCreateProfileError] = useState<string | null>(null);
 
   const effectiveRateMap = useMemo(() => {
@@ -449,11 +451,24 @@ function DashboardPage() {
   });
 
   const createProfileMutation = useMutation({
-    mutationFn: (payload: { name: string; pin: string; avatarColor?: string }) => {
+    mutationFn: (payload: { name: string; pin?: string; avatarColor?: string }) => {
       if (!householdId) {
         return Promise.reject(new Error('No household selected.'));
       }
       return householdService.createProfile(householdId, payload);
+    },
+  });
+
+  const deleteProfileMutation = useMutation({
+    mutationFn: (profileId: string) => {
+      if (!householdId) {
+        return Promise.reject(new Error('No household selected.'));
+      }
+      return householdService.deleteProfileInHousehold(householdId, profileId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['children'] });
+      queryClient.invalidateQueries({ queryKey: ['openTasks'] });
     },
   });
 
@@ -721,6 +736,42 @@ function DashboardPage() {
     }
   };
 
+  const handleGenerateProfileSetupLink = async (profile: Profile) => {
+    if (!householdId) {
+      return;
+    }
+
+    try {
+      const link = await householdService.generateProfileSetupLink(householdId, profile.id);
+      setProfileSetupLink(link);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : `Unable to generate setup link for ${profile.name}.`;
+      alert(message);
+    }
+  };
+
+  const handleDeleteProfile = async (profile: Profile) => {
+    if (!householdId || profile.role === 'ADMIN') {
+      return;
+    }
+
+    const shouldDelete = window.confirm(`Delete ${profile.name}'s profile? This cannot be undone.`);
+    if (!shouldDelete) {
+      return;
+    }
+
+    try {
+      await deleteProfileMutation.mutateAsync(profile.id);
+      if (familyAuth.activeProfile?.id === profile.id) {
+        familyAuth.clearActiveProfileSelection();
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to delete profile right now.';
+      alert(message);
+    }
+  };
+
   if (!isFirebaseConfigured) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center text-white p-6">
@@ -770,9 +821,12 @@ function DashboardPage() {
           selectedProfileId={activeProfile?.id ?? null}
           onSelectProfile={familyAuth.selectProfile}
           canAddProfile={familyAuth.canManageProfiles}
+          isAdminUser={familyAuth.canManageProfiles}
           isCreatingProfile={createProfileMutation.isPending}
           createProfileError={createProfileError}
           profilesError={familyAuth.profilesError}
+          onDeleteProfile={handleDeleteProfile}
+          onGenerateSetupLink={handleGenerateProfileSetupLink}
           onCreateProfile={async ({ name, pin, avatarColor }) => {
             try {
               setCreateProfileError(null);
@@ -791,9 +845,13 @@ function DashboardPage() {
         />
         <PinModal
           isOpen={familyAuth.stage === 'PROFILE_SELECTED' && !!activeProfile}
+          householdId={familyAuth.householdId}
           profileId={activeProfile?.id ?? null}
+          profileRole={activeProfile?.role}
           mode={activeProfile?.pinHash ? 'VERIFY' : 'SETUP'}
           profileName={activeProfile?.name ?? 'Profile'}
+          canAdminBypass={familyAuth.canManageProfiles}
+          adminMasterPassword={appConfig.admin.masterPassword}
           onClose={familyAuth.clearActiveProfileSelection}
           onAuthorized={familyAuth.authorizeActiveProfile}
         />
@@ -1005,6 +1063,191 @@ function DashboardPage() {
             </div>
           </div>
         )}
+
+        {profileSetupLink && (
+          <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setProfileSetupLink(null)} />
+            <div className="relative w-full max-w-[560px] bg-[#1a1a1a] rounded-[24px] border border-white/[0.06] p-10 text-center">
+              <h3 className="text-xl font-bold mb-4">Profile Setup Link</h3>
+              <p className="text-gray-400 mb-6 text-sm">Send this one-time link so the child can set their own PIN and avatar.</p>
+              <div className="flex items-center gap-2 bg-white/5 p-3 rounded-xl mb-6 border border-white/10">
+                <code className="text-xs text-[#ffb3b3] flex-1 truncate">{profileSetupLink}</code>
+                <button type="button" onClick={() => { void navigator.clipboard.writeText(profileSetupLink); }} className="text-xs font-bold bg-white/10 px-3 py-1.5 rounded-lg hover:bg-white/20">COPY</button>
+              </div>
+              <button type="button" onClick={() => setProfileSetupLink(null)} className="w-full py-3 bg-white/10 rounded-xl font-bold hover:bg-white/15">Close</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SetupProfileRoute() {
+  const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get('token') ?? '';
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [householdId, setHouseholdId] = React.useState<string | null>(null);
+  const [profileName, setProfileName] = React.useState('Profile');
+  const [avatarColor, setAvatarColor] = React.useState('#ef4444');
+  const [pin, setPin] = React.useState('');
+  const [confirmPin, setConfirmPin] = React.useState('');
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isComplete, setIsComplete] = React.useState(false);
+  const colorOptions = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899'];
+
+  React.useEffect(() => {
+    if (!id || !token) {
+      setError('Setup link is invalid.');
+      setIsLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+    void householdService
+      .validateProfileSetupLink(id, token)
+      .then((result) => {
+        if (!isMounted) {
+          return;
+        }
+        setHouseholdId(result.householdId);
+        setProfileName(result.profile.name);
+        if (result.profile.avatarColor) {
+          setAvatarColor(result.profile.avatarColor);
+        }
+        setError(null);
+      })
+      .catch((validationError: unknown) => {
+        if (!isMounted) {
+          return;
+        }
+        setError(
+          validationError instanceof Error ? validationError.message : 'Setup link could not be validated.',
+        );
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id, token]);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!id || !householdId) {
+      setError('Setup link is invalid.');
+      return;
+    }
+    if (!/^\d{4}$/.test(pin)) {
+      setError('PIN must be exactly 4 digits.');
+      return;
+    }
+    if (pin !== confirmPin) {
+      setError('PINs do not match.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+    try {
+      await householdService.completeProfileSetup({
+        householdId,
+        profileId: id,
+        token,
+        pin,
+        avatarColor,
+      });
+      setIsComplete(true);
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : 'Unable to complete profile setup.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center p-6">
+      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#171717] p-6">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="h-6 w-6 animate-spin text-[#b30000]" />
+          </div>
+        ) : isComplete ? (
+          <div className="text-center py-6">
+            <h1 className="text-2xl font-semibold">Setup Complete</h1>
+            <p className="mt-3 text-sm text-gray-400">Your profile is ready. You can now open HomeWork and sign in.</p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <h1 className="text-2xl font-semibold">Set Up {profileName}</h1>
+              <p className="mt-2 text-sm text-gray-400">Choose an avatar color and create your 4-digit PIN.</p>
+            </div>
+
+            <div>
+              <span className="mb-2 block text-xs uppercase tracking-wide text-gray-400">Avatar Color</span>
+              <div className="flex gap-2 flex-wrap">
+                {colorOptions.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={() => setAvatarColor(color)}
+                    className={`h-9 w-9 rounded-full border ${avatarColor === color ? 'border-white' : 'border-white/20'}`}
+                    style={{ backgroundColor: color }}
+                    aria-label={`Select avatar color ${color}`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="setup-pin" className="mb-1 block text-xs uppercase tracking-wide text-gray-400">4-digit PIN</label>
+              <input
+                id="setup-pin"
+                type="password"
+                value={pin}
+                onChange={(event) => setPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
+                inputMode="numeric"
+                maxLength={4}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white outline-none placeholder:text-gray-500 focus:border-[#b30000]/60"
+                placeholder="0000"
+                aria-label="Setup PIN"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="setup-pin-confirm" className="mb-1 block text-xs uppercase tracking-wide text-gray-400">Confirm PIN</label>
+              <input
+                id="setup-pin-confirm"
+                type="password"
+                value={confirmPin}
+                onChange={(event) => setConfirmPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
+                inputMode="numeric"
+                maxLength={4}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white outline-none placeholder:text-gray-500 focus:border-[#b30000]/60"
+                placeholder="0000"
+                aria-label="Confirm setup PIN"
+              />
+            </div>
+
+            {error && <p className="text-sm text-red-400">{error}</p>}
+
+            <button
+              type="submit"
+              disabled={isSubmitting || !id || !householdId}
+              className="w-full rounded-xl bg-[#b30000] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#980000] disabled:opacity-60"
+            >
+              {isSubmitting ? 'Saving...' : 'Finish Setup'}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
@@ -1105,6 +1348,7 @@ export default function App() {
             </PublicOnlyRoute>
           )}
         />
+        <Route path="/setup-profile/:id" element={<SetupProfileRoute />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

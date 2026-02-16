@@ -1,6 +1,9 @@
 interface AppConfig {
   appName: string;
   appUrl: string;
+  admin: {
+    masterPassword: string;
+  };
   firebase: {
     apiKey: string;
     authDomain: string;
@@ -20,6 +23,9 @@ const readEnv = (key: string): string => {
 export const appConfig: AppConfig = {
   appName: 'HomeWork',
   appUrl: readEnv('VITE_APP_URL') || '/',
+  admin: {
+    masterPassword: readEnv('VITE_ADMIN_MASTER_PASSWORD'),
+  },
   firebase: {
     apiKey: readEnv('VITE_FIREBASE_API_KEY'),
     authDomain: readEnv('VITE_FIREBASE_AUTH_DOMAIN'),

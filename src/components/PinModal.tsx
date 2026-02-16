@@ -6,18 +6,26 @@ type PinMode = 'VERIFY' | 'SETUP';
 
 interface PinModalProps {
   isOpen: boolean;
+  householdId: string | null;
   profileId: string | null;
+  profileRole?: 'ADMIN' | 'CHILD' | 'MEMBER';
   mode: PinMode;
   profileName: string;
+  canAdminBypass?: boolean;
+  adminMasterPassword?: string;
   onClose: () => void;
   onAuthorized: () => void;
 }
 
 export default function PinModal({
   isOpen,
+  householdId,
   profileId,
+  profileRole,
   mode,
   profileName,
+  canAdminBypass = false,
+  adminMasterPassword = '',
   onClose,
   onAuthorized,
 }: PinModalProps) {
@@ -25,6 +33,7 @@ export default function PinModal({
   const [initialPin, setInitialPin] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [masterPasswordInput, setMasterPasswordInput] = useState('');
 
   const setupStep: 'ENTER' | 'CONFIRM' = initialPin ? 'CONFIRM' : 'ENTER';
   const title = useMemo(() => {
@@ -52,6 +61,7 @@ export default function PinModal({
     setInitialPin(null);
     setIsLoading(false);
     setErrorMessage(null);
+    setMasterPasswordInput('');
   }, [isOpen, mode]);
 
   const handleDigit = (digit: string): void => {
@@ -109,8 +119,11 @@ export default function PinModal({
           if (!profileId) {
             throw new Error('PIN verification is not configured.');
           }
+          if (!householdId) {
+            throw new Error('Household context is missing.');
+          }
 
-          const isValid = await verifyProfilePin(profileId, pin);
+          const isValid = await verifyProfilePin(householdId, profileId, pin);
           if (!isValid) {
             throw new Error('Incorrect PIN.');
           }
@@ -134,8 +147,11 @@ export default function PinModal({
         if (!profileId) {
           throw new Error('PIN setup is not configured.');
         }
+        if (!householdId) {
+          throw new Error('Household context is missing.');
+        }
 
-        await setProfilePin(profileId, pin);
+        await setProfilePin(householdId, profileId, pin);
         onAuthorized();
       } catch (error) {
         if (error instanceof Error) {
@@ -153,7 +169,7 @@ export default function PinModal({
     };
 
     void processPin();
-  }, [pin, mode, onAuthorized, setupStep, initialPin, isLoading, profileId]);
+  }, [pin, mode, onAuthorized, setupStep, initialPin, isLoading, householdId, profileId]);
 
   if (!isOpen) {
     return null;
@@ -226,6 +242,46 @@ export default function PinModal({
               <Delete className="w-6 h-6" strokeWidth={1.5} />
             </button>
           </div>
+
+          {canAdminBypass && profileRole === 'CHILD' && mode === 'VERIFY' && (
+            <div className="mt-2 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4">
+              <button
+                type="button"
+                onClick={onAuthorized}
+                className="w-full rounded-xl border border-[#b30000]/40 bg-[#b30000]/15 px-4 py-2 text-sm font-semibold text-[#ffb4b4] hover:bg-[#b30000]/25"
+                aria-label="Enter child profile as admin without PIN"
+              >
+                Enter as Admin (No PIN)
+              </button>
+
+              {adminMasterPassword.trim().length > 0 && (
+                <div className="mt-3 flex gap-2">
+                  <input
+                    type="password"
+                    value={masterPasswordInput}
+                    onChange={(event) => setMasterPasswordInput(event.target.value)}
+                    placeholder="Admin master password"
+                    className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-gray-500 focus:border-[#b30000]/60"
+                    aria-label="Admin master password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (masterPasswordInput === adminMasterPassword) {
+                        setErrorMessage(null);
+                        onAuthorized();
+                        return;
+                      }
+                      setErrorMessage('Master password is incorrect.');
+                    }}
+                    className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-200 hover:bg-white/10"
+                  >
+                    Use Password
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="flex items-center justify-center gap-2 text-[#555555]">
             <Lock className="w-3 h-3" />
