@@ -13,6 +13,7 @@ export enum Grade {
 }
 
 export type Role = 'CHILD' | 'ADMIN' | 'MEMBER';
+export type ProfileSetupStatus = 'PROFILE_CREATED' | 'INVITE_SENT' | 'SETUP_COMPLETE';
 
 export type TaskStatus =
   | 'DRAFT'
@@ -107,6 +108,9 @@ export interface Profile {
   rates: Record<Grade, number>;
   balance: number;
   balanceCents?: number;
+  setupStatus?: ProfileSetupStatus;
+  inviteLastSentAt?: string;
+  setupCompletedAt?: string;
 }
 
 export interface Child {
@@ -123,4 +127,7 @@ export interface Child {
   customTasks: Task[];
   rates: Record<Grade, number>;
   role: Role;
+  setupStatus?: ProfileSetupStatus;
+  inviteLastSentAt?: string;
+  setupCompletedAt?: string;
 }
