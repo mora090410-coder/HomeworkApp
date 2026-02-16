@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { signOut, User, onAuthStateChanged } from 'firebase/auth';
-import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { collection, onSnapshot, query } from 'firebase/firestore';
 import { Calendar, Loader2, LogOut, Plus, Share2, UserPlus, Users } from 'lucide-react';
 import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { COMMON_TASKS, DEFAULT_RATES } from '@/constants';
@@ -210,22 +210,26 @@ function useFamilyAuth(): FamilyAuthState {
     }
 
     setIsProfilesLoading(true);
-    const profilesQuery = query(
-      collection(db, `households/${householdId}/profiles`),
-      orderBy('role', 'asc'),
-      orderBy('name', 'asc'),
-    );
+    const profilesQuery = query(collection(db, `households/${householdId}/profiles`));
 
     const unsubscribeProfiles = onSnapshot(
       profilesQuery,
       (snapshot) => {
-        const nextProfiles = snapshot.docs.map((profileDoc) => {
-          return mapFirestoreProfile(
-            profileDoc.id,
-            householdId,
-            profileDoc.data() as Record<string, unknown>,
-          );
-        });
+        const nextProfiles = snapshot.docs
+          .map((profileDoc) => {
+            return mapFirestoreProfile(
+              profileDoc.id,
+              householdId,
+              profileDoc.data() as Record<string, unknown>,
+            );
+          })
+          .sort((left, right) => {
+            if (left.role !== right.role) {
+              return left.role.localeCompare(right.role);
+            }
+
+            return left.name.localeCompare(right.name);
+          });
 
         setProfiles(nextProfiles);
         setIsProfilesLoading(false);
@@ -260,7 +264,8 @@ function useFamilyAuth(): FamilyAuthState {
 
         setStage('AUTHORIZED');
       },
-      () => {
+      (error) => {
+        console.error('Failed to subscribe to household profiles', error);
         setIsProfilesLoading(false);
       },
     );
