@@ -986,10 +986,6 @@ function DashboardPage() {
               <span className="px-2 py-0.5 rounded-md bg-white/10 border border-white/5 text-[11px] font-bold tracking-wider text-gray-400 uppercase">Child</span>
             </div>
             <div className="flex items-center gap-3">
-              <button type="button" onClick={familyAuth.clearActiveProfileSelection} className="h-10 px-4 rounded-full bg-white/5 border border-white/10 flex items-center gap-2 text-gray-300 hover:text-white hover:bg-white/10">
-                <Users className="w-4 h-4" />
-                Profiles
-              </button>
               <button type="button" onClick={() => { void familyAuth.signOutUser(); }} className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10">
                 <LogOut className="w-5 h-5" />
               </button>
