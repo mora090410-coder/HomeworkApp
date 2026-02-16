@@ -39,7 +39,6 @@ import {
 } from '@/utils';
 
 type FamilyAuthStage = 'UNAUTHENTICATED' | 'HOUSEHOLD_LOADED' | 'PROFILE_SELECTED' | 'AUTHORIZED';
-const DESIGNATED_ADMIN_EMAIL = 'mora090410@gmail.com';
 
 interface PersistedSession {
   householdId?: string;
@@ -261,10 +260,7 @@ function useFamilyAuth(): FamilyAuthState {
           return;
         }
 
-        const isDesignatedAdmin =
-          user?.email?.trim().toLowerCase() === DESIGNATED_ADMIN_EMAIL && canManageProfiles;
-
-        if (isDesignatedAdmin) {
+        if (canManageProfiles) {
           const adminProfile = nextProfiles.find((profile) => profile.role === 'ADMIN') ?? null;
           if (adminProfile) {
             if (activeProfileId !== adminProfile.id) {
@@ -309,7 +305,7 @@ function useFamilyAuth(): FamilyAuthState {
     );
 
     return unsubscribeProfiles;
-  }, [householdId, activeProfileId, stage, canManageProfiles, user?.email]);
+  }, [householdId, activeProfileId, stage, canManageProfiles]);
 
   const activeProfile = useMemo(() => {
     if (!activeProfileId) {
