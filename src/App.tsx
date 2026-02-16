@@ -416,8 +416,6 @@ function useFamilyAuth(): FamilyAuthState {
 
 function DashboardPage() {
   const queryClient = useQueryClient();
-  const location = useLocation();
-  const navigate = useNavigate();
   const familyAuth = useFamilyAuth();
   const householdId = familyAuth.householdId;
 
@@ -820,21 +818,6 @@ function DashboardPage() {
       familyAuth.activeProfile.id,
     );
   }, [familyAuth.stage, familyAuth.activeProfile?.id, familyAuth.householdId]);
-
-  React.useEffect(() => {
-    if (familyAuth.stage !== 'AUTHORIZED' || !familyAuth.activeProfile) {
-      return;
-    }
-
-    if (familyAuth.activeProfile.role === 'ADMIN' && location.pathname === '/dashboard') {
-      navigate('/admin-dashboard', { replace: true });
-      return;
-    }
-
-    if (familyAuth.activeProfile.role !== 'ADMIN' && location.pathname === '/admin-dashboard') {
-      navigate('/dashboard', { replace: true });
-    }
-  }, [familyAuth.stage, familyAuth.activeProfile, location.pathname, navigate]);
 
   if (familyAuth.isInitializing) {
     return (
@@ -1386,7 +1369,7 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/admin-dashboard" replace />;
   }
 
   return <>{children}</>;
@@ -1394,7 +1377,7 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
 
 function LoginRoute() {
   const navigate = useNavigate();
-  return <AuthScreen initialMode="LOGIN" onSuccess={() => navigate('/dashboard', { replace: true })} />;
+  return <AuthScreen initialMode="LOGIN" onSuccess={() => navigate('/admin-dashboard', { replace: true })} />;
 }
 
 function SignupRoute() {
@@ -1402,9 +1385,32 @@ function SignupRoute() {
   return (
     <AuthScreen
       initialMode="SIGNUP_CREATE"
-      onSuccess={() => navigate('/dashboard', { replace: true })}
+      onSuccess={() => navigate('/admin-dashboard', { replace: true })}
     />
   );
+}
+
+function UnknownRouteHandler() {
+  const location = useLocation();
+  const { isResolved, isAuthenticated } = useAuthPresence();
+
+  if (!isResolved) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center text-white">
+        <Loader2 className="w-8 h-8 animate-spin text-white/30" />
+      </div>
+    );
+  }
+
+  if (location.pathname === '/dashboard') {
+    if (isAuthenticated) {
+      return <Navigate to="/admin-dashboard" replace />;
+    }
+
+    return <Navigate to="/login" replace />;
+  }
+
+  return <Navigate to="/" replace />;
 }
 
 export default function App() {
@@ -1436,9 +1442,8 @@ export default function App() {
           )}
         />
         <Route path="/setup-profile/:id" element={<SetupProfileRoute />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/admin-dashboard" element={<DashboardPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<UnknownRouteHandler />} />
       </Routes>
     </BrowserRouter>
   );
