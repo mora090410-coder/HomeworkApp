@@ -22,6 +22,7 @@ import {
   GradeConfig,
   Household,
   Profile,
+  ProfileSetupStatus,
   Role,
   Subject,
   Task,
@@ -130,12 +131,40 @@ const toIsoString = (value: unknown): string => {
   return new Date().toISOString();
 };
 
+const toNullableIsoString = (value: unknown): string | null => {
+  if (value === null || typeof value === 'undefined') {
+    return null;
+  }
+
+  if (value instanceof Timestamp) {
+    return value.toDate().toISOString();
+  }
+
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  if (typeof value === 'string' && value.length > 0) {
+    return value;
+  }
+
+  return null;
+};
+
 const parseRole = (value: unknown): Role => {
   if (value === 'ADMIN' || value === 'CHILD' || value === 'MEMBER') {
     return value;
   }
 
   return 'MEMBER';
+};
+
+const parseProfileSetupStatus = (value: unknown): ProfileSetupStatus => {
+  if (value === 'PROFILE_CREATED' || value === 'INVITE_SENT' || value === 'SETUP_COMPLETE') {
+    return value;
+  }
+
+  return 'PROFILE_CREATED';
 };
 
 const parseTaskStatus = (value: unknown): TaskStatus => {
@@ -252,6 +281,30 @@ const mapGradeConfigs = (
   });
 };
 
+export const createProfileWritePayload = (input: {
+  householdId: string;
+  name: string;
+  avatarColor?: string;
+  gradeLevel?: string;
+  subjects?: Subject[];
+  rates?: Record<Grade, number>;
+  pinHash?: string;
+}): FirestoreProfile => ({
+  householdId: input.householdId,
+  name: input.name,
+  role: 'CHILD',
+  pinHash: input.pinHash ?? '',
+  avatarColor: input.avatarColor ?? '#3b82f6',
+  gradeLevel: input.gradeLevel ?? 'Unknown',
+  subjects: input.subjects ?? [],
+  rates: input.rates ?? defaultRates(),
+  balanceCents: 0,
+  balance: 0,
+  setupStatus: 'PROFILE_CREATED',
+  inviteLastSentAt: null,
+  setupCompletedAt: null,
+});
+
 const mapProfile = (profileId: string, householdId: string, source: Record<string, unknown>): Profile => {
   const balanceCents = parseBalanceCents(source);
 
@@ -268,6 +321,9 @@ const mapProfile = (profileId: string, householdId: string, source: Record<strin
     rates: parseRates(source.rates),
     balanceCents,
     balance: centsToDollars(balanceCents),
+    setupStatus: parseProfileSetupStatus(source.setupStatus),
+    inviteLastSentAt: toNullableIsoString(source.inviteLastSentAt),
+    setupCompletedAt: toNullableIsoString(source.setupCompletedAt),
   };
 };
 
@@ -784,17 +840,14 @@ export const householdService = {
       const rates = parseRates(child.rates);
 
       const childRef = doc(getProfilesCollectionRef(safeHouseholdId));
-      const childProfile: FirestoreProfile = {
+      const childProfile = createProfileWritePayload({
         householdId: safeHouseholdId,
         name: childName,
-        role: 'CHILD',
         pinHash: '',
         gradeLevel,
         subjects,
         rates,
-        balanceCents: 0,
-        balance: 0,
-      };
+      });
 
       await setDoc(childRef, {
         ...childProfile,
@@ -828,18 +881,12 @@ export const householdService = {
       }
       const pinHash = pin ? await hashPin(pin) : '';
       const profileRef = doc(getProfilesCollectionRef(safeHouseholdId));
-      const profile: FirestoreProfile = {
+      const profile = createProfileWritePayload({
         householdId: safeHouseholdId,
         name: profileName,
-        role: 'CHILD',
         pinHash,
         avatarColor: typeof payload.avatarColor === 'string' ? payload.avatarColor : '#3b82f6',
-        gradeLevel: 'Unknown',
-        subjects: [],
-        rates: defaultRates(),
-        balanceCents: 0,
-        balance: 0,
-      };
+      });
 
       await setDoc(profileRef, {
         ...profile,
@@ -1267,6 +1314,8 @@ export const householdService = {
         setupTokenHash: tokenHash,
         setupTokenExpiresAt: expiresAt,
         setupTokenUsedAt: null,
+        setupStatus: 'INVITE_SENT',
+        inviteLastSentAt: Timestamp.now(),
         updatedAt: serverTimestamp(),
       });
 
@@ -1387,6 +1436,8 @@ export const householdService = {
           avatarColor: safeAvatarColor,
           setupTokenHash: null,
           setupTokenUsedAt: Timestamp.now(),
+          setupStatus: 'SETUP_COMPLETE',
+          setupCompletedAt: Timestamp.now(),
           updatedAt: serverTimestamp(),
         });
       });

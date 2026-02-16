@@ -109,8 +109,8 @@ export interface Profile {
   balance: number;
   balanceCents?: number;
   setupStatus?: ProfileSetupStatus;
-  inviteLastSentAt?: string;
-  setupCompletedAt?: string;
+  inviteLastSentAt?: string | null;
+  setupCompletedAt?: string | null;
 }
 
 export interface Child {
@@ -128,6 +128,6 @@ export interface Child {
   rates: Record<Grade, number>;
   role: Role;
   setupStatus?: ProfileSetupStatus;
-  inviteLastSentAt?: string;
-  setupCompletedAt?: string;
+  inviteLastSentAt?: string | null;
+  setupCompletedAt?: string | null;
 }
