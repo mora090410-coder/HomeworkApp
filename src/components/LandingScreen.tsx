@@ -10,6 +10,7 @@ interface LandingScreenProps {
   canAddProfile: boolean;
   isCreatingProfile: boolean;
   createProfileError: string | null;
+  profilesError: string | null;
   onCreateProfile: (payload: { name: string; pin: string; avatarColor: string }) => Promise<void>;
   onSignOut: () => void;
 }
@@ -34,6 +35,7 @@ export default function LandingScreen({
   canAddProfile,
   isCreatingProfile,
   createProfileError,
+  profilesError,
   onCreateProfile,
   onSignOut,
 }: LandingScreenProps) {
@@ -129,6 +131,11 @@ export default function LandingScreen({
           {!isLoading && profiles.length === 0 && (
             <div className="mx-auto max-w-xl rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-center">
               <p className="text-sm text-gray-300">No profiles found in this household yet.</p>
+              {profilesError && (
+                <p className="mt-3 text-xs text-red-400" aria-label="Profile load error">
+                  {profilesError}
+                </p>
+              )}
             </div>
           )}
 

@@ -46,7 +46,9 @@ interface FamilyAuthState {
   canManageProfiles: boolean;
   isInitializing: boolean;
   isProfilesLoading: boolean;
+  profilesError: string | null;
   selectProfile: (profileId: string) => void;
+  appendCreatedProfile: (profile: Profile) => void;
   authorizeActiveProfile: () => void;
   clearActiveProfileSelection: () => void;
   signOutUser: () => Promise<void>;
@@ -120,6 +122,7 @@ function useFamilyAuth(): FamilyAuthState {
   const [activeProfileId, setActiveProfileId] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
   const [isProfilesLoading, setIsProfilesLoading] = useState(false);
+  const [profilesError, setProfilesError] = useState<string | null>(null);
   const [canManageProfiles, setCanManageProfiles] = useState(false);
 
   React.useEffect(() => {
@@ -206,10 +209,12 @@ function useFamilyAuth(): FamilyAuthState {
   React.useEffect(() => {
     if (!householdId || !db) {
       setProfiles([]);
+      setProfilesError(null);
       return;
     }
 
     setIsProfilesLoading(true);
+    setProfilesError(null);
     const profilesQuery = query(collection(db, `households/${householdId}/profiles`));
 
     const unsubscribeProfiles = onSnapshot(
@@ -233,6 +238,7 @@ function useFamilyAuth(): FamilyAuthState {
 
         setProfiles(nextProfiles);
         setIsProfilesLoading(false);
+        setProfilesError(null);
 
         if (nextProfiles.length === 0) {
           setStage('HOUSEHOLD_LOADED');
@@ -267,6 +273,7 @@ function useFamilyAuth(): FamilyAuthState {
       (error) => {
         console.error('Failed to subscribe to household profiles', error);
         setIsProfilesLoading(false);
+        setProfilesError(error instanceof Error ? error.message : 'Unable to load profiles.');
       },
     );
 
@@ -308,6 +315,23 @@ function useFamilyAuth(): FamilyAuthState {
     },
     [householdId, profiles],
   );
+
+  const appendCreatedProfile = React.useCallback((profile: Profile) => {
+    setProfiles((previous) => {
+      const exists = previous.some((candidate) => candidate.id === profile.id);
+      if (exists) {
+        return previous;
+      }
+
+      return [...previous, profile].sort((left, right) => {
+        if (left.role !== right.role) {
+          return left.role.localeCompare(right.role);
+        }
+        return left.name.localeCompare(right.name);
+      });
+    });
+    setProfilesError(null);
+  }, []);
 
   const authorizeActiveProfile = React.useCallback(() => {
     if (!householdId || !activeProfileId || !activeProfile) {
@@ -354,7 +378,9 @@ function useFamilyAuth(): FamilyAuthState {
     canManageProfiles,
     isInitializing,
     isProfilesLoading,
+    profilesError,
     selectProfile,
+    appendCreatedProfile,
     authorizeActiveProfile,
     clearActiveProfileSelection,
     signOutUser,
@@ -746,10 +772,12 @@ function DashboardPage() {
           canAddProfile={familyAuth.canManageProfiles}
           isCreatingProfile={createProfileMutation.isPending}
           createProfileError={createProfileError}
+          profilesError={familyAuth.profilesError}
           onCreateProfile={async ({ name, pin, avatarColor }) => {
             try {
               setCreateProfileError(null);
-              await createProfileMutation.mutateAsync({ name, pin, avatarColor });
+              const created = await createProfileMutation.mutateAsync({ name, pin, avatarColor });
+              familyAuth.appendCreatedProfile(created);
             } catch (error) {
               const message =
                 error instanceof Error ? error.message : 'Unable to create profile right now.';
