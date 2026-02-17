@@ -1011,19 +1011,19 @@ function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-app bg-app-gradient-light dark:bg-app-gradient-dark text-primary relative pb-12 transition-colors duration-300">
+    <div className="min-h-screen bg-surface-app bg-app-gradient-light dark:bg-app-gradient-dark text-content-primary relative pb-12 transition-colors duration-300">
       <div className="relative z-10 max-w-[1400px] mx-auto p-6 md:p-8">
         <header className="flex justify-between items-center mb-10">
           <div className="flex items-center gap-3">
-            <span className="text-2xl font-[590] tracking-tight text-primary">HomeWork</span>
-            <span className="px-2 py-0.5 rounded-md bg-gray-200 dark:bg-white/10 border border-gray-300 dark:border-white/5 text-[11px] font-bold tracking-wider text-gray-600 dark:text-gray-400 uppercase">Admin</span>
+            <span className="text-2xl font-[590] tracking-tight text-content-primary">HomeWork</span>
+            <span className="px-2 py-0.5 rounded-md bg-surface-2 border border-stroke-base text-[11px] font-bold tracking-wider text-content-muted uppercase">Admin</span>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" onClick={familyAuth.clearActiveProfileSelection} className="text-gray-300 hover:text-white">
+            <Button variant="ghost" size="sm" onClick={familyAuth.clearActiveProfileSelection} className="text-content-muted hover:text-content-primary">
               <Users className="w-4 h-4 mr-2" />
               Profiles
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => { void familyAuth.signOutUser(); }} className="text-gray-400 hover:text-white">
+            <Button variant="ghost" size="icon" onClick={() => { void familyAuth.signOutUser(); }} className="text-content-muted hover:text-content-primary">
               <LogOut className="w-5 h-5" />
             </Button>
           </div>
@@ -1034,19 +1034,19 @@ function DashboardPage() {
             <UserPlus className="w-[18px] h-[18px]" />
             <span className="hidden sm:inline">Add Child</span>
           </Button>
-          <Button variant="outline" onClick={() => { setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }} disabled={!hasChildren} className="gap-2 border-gray-200 dark:border-white/10 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-white/5">
+          <Button variant="outline" onClick={() => { setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }} disabled={!hasChildren} className="gap-2 border-stroke-base text-content-primary hover:bg-surface-2">
             <Calendar className="w-[18px] h-[18px]" />
             <span className="hidden sm:inline">Add Open Task</span>
           </Button>
-          <Button variant="outline" onClick={() => { setIsOpenTaskMode(false); setSelectedChildId(''); setIsAddTaskModalOpen(true); }} disabled={!hasChildren} className="gap-2 border-gray-200 dark:border-white/10 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-white/5">
+          <Button variant="outline" onClick={() => { setIsOpenTaskMode(false); setSelectedChildId(''); setIsAddTaskModalOpen(true); }} disabled={!hasChildren} className="gap-2 border-stroke-base text-content-primary hover:bg-surface-2">
             <Calendar className="w-[18px] h-[18px]" />
             <span className="hidden sm:inline">Create Draft</span>
           </Button>
-          <Button variant="outline" onClick={() => { if (hasChildren) { setSelectedChildId(childrenWithRateMap[0].id); setIsAdvanceModalOpen(true); } }} disabled={!hasChildren} className="gap-2 border-gray-200 dark:border-white/10 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-white/5">
+          <Button variant="outline" onClick={() => { if (hasChildren) { setSelectedChildId(childrenWithRateMap[0].id); setIsAdvanceModalOpen(true); } }} disabled={!hasChildren} className="gap-2 border-stroke-base text-content-primary hover:bg-surface-2">
             <Plus className="w-[18px] h-[18px]" />
             <span className="hidden sm:inline">Add Advance</span>
           </Button>
-          <Button variant="ghost" onClick={handleGenerateInvite} className="gap-2 border-dashed border-gray-300 dark:border-white/20 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+          <Button variant="ghost" onClick={handleGenerateInvite} className="gap-2 border-dashed border-stroke-base text-content-muted hover:text-content-primary">
             <Share2 className="w-4 h-4" />
             <span className="text-xs font-bold uppercase tracking-wider">Invite</span>
           </Button>
@@ -1056,8 +1056,8 @@ function DashboardPage() {
           <div className="mb-12">
             <div className="mb-8 card-base p-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-l-4 border-l-primary-500">
               <div>
-                <h2 className="text-lg font-bold text-primary mb-1">Family Command Center</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <h2 className="text-lg font-bold text-content-primary mb-1">Family Command Center</h2>
+                <p className="text-sm text-content-muted">
                   {pendingSetupCount > 0
                     ? `${pendingSetupCount} profile${pendingSetupCount === 1 ? '' : 's'} awaiting setup completion.`
                     : 'All systems operational.'}
@@ -1169,11 +1169,11 @@ function DashboardPage() {
         {taskToReject && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setTaskToReject(null)} />
-            <div className="relative w-full max-w-[480px] bg-white dark:bg-gray-900 rounded-[24px] border border-gray-200 dark:border-white/[0.06] p-10 shadow-2xl">
-              <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Reject Task: {taskToReject.task.name}</h3>
-              <textarea value={rejectionComment} onChange={(event) => setRejectionComment(event.target.value)} placeholder="What needs to be fixed?" className="w-full min-h-[120px] p-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl mb-6 outline-none focus:border-red-500 text-gray-900 dark:text-white placeholder:text-gray-400" autoFocus />
+            <div className="relative w-full max-w-[480px] bg-surface-base rounded-[24px] border border-stroke-base p-10 shadow-2xl">
+              <h3 className="text-xl font-bold mb-4 text-content-primary">Reject Task: {taskToReject.task.name}</h3>
+              <textarea value={rejectionComment} onChange={(event) => setRejectionComment(event.target.value)} placeholder="What needs to be fixed?" className="w-full min-h-[120px] p-4 bg-surface-2 border border-stroke-base rounded-xl mb-6 outline-none focus:border-primary-500 text-content-primary placeholder:text-content-subtle" autoFocus />
               <div className="flex gap-4">
-                <button type="button" onClick={() => setTaskToReject(null)} className="flex-1 py-3 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 rounded-xl transition-colors">Cancel</button>
+                <button type="button" onClick={() => setTaskToReject(null)} className="flex-1 py-3 text-content-muted bg-surface-2 hover:bg-surface-elev rounded-xl transition-colors">Cancel</button>
                 <button type="button" onClick={() => {
                   if (!taskToReject || rejectionComment.trim().length === 0) {
                     return;
@@ -1192,9 +1192,9 @@ function DashboardPage() {
         {isInviteModalOpen && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setIsInviteModalOpen(false)} />
-            <div className="relative w-full max-w-[560px] bg-white dark:bg-gray-900 rounded-[24px] border border-gray-200 dark:border-white/[0.06] p-8 text-left shadow-2xl">
-              <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">Invite Child Device</h3>
-              <p className="text-gray-500 dark:text-gray-400 mb-5 text-sm">Choose a child profile to generate a unique setup URL.</p>
+            <div className="relative w-full max-w-[560px] bg-surface-base rounded-[24px] border border-stroke-base p-8 text-left shadow-2xl">
+              <h3 className="text-xl font-bold mb-2 text-content-primary">Invite Child Device</h3>
+              <p className="text-content-muted mb-5 text-sm">Choose a child profile to generate a unique setup URL.</p>
               <div className="space-y-2 max-h-[320px] overflow-auto pr-1 custom-scrollbar">
                 {childrenWithRateMap.map((child) => (
                   <button
@@ -1204,14 +1204,14 @@ function DashboardPage() {
                       void handleGenerateProfileSetupLink(toProfileFromChild(child));
                       setIsInviteModalOpen(false);
                     }}
-                    className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                    className="w-full rounded-xl border border-stroke-base bg-surface-2 px-4 py-3 text-left hover:bg-surface-elev transition-colors"
                   >
-                    <div className="text-sm font-semibold text-gray-900 dark:text-white">{child.name}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{child.gradeLevel}</div>
+                    <div className="text-sm font-semibold text-content-primary">{child.name}</div>
+                    <div className="text-xs text-content-muted">{child.gradeLevel}</div>
                   </button>
                 ))}
               </div>
-              <button type="button" onClick={() => setIsInviteModalOpen(false)} className="mt-5 w-full py-3 bg-gray-100 dark:bg-white/10 rounded-xl font-bold text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-white/15 transition-colors">Close</button>
+              <button type="button" onClick={() => setIsInviteModalOpen(false)} className="mt-5 w-full py-3 bg-surface-2 rounded-xl font-bold text-content-primary hover:bg-surface-elev transition-colors">Close</button>
             </div>
           </div>
         )}
@@ -1219,14 +1219,14 @@ function DashboardPage() {
         {profileSetupLink && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setProfileSetupLink(null)} />
-            <div className="relative w-full max-w-[560px] bg-white dark:bg-gray-900 rounded-[24px] border border-gray-200 dark:border-white/[0.06] p-10 text-center shadow-2xl">
-              <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Profile Setup Link</h3>
-              <p className="text-gray-500 dark:text-gray-400 mb-6 text-sm">Send this one-time link so the child can set their own PIN and avatar.</p>
-              <div className="flex items-center gap-2 bg-gray-50 dark:bg-white/5 p-3 rounded-xl mb-6 border border-gray-200 dark:border-white/10">
-                <code className="text-xs text-primary-600 dark:text-primary-200 flex-1 truncate">{profileSetupLink}</code>
-                <button type="button" onClick={() => { void navigator.clipboard.writeText(profileSetupLink); }} className="text-xs font-bold bg-gray-200 dark:bg-white/10 px-3 py-1.5 rounded-lg hover:bg-gray-300 dark:hover:bg-white/20 text-gray-700 dark:text-white transition-colors">COPY</button>
+            <div className="relative w-full max-w-[560px] bg-surface-base rounded-[24px] border border-stroke-base p-10 text-center shadow-2xl">
+              <h3 className="text-xl font-bold mb-4 text-content-primary">Profile Setup Link</h3>
+              <p className="text-content-muted mb-6 text-sm">Send this one-time link so the child can set their own PIN and avatar.</p>
+              <div className="flex items-center gap-2 bg-surface-2 p-3 rounded-xl mb-6 border border-stroke-base">
+                <code className="text-xs text-primary-600 dark:text-primary-400 flex-1 truncate">{profileSetupLink}</code>
+                <button type="button" onClick={() => { void navigator.clipboard.writeText(profileSetupLink); }} className="text-xs font-bold bg-surface-elev px-3 py-1.5 rounded-lg hover:bg-surface-2 text-content-primary transition-colors">COPY</button>
               </div>
-              <button type="button" onClick={() => setProfileSetupLink(null)} className="w-full py-3 bg-gray-100 dark:bg-white/10 rounded-xl font-bold text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-white/15 transition-colors">Close</button>
+              <button type="button" onClick={() => setProfileSetupLink(null)} className="w-full py-3 bg-surface-2 rounded-xl font-bold text-content-primary hover:bg-surface-elev transition-colors">Close</button>
             </div>
           </div>
         )}
