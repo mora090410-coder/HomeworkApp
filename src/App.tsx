@@ -869,7 +869,7 @@ function DashboardPage() {
 
   if (!isFirebaseConfigured) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-900 dark:text-white p-6 transition-colors duration-300">
+      <div className="min-h-screen bg-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-primary p-6 transition-colors duration-300">
         <div className="max-w-lg w-full bg-white dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-2xl border border-gray-200 dark:border-white/10 text-center shadow-xl">
           <h2 className="text-2xl font-bold mb-4">Firebase Setup Required</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-2">Phase 2 requires Firebase Auth and Firestore configuration.</p>
@@ -896,7 +896,7 @@ function DashboardPage() {
 
   if (familyAuth.isInitializing) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-900 dark:text-white">
+      <div className="min-h-screen bg-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-primary">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600 dark:text-primary-400" />
       </div>
     );
@@ -956,7 +956,7 @@ function DashboardPage() {
 
   if (loadingChildren || loadingOpenTasks || !familyAuth.activeProfile) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-900 dark:text-white">
+      <div className="min-h-screen bg-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-primary">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600 dark:text-primary-400" />
       </div>
     );
@@ -969,7 +969,7 @@ function DashboardPage() {
 
     if (!activeChild) {
       return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-900 dark:text-white">
+        <div className="min-h-screen bg-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-primary">
           <div className="text-center">
             <p className="text-lg mb-4">Child profile data is still loading.</p>
             <button type="button" onClick={familyAuth.clearActiveProfileSelection} className="px-4 py-2 rounded-lg bg-primary-600 text-white">Back to Profile Picker</button>
@@ -979,11 +979,11 @@ function DashboardPage() {
     }
 
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white relative pb-12 transition-colors duration-300">
+      <div className="min-h-screen bg-app bg-app-gradient-light dark:bg-app-gradient-dark text-primary relative pb-12 transition-colors duration-300">
         <div className="relative z-10 max-w-[1200px] mx-auto p-6 md:p-8">
           <header className="flex justify-between items-center mb-10">
             <div className="flex items-center gap-3">
-              <span className="text-2xl font-[590] tracking-tight text-gray-900 dark:text-white">HomeWork</span>
+              <span className="text-2xl font-[590] tracking-tight text-primary">HomeWork</span>
               <span className="px-2 py-0.5 rounded-md bg-gray-200 dark:bg-white/10 border border-gray-300 dark:border-white/5 text-[11px] font-bold tracking-wider text-gray-600 dark:text-gray-400 uppercase">Child</span>
             </div>
             <div className="flex items-center gap-3">
@@ -1011,11 +1011,11 @@ function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white relative pb-12 transition-colors duration-300">
+    <div className="min-h-screen bg-app bg-app-gradient-light dark:bg-app-gradient-dark text-primary relative pb-12 transition-colors duration-300">
       <div className="relative z-10 max-w-[1400px] mx-auto p-6 md:p-8">
         <header className="flex justify-between items-center mb-10">
           <div className="flex items-center gap-3">
-            <span className="text-2xl font-[590] tracking-tight text-gray-900 dark:text-white">HomeWork</span>
+            <span className="text-2xl font-[590] tracking-tight text-primary">HomeWork</span>
             <span className="px-2 py-0.5 rounded-md bg-gray-200 dark:bg-white/10 border border-gray-300 dark:border-white/5 text-[11px] font-bold tracking-wider text-gray-600 dark:text-gray-400 uppercase">Admin</span>
           </div>
           <div className="flex items-center gap-3">
@@ -1054,9 +1054,9 @@ function DashboardPage() {
 
         {hasChildren ? (
           <div className="mb-12">
-            <div className="mb-8 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm rounded-2xl p-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-l-4 border-l-primary-500">
+            <div className="mb-8 card-base p-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-l-4 border-l-primary-500">
               <div>
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">Family Command Center</h2>
+                <h2 className="text-lg font-bold text-primary mb-1">Family Command Center</h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   {pendingSetupCount > 0
                     ? `${pendingSetupCount} profile${pendingSetupCount === 1 ? '' : 's'} awaiting setup completion.`
@@ -1341,7 +1341,7 @@ function SetupProfileRoute() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white flex items-center justify-center p-6 transition-colors duration-300">
+    <div className="min-h-screen bg-app bg-app-gradient-light dark:bg-app-gradient-dark text-primary flex items-center justify-center p-6 transition-colors duration-300">
       <div className="w-full max-w-md rounded-3xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/60 backdrop-blur-xl p-6 shadow-xl">
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
@@ -1474,7 +1474,7 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
 
   if (!isResolved) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-900 dark:text-white">
+      <div className="min-h-screen bg-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-primary">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600 dark:text-primary-400" />
       </div>
     );
@@ -1508,7 +1508,7 @@ function UnknownRouteHandler() {
 
   if (!isResolved) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-900 dark:text-white">
+      <div className="min-h-screen bg-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-primary">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600 dark:text-primary-400" />
       </div>
     );

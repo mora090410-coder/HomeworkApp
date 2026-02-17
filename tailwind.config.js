@@ -13,14 +13,31 @@ export default {
             colors: {
                 primary: colors.primary,
                 secondary: colors.secondary,
-                gray: colors.grays, // Note: Tailwind uses 'gray', colors.js uses 'grays'
+                gray: colors.grays,
+
+                // Semantic Colors (Mapped to CSS Variables)
+                bg: {
+                    app: 'var(--bg-app)',
+                    'elev-1': 'var(--bg-elev-1)',
+                    surface: 'var(--bg-surface)',
+                    'surface-2': 'var(--bg-surface-2)',
+                },
+                text: {
+                    primary: 'var(--text-primary)',
+                    muted: 'var(--text-muted)',
+                    subtle: 'var(--text-subtle)',
+                },
+                border: {
+                    base: 'var(--border-base)',
+                    highlight: 'var(--border-highlight)',
+                }
             },
             borderRadius: {
-                'card': '14px',
+                'card': '20px',
                 'phoneMock': '24px',
             },
             fontFamily: {
-                sans: ['Inter', 'Manrope', 'sans-serif'],
+                sans: ['Manrope', 'sans-serif'],
                 heading: ['Sora', 'system-ui', 'sans-serif'],
             },
             fontSize: {
@@ -34,9 +51,13 @@ export default {
                 'footer-sm': ['11px', { lineHeight: '1.4', fontWeight: '400' }],
             },
             boxShadow: {
+                'sm': 'var(--shadow-sm)',
+                'md': 'var(--shadow-md)',
+                'lg': 'var(--shadow-lg)',
+                'glass': 'var(--glass-shadow)',
                 'hero-media': '0 20px 60px -5px rgba(0,0,0,0.5), 0 10px 30px -5px rgba(244,63,94,0.3)',
-                'card-soft': '0 10px 40px -10px rgba(0,0,0,0.3)',
-                'card-hover': '0 20px 50px -10px rgba(0,0,0,0.4)',
+                'card-soft': 'var(--shadow-sm)',
+                'card-hover': 'var(--shadow-md)',
                 'btn-primary': '0 4px 14px 0 rgba(225, 29, 72, 0.5)',
                 'btn-primary-hover': '0 6px 20px rgba(225, 29, 72, 0.4)',
                 'btn-secondary': '0 4px 14px 0 rgba(241, 176, 78, 0.4)',
@@ -49,6 +70,12 @@ export default {
                 'secondary-gradient': 'linear-gradient(135deg, #F1B04E 0%, #D99330 100%)',
                 'secondary-gradient-hover': 'linear-gradient(135deg, #F4C474 0%, #F1B04E 100%)',
                 'glass-gradient': 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+
+                // Premium Depth Gradients
+                'app-gradient-light': 'radial-gradient(circle at 50% 0%, rgba(244, 63, 94, 0.03) 0%, transparent 50%), radial-gradient(circle at 100% 0%, rgba(241, 176, 78, 0.05) 0%, transparent 40%)',
+                'app-gradient-dark': 'radial-gradient(circle at 50% 0%, rgba(244, 63, 94, 0.08) 0%, transparent 50%), radial-gradient(circle at 100% 0%, rgba(241, 176, 78, 0.06) 0%, transparent 40%)',
+
+                'accent-wash': 'var(--accent-wash)',
             },
             animation: {
                 'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
