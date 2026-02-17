@@ -30,7 +30,7 @@ const profileIcon = (role: Profile['role']) => {
   return <Users className="w-8 h-8" aria-hidden="true" />;
 };
 
-export default function LandingScreen({
+export default function ProfileSelectionScreen({
   profiles,
   isLoading,
   selectedProfileId,
@@ -163,23 +163,22 @@ export default function LandingScreen({
                       className="w-full text-left"
                       aria-label={`Select profile ${profile.name}`}
                     >
-                    <div
-                      className={`mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full border ${
-                        profile.role === 'ADMIN'
-                          ? 'border-[#b30000]/60 text-[#ff8a8a]'
-                          : 'border-white/20 text-white'
-                      }`}
-                      style={{
-                        backgroundColor:
-                          profile.role === 'ADMIN'
-                            ? 'rgba(179, 0, 0, 0.2)'
-                            : profile.avatarColor ?? 'rgba(255,255,255,0.1)',
-                      }}
-                    >
-                      {profileIcon(profile.role)}
-                    </div>
-                    <div className="text-lg font-semibold text-white">{profile.name}</div>
-                    <div className="mt-1 text-xs uppercase tracking-wide text-gray-400">{profile.role}</div>
+                      <div
+                        className={`mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full border ${profile.role === 'ADMIN'
+                            ? 'border-[#b30000]/60 text-[#ff8a8a]'
+                            : 'border-white/20 text-white'
+                          }`}
+                        style={{
+                          backgroundColor:
+                            profile.role === 'ADMIN'
+                              ? 'rgba(179, 0, 0, 0.2)'
+                              : profile.avatarColor ?? 'rgba(255,255,255,0.1)',
+                        }}
+                      >
+                        {profileIcon(profile.role)}
+                      </div>
+                      <div className="text-lg font-semibold text-white">{profile.name}</div>
+                      <div className="mt-1 text-xs uppercase tracking-wide text-gray-400">{profile.role}</div>
                     </button>
 
                     {isAdminUser && profile.role === 'CHILD' && (
@@ -278,9 +277,8 @@ export default function LandingScreen({
                       key={color}
                       type="button"
                       onClick={() => setAvatarColor(color)}
-                      className={`h-9 w-9 rounded-full border ${
-                        avatarColor === color ? 'border-white' : 'border-white/20'
-                      }`}
+                      className={`h-9 w-9 rounded-full border ${avatarColor === color ? 'border-white' : 'border-white/20'
+                        }`}
                       style={{ backgroundColor: color }}
                       aria-label={`Select avatar color ${color}`}
                     />

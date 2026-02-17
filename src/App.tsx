@@ -24,7 +24,7 @@ import FamilyActivityFeed from '@/components/FamilyActivityFeed';
 import SettingsModal from '@/components/SettingsModal';
 import AuthScreen from '@/components/AuthScreen';
 import AdminSetupRail from '@/components/AdminSetupRail';
-import LandingScreen from '@/components/LandingScreen';
+import ProfileSelectionScreen from '@/components/ProfileSelectionScreen';
 import LandingPage from '@/components/LandingPage';
 import PinModal from '@/components/PinModal';
 import { auth, db, isFirebaseConfigured } from '@/services/firebase';
@@ -909,7 +909,7 @@ function DashboardPage() {
     const activeProfile = familyAuth.activeProfile;
     return (
       <>
-        <LandingScreen
+        <ProfileSelectionScreen
           profiles={familyAuth.profiles}
           isLoading={familyAuth.isProfilesLoading}
           selectedProfileId={activeProfile?.id ?? null}
