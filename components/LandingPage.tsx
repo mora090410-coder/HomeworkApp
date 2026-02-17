@@ -87,7 +87,7 @@ export default function LandingPage() {
                 <main className="flex flex-col items-center text-center">
                     {/* Centered Hero Content */}
                     <div className="flex flex-col items-center max-w-[800px] mb-20 px-4">
-                        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-surface-2 border border-highlight shadow-[0_0_15px_rgba(244,63,94,0.15)] shadow-primary-500/15 mb-10">
+                        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-surface-2 border border-stroke-highlight shadow-[0_0_15px_rgba(244,63,94,0.15)] shadow-primary-500/15 mb-10">
                             <div className="relative flex items-center justify-center">
                                 <Activity className="w-3.5 h-3.5 text-primary-500 z-10" />
                                 <div className="absolute inset-0 bg-primary-500/50 blur-[6px] rounded-full scale-150 animate-pulse" />
@@ -110,13 +110,13 @@ export default function LandingPage() {
                         <div className="relative w-full max-w-[720px] mb-20 flex justify-center">
                             <div className="relative w-[340px] sm:w-[440px] group">
                                 {/* Glow behind phone */}
-                                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[60%] bg-primary-500/20 blur-[100px] opacity-40 rounded-full scale-125 group-hover:opacity-60 transition-opacity duration-700" />
+                                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[60%] bg-primary-500/20 blur-[100px] opacity-0 dark:opacity-40 rounded-full scale-125 group-hover:dark:opacity-60 transition-opacity duration-700 pointer-events-none [mask-image:radial-gradient(closest-side,black,transparent)]" />
 
                                 <div className="relative transform transition-transform duration-700 group-hover:scale-[1.03]">
                                     <img
                                         src="/images/phone-mockup.png"
                                         alt="HomeWork App Mockup"
-                                        className="w-full h-auto drop-shadow-[0_40px_100px_rgba(0,0,0,0.8)]"
+                                        className="w-full h-auto drop-shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_40px_100px_rgba(0,0,0,0.6)]"
                                     />
                                     {/* Glass Shine Overlay */}
 
@@ -132,7 +132,7 @@ export default function LandingPage() {
                                     Start Free 14-Day Trial
                                     <ArrowRight className="w-5 h-5" />
                                 </Link>
-                                <Link to="/login" className="h-14 px-10 rounded-full bg-white/[0.05] border border-white/10 text-white/80 text-[16px] font-bold hover:bg-white/10 transition-colors backdrop-blur-md flex items-center justify-center">
+                                <Link to="/login" className="h-14 px-10 rounded-full bg-surface-2 border border-stroke-base text-content-primary text-[16px] font-bold hover:bg-surface-elev transition-colors backdrop-blur-md flex items-center justify-center">
                                     I Already Have an Account
                                 </Link>
                             </div>
@@ -169,15 +169,15 @@ export default function LandingPage() {
                     <section className="w-full mb-32 max-w-[800px]">
                         <h2 className="text-[32px] sm:text-[40px] font-bold text-primary mb-12">See How Incentives Change Behavior</h2>
                         <div className="flex flex-col gap-4">
-                            <div className="flex items-center justify-between rounded-[24px] border border-highlight bg-surface-2 p-8 backdrop-blur-sm">
+                            <div className="flex items-center justify-between rounded-[24px] border border-stroke-highlight bg-surface-2 p-8 backdrop-blur-sm">
                                 <span className="text-xl font-bold text-primary">GPA 3.8</span>
-                                <div className="h-px flex-1 bg-highlight mx-6"></div>
+                                <div className="h-px flex-1 bg-stroke-base mx-6"></div>
                                 <span className="text-3xl font-bold text-primary-500">$12/hour</span>
                             </div>
-                            <div className="flex items-center justify-between rounded-[24px] border border-highlight bg-surface-2 p-8 opacity-40 backdrop-blur-sm">
+                            <div className="flex items-center justify-between rounded-[24px] border border-stroke-base bg-surface-2 p-8 opacity-40 backdrop-blur-sm">
                                 <span className="text-xl font-bold text-primary">GPA 2.5</span>
-                                <div className="h-px flex-1 bg-highlight mx-6"></div>
-                                <span className="text-3xl font-bold text-primary">$7/hour</span>
+                                <div className="h-px flex-1 bg-stroke-base mx-6"></div>
+                                <span className="text-3xl font-bold text-content-primary">$7/hour</span>
                             </div>
                             <p className="text-muted mt-6 font-medium">When effort affects earnings, motivation changes.</p>
                         </div>
@@ -210,7 +210,7 @@ export default function LandingPage() {
                             </div>
 
                             {/* Founders Plan */}
-                            <div className="p-10 rounded-[40px] bg-surface-2 border border-highlight text-left">
+                            <div className="p-10 rounded-[40px] bg-surface-2 border border-stroke-base text-left">
                                 <h3 className="text-2xl font-bold text-primary mb-2">Founders Plan</h3>
                                 <p className="text-primary-400 text-xs font-bold uppercase tracking-wider mb-4">Limited to First 100 Families</p>
                                 <div className="flex items-baseline gap-1 mb-2">
@@ -226,13 +226,13 @@ export default function LandingPage() {
                                         </li>
                                     ))}
                                 </ul>
-                                <Link to="/signup" className="block w-full h-14 rounded-full bg-black/5 dark:bg-white/5 border border-highlight text-primary font-bold text-center leading-[56px] hover:bg-black/10 dark:hover:bg-white/10 transition-colors">Claim Founder Spot</Link>
+                                <Link to="/signup" className="block w-full h-14 rounded-full bg-surface-app border border-stroke-highlight text-content-primary font-bold text-center leading-[56px] hover:bg-surface-2 transition-colors">Claim Founder Spot</Link>
                             </div>
                         </div>
                     </section>
 
                     {/* VALUE ANCHOR */}
-                    <section className="w-full mb-32 p-12 rounded-[40px] bg-surface-2 border border-highlight">
+                    <section className="w-full mb-32 p-12 rounded-[40px] bg-surface-2 border border-stroke-highlight">
                         <h2 className="text-2xl font-bold text-primary mb-10">Less Than One Tutoring Session Per Month</h2>
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                             {[
@@ -241,7 +241,7 @@ export default function LandingPage() {
                                 { label: 'Video Games', value: '$60' },
                                 { label: 'HomeWork', value: '$17/mo', active: true }
                             ].map((item) => (
-                                <div key={item.label} className={`p-6 rounded-2xl border ${item.active ? 'border-primary-500/50 bg-primary-500/5 shadow-lg' : 'border-highlight bg-app'}`}>
+                                <div key={item.label} className={`p-6 rounded-2xl border ${item.active ? 'border-primary-500/50 bg-primary-500/5 shadow-lg' : 'border-stroke-base bg-surface-app'}`}>
                                     <div className="text-[11px] font-bold text-muted uppercase tracking-widest mb-1">{item.label}</div>
                                     <div className={`text-xl font-bold ${item.active ? 'text-primary-500' : 'text-primary'}`}>{item.value}</div>
                                 </div>
@@ -254,7 +254,7 @@ export default function LandingPage() {
                         <h2 className="text-[32px] sm:text-[40px] font-bold text-primary mb-12 text-center">Common Questions</h2>
                         <div className="space-y-8">
                             {faqs.map((faq) => (
-                                <div key={faq.q} className="border-b border-highlight pb-8">
+                                <div key={faq.q} className="border-b border-stroke-base pb-8">
                                     <h3 className="text-[18px] font-bold text-primary mb-3">{faq.q}</h3>
                                     <p className="text-[15px] leading-relaxed text-muted">{faq.a}</p>
                                 </div>
@@ -263,7 +263,7 @@ export default function LandingPage() {
                     </section>
 
                     {/* FINAL CTA */}
-                    <section className="w-full mb-32 py-20 rounded-[48px] bg-gradient-to-b from-primary-600/10 to-transparent border border-highlight">
+                    <section className="w-full mb-32 py-20 rounded-[48px] bg-gradient-to-b from-primary-600/10 to-transparent border border-stroke-highlight">
                         <h2 className="text-[40px] sm:text-[56px] font-bold text-primary mb-10">Start Building Accountability<br />This Week.</h2>
                         <div className="flex flex-col items-center gap-6">
                             <Link to="/signup" className="h-16 px-12 rounded-full bg-primary-600 text-white text-lg font-bold flex items-center justify-center gap-3 transition-transform hover:scale-105 shadow-[0_20px_40px_rgba(244,63,94,0.3)] shadow-primary-500/30">
@@ -283,7 +283,7 @@ export default function LandingPage() {
                     <div className="flex items-center gap-8 text-[13px] font-bold">
                         <Link to="/login" className="text-content-muted hover:text-content-primary transition-colors">Log In</Link>
                         <Link to="/signup" className="text-content-muted hover:text-content-primary transition-colors">Sign Up</Link>
-                        <div className="pl-4 border-l border-highlight">
+                        <div className="pl-4 border-l border-stroke-base">
                             <ThemeSwitch />
                         </div>
                     </div>

@@ -12,16 +12,33 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
+        darkMode: 'class',
         theme: {
           extend: {
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
             },
             colors: {
-              cardinal: '#990000',
-              gold: '#FFC72C',
-              'gold-dim': '#E5B228', // Slightly darker for borders
-              'gold-text': '#8A6805', // Darker gold for text readability on white
+              primary: {
+                500: '#F43F5E',
+                600: '#E11D48',
+                700: '#BE123C',
+              },
+              surface: {
+                app: 'var(--bg-app)',
+                base: 'var(--bg-surface)',
+                2: 'var(--bg-surface-2)',
+                elev: 'var(--bg-elev-1)',
+              },
+              content: {
+                primary: 'var(--text-primary)',
+                muted: 'var(--text-muted)',
+                subtle: 'var(--text-subtle)',
+              },
+              stroke: {
+                base: 'var(--border-base)',
+                highlight: 'var(--border-highlight)',
+              }
             },
             borderRadius: {
               '3xl': '1.5rem',
