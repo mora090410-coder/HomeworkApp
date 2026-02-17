@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Delete, Loader2, Lock, X } from 'lucide-react';
+import { Button } from './ui/Button';
 import { setProfilePin, verifyProfilePin } from '../services/householdService';
 
 type PinMode = 'VERIFY' | 'SETUP';
@@ -206,53 +207,56 @@ export default function PinModal({
 
           <div className="grid grid-cols-3 gap-3 w-full mb-6">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((digit) => (
-              <button
+              <Button
                 key={digit}
                 type="button"
+                variant="glass"
                 onClick={() => handleDigit(String(digit))}
                 disabled={isLoading}
-                className="aspect-square rounded-2xl bg-white/5 border border-white/10 text-white text-[1.75rem] font-[480] hover:bg-white/10 hover:border-primary-500/40 transition-all disabled:opacity-60"
+                className="aspect-square rounded-2xl text-[1.75rem] font-[480] hover:border-primary-500/40 p-0"
                 aria-label={`Enter digit ${digit}`}
               >
                 {digit}
-              </button>
+              </Button>
             ))}
 
             <div className="aspect-square flex items-center justify-center">
               {isLoading && <Loader2 className="w-6 h-6 animate-spin text-primary-500" />}
             </div>
 
-            <button
+            <Button
               type="button"
+              variant="glass"
               onClick={() => handleDigit('0')}
               disabled={isLoading}
-              className="aspect-square rounded-2xl bg-white/5 border border-white/10 text-white text-[1.75rem] font-[480] hover:bg-white/10 hover:border-primary-500/40 transition-all disabled:opacity-60"
+              className="aspect-square rounded-2xl text-[1.75rem] font-[480] hover:border-primary-500/40 p-0"
               aria-label="Enter digit 0"
             >
               0
-            </button>
+            </Button>
 
-            <button
+            <Button
               type="button"
+              variant="glass"
               onClick={handleDelete}
               disabled={isLoading}
-              className="aspect-square rounded-2xl text-[#666666] hover:text-white hover:bg-white/5 disabled:opacity-60 flex items-center justify-center"
+              className="aspect-square rounded-2xl text-[#666666] hover:text-white p-0 flex items-center justify-center"
               aria-label="Delete last digit"
             >
               <Delete className="w-6 h-6" strokeWidth={1.5} />
-            </button>
+            </Button>
           </div>
 
           {canAdminBypass && profileRole === 'CHILD' && mode === 'VERIFY' && (
             <div className="mt-2 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4">
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={onAuthorized}
-                className="w-full rounded-xl border border-primary-500/40 bg-primary-500/10 px-4 py-2 text-sm font-semibold text-primary-300 hover:bg-primary-500/20 transition-colors"
-                aria-label="Enter child profile as admin without PIN"
+                className="w-full text-white bg-primary-500/10 border-primary-500/40 hover:bg-primary-500/20 shadow-none"
               >
                 Enter as Admin (No PIN)
-              </button>
+              </Button>
 
               {adminMasterPassword.trim().length > 0 && (
                 <div className="mt-3 flex gap-2">
@@ -264,8 +268,9 @@ export default function PinModal({
                     className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-gray-500 focus:border-primary-500/60 transition-all font-mono"
                     aria-label="Admin master password"
                   />
-                  <button
-                    type="button"
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => {
                       if (masterPasswordInput === adminMasterPassword) {
                         setErrorMessage(null);
@@ -274,10 +279,10 @@ export default function PinModal({
                       }
                       setErrorMessage('Master password is incorrect.');
                     }}
-                    className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-200 hover:bg-white/10"
+                    className="whitespace-nowrap h-full"
                   >
                     Use Password
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>

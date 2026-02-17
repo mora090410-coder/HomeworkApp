@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ThemeProvider } from '@/src/context/ThemeContext';
+import { ThemeToggle } from '@/src/components/ThemeToggle';
 import App from './App';
 
 const queryClient = new QueryClient();
@@ -14,7 +16,10 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <App />
+      <ThemeProvider>
+        <App />
+        <ThemeToggle />
+      </ThemeProvider>
     </QueryClientProvider>
   </React.StrictMode>
 );
