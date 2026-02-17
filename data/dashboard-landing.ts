@@ -12,7 +12,8 @@ export const landingData = {
         title: "Build discipline without the chaos.",
         subtext: "HomeWork gives parents a premium command center for chores, learning effort, and allowance outcomes.",
         primaryCTA: "Get Started",
-        secondaryCTA: "I Have an Account"
+        secondaryCTA: "I Have an Account",
+        phoneMockup: "/images/phone-mockup.png"
     },
     heroMedia: {
         title: "THIS WEEK AT A GLANCE",

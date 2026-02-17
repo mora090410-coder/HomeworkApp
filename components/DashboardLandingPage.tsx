@@ -81,7 +81,7 @@ export default function DashboardLandingPage() {
 
                                 <div className="relative transform transition-transform duration-700 group-hover:scale-[1.03]">
                                     <img
-                                        src="/images/phone-mockup.png"
+                                        src={landingData.hero.phoneMockup}
                                         alt="HomeWork App Mockup"
                                         className="w-full h-auto drop-shadow-[0_40px_100px_rgba(0,0,0,0.8)]"
                                     />
