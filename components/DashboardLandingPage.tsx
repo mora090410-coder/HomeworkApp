@@ -22,7 +22,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon: Icon, title, body }) =>
 
 export default function DashboardLandingPage() {
     return (
-        <div className="relative min-h-screen w-full overflow-hidden bg-[#0a0c10] dark:bg-[#0a0c10] font-sans selection:bg-primary-500/30">
+        <div className="relative min-h-screen w-full overflow-hidden bg-black dark:bg-black font-sans selection:bg-primary-500/30">
             {/* Background Radial Glows */}
             <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
                 <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[80%] h-[60%] opacity-20 bg-[radial-gradient(circle_at_center,rgba(244,63,94,0.35),transparent_70%)] blur-[100px]" />
