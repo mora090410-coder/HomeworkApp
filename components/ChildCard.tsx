@@ -28,6 +28,7 @@ import {
   X,
   RotateCcw
 } from 'lucide-react';
+import { Button } from '@/src/components/ui/Button';
 
 interface ChildCardProps {
   child: Child;
@@ -46,7 +47,7 @@ interface ChildCardProps {
 }
 
 const SectionHeader: React.FC<{ icon: React.ReactNode; title: string; count: number; colorClass: string }> = ({ icon, title, count, colorClass }) => (
-  <div className={`flex items-center justify-between px-3 py-2 mt-4 mb-2 rounded-lg bg-white/[0.02] border border-white/[0.06] ${colorClass}`}>
+  <div className={`flex items-center justify-between px-3 py-2 mt-4 mb-2 rounded-lg bg-gray-50/50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/[0.06] ${colorClass}`}>
     <div className="flex items-center gap-2">
       <span className="w-4 h-4 flex items-center justify-center">{icon}</span>
       <span className="text-[0.75rem] font-bold uppercase tracking-[0.06em]">{title}</span>
@@ -152,86 +153,87 @@ const ChildCard: React.FC<ChildCardProps> = ({
         }
       `}</style>
 
-      <div className="group relative glass-dark border border-white/10 rounded-[24px] p-8 transition-colors duration-300 hover:border-primary-500/30 overflow-hidden">
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-700 to-primary-500 opacity-60" />
+      <div className="group relative glass-card p-8 overflow-hidden">
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary-gradient opacity-60" />
 
         <div className="flex justify-between items-start mb-8">
           <div>
-            <h2 className="text-[1.75rem] font-[590] text-white tracking-tight mb-1">{child.name}</h2>
-            <p className="text-[0.9375rem] text-gray-400 font-medium">{child.gradeLevel}</p>
+            <h2 className="text-[1.75rem] font-[590] text-gray-900 dark:text-white tracking-tight mb-1">{child.name}</h2>
+            <p className="text-[0.9375rem] text-gray-500 dark:text-gray-400 font-medium">{child.gradeLevel}</p>
             <span className={`mt-3 inline-flex items-center rounded-full border px-2.5 py-1 text-[0.6875rem] font-semibold uppercase tracking-wide ${setupBadgeClass}`}>
               {setupLabel}
             </span>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 glass-dark border border-white/10 px-3 py-1.5 rounded-full">
-              <div className="w-4 h-4 rounded-full bg-green-500/20 text-green-500 flex items-center justify-center text-[10px] font-bold">$</div>
-              <span className="text-sm font-semibold text-white">{formatCurrency(hourlyRate)}/hr</span>
+            <div className="flex items-center gap-1.5 glass-panel px-3 py-1.5 rounded-full">
+              <div className="w-4 h-4 rounded-full bg-green-500/20 text-green-600 dark:text-green-500 flex items-center justify-center text-[10px] font-bold">$</div>
+              <span className="text-sm font-semibold text-gray-700 dark:text-white">{formatCurrency(hourlyRate)}/hr</span>
             </div>
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={(e) => { e.stopPropagation(); onEditSettings(child); }}
-              className="w-9 h-9 flex items-center justify-center rounded-full bg-transparent text-gray-400 hover:bg-white/5 hover:text-white transition-all duration-300 hover:rotate-90 cursor-pointer"
+              className="rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-white"
             >
               <Settings className="w-5 h-5" />
-            </button>
+            </Button>
           </div>
         </div>
 
         <div className="grid grid-cols-3 gap-4 mb-8">
           <div className="flex flex-col gap-1">
-            <span className="text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider">Earned</span>
-            <span className="text-[1.5rem] font-[590] text-emerald-400 tracking-tight">{formatCurrency(earnedAmount)}</span>
+            <span className="text-[0.6875rem] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Earned</span>
+            <span className="text-[1.5rem] font-[590] text-emerald-600 dark:text-emerald-400 tracking-tight">{formatCurrency(earnedAmount)}</span>
           </div>
-          <div className="flex flex-col gap-1 border-l border-white/[0.06] pl-4">
-            <span className="text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider">Pending</span>
-            <span className="text-[1.5rem] font-[590] text-primary-400 tracking-tight">{formatCurrency(pendingAmount)}</span>
+          <div className="flex flex-col gap-1 border-l border-gray-200 dark:border-white/[0.06] pl-4">
+            <span className="text-[0.6875rem] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Pending</span>
+            <span className="text-[1.5rem] font-[590] text-primary-600 dark:text-primary-400 tracking-tight">{formatCurrency(pendingAmount)}</span>
           </div>
-          <div className="flex flex-col gap-1 border-l border-white/[0.06] pl-4">
-            <span className="text-[0.6875rem] font-bold text-gray-400 uppercase tracking-wider">Paid</span>
-            <span className="text-[1.5rem] font-[590] text-blue-400 tracking-tight">{formatCurrency(paidAmountDollars)}</span>
+          <div className="flex flex-col gap-1 border-l border-gray-200 dark:border-white/[0.06] pl-4">
+            <span className="text-[0.6875rem] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Paid</span>
+            <span className="text-[1.5rem] font-[590] text-blue-600 dark:text-blue-400 tracking-tight">{formatCurrency(paidAmountDollars)}</span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <button
+          <Button
+            variant="glass"
             onClick={() => onUpdateGrades(child)}
-            className="group/btn relative flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl glass-dark border border-white/[0.08] hover:border-primary-500/40 transition-all active:scale-[0.98] overflow-hidden cursor-pointer"
+            className="w-full justify-center group/btn"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-primary-700 to-primary-500 opacity-0 group-hover/btn:opacity-10 transition-opacity duration-300" />
-            <Edit2 className="w-4 h-4 text-white group-hover/btn:text-primary-400 transition-colors" />
-            <span className="text-sm font-medium text-white group-hover/btn:text-primary-400 transition-colors">Update Grades</span>
-          </button>
+            <Edit2 className="w-4 h-4 mr-2" />
+            Update Grades
+          </Button>
 
-          <button
+          <Button
+            variant="primary"
             onClick={() => onAssignTask(child)}
-            className="group/btn relative flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl glass-dark border border-white/[0.08] hover:border-primary-500/40 transition-all active:scale-[0.98] overflow-hidden cursor-pointer"
+            className="w-full justify-center group/btn"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-primary-700 to-primary-500 opacity-0 group-hover/btn:opacity-10 transition-opacity duration-300" />
-            <Plus className="w-4 h-4 text-white group-hover/btn:text-primary-400 transition-colors" />
-            <span className="text-sm font-medium text-white group-hover/btn:text-primary-400 transition-colors">Assign Task</span>
-          </button>
+            <Plus className="w-4 h-4 mr-2" />
+            Assign Task
+          </Button>
 
-          <button
+          <Button
+            variant="glass"
             onClick={() => onInviteChild(child)}
-            className="group/btn relative flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl glass-dark border border-white/[0.08] hover:border-primary-500/40 transition-all active:scale-[0.98] overflow-hidden cursor-pointer"
+            className="w-full justify-center group/btn"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-primary-700 to-primary-500 opacity-0 group-hover/btn:opacity-10 transition-opacity duration-300" />
-            <UserPlus className="w-4 h-4 text-white group-hover/btn:text-primary-400 transition-colors" />
-            <span className="text-sm font-medium text-white group-hover/btn:text-primary-400 transition-colors">
-              {setupStatus === 'SETUP_COMPLETE' ? 'Reinvite' : 'Invite'}
-            </span>
-          </button>
+            <UserPlus className="w-4 h-4 mr-2" />
+            {setupStatus === 'SETUP_COMPLETE' ? 'Reinvite' : 'Invite'}
+          </Button>
         </div>
 
-        <div className="mt-6 pt-4 border-t border-white/[0.06] flex justify-center">
-          <button
+        <div className="mt-6 pt-4 border-t border-gray-200 dark:border-white/[0.06] flex justify-center">
+          <Button
+            variant="ghost"
             onClick={() => setIsExpanded(!isExpanded)}
-            className={`flex items-center gap-2 text-[0.8125rem] font-bold transition-colors group/toggle cursor-pointer ${awaitingApproval.length > 0 ? 'text-primary-400 hover:text-primary-300' : 'text-gray-400 hover:text-primary-400'}`}
+            className={`flex items-center gap-2 text-[0.8125rem] font-bold transition-colors group/toggle ${awaitingApproval.length > 0 ? 'text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300' : 'text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400'}`}
           >
             <span>{getToggleLabel()}</span>
             <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -248,29 +250,29 @@ const ChildCard: React.FC<ChildCardProps> = ({
                 colorClass="text-primary-400"
               />
               {awaitingApproval.map(task => (
-                <div key={task.id} className="bg-primary-500/5 border-2 border-primary-500/50 rounded-2xl p-5 mb-2 relative overflow-visible">
+                <div key={task.id} className="bg-primary-50/50 dark:bg-primary-500/5 border-2 border-primary-100 dark:border-primary-500/50 rounded-2xl p-5 mb-2 relative overflow-visible">
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-3">
                       <span className="text-xl">{getTaskIcon(task.name)}</span>
-                      <span className="text-[1.0625rem] font-bold text-white">{task.name}</span>
+                      <span className="text-[1.0625rem] font-bold text-gray-900 dark:text-white">{task.name}</span>
                     </div>
                     <div className="relative">
-                      <button onClick={(e) => toggleMenu(e, task.id)} className="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"><MoreHorizontal className="w-4 h-4" /></button>
+                      <Button variant="ghost" size="icon" onClick={(e) => toggleMenu(e, task.id)} className="w-7 h-7 text-gray-400 hover:text-gray-900 dark:hover:text-white"><MoreHorizontal className="w-4 h-4" /></Button>
                       {activeMenuId === task.id && (
-                        <div className="absolute right-0 top-full mt-2 w-48 glass-dark border border-white/10 rounded-xl shadow-2xl z-50 p-1 animate-in fade-in zoom-in-95 duration-200">
-                          <button onClick={(e) => { e.stopPropagation(); onDeleteTask(child.id, task.id); }} className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-[#ff4444] hover:bg-red-500/10 flex items-center gap-2 cursor-pointer"><Trash2 className="w-4 h-4" />Delete Task</button>
+                        <div className="absolute right-0 top-full mt-2 w-48 glass-card border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl z-50 p-1 animate-in fade-in zoom-in-95 duration-200">
+                          <button onClick={(e) => { e.stopPropagation(); onDeleteTask(child.id, task.id); }} className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-[#ff4444] hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center gap-2 cursor-pointer"><Trash2 className="w-4 h-4" />Delete Task</button>
                         </div>
                       )}
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4">
-                    <div className="flex items-center gap-1 text-[#ccc] text-xs font-medium"><Clock className="w-3 h-3" /> {task.baselineMinutes} min</div>
-                    <span className="px-2 py-0.5 rounded-full bg-primary-500/20 text-primary-400 text-[0.625rem] font-black uppercase tracking-widest animate-pulse-primary">Awaiting Approval</span>
-                    <span className="text-xs font-bold text-primary-400">Will earn: {formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate))}</span>
+                    <div className="flex items-center gap-1 text-gray-500 dark:text-[#ccc] text-xs font-medium"><Clock className="w-3 h-3" /> {task.baselineMinutes} min</div>
+                    <span className="px-2 py-0.5 rounded-full bg-primary-100 dark:bg-primary-500/20 text-primary-700 dark:text-primary-400 text-[0.625rem] font-black uppercase tracking-widest animate-pulse-primary">Awaiting Approval</span>
+                    <span className="text-xs font-bold text-primary-600 dark:text-primary-400">Will earn: {formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate))}</span>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    <button onClick={() => onApproveTask(child.id, task)} className="py-2.5 bg-gradient-to-r from-primary-700 to-primary-500 text-white text-[0.875rem] font-bold rounded-xl flex items-center justify-center gap-2 hover:-translate-y-0.5 transition-all shadow-lg shadow-primary-500/20 cursor-pointer"><Check className="w-4 h-4" /> Approve</button>
-                    <button onClick={() => onRejectTask(child.id, task)} className="py-2.5 bg-red-500/10 border border-red-500/30 text-red-500 text-[0.875rem] font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-red-500/20 transition-all cursor-pointer"><X className="w-4 h-4" /> Reject</button>
+                    <Button onClick={() => onApproveTask(child.id, task)} className="w-full bg-gradient-to-r from-primary-600 to-primary-500 text-white shadow-lg shadow-primary-500/20"><Check className="w-4 h-4 mr-2" /> Approve</Button>
+                    <Button onClick={() => onRejectTask(child.id, task)} variant="outline" className="w-full border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"><X className="w-4 h-4 mr-2" /> Reject</Button>
                   </div>
                 </div>
               ))}
@@ -287,29 +289,29 @@ const ChildCard: React.FC<ChildCardProps> = ({
                 colorClass="text-emerald-400"
               />
               {readyToPay.map(task => (
-                <div key={task.id} className="bg-emerald-500/5 border-2 border-emerald-500/50 rounded-2xl p-5 mb-2 relative overflow-visible">
+                <div key={task.id} className="bg-emerald-50/50 dark:bg-emerald-500/5 border-2 border-emerald-100 dark:border-emerald-500/50 rounded-2xl p-5 mb-2 relative overflow-visible">
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-3">
                       <span className="text-xl">{getTaskIcon(task.name)}</span>
-                      <span className="text-[1.0625rem] font-bold text-white">{task.name}</span>
+                      <span className="text-[1.0625rem] font-bold text-gray-900 dark:text-white">{task.name}</span>
                     </div>
                     <div className="relative">
-                      <button onClick={(e) => toggleMenu(e, task.id)} className="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"><MoreHorizontal className="w-4 h-4" /></button>
+                      <Button variant="ghost" size="icon" onClick={(e) => toggleMenu(e, task.id)} className="w-7 h-7 text-gray-400 hover:text-gray-900 dark:hover:text-white"><MoreHorizontal className="w-4 h-4" /></Button>
                       {activeMenuId === task.id && (
-                        <div className="absolute right-0 top-full mt-2 w-48 glass-dark border border-white/10 rounded-xl shadow-2xl z-50 p-1 animate-in fade-in zoom-in-95 duration-200">
-                          <button onClick={(e) => { e.stopPropagation(); onUndoApproval(child.id, task.id); }} className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-orange-400 hover:bg-orange-500/10 flex items-center gap-2 cursor-pointer"><RotateCcw className="w-4 h-4" />Undo Approval</button>
-                          <div className="h-px bg-white/5 my-1" />
-                          <button onClick={(e) => { e.stopPropagation(); onDeleteTask(child.id, task.id); }} className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-[#ff4444] hover:bg-red-500/10 flex items-center gap-2 cursor-pointer"><Trash2 className="w-4 h-4" />Delete Task</button>
+                        <div className="absolute right-0 top-full mt-2 w-48 glass-card border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl z-50 p-1 animate-in fade-in zoom-in-95 duration-200">
+                          <button onClick={(e) => { e.stopPropagation(); onUndoApproval(child.id, task.id); }} className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-orange-500 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-500/10 flex items-center gap-2 cursor-pointer"><RotateCcw className="w-4 h-4" />Undo Approval</button>
+                          <div className="h-px bg-gray-200 dark:bg-white/5 my-1" />
+                          <button onClick={(e) => { e.stopPropagation(); onDeleteTask(child.id, task.id); }} className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-[#ff4444] hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center gap-2 cursor-pointer"><Trash2 className="w-4 h-4" />Delete Task</button>
                         </div>
                       )}
                     </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4">
-                    <div className="flex items-center gap-1 text-[#ccc] text-xs font-medium"><Clock className="w-3 h-3" /> {task.baselineMinutes} min</div>
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[0.625rem] font-black uppercase tracking-widest">Approved</span>
-                    <span className="text-xs font-bold text-emerald-400">Earned: {formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate))}</span>
+                    <div className="flex items-center gap-1 text-gray-500 dark:text-[#ccc] text-xs font-medium"><Clock className="w-3 h-3" /> {task.baselineMinutes} min</div>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-[0.625rem] font-black uppercase tracking-widest">Approved</span>
+                    <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">Earned: {formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate))}</span>
                   </div>
-                  <button onClick={() => onPayTask(child.id, task)} className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-400 text-white text-[0.9375rem] font-bold rounded-xl flex items-center justify-center gap-2 hover:-translate-y-0.5 transition-all shadow-lg shadow-emerald-500/20 cursor-pointer"><DollarSign className="w-4 h-4" /> Mark as Paid</button>
+                  <Button onClick={() => onPayTask(child.id, task)} className="w-full bg-gradient-to-r from-emerald-600 to-emerald-500 text-white shadow-lg shadow-emerald-500/20"><DollarSign className="w-4 h-4 mr-2" /> Mark as Paid</Button>
                 </div>
               ))}
             </>
@@ -325,40 +327,40 @@ const ChildCard: React.FC<ChildCardProps> = ({
                 colorClass="text-gray-400"
               />
               {inProgress.map(task => (
-                <div key={task.id} className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-5 mb-2 hover:bg-white/[0.04] transition-colors group/task relative overflow-visible">
+                <div key={task.id} className="bg-gray-50/50 dark:bg-white/[0.02] border border-gray-200 dark:border-white/[0.06] rounded-2xl p-5 mb-2 hover:bg-gray-100 dark:hover:bg-white/[0.04] transition-colors group/task relative overflow-visible">
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-3">
                       <span className="text-xl">{getTaskIcon(task.name)}</span>
-                      <span className="text-[1.0625rem] font-medium text-white">{task.name}</span>
+                      <span className="text-[1.0625rem] font-medium text-gray-900 dark:text-white">{task.name}</span>
                     </div>
                     <div className="relative">
-                      <button onClick={(e) => toggleMenu(e, task.id)} className="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 hover:bg-white/10 hover:text-white transition-colors cursor-pointer"><MoreHorizontal className="w-4 h-4" /></button>
+                      <Button variant="ghost" size="icon" onClick={(e) => toggleMenu(e, task.id)} className="w-7 h-7 text-gray-400 hover:text-gray-900 dark:hover:text-white"><MoreHorizontal className="w-4 h-4" /></Button>
                       {activeMenuId === task.id && (
-                        <div className="absolute right-0 top-full mt-2 w-48 glass-dark border border-white/10 rounded-xl shadow-2xl z-50 p-1 animate-in fade-in zoom-in-95 duration-200">
+                        <div className="absolute right-0 top-full mt-2 w-48 glass-card border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl z-50 p-1 animate-in fade-in zoom-in-95 duration-200">
                           <div className="relative group/reassign">
-                            <button onClick={(e) => { e.stopPropagation(); setActiveSubmenuId(activeSubmenuId === 're' ? null : 're'); }} className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-white hover:bg-white/5 flex items-center justify-between cursor-pointer">
-                              <div className="flex items-center gap-2"><UserPlus className="w-4 h-4 text-blue-400" />Reassign to...</div>
+                            <button onClick={(e) => { e.stopPropagation(); setActiveSubmenuId(activeSubmenuId === 're' ? null : 're'); }} className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-white/5 flex items-center justify-between cursor-pointer">
+                              <div className="flex items-center gap-2"><UserPlus className="w-4 h-4 text-blue-500 dark:text-blue-400" />Reassign to...</div>
                               <ChevronRight className="w-3.5 h-3.5 opacity-40" />
                             </button>
                             {activeSubmenuId === 're' && (
-                              <div className="absolute left-full top-0 w-44 glass-dark border border-white/10 rounded-xl shadow-2xl ml-1 overflow-hidden">
-                                <button onClick={(e) => { e.stopPropagation(); onReassignTask(task, 'OPEN'); setActiveMenuId(null); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-400 hover:bg-white/5 hover:text-white flex items-center gap-2 cursor-pointer"><Briefcase className="w-3 h-3" /> Open Pool</button>
+                              <div className="absolute left-full top-0 w-44 glass-card border border-gray-200 dark:border-white/10 rounded-xl shadow-2xl ml-1 overflow-hidden">
+                                <button onClick={(e) => { e.stopPropagation(); onReassignTask(task, 'OPEN'); setActiveMenuId(null); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white flex items-center gap-2 cursor-pointer"><Briefcase className="w-3 h-3" /> Open Pool</button>
                                 {siblings.map(s => (
-                                  <button key={s.id} onClick={(e) => { e.stopPropagation(); onReassignTask(task, s.id); setActiveMenuId(null); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-400 hover:bg-white/5 hover:text-white truncate cursor-pointer">{s.name}</button>
+                                  <button key={s.id} onClick={(e) => { e.stopPropagation(); onReassignTask(task, s.id); setActiveMenuId(null); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white truncate cursor-pointer">{s.name}</button>
                                 ))}
                               </div>
                             )}
                           </div>
-                          <button onClick={(e) => { e.stopPropagation(); onEditTask(task); setActiveMenuId(null); }} className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-white hover:bg-white/5 flex items-center gap-2 cursor-pointer"><Edit2 className="w-4 h-4 text-orange-400" />Edit Baseline</button>
-                          <div className="h-px bg-white/5 my-1" />
-                          <button onClick={(e) => { e.stopPropagation(); onDeleteTask(child.id, task.id); setActiveMenuId(null); }} className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-[#ff4444] hover:bg-red-500/10 flex items-center gap-2 cursor-pointer"><Trash2 className="w-4 h-4" />Delete Task</button>
+                          <button onClick={(e) => { e.stopPropagation(); onEditTask(task); setActiveMenuId(null); }} className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-white/5 flex items-center gap-2 cursor-pointer"><Edit2 className="w-4 h-4 text-orange-500 dark:text-orange-400" />Edit Baseline</button>
+                          <div className="h-px bg-gray-200 dark:bg-white/5 my-1" />
+                          <button onClick={(e) => { e.stopPropagation(); onDeleteTask(child.id, task.id); setActiveMenuId(null); }} className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-[#ff4444] hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center gap-2 cursor-pointer"><Trash2 className="w-4 h-4" />Delete Task</button>
                         </div>
                       )}
                     </div>
                   </div>
                   <div className="flex items-center gap-3 ml-[2.75rem]">
-                    <div className="flex items-center gap-1.5 text-gray-400 text-xs font-medium"><Clock className="w-3.5 h-3.5" /> {task.baselineMinutes} min baseline</div>
-                    <span className="px-2 py-0.5 rounded-full bg-primary-500/15 text-primary-400 text-[0.625rem] font-black uppercase tracking-widest">Pending</span>
+                    <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-xs font-medium"><Clock className="w-3.5 h-3.5" /> {task.baselineMinutes} min baseline</div>
+                    <span className="px-2 py-0.5 rounded-full bg-primary-100 dark:bg-primary-500/15 text-primary-700 dark:text-primary-400 text-[0.625rem] font-black uppercase tracking-widest">Pending</span>
                   </div>
                 </div>
               ))}
@@ -366,7 +368,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
           )}
 
           {!child.customTasks?.length && (
-            <div className="py-8 text-center text-[#666] text-sm bg-white/[0.02] rounded-2xl border border-white/[0.06] border-dashed">No tasks assigned</div>
+            <div className="py-8 text-center text-gray-500 dark:text-[#666] text-sm bg-gray-50/50 dark:bg-white/[0.02] rounded-2xl border border-gray-200 dark:border-white/[0.06] border-dashed">No tasks assigned</div>
           )}
         </div>
       )}

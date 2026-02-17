@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { signOut, User, onAuthStateChanged } from 'firebase/auth';
 import { collection, onSnapshot, query } from 'firebase/firestore';
 import { Calendar, Loader2, LogOut, Plus, Share2, UserPlus, Users } from 'lucide-react';
+import { Button } from './components/ui/Button';
 import {
   BrowserRouter,
   Navigate,
@@ -868,10 +869,10 @@ function DashboardPage() {
 
   if (!isFirebaseConfigured) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center text-white p-6">
-        <div className="max-w-lg w-full glass-dark p-8 rounded-2xl border border-white/10 text-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-900 dark:text-white p-6 transition-colors duration-300">
+        <div className="max-w-lg w-full bg-white dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-2xl border border-gray-200 dark:border-white/10 text-center shadow-xl">
           <h2 className="text-2xl font-bold mb-4">Firebase Setup Required</h2>
-          <p className="text-gray-400 mb-2">Phase 2 requires Firebase Auth and Firestore configuration.</p>
+          <p className="text-gray-600 dark:text-gray-400 mb-2">Phase 2 requires Firebase Auth and Firestore configuration.</p>
           <p className="text-gray-500 text-sm">Add `VITE_FIREBASE_*` keys in `.env` and restart the app.</p>
         </div>
       </div>
@@ -895,8 +896,8 @@ function DashboardPage() {
 
   if (familyAuth.isInitializing) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center text-white">
-        <Loader2 className="w-8 h-8 animate-spin text-white/30" />
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-900 dark:text-white">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600 dark:text-primary-400" />
       </div>
     );
   }
@@ -955,8 +956,8 @@ function DashboardPage() {
 
   if (loadingChildren || loadingOpenTasks || !familyAuth.activeProfile) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center text-white">
-        <Loader2 className="w-8 h-8 animate-spin text-white/30" />
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-900 dark:text-white">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600 dark:text-primary-400" />
       </div>
     );
   }
@@ -968,7 +969,7 @@ function DashboardPage() {
 
     if (!activeChild) {
       return (
-        <div className="min-h-screen bg-gray-950 flex items-center justify-center text-white">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-900 dark:text-white">
           <div className="text-center">
             <p className="text-lg mb-4">Child profile data is still loading.</p>
             <button type="button" onClick={familyAuth.clearActiveProfileSelection} className="px-4 py-2 rounded-lg bg-primary-600 text-white">Back to Profile Picker</button>
@@ -978,17 +979,17 @@ function DashboardPage() {
     }
 
     return (
-      <div className="min-h-screen bg-gray-950 text-white relative pb-12">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white relative pb-12 transition-colors duration-300">
         <div className="relative z-10 max-w-[1200px] mx-auto p-6 md:p-8">
           <header className="flex justify-between items-center mb-10">
             <div className="flex items-center gap-3">
-              <span className="text-2xl font-[590] tracking-tight text-white">HomeWork</span>
-              <span className="px-2 py-0.5 rounded-md bg-white/10 border border-white/5 text-[11px] font-bold tracking-wider text-gray-400 uppercase">Child</span>
+              <span className="text-2xl font-[590] tracking-tight text-gray-900 dark:text-white">HomeWork</span>
+              <span className="px-2 py-0.5 rounded-md bg-gray-200 dark:bg-white/10 border border-gray-300 dark:border-white/5 text-[11px] font-bold tracking-wider text-gray-600 dark:text-gray-400 uppercase">Child</span>
             </div>
             <div className="flex items-center gap-3">
-              <button type="button" onClick={() => { void familyAuth.signOutUser(); }} className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10">
+              <Button variant="ghost" size="icon" onClick={() => { void familyAuth.signOutUser(); }} className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
                 <LogOut className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
           </header>
 
@@ -1010,68 +1011,73 @@ function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white relative pb-12">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white relative pb-12 transition-colors duration-300">
       <div className="relative z-10 max-w-[1400px] mx-auto p-6 md:p-8">
         <header className="flex justify-between items-center mb-10">
           <div className="flex items-center gap-3">
-            <span className="text-2xl font-[590] tracking-tight text-white">HomeWork</span>
-            <span className="px-2 py-0.5 rounded-md bg-white/10 border border-white/5 text-[11px] font-bold tracking-wider text-gray-400 uppercase">Admin</span>
+            <span className="text-2xl font-[590] tracking-tight text-gray-900 dark:text-white">HomeWork</span>
+            <span className="px-2 py-0.5 rounded-md bg-gray-200 dark:bg-white/10 border border-gray-300 dark:border-white/5 text-[11px] font-bold tracking-wider text-gray-600 dark:text-gray-400 uppercase">Admin</span>
           </div>
           <div className="flex items-center gap-3">
-            <button type="button" onClick={familyAuth.clearActiveProfileSelection} className="h-11 px-4 rounded-full bg-white/5 border border-white/10 flex items-center gap-2 text-gray-300 hover:text-white hover:bg-white/10">
-              <Users className="w-4 h-4" />
+            <Button variant="ghost" size="sm" onClick={familyAuth.clearActiveProfileSelection} className="text-gray-300 hover:text-white">
+              <Users className="w-4 h-4 mr-2" />
               Profiles
-            </button>
-            <button type="button" onClick={() => { void familyAuth.signOutUser(); }} className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10">
+            </Button>
+            <Button variant="ghost" size="icon" onClick={() => { void familyAuth.signOutUser(); }} className="text-gray-400 hover:text-white">
               <LogOut className="w-5 h-5" />
-            </button>
+            </Button>
           </div>
         </header>
 
         <div className="flex flex-wrap items-center gap-3 mb-8">
-          <button type="button" onClick={() => setIsAddChildModalOpen(true)} className="bg-gradient-to-r from-primary-600 to-primary-700 text-white font-medium px-6 py-3.5 rounded-xl flex items-center gap-2">
+          <Button variant="primary" onClick={() => setIsAddChildModalOpen(true)} className="gap-2 shadow-lg shadow-primary-500/20">
             <UserPlus className="w-[18px] h-[18px]" />
             <span className="hidden sm:inline">Add Child</span>
-          </button>
-          <button type="button" onClick={() => { setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }} disabled={!hasChildren} className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-medium bg-white/5 text-white disabled:opacity-50">
+          </Button>
+          <Button variant="outline" onClick={() => { setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }} disabled={!hasChildren} className="gap-2 border-gray-200 dark:border-white/10 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-white/5">
             <Calendar className="w-[18px] h-[18px]" />
             <span className="hidden sm:inline">Add Open Task</span>
-          </button>
-          <button type="button" onClick={() => { setIsOpenTaskMode(false); setSelectedChildId(''); setIsAddTaskModalOpen(true); }} disabled={!hasChildren} className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-medium bg-white/5 text-white disabled:opacity-50">
+          </Button>
+          <Button variant="outline" onClick={() => { setIsOpenTaskMode(false); setSelectedChildId(''); setIsAddTaskModalOpen(true); }} disabled={!hasChildren} className="gap-2 border-gray-200 dark:border-white/10 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-white/5">
             <Calendar className="w-[18px] h-[18px]" />
             <span className="hidden sm:inline">Create Draft</span>
-          </button>
-          <button type="button" onClick={() => { if (hasChildren) { setSelectedChildId(childrenWithRateMap[0].id); setIsAdvanceModalOpen(true); } }} disabled={!hasChildren} className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-medium bg-white/5 text-white disabled:opacity-50">
+          </Button>
+          <Button variant="outline" onClick={() => { if (hasChildren) { setSelectedChildId(childrenWithRateMap[0].id); setIsAdvanceModalOpen(true); } }} disabled={!hasChildren} className="gap-2 border-gray-200 dark:border-white/10 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-white/5">
             <Plus className="w-[18px] h-[18px]" />
             <span className="hidden sm:inline">Add Advance</span>
-          </button>
-          <button type="button" onClick={handleGenerateInvite} className="h-11 px-4 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-all gap-2 border-dashed">
+          </Button>
+          <Button variant="ghost" onClick={handleGenerateInvite} className="gap-2 border-dashed border-gray-300 dark:border-white/20 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
             <Share2 className="w-4 h-4" />
             <span className="text-xs font-bold uppercase tracking-wider">Invite</span>
-          </button>
+          </Button>
         </div>
 
         {hasChildren ? (
           <div className="mb-12">
-            <div className="mb-6 rounded-2xl border border-white/10 bg-white/[0.02] px-5 py-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mb-8 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-sm rounded-2xl p-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-l-4 border-l-primary-500">
               <div>
-                <p className="text-sm font-semibold text-white">Family command center is active.</p>
-                <p className="text-xs text-gray-400">
-                  {pendingSetupCount} profile{pendingSetupCount === 1 ? '' : 's'} awaiting setup completion.
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">Family Command Center</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {pendingSetupCount > 0
+                    ? `${pendingSetupCount} profile${pendingSetupCount === 1 ? '' : 's'} awaiting setup completion.`
+                    : 'All systems operational.'}
                 </p>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-semibold text-gray-300">
-                  Invite Sent: {inviteSentCount}
-                </span>
-                <button
-                  type="button"
+              <div className="flex items-center gap-3">
+                {inviteSentCount > 0 && (
+                  <span className="px-3 py-1 rounded-full bg-primary-500/20 text-primary-200 text-xs font-bold border border-primary-500/30">
+                    {inviteSentCount} Invite{inviteSentCount !== 1 ? 's' : ''} Sent
+                  </span>
+                )}
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={() => setIsAddChildModalOpen(true)}
-                  className="rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-xs font-semibold text-white hover:bg-white/10"
                 >
                   Add Another Child
-                </button>
+                </Button>
               </div>
+
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -1163,11 +1169,11 @@ function DashboardPage() {
         {taskToReject && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setTaskToReject(null)} />
-            <div className="relative w-full max-w-[480px] glass-dark rounded-[24px] border border-white/[0.06] p-10">
-              <h3 className="text-xl font-bold mb-4">Reject Task: {taskToReject.task.name}</h3>
-              <textarea value={rejectionComment} onChange={(event) => setRejectionComment(event.target.value)} placeholder="What needs to be fixed?" className="w-full min-h-[120px] p-4 bg-white/5 border border-white/10 rounded-xl mb-6 outline-none focus:border-red-500" autoFocus />
+            <div className="relative w-full max-w-[480px] bg-white dark:bg-gray-900 rounded-[24px] border border-gray-200 dark:border-white/[0.06] p-10 shadow-2xl">
+              <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Reject Task: {taskToReject.task.name}</h3>
+              <textarea value={rejectionComment} onChange={(event) => setRejectionComment(event.target.value)} placeholder="What needs to be fixed?" className="w-full min-h-[120px] p-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl mb-6 outline-none focus:border-red-500 text-gray-900 dark:text-white placeholder:text-gray-400" autoFocus />
               <div className="flex gap-4">
-                <button type="button" onClick={() => setTaskToReject(null)} className="flex-1 py-3 text-gray-400 bg-white/5 rounded-xl">Cancel</button>
+                <button type="button" onClick={() => setTaskToReject(null)} className="flex-1 py-3 text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 rounded-xl transition-colors">Cancel</button>
                 <button type="button" onClick={() => {
                   if (!taskToReject || rejectionComment.trim().length === 0) {
                     return;
@@ -1175,7 +1181,7 @@ function DashboardPage() {
                   statusTaskMutation.mutate({ taskId: taskToReject.task.id, status: 'ASSIGNED', comment: rejectionComment });
                   setTaskToReject(null);
                   setRejectionComment('');
-                }} disabled={rejectionComment.trim().length === 0} className="flex-1 py-3 bg-red-600 rounded-xl font-bold disabled:opacity-50">
+                }} disabled={rejectionComment.trim().length === 0} className="flex-1 py-3 bg-red-600 rounded-xl font-bold text-white disabled:opacity-50 hover:bg-red-700 transition-colors">
                   Send Back
                 </button>
               </div>
@@ -1186,10 +1192,10 @@ function DashboardPage() {
         {isInviteModalOpen && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setIsInviteModalOpen(false)} />
-            <div className="relative w-full max-w-[560px] glass-dark rounded-[24px] border border-white/[0.06] p-8 text-left">
-              <h3 className="text-xl font-bold mb-2">Invite Child Device</h3>
-              <p className="text-gray-400 mb-5 text-sm">Choose a child profile to generate a unique setup URL.</p>
-              <div className="space-y-2 max-h-[320px] overflow-auto pr-1">
+            <div className="relative w-full max-w-[560px] bg-white dark:bg-gray-900 rounded-[24px] border border-gray-200 dark:border-white/[0.06] p-8 text-left shadow-2xl">
+              <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">Invite Child Device</h3>
+              <p className="text-gray-500 dark:text-gray-400 mb-5 text-sm">Choose a child profile to generate a unique setup URL.</p>
+              <div className="space-y-2 max-h-[320px] overflow-auto pr-1 custom-scrollbar">
                 {childrenWithRateMap.map((child) => (
                   <button
                     key={child.id}
@@ -1198,14 +1204,14 @@ function DashboardPage() {
                       void handleGenerateProfileSetupLink(toProfileFromChild(child));
                       setIsInviteModalOpen(false);
                     }}
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-left hover:bg-white/10"
+                    className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-4 py-3 text-left hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                   >
-                    <div className="text-sm font-semibold text-white">{child.name}</div>
-                    <div className="text-xs text-gray-400">{child.gradeLevel}</div>
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">{child.name}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{child.gradeLevel}</div>
                   </button>
                 ))}
               </div>
-              <button type="button" onClick={() => setIsInviteModalOpen(false)} className="mt-5 w-full py-3 bg-white/10 rounded-xl font-bold hover:bg-white/15">Close</button>
+              <button type="button" onClick={() => setIsInviteModalOpen(false)} className="mt-5 w-full py-3 bg-gray-100 dark:bg-white/10 rounded-xl font-bold text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-white/15 transition-colors">Close</button>
             </div>
           </div>
         )}
@@ -1213,14 +1219,14 @@ function DashboardPage() {
         {profileSetupLink && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setProfileSetupLink(null)} />
-            <div className="relative w-full max-w-[560px] glass-dark rounded-[24px] border border-white/[0.06] p-10 text-center">
-              <h3 className="text-xl font-bold mb-4">Profile Setup Link</h3>
-              <p className="text-gray-400 mb-6 text-sm">Send this one-time link so the child can set their own PIN and avatar.</p>
-              <div className="flex items-center gap-2 bg-white/5 p-3 rounded-xl mb-6 border border-white/10">
-                <code className="text-xs text-primary-200 flex-1 truncate">{profileSetupLink}</code>
-                <button type="button" onClick={() => { void navigator.clipboard.writeText(profileSetupLink); }} className="text-xs font-bold bg-white/10 px-3 py-1.5 rounded-lg hover:bg-white/20">COPY</button>
+            <div className="relative w-full max-w-[560px] bg-white dark:bg-gray-900 rounded-[24px] border border-gray-200 dark:border-white/[0.06] p-10 text-center shadow-2xl">
+              <h3 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">Profile Setup Link</h3>
+              <p className="text-gray-500 dark:text-gray-400 mb-6 text-sm">Send this one-time link so the child can set their own PIN and avatar.</p>
+              <div className="flex items-center gap-2 bg-gray-50 dark:bg-white/5 p-3 rounded-xl mb-6 border border-gray-200 dark:border-white/10">
+                <code className="text-xs text-primary-600 dark:text-primary-200 flex-1 truncate">{profileSetupLink}</code>
+                <button type="button" onClick={() => { void navigator.clipboard.writeText(profileSetupLink); }} className="text-xs font-bold bg-gray-200 dark:bg-white/10 px-3 py-1.5 rounded-lg hover:bg-gray-300 dark:hover:bg-white/20 text-gray-700 dark:text-white transition-colors">COPY</button>
               </div>
-              <button type="button" onClick={() => setProfileSetupLink(null)} className="w-full py-3 bg-white/10 rounded-xl font-bold hover:bg-white/15">Close</button>
+              <button type="button" onClick={() => setProfileSetupLink(null)} className="w-full py-3 bg-gray-100 dark:bg-white/10 rounded-xl font-bold text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-white/15 transition-colors">Close</button>
             </div>
           </div>
         )}
@@ -1335,8 +1341,8 @@ function SetupProfileRoute() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center p-6">
-      <div className="w-full max-w-md rounded-3xl border border-white/10 glass-dark p-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white flex items-center justify-center p-6 transition-colors duration-300">
+      <div className="w-full max-w-md rounded-3xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/60 backdrop-blur-xl p-6 shadow-xl">
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
             <Loader2 className="h-6 w-6 animate-spin text-primary-500" />
@@ -1344,7 +1350,7 @@ function SetupProfileRoute() {
         ) : isComplete ? (
           <div className="text-center py-6">
             <h1 className="text-2xl font-semibold">Setup Complete</h1>
-            <p className="mt-3 text-sm text-gray-400">Your profile is ready. Use Child Sign In with your username and PIN on any device.</p>
+            <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">Your profile is ready. Use Child Sign In with your username and PIN on any device.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -1468,8 +1474,8 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
 
   if (!isResolved) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center text-white">
-        <Loader2 className="w-8 h-8 animate-spin text-white/30" />
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-900 dark:text-white">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600 dark:text-primary-400" />
       </div>
     );
   }
@@ -1502,8 +1508,8 @@ function UnknownRouteHandler() {
 
   if (!isResolved) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center text-white">
-        <Loader2 className="w-8 h-8 animate-spin text-white/30" />
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center text-gray-900 dark:text-white">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600 dark:text-primary-400" />
       </div>
     );
   }
