@@ -118,6 +118,9 @@ export default function LandingPage() {
                                         alt="HomeWork App Mockup"
                                         className="w-full h-auto drop-shadow-[0_40px_100px_rgba(0,0,0,0.8)]"
                                     />
+                                    {/* <div className="w-full h-[600px] bg-red-500 flex items-center justify-center text-white font-bold text-3xl">
+                                        IMAGE REPLACED
+                                    </div> */}
                                     {/* Glass Shine Overlay */}
                                     <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none rounded-[48px]" />
                                 </div>
