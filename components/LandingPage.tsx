@@ -119,7 +119,7 @@ export default function LandingPage() {
                                         className="w-full h-auto drop-shadow-[0_40px_100px_rgba(0,0,0,0.8)]"
                                     />
                                     {/* Glass Shine Overlay */}
-                                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none rounded-[48px]" />
+
                                 </div>
                             </div>
                         </div>
