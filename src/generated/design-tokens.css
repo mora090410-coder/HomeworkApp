@@ -1,0 +1,42 @@
+/* AUTO-GENERATED — DO NOT EDIT
+ * Source of truth: src/skillmaster/colors.js
+ * Regenerate: node scripts/generate-tokens.js
+ */
+
+:root {
+    --bg-app: #F5F7FA;
+    --bg-elev-1: #FFFFFF;
+    --bg-surface: #FFFFFF;
+    --bg-surface-2: #E9ECF3;
+    --border-base: rgba(0, 0, 0, 0.08);
+    --border-highlight: rgba(255, 255, 255, 0.6);
+    --text-primary: #0B1220;
+    --text-muted: #55627A;
+    --text-subtle: #77839A;
+    --glass-surface: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --glass-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+    --accent-wash: linear-gradient(135deg, #F43F5E08 0%, #F1B04E08 100%);
+}
+
+.dark {
+    --bg-app: #070A0F;
+    --bg-elev-1: #0A0F18;
+    --bg-surface: #0B1220;
+    --bg-surface-2: #101826;
+    --border-base: rgba(255, 255, 255, 0.08);
+    --border-highlight: rgba(255, 255, 255, 0.15);
+    --text-primary: #E9ECF3;
+    --text-muted: #77839A;
+    --text-subtle: #39465E;
+    --glass-surface: rgba(20, 20, 20, 0.6);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    --accent-wash: linear-gradient(135deg, #F43F5E0D 0%, #F1B04E0A 100%);
+}
