@@ -174,7 +174,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
               variant="ghost"
               size="icon"
               onClick={(e) => { e.stopPropagation(); onEditSettings(child); }}
-              className="rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              className="rounded-full text-content-muted hover:text-content-primary"
             >
               <Settings className="w-5 h-5" />
             </Button>
@@ -324,7 +324,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
                 icon={<Clock className="w-3.5 h-3.5" />}
                 title="In Progress"
                 count={inProgress.length}
-                colorClass="text-gray-400"
+                colorClass="text-content-subtle"
               />
               {inProgress.map(task => (
                 <div key={task.id} className="bg-surface-2 border border-stroke-base rounded-2xl p-5 mb-2 hover:bg-black/[0.02] dark:hover:bg-white/[0.04] transition-colors group/task relative overflow-visible">
@@ -338,21 +338,21 @@ const ChildCard: React.FC<ChildCardProps> = ({
                       {activeMenuId === task.id && (
                         <div className="absolute right-0 top-full mt-2 w-48 glass-card border border-stroke-base rounded-xl shadow-2xl z-50 p-1 animate-in fade-in zoom-in-95 duration-200">
                           <div className="relative group/reassign">
-                            <button onClick={(e) => { e.stopPropagation(); setActiveSubmenuId(activeSubmenuId === 're' ? null : 're'); }} className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-content-primary hover:bg-gray-100 dark:hover:bg-white/5 flex items-center justify-between cursor-pointer">
+                            <button onClick={(e) => { e.stopPropagation(); setActiveSubmenuId(activeSubmenuId === 're' ? null : 're'); }} className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-content-primary hover:bg-surface-elev flex items-center justify-between cursor-pointer">
                               <div className="flex items-center gap-2"><UserPlus className="w-4 h-4 text-blue-500 dark:text-blue-400" />Reassign to...</div>
                               <ChevronRight className="w-3.5 h-3.5 opacity-40" />
                             </button>
                             {activeSubmenuId === 're' && (
                               <div className="absolute left-full top-0 w-44 glass-card border border-border-base rounded-xl shadow-2xl ml-1 overflow-hidden">
-                                <button onClick={(e) => { e.stopPropagation(); onReassignTask(task, 'OPEN'); setActiveMenuId(null); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-text-muted hover:bg-gray-100 dark:hover:bg-white/5 hover:text-text-primary flex items-center gap-2 cursor-pointer"><Briefcase className="w-3 h-3" /> Open Pool</button>
+                                <button onClick={(e) => { e.stopPropagation(); onReassignTask(task, 'OPEN'); setActiveMenuId(null); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-content-muted hover:bg-surface-elev hover:text-content-primary flex items-center gap-2 cursor-pointer"><Briefcase className="w-3 h-3" /> Open Pool</button>
                                 {siblings.map(s => (
-                                  <button key={s.id} onClick={(e) => { e.stopPropagation(); onReassignTask(task, s.id); setActiveMenuId(null); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-text-muted hover:bg-gray-100 dark:hover:bg-white/5 hover:text-text-primary truncate cursor-pointer">{s.name}</button>
+                                  <button key={s.id} onClick={(e) => { e.stopPropagation(); onReassignTask(task, s.id); setActiveMenuId(null); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-content-muted hover:bg-surface-elev hover:text-content-primary truncate cursor-pointer">{s.name}</button>
                                 ))}
                               </div>
                             )}
                           </div>
-                          <button onClick={(e) => { e.stopPropagation(); onEditTask(task); setActiveMenuId(null); }} className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-text-primary hover:bg-gray-100 dark:hover:bg-white/5 flex items-center gap-2 cursor-pointer"><Edit2 className="w-4 h-4 text-orange-500 dark:text-orange-400" />Edit Baseline</button>
-                          <div className="h-px bg-border-base my-1" />
+                          <button onClick={(e) => { e.stopPropagation(); onEditTask(task); setActiveMenuId(null); }} className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-content-primary hover:bg-surface-elev flex items-center gap-2 cursor-pointer"><Edit2 className="w-4 h-4 text-orange-500 dark:text-orange-400" />Edit Baseline</button>
+                          <div className="h-px bg-stroke-base my-1" />
                           <button onClick={(e) => { e.stopPropagation(); onDeleteTask(child.id, task.id); setActiveMenuId(null); }} className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-[#ff4444] hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center gap-2 cursor-pointer"><Trash2 className="w-4 h-4" />Delete Task</button>
                         </div>
                       )}
