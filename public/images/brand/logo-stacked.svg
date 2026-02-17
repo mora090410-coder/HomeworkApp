@@ -1,0 +1,32 @@
+<svg width="600" height="800" viewBox="0 0 600 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .wordmark { font-family: 'Inter', 'Satoshi', 'Manrope', sans-serif; }
+    .home { font-weight: 500; }
+    .work { font-weight: 700; }
+    @media (prefers-color-scheme: dark) {
+      .wordmark { fill: #FDF4E3; }
+    }
+    @media (prefers-color-scheme: light) {
+      .wordmark { fill: #162033; }
+    }
+  </style>
+
+  <!-- Icon (Top) -->
+  <g transform="translate(100, 50) scale(0.78)">
+    <circle cx="256" cy="256" r="240" stroke="#F1B04E" stroke-width="32" />
+    <circle cx="256" cy="256" r="208" fill="#881337" />
+    <g transform="translate(144, 168) scale(0.9)">
+      <path d="M40 220C40 220 80 200 120 200C160 200 200 220 200 220V60C200 60 160 40 120 40C80 40 40 60 40 60V220Z" stroke="#F1B04E" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M200 220C200 220 240 200 280 200C320 200 360 220 360 220V60C360 60 320 40 280 40C240 40 200 60 200 60V220Z" stroke="#F1B04E" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M200 60V220" stroke="#F1B04E" stroke-width="12" stroke-linecap="round"/>
+      <circle cx="120" cy="80" r="45" fill="#881337" stroke="#F1B04E" stroke-width="12"/>
+      <text x="120" y="98" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="50" fill="#F1B04E">$</text>
+      <path d="M260 80L300 120L380 40" stroke="#F1B04E" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+
+  <!-- Wordmark (Bottom) -->
+  <text x="300" y="650" class="wordmark" font-size="120" text-anchor="middle" letter-spacing="-0.04em">
+    <tspan class="home">Home</tspan><tspan class="work">Work</tspan>
+  </text>
+</svg>
