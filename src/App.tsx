@@ -1529,7 +1529,7 @@ export default function App() {
           path="/"
           element={(
             <PublicOnlyRoute>
-              <MarketingLandingPage />
+              <DashboardLandingPage />
             </PublicOnlyRoute>
           )}
         />
@@ -1551,14 +1551,6 @@ export default function App() {
         />
         <Route path="/setup-profile/:id" element={<SetupProfileRoute />} />
         <Route path="/admin-dashboard" element={<DashboardPage />} />
-        <Route
-          path="/"
-          element={
-            <PublicOnlyRoute>
-              <DashboardLandingPage />
-            </PublicOnlyRoute>
-          }
-        />
         <Route path="*" element={<UnknownRouteHandler />} />
       </Routes>
     </BrowserRouter>
