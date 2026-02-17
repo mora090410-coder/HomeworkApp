@@ -64,14 +64,14 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 font-sans">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 font-sans text-white">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity duration-300"
+        className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity duration-300"
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-[520px] bg-[#1a1a1a] rounded-[28px] shadow-[0_24px_80px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden animate-in zoom-in-95 duration-300 border border-white/[0.06]">
+      <div className="relative w-full max-w-[520px] glass-dark rounded-[28px] shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300 border border-white/10">
 
         {/* Noise Texture */}
         <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-0"
@@ -81,7 +81,7 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-all z-20"
+          className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-all z-20 cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
@@ -93,7 +93,7 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
             <h2 className="text-[1.75rem] font-[590] text-white mb-2 leading-tight">
               Record Advance
             </h2>
-            <p className="text-[0.9375rem] text-[#888]">
+            <p className="text-[0.9375rem] text-gray-400">
               Track upfront spending or debts
             </p>
           </div>
@@ -102,64 +102,64 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
 
             {/* Child Selection */}
             <div>
-              <label className="block text-[0.9375rem] font-[510] text-[#999] mb-3 ml-1">Child Account</label>
+              <label className="block text-[0.9375rem] font-[510] text-gray-400 mb-3 ml-1">Child Account</label>
               <div className="relative">
                 <select
                   value={childId}
                   onChange={(e) => setChildId(e.target.value)}
-                  className="w-full px-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-base outline-none appearance-none focus:bg-white/[0.06] focus:border-[#FFCC00]/40 focus:shadow-[0_0_12px_rgba(255,204,0,0.15)] transition-all cursor-pointer"
+                  className="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white text-base outline-none appearance-none focus:bg-white/10 focus:border-primary-400/50 focus:shadow-[0_0_12px_rgba(var(--primary-400),0.15)] transition-all cursor-pointer [&>option]:bg-gray-950"
                 >
                   {childrenData.map(child => (
-                    <option key={child.id} value={child.id} className="bg-[#1a1a1a]">{child.name}</option>
+                    <option key={child.id} value={child.id}>{child.name}</option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#666] pointer-events-none" />
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
               </div>
             </div>
 
             {/* Amount & Category */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-[0.9375rem] font-[510] text-[#999] mb-3 ml-1">Amount</label>
+                <label className="block text-[0.9375rem] font-[510] text-gray-400 mb-3 ml-1">Amount</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#666] font-bold text-lg">$</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-lg">$</span>
                   <input
                     type="number"
                     step="0.01"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="0.00"
-                    className="w-full pl-9 pr-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-lg font-bold outline-none focus:bg-white/[0.06] focus:border-[#FFCC00]/40 focus:shadow-[0_0_12px_rgba(255,204,0,0.15)] transition-all placeholder-[#444]"
+                    className="w-full pl-9 pr-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white text-lg font-bold outline-none focus:bg-white/10 focus:border-primary-400/50 focus:shadow-[0_0_12px_rgba(var(--primary-400),0.15)] transition-all placeholder:text-gray-600"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[0.9375rem] font-[510] text-[#999] mb-3 ml-1">Category</label>
+                <label className="block text-[0.9375rem] font-[510] text-gray-400 mb-3 ml-1">Category</label>
                 <div className="relative">
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value as AdvanceCategory)}
-                    className="w-full px-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-base outline-none appearance-none focus:bg-white/[0.06] focus:border-[#FFCC00]/40 focus:shadow-[0_0_12px_rgba(255,204,0,0.15)] transition-all cursor-pointer"
+                    className="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white text-base outline-none appearance-none focus:bg-white/10 focus:border-primary-400/50 focus:shadow-[0_0_12px_rgba(var(--primary-400),0.15)] transition-all cursor-pointer [&>option]:bg-gray-950"
                   >
                     {CATEGORIES.map(cat => (
-                      <option key={cat} value={cat} className="bg-[#1a1a1a]">{cat}</option>
+                      <option key={cat} value={cat}>{cat}</option>
                     ))}
                   </select>
-                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#666] pointer-events-none" />
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 </div>
               </div>
             </div>
 
             {/* Memo */}
             <div>
-              <label className="block text-[0.9375rem] font-[510] text-[#999] mb-3 ml-1">Memo</label>
+              <label className="block text-[0.9375rem] font-[510] text-gray-400 mb-3 ml-1">Memo</label>
               <input
                 type="text"
                 value={memo}
                 onChange={(e) => setMemo(e.target.value)}
                 placeholder="e.g. Starbucks, Robux, Uber"
-                className="w-full px-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-base outline-none focus:bg-white/[0.06] focus:border-[#FFCC00]/40 focus:shadow-[0_0_12px_rgba(255,204,0,0.15)] transition-all placeholder-[#444]"
+                className="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white text-base outline-none focus:bg-white/10 focus:border-primary-400/50 focus:shadow-[0_0_12px_rgba(var(--primary-400),0.15)] transition-all placeholder:text-gray-600"
               />
             </div>
 
@@ -168,10 +168,10 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
               onClick={handleSubmit}
               disabled={!isValid}
               className={`
-                w-full py-4 rounded-xl font-[510] text-[1.0625rem] transition-all duration-200 mt-2
+                w-full py-4 rounded-xl font-[510] text-[1.0625rem] transition-all duration-200 mt-2 cursor-pointer
                 ${isValid
-                  ? 'bg-gradient-to-r from-[#990000] to-[#FFCC00] text-white shadow-lg hover:shadow-[0_8px_24px_rgba(153,0,0,0.3)] hover:-translate-y-0.5 active:scale-[0.98]'
-                  : 'bg-[#333] text-white/40 cursor-not-allowed opacity-60'
+                  ? 'bg-gradient-to-r from-primary-700 to-primary-500 text-white shadow-lg shadow-primary-500/20 hover:shadow-primary-500/30 hover:-translate-y-0.5 active:scale-[0.98]'
+                  : 'bg-white/5 text-white/40 cursor-not-allowed opacity-60'
                 }
               `}
             >

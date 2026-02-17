@@ -868,8 +868,8 @@ function DashboardPage() {
 
   if (!isFirebaseConfigured) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-white p-6">
-        <div className="max-w-lg w-full bg-[#1a1a1a] p-8 rounded-2xl border border-white/10 text-center">
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center text-white p-6">
+        <div className="max-w-lg w-full glass-dark p-8 rounded-2xl border border-white/10 text-center">
           <h2 className="text-2xl font-bold mb-4">Firebase Setup Required</h2>
           <p className="text-gray-400 mb-2">Phase 2 requires Firebase Auth and Firestore configuration.</p>
           <p className="text-gray-500 text-sm">Add `VITE_FIREBASE_*` keys in `.env` and restart the app.</p>
@@ -895,7 +895,7 @@ function DashboardPage() {
 
   if (familyAuth.isInitializing) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-white">
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center text-white">
         <Loader2 className="w-8 h-8 animate-spin text-white/30" />
       </div>
     );
@@ -955,7 +955,7 @@ function DashboardPage() {
 
   if (loadingChildren || loadingOpenTasks || !familyAuth.activeProfile) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-white">
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center text-white">
         <Loader2 className="w-8 h-8 animate-spin text-white/30" />
       </div>
     );
@@ -968,17 +968,17 @@ function DashboardPage() {
 
     if (!activeChild) {
       return (
-        <div className="min-h-screen bg-black flex items-center justify-center text-white">
+        <div className="min-h-screen bg-gray-950 flex items-center justify-center text-white">
           <div className="text-center">
             <p className="text-lg mb-4">Child profile data is still loading.</p>
-            <button type="button" onClick={familyAuth.clearActiveProfileSelection} className="px-4 py-2 rounded-lg bg-[#b30000] text-white">Back to Profile Picker</button>
+            <button type="button" onClick={familyAuth.clearActiveProfileSelection} className="px-4 py-2 rounded-lg bg-primary-600 text-white">Back to Profile Picker</button>
           </div>
         </div>
       );
     }
 
     return (
-      <div className="min-h-screen bg-[#0a0a0a] text-white relative pb-12">
+      <div className="min-h-screen bg-gray-950 text-white relative pb-12">
         <div className="relative z-10 max-w-[1200px] mx-auto p-6 md:p-8">
           <header className="flex justify-between items-center mb-10">
             <div className="flex items-center gap-3">
@@ -1010,7 +1010,7 @@ function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white relative pb-12">
+    <div className="min-h-screen bg-gray-950 text-white relative pb-12">
       <div className="relative z-10 max-w-[1400px] mx-auto p-6 md:p-8">
         <header className="flex justify-between items-center mb-10">
           <div className="flex items-center gap-3">
@@ -1029,7 +1029,7 @@ function DashboardPage() {
         </header>
 
         <div className="flex flex-wrap items-center gap-3 mb-8">
-          <button type="button" onClick={() => setIsAddChildModalOpen(true)} className="bg-gradient-to-r from-[#b30000] to-[#7a0000] text-white font-medium px-6 py-3.5 rounded-xl flex items-center gap-2">
+          <button type="button" onClick={() => setIsAddChildModalOpen(true)} className="bg-gradient-to-r from-primary-600 to-primary-700 text-white font-medium px-6 py-3.5 rounded-xl flex items-center gap-2">
             <UserPlus className="w-[18px] h-[18px]" />
             <span className="hidden sm:inline">Add Child</span>
           </button>
@@ -1163,7 +1163,7 @@ function DashboardPage() {
         {taskToReject && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setTaskToReject(null)} />
-            <div className="relative w-full max-w-[480px] bg-[#1a1a1a] rounded-[24px] border border-white/[0.06] p-10">
+            <div className="relative w-full max-w-[480px] glass-dark rounded-[24px] border border-white/[0.06] p-10">
               <h3 className="text-xl font-bold mb-4">Reject Task: {taskToReject.task.name}</h3>
               <textarea value={rejectionComment} onChange={(event) => setRejectionComment(event.target.value)} placeholder="What needs to be fixed?" className="w-full min-h-[120px] p-4 bg-white/5 border border-white/10 rounded-xl mb-6 outline-none focus:border-red-500" autoFocus />
               <div className="flex gap-4">
@@ -1186,7 +1186,7 @@ function DashboardPage() {
         {isInviteModalOpen && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setIsInviteModalOpen(false)} />
-            <div className="relative w-full max-w-[560px] bg-[#1a1a1a] rounded-[24px] border border-white/[0.06] p-8 text-left">
+            <div className="relative w-full max-w-[560px] glass-dark rounded-[24px] border border-white/[0.06] p-8 text-left">
               <h3 className="text-xl font-bold mb-2">Invite Child Device</h3>
               <p className="text-gray-400 mb-5 text-sm">Choose a child profile to generate a unique setup URL.</p>
               <div className="space-y-2 max-h-[320px] overflow-auto pr-1">
@@ -1213,11 +1213,11 @@ function DashboardPage() {
         {profileSetupLink && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setProfileSetupLink(null)} />
-            <div className="relative w-full max-w-[560px] bg-[#1a1a1a] rounded-[24px] border border-white/[0.06] p-10 text-center">
+            <div className="relative w-full max-w-[560px] glass-dark rounded-[24px] border border-white/[0.06] p-10 text-center">
               <h3 className="text-xl font-bold mb-4">Profile Setup Link</h3>
               <p className="text-gray-400 mb-6 text-sm">Send this one-time link so the child can set their own PIN and avatar.</p>
               <div className="flex items-center gap-2 bg-white/5 p-3 rounded-xl mb-6 border border-white/10">
-                <code className="text-xs text-[#ffb3b3] flex-1 truncate">{profileSetupLink}</code>
+                <code className="text-xs text-primary-200 flex-1 truncate">{profileSetupLink}</code>
                 <button type="button" onClick={() => { void navigator.clipboard.writeText(profileSetupLink); }} className="text-xs font-bold bg-white/10 px-3 py-1.5 rounded-lg hover:bg-white/20">COPY</button>
               </div>
               <button type="button" onClick={() => setProfileSetupLink(null)} className="w-full py-3 bg-white/10 rounded-xl font-bold hover:bg-white/15">Close</button>
@@ -1335,11 +1335,11 @@ function SetupProfileRoute() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white flex items-center justify-center p-6">
-      <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#171717] p-6">
+    <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center p-6">
+      <div className="w-full max-w-md rounded-3xl border border-white/10 glass-dark p-6">
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
-            <Loader2 className="h-6 w-6 animate-spin text-[#b30000]" />
+            <Loader2 className="h-6 w-6 animate-spin text-primary-500" />
           </div>
         ) : isComplete ? (
           <div className="text-center py-6">
@@ -1377,7 +1377,7 @@ function SetupProfileRoute() {
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
                 maxLength={24}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white outline-none placeholder:text-gray-500 focus:border-[#b30000]/60"
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white outline-none placeholder:text-gray-500 focus:border-primary-500/60"
                 placeholder="emma_01"
                 aria-label="Setup Username"
               />
@@ -1392,7 +1392,7 @@ function SetupProfileRoute() {
                 onChange={(event) => setPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
                 inputMode="numeric"
                 maxLength={4}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white outline-none placeholder:text-gray-500 focus:border-[#b30000]/60"
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white outline-none placeholder:text-gray-500 focus:border-primary-500/60"
                 placeholder="0000"
                 aria-label="Setup PIN"
               />
@@ -1407,7 +1407,7 @@ function SetupProfileRoute() {
                 onChange={(event) => setConfirmPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
                 inputMode="numeric"
                 maxLength={4}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white outline-none placeholder:text-gray-500 focus:border-[#b30000]/60"
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white outline-none placeholder:text-gray-500 focus:border-primary-500/60"
                 placeholder="0000"
                 aria-label="Confirm setup PIN"
               />
@@ -1418,7 +1418,7 @@ function SetupProfileRoute() {
             <button
               type="submit"
               disabled={isSubmitting || !id || !householdId}
-              className="w-full rounded-xl bg-[#b30000] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#980000] disabled:opacity-60"
+              className="w-full rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-60"
             >
               {isSubmitting ? 'Saving...' : 'Finish Setup'}
             </button>
@@ -1468,7 +1468,7 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
 
   if (!isResolved) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-white">
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center text-white">
         <Loader2 className="w-8 h-8 animate-spin text-white/30" />
       </div>
     );
@@ -1502,7 +1502,7 @@ function UnknownRouteHandler() {
 
   if (!isResolved) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-white">
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center text-white">
         <Loader2 className="w-8 h-8 animate-spin text-white/30" />
       </div>
     );

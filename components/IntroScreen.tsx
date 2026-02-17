@@ -15,7 +15,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onGetStarted, onJoinFamily })
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
@@ -23,7 +23,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onGetStarted, onJoinFamily })
     let h = canvas.height = window.innerHeight;
     let particles: Particle[] = [];
     let animationFrameId: number;
-    
+
     const particleCount = 85;
     const maxDistance = 140;
 
@@ -41,7 +41,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onGetStarted, onJoinFamily })
         this.vx = (Math.random() - 0.5) * 0.3;
         this.vy = (Math.random() - 0.5) * 0.3;
         this.radius = Math.random() * 1.5 + 0.5;
-        this.hue = Math.random() > 0.5 ? 0 : 45; 
+        this.hue = Math.random() > 0.5 ? 0 : 45;
       }
 
       update() {
@@ -81,14 +81,14 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onGetStarted, onJoinFamily })
             ctx.beginPath();
             ctx.moveTo(particles[i].x, particles[i].y);
             ctx.lineTo(particles[j].x, particles[j].y);
-            
+
             const gradient = ctx.createLinearGradient(
               particles[i].x, particles[i].y,
               particles[j].x, particles[j].y
             );
             gradient.addColorStop(0, `rgba(153, 0, 0, ${opacity})`);
             gradient.addColorStop(1, `rgba(255, 204, 0, ${opacity})`);
-            
+
             ctx.strokeStyle = gradient;
             ctx.lineWidth = 0.5;
             ctx.stroke();
@@ -385,12 +385,17 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onGetStarted, onJoinFamily })
             <p className="subhead">
               Real skills start at home. Chores become paychecks. Grades set the rate. Time teaches the value.
             </p>
-            
+
             <div className="actions">
-              <button onClick={onGetStarted} className="cta"><span>Get Started</span></button>
-              <button 
-                onClick={() => setShowJoinForm(!showJoinForm)} 
-                className="cta cta-secondary"
+              <button
+                onClick={onGetStarted}
+                className="inline-flex items-center justify-center px-10 py-4 text-[1.0625rem] font-[510] tracking-tight bg-gradient-to-r from-primary-700 to-primary-500 text-white rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary-500/20 active:scale-[0.98] cursor-pointer"
+              >
+                <span>Get Started</span>
+              </button>
+              <button
+                onClick={() => setShowJoinForm(!showJoinForm)}
+                className="inline-flex items-center justify-center px-10 py-4 text-[1.0625rem] font-[510] tracking-tight bg-white/5 border border-white/10 text-white rounded-full transition-all duration-300 hover:bg-white/10 hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer"
               >
                 <span>Join Family</span>
               </button>
@@ -399,16 +404,16 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onGetStarted, onJoinFamily })
             {showJoinForm && (
               <form onSubmit={handleJoin} className="join-form">
                 <div className="relative group">
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={joinCode}
                     onChange={(e) => setJoinCode(e.target.value)}
-                    placeholder="Enter family sync code" 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white placeholder-white/20 outline-none focus:border-[#FFCC00]/40 transition-all"
+                    placeholder="Enter family sync code"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white placeholder-white/20 outline-none focus:border-primary-400/50 transition-all font-mono"
                   />
-                  <button 
+                  <button
                     type="submit"
-                    className="absolute right-2 top-2 bottom-2 px-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all flex items-center justify-center"
+                    className="absolute right-2 top-2 bottom-2 px-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all flex items-center justify-center cursor-pointer"
                   >
                     <ArrowRight className="w-4 h-4" />
                   </button>

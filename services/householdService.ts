@@ -1822,11 +1822,11 @@ export const householdService = {
           throw new Error('Profile setup link is invalid.');
         }
 
-        const existingUsernameSnapshot = await transaction.get(
+        const existingUsernameSnapshot = await getDocs(
           query(
             getProfilesCollectionRef(safeHouseholdId),
             where('loginUsernameCanonical', '==', safeUsername),
-            limit(2),
+            limit(1), // We only need to know if one exists
           ),
         );
         const hasConflict = existingUsernameSnapshot.docs.some((docSnapshot) => {

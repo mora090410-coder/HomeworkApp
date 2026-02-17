@@ -48,9 +48,14 @@ export default function ProfileSelectionScreen({
   const [isAddProfileOpen, setIsAddProfileOpen] = React.useState(false);
   const [name, setName] = React.useState('');
   const [pin, setPin] = React.useState('');
+  // Default to a semantic color class or a compatible hex. 
+  // To avoid breaking backend if it expects hex, let's stick to the hex values 
+  // but ensure we visually style things with our theme where possible.
+  // Actually, the previous file used hex strings for `avatarColor`.
   const [avatarColor, setAvatarColor] = React.useState('#ef4444');
   const [formError, setFormError] = React.useState<string | null>(null);
 
+  // We keep these hex values for the avatar persistence, but we should make sure they look good.
   const colorOptions = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899'];
 
   const resetForm = () => {
@@ -92,17 +97,19 @@ export default function ProfileSelectionScreen({
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white relative overflow-hidden">
+    // Background: Changed from static #0a0a0a to bg-gray-950
+    <div className="min-h-screen bg-gray-950 text-white relative overflow-hidden font-sans selection:bg-primary-500/30">
       <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' /%3E%3C/svg%3E")` }}></div>
       <div className="relative z-10 mx-auto max-w-6xl px-6 pb-12 pt-8">
         <header className="flex items-center justify-between mb-16">
-          <div className="text-xl font-[590] tracking-tight">HomeWork</div>
+          <div className="text-xl font-[590] tracking-tight text-white">HomeWork</div>
           <div className="flex items-center gap-3">
             {canAddProfile && (
               <button
                 type="button"
                 onClick={() => setIsAddProfileOpen(true)}
-                className="inline-flex items-center gap-2 rounded-full border border-[#b30000]/40 bg-[#b30000]/15 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#ffb4b4] hover:bg-[#b30000]/25"
+                // Button: Updated to use primary colors from theme
+                className="inline-flex items-center gap-2 rounded-full border border-primary-500/40 bg-primary-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-primary-200 hover:bg-primary-500/20 transition-colors"
                 aria-label="Add profile"
               >
                 <Plus className="w-4 h-4" />
@@ -112,7 +119,7 @@ export default function ProfileSelectionScreen({
             <button
               type="button"
               onClick={onSignOut}
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-300 hover:text-white hover:bg-white/10"
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-300 hover:text-white hover:bg-white/10 transition-colors"
               aria-label="Sign out"
             >
               <LogOut className="w-4 h-4" />
@@ -123,19 +130,19 @@ export default function ProfileSelectionScreen({
 
         <main>
           <div className="mx-auto max-w-3xl text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-[590] tracking-tight mb-3">Who&apos;s watching?</h1>
+            <h1 className="text-4xl md:text-5xl font-[590] tracking-tight mb-3 text-white">Who&apos;s watching?</h1>
             <p className="text-gray-400">Choose a profile to continue to your household dashboard.</p>
           </div>
 
           {isLoading && (
             <div className="mx-auto flex max-w-xl items-center justify-center rounded-2xl border border-white/10 bg-white/[0.02] p-8">
-              <Loader2 className="w-6 h-6 animate-spin text-[#b30000]" />
+              <Loader2 className="w-6 h-6 animate-spin text-primary-500" />
               <span className="ml-3 text-sm text-gray-300">Loading profiles...</span>
             </div>
           )}
 
           {!isLoading && profiles.length === 0 && (
-            <div className="mx-auto max-w-xl rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-center">
+            <div className="mx-auto max-w-xl rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-center glass-dark">
               <p className="text-sm text-gray-300">No profiles found in this household yet.</p>
               {profilesError && (
                 <p className="mt-3 text-xs text-red-400" aria-label="Profile load error">
@@ -152,9 +159,10 @@ export default function ProfileSelectionScreen({
                 return (
                   <div
                     key={profile.id}
+                    // Card: Added glass-dark and dynamic border colors
                     className={`group rounded-2xl border p-6 text-left transition-all ${isSelected
-                      ? 'border-[#b30000] bg-[#b30000]/10 shadow-[0_0_0_1px_rgba(179,0,0,0.5)]'
-                      : 'border-white/10 bg-white/[0.03] hover:border-[#b30000]/50 hover:bg-white/[0.06]'
+                      ? 'border-primary-500 bg-primary-500/10 shadow-[0_0_0_1px_rgba(var(--primary-500),0.5)]'
+                      : 'glass-dark border-white/10 hover:border-primary-500/40 hover:bg-white/[0.05]'
                       }`}
                   >
                     <button
@@ -164,20 +172,20 @@ export default function ProfileSelectionScreen({
                       aria-label={`Select profile ${profile.name}`}
                     >
                       <div
-                        className={`mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full border ${profile.role === 'ADMIN'
-                            ? 'border-[#b30000]/60 text-[#ff8a8a]'
-                            : 'border-white/20 text-white'
+                        className={`mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full border transition-transform group-hover:scale-105 ${profile.role === 'ADMIN'
+                          ? 'border-primary-500/60 text-primary-300'
+                          : 'border-white/20 text-white'
                           }`}
                         style={{
                           backgroundColor:
                             profile.role === 'ADMIN'
-                              ? 'rgba(179, 0, 0, 0.2)'
+                              ? 'rgba(var(--primary-500), 0.2)'
                               : profile.avatarColor ?? 'rgba(255,255,255,0.1)',
                         }}
                       >
                         {profileIcon(profile.role)}
                       </div>
-                      <div className="text-lg font-semibold text-white">{profile.name}</div>
+                      <div className="text-lg font-semibold text-white group-hover:text-primary-100 transition-colors">{profile.name}</div>
                       <div className="mt-1 text-xs uppercase tracking-wide text-gray-400">{profile.role}</div>
                     </button>
 
@@ -188,7 +196,7 @@ export default function ProfileSelectionScreen({
                           onClick={() => {
                             void onGenerateSetupLink(profile);
                           }}
-                          className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-gray-200 hover:bg-white/10"
+                          className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-gray-300 hover:bg-white/10 transition-colors"
                           aria-label={`Generate setup link for ${profile.name}`}
                         >
                           <Link2 className="h-3.5 w-3.5" />
@@ -199,7 +207,7 @@ export default function ProfileSelectionScreen({
                           onClick={() => {
                             void onDeleteProfile(profile);
                           }}
-                          className="inline-flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-red-300 hover:bg-red-500/20"
+                          className="inline-flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-red-300 hover:bg-red-500/20 transition-colors"
                           aria-label={`Delete profile ${profile.name}`}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -216,16 +224,15 @@ export default function ProfileSelectionScreen({
 
       {isAddProfileOpen && (
         <div className="fixed inset-0 z-[1200] flex items-center justify-center p-4">
-          <button
-            type="button"
-            className="absolute inset-0 bg-black/80"
-            aria-label="Close add profile modal backdrop"
+          <div
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             onClick={closeAddProfile}
+            aria-hidden="true"
           />
-          <div className="relative w-full max-w-md rounded-3xl border border-white/10 bg-[#171717] p-6">
+          <div className="relative w-full max-w-md rounded-3xl border border-white/10 bg-gray-900 p-6 shadow-2xl glass-dark">
             <button
               type="button"
-              className="absolute right-4 top-4 rounded-full bg-white/5 p-2 text-gray-400 hover:bg-white/10 hover:text-white"
+              className="absolute right-4 top-4 rounded-full bg-white/5 p-2 text-gray-400 hover:bg-white/10 hover:text-white transition-colors"
               onClick={closeAddProfile}
               aria-label="Close add profile modal"
             >
@@ -245,7 +252,7 @@ export default function ProfileSelectionScreen({
                   value={name}
                   onChange={(event) => setName(event.target.value)}
                   maxLength={40}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white outline-none placeholder:text-gray-500 focus:border-[#b30000]/60"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white outline-none placeholder:text-gray-500 focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/60 transition-all"
                   placeholder="Emily"
                   aria-label="Profile name"
                 />
@@ -263,7 +270,7 @@ export default function ProfileSelectionScreen({
                   inputMode="numeric"
                   pattern="[0-9]{4}"
                   maxLength={4}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white outline-none placeholder:text-gray-500 focus:border-[#b30000]/60"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white outline-none placeholder:text-gray-500 focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/60 transition-all"
                   placeholder="0000"
                   aria-label="Profile PIN"
                 />
@@ -277,7 +284,7 @@ export default function ProfileSelectionScreen({
                       key={color}
                       type="button"
                       onClick={() => setAvatarColor(color)}
-                      className={`h-9 w-9 rounded-full border ${avatarColor === color ? 'border-white' : 'border-white/20'
+                      className={`h-9 w-9 rounded-full border transition-transform hover:scale-110 ${avatarColor === color ? 'border-white scale-110 ring-2 ring-white/20' : 'border-white/20'
                         }`}
                       style={{ backgroundColor: color }}
                       aria-label={`Select avatar color ${color}`}
@@ -293,7 +300,7 @@ export default function ProfileSelectionScreen({
               <button
                 type="submit"
                 disabled={isCreatingProfile}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#b30000] px-4 py-2 font-semibold text-white hover:bg-[#8f0000] disabled:opacity-60"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-2 font-semibold text-white hover:bg-primary-500 disabled:opacity-60 transition-colors shadow-lg shadow-primary-900/20"
                 aria-label="Save profile"
               >
                 {isCreatingProfile && <Loader2 className="h-4 w-4 animate-spin" />}

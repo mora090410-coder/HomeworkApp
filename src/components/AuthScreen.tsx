@@ -220,30 +220,30 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-6 text-white font-sans relative">
+    <div className="min-h-screen bg-gray-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-gray-950 to-black flex flex-col items-center justify-center p-6 text-white font-sans relative overflow-hidden">
       <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-0" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' /%3E%3C/svg%3E")` }}></div>
       <div className="w-full max-w-md relative z-10 animate-in fade-in zoom-in-95 duration-500">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/5 border border-white/10 mb-6 shadow-2xl">
-            <ShieldCheck className="w-8 h-8 text-[#b30000]" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl glass-dark border border-white/10 mb-6 shadow-2xl backdrop-blur-xl">
+            <ShieldCheck className="w-8 h-8 text-primary-500" />
           </div>
-          <h1 className="text-3xl font-[590] tracking-tight mb-2">
+          <h1 className="text-3xl font-[590] tracking-tight mb-2 text-white">
             {mode === 'LOGIN' ? 'Welcome Back' : 'Create Account'}
           </h1>
-          <p className="text-[#888]">
+          <p className="text-gray-400">
             {mode === 'LOGIN' ? 'Sign in to manage your family economy' : 'Start your household workspace'}
           </p>
         </div>
 
-        <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-8 shadow-2xl">
+        <div className="glass-dark border border-white/10 rounded-3xl p-8 shadow-2xl backdrop-blur-md">
           {mode === 'LOGIN' && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-black/20 p-1">
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-2 rounded-xl border border-white/5 bg-black/40 p-1.5">
                 <button
                   type="button"
-                  className={`rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${loginVariant === 'PARENT'
-                    ? 'bg-white text-black'
-                    : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                  className={`rounded-lg px-3 py-2.5 text-xs font-bold uppercase tracking-wide transition-all duration-300 ${loginVariant === 'PARENT'
+                    ? 'bg-white text-black shadow-lg'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
                     }`}
                   onClick={() => {
                     setLoginVariant('PARENT');
@@ -251,13 +251,13 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
                   }}
                   aria-label="Parent sign in"
                 >
-                  Parent Sign In
+                  Parent
                 </button>
                 <button
                   type="button"
-                  className={`rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wide transition-colors ${loginVariant === 'CHILD'
-                    ? 'bg-[#b30000] text-white'
-                    : 'text-gray-300 hover:bg-white/10 hover:text-white'
+                  className={`rounded-lg px-3 py-2.5 text-xs font-bold uppercase tracking-wide transition-all duration-300 ${loginVariant === 'CHILD'
+                    ? 'bg-primary-600 text-white shadow-lg shadow-primary-900/20'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
                     }`}
                   onClick={() => {
                     setLoginVariant('CHILD');
@@ -265,66 +265,78 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
                   }}
                   aria-label="Child sign in"
                 >
-                  Child Sign In
+                  Child
                 </button>
               </div>
 
               {loginVariant === 'PARENT' ? (
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Email</label>
-                    <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-[#b30000]" required />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Password</label>
-                    <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-[#b30000]" required />
+                <form onSubmit={handleLogin} className="space-y-5">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-2">Email</label>
+                      <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all" placeholder="name@example.com" required />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-2">Password</label>
+                      <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all" placeholder="••••••••" required />
+                    </div>
                   </div>
 
-                  {errorMessage && <div className="text-red-400 text-sm bg-red-500/10 p-3 rounded-xl border border-red-500/20">{errorMessage}</div>}
+                  {errorMessage && <div className="text-red-300 text-sm bg-red-500/10 p-4 rounded-xl border border-red-500/20 flex items-start gap-2 animate-in fade-in slide-in-from-top-1">
+                    <span className="block w-1.5 h-1.5 mt-1.5 rounded-full bg-red-400 shrink-0" />
+                    {errorMessage}
+                  </div>}
 
-                  <button type="submit" disabled={loading} className="w-full py-3.5 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                  <button type="submit" disabled={loading} className="w-full py-4 bg-white text-black font-bold rounded-xl hover:bg-gray-100 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-lg shadow-white/5">
                     {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                    Sign In
+                    Sign In as Parent
                   </button>
 
-                  <div className="text-center mt-4">
+                  <div className="text-center pt-2">
                     <Link to="/signup" className="text-sm text-gray-400 hover:text-white transition-colors">
-                      Don&apos;t have an account? <span className="text-[#b30000] font-medium">Sign Up</span>
+                      Don&apos;t have an account? <span className="text-primary-400 font-semibold hover:text-primary-300 underline decoration-primary-400/30 underline-offset-4">Sign Up</span>
                     </Link>
                   </div>
                 </form>
               ) : (
-                <form onSubmit={handleChildLogin} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Username</label>
-                    <input
-                      type="text"
-                      value={childUsername}
-                      onChange={(event) => setChildUsername(event.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-[#b30000]"
-                      required
-                      aria-label="Child username"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">PIN (4 digits)</label>
-                    <input
-                      type="password"
-                      value={childPin}
-                      onChange={(event) => setChildPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
-                      inputMode="numeric"
-                      maxLength={4}
-                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-[#b30000]"
-                      required
-                      aria-label="Child PIN"
-                    />
+                <form onSubmit={handleChildLogin} className="space-y-5">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-2">Username</label>
+                      <input
+                        type="text"
+                        value={childUsername}
+                        onChange={(event) => setChildUsername(event.target.value)}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
+                        placeholder="Your username"
+                        required
+                        aria-label="Child username"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-2">PIN (4 digits)</label>
+                      <input
+                        type="password"
+                        value={childPin}
+                        onChange={(event) => setChildPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
+                        inputMode="numeric"
+                        maxLength={4}
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all font-mono tracking-widest text-center text-lg"
+                        placeholder="••••"
+                        required
+                        aria-label="Child PIN"
+                      />
+                    </div>
                   </div>
 
-                  {errorMessage && <div className="text-red-400 text-sm bg-red-500/10 p-3 rounded-xl border border-red-500/20">{errorMessage}</div>}
+                  {errorMessage && <div className="text-red-300 text-sm bg-red-500/10 p-4 rounded-xl border border-red-500/20 flex items-start gap-2 animate-in fade-in slide-in-from-top-1">
+                    <span className="block w-1.5 h-1.5 mt-1.5 rounded-full bg-red-400 shrink-0" />
+                    {errorMessage}
+                  </div>}
 
-                  <button type="submit" disabled={loading} className="w-full py-3.5 bg-gradient-to-r from-[#b30000] to-[#7a0000] text-white font-bold rounded-xl shadow-lg hover:shadow-[#b30000]/20 transition-all flex items-center justify-center gap-2">
+                  <button type="submit" disabled={loading} className="w-full py-4 bg-primary-600 text-white font-bold rounded-xl shadow-lg shadow-primary-600/25 hover:bg-primary-500 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
                     {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                    Child Sign In
+                    Sign In as Child
                   </button>
                 </form>
               )}
@@ -333,67 +345,78 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
 
           {mode === 'SIGNUP_INIT' && (
             <div className="space-y-4">
-              <button onClick={() => setMode('SIGNUP_CREATE')} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-left hover:bg-white/10 transition-colors group">
-                <div className="font-bold text-white mb-1 flex items-center justify-between">
-                  Create New Household <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0" />
+              <button onClick={() => setMode('SIGNUP_CREATE')} className="w-full p-5 bg-white/5 border border-white/10 rounded-2xl text-left hover:bg-white/10 hover:border-white/20 transition-all group relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative z-10">
+                  <div className="font-bold text-white mb-1.5 flex items-center justify-between text-lg">
+                    New Household <ArrowRight className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                  </div>
+                  <div className="text-sm text-gray-400 group-hover:text-gray-300">Set up a family workspace from scratch</div>
                 </div>
-                <div className="text-xs text-gray-500">I am setting up a family for the first time.</div>
               </button>
 
-              <button onClick={() => setMode('SIGNUP_JOIN')} className="w-full p-4 bg-white/5 border border-white/10 rounded-xl text-left hover:bg-white/10 transition-colors group">
-                <div className="font-bold text-white mb-1 flex items-center justify-between">
-                  Join Existing Household <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0" />
+              <button onClick={() => setMode('SIGNUP_JOIN')} className="w-full p-5 bg-white/5 border border-white/10 rounded-2xl text-left hover:bg-white/10 hover:border-white/20 transition-all group relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="relative z-10">
+                  <div className="font-bold text-white mb-1.5 flex items-center justify-between text-lg">
+                    Join Household <ArrowRight className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
+                  </div>
+                  <div className="text-sm text-gray-400 group-hover:text-gray-300">I have an invite code</div>
                 </div>
-                <div className="text-xs text-gray-500">I have an invite token.</div>
               </button>
 
-              <div className="text-center mt-6">
+              <div className="text-center mt-8">
                 <Link to="/login" className="text-sm text-gray-400 hover:text-white transition-colors">
-                  Already have an account? <span className="text-[#b30000] font-medium">Log In</span>
+                  Already have an account? <span className="text-primary-400 font-semibold hover:text-primary-300 underline decoration-primary-400/30 underline-offset-4">Log In</span>
                 </Link>
               </div>
             </div>
           )}
 
           {(mode === 'SIGNUP_CREATE' || mode === 'SIGNUP_JOIN') && (
-            <form onSubmit={handleSignUp} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Full Name</label>
-                <input type="text" value={name} onChange={(event) => setName(event.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-[#b30000]" required />
-              </div>
-
-              {mode === 'SIGNUP_CREATE' && (
+            <form onSubmit={handleSignUp} className="space-y-5">
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Household Name</label>
-                  <input type="text" value={householdName} onChange={(event) => setHouseholdName(event.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-[#b30000]" required />
+                  <label className="block text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-2">Full Name</label>
+                  <input type="text" value={name} onChange={(event) => setName(event.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all" placeholder="John Doe" required />
                 </div>
-              )}
 
-              {mode === 'SIGNUP_JOIN' && (
+                {mode === 'SIGNUP_CREATE' && (
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-2">Household Name</label>
+                    <input type="text" value={householdName} onChange={(event) => setHouseholdName(event.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all" placeholder="The Smith Family" required />
+                  </div>
+                )}
+
+                {mode === 'SIGNUP_JOIN' && (
+                  <div>
+                    <label className="block text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-2">Invite Code</label>
+                    <input type="text" value={inviteCode} onChange={(event) => setInviteCode(event.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all" placeholder="Enter code" required />
+                  </div>
+                )}
+
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Invite Code</label>
-                  <input type="text" value={inviteCode} onChange={(event) => setInviteCode(event.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-[#b30000]" required />
+                  <label className="block text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-2">Email</label>
+                  <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all" placeholder="name@example.com" required />
                 </div>
-              )}
 
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Email</label>
-                <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-[#b30000]" required />
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-widest text-gray-500 mb-2">Password</label>
+                  <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder-gray-600 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all" placeholder="min. 6 characters" required minLength={6} />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Password</label>
-                <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white outline-none focus:border-[#b30000]" required minLength={6} />
-              </div>
+              {errorMessage && <div className="text-red-300 text-sm bg-red-500/10 p-4 rounded-xl border border-red-500/20 flex items-start gap-2 animate-in fade-in slide-in-from-top-1">
+                <span className="block w-1.5 h-1.5 mt-1.5 rounded-full bg-red-400 shrink-0" />
+                {errorMessage}
+              </div>}
 
-              {errorMessage && <div className="text-red-400 text-sm bg-red-500/10 p-3 rounded-xl border border-red-500/20">{errorMessage}</div>}
-
-              <button type="submit" disabled={loading} className="w-full py-3.5 bg-gradient-to-r from-[#b30000] to-[#7a0000] text-white font-bold rounded-xl shadow-lg hover:shadow-[#b30000]/20 transition-all flex items-center justify-center gap-2">
+              <button type="submit" disabled={loading} className="w-full py-4 bg-primary-600 text-white font-bold rounded-xl shadow-lg shadow-primary-600/25 hover:bg-primary-500 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                {mode === 'SIGNUP_CREATE' ? 'Create Account & Household' : 'Create Account'}
+                {mode === 'SIGNUP_CREATE' ? 'Create Household' : 'Create Account'}
               </button>
 
-              <div className="text-center mt-4">
+              <div className="text-center mt-2">
                 <button type="button" onClick={() => setMode('SIGNUP_INIT')} className="text-sm text-gray-500 hover:text-white transition-colors">
                   Back
                 </button>
@@ -404,7 +427,7 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
       </div>
 
       {!isFirebaseConfigured && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#1a1a1a] border border-[#b30000] text-white px-4 py-2 rounded-lg text-xs tracking-wide">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 border border-primary-500/50 text-white px-4 py-2 rounded-full text-xs tracking-wide shadow-xl backdrop-blur-md">
           Configure Firebase keys in `.env` to enable sign-in.
         </div>
       )}

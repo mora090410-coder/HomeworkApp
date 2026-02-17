@@ -12,25 +12,21 @@ import {
   getTransactionAmountCents,
 } from '@/utils';
 import { DEFAULT_RATES } from '@/constants';
-import { 
-  Clock, 
-  Check, 
-  DollarSign, 
-  Plus, 
-  Coins, 
-  RotateCcw, 
-  ArrowRight, 
-  Target, 
-  Hourglass, 
+import {
+  Check,
+  ArrowRight,
+  Target,
+  Hourglass,
   AlertCircle,
-  Lightbulb
+  Lightbulb,
+  Coins
 } from 'lucide-react';
 
 interface ChildDetailProps {
   child: Child;
   isParent: boolean;
   standardTasks?: StandardTask[];
-  availableTasks?: Task[]; 
+  availableTasks?: Task[];
   onUpdateGrade: (childId: string, subjectId: string, newGrade: Grade) => void;
   onSubmitTask: (childId: string, task: Task) => void;
   onApproveTask: (childId: string, task: Task) => void;
@@ -40,11 +36,10 @@ interface ChildDetailProps {
   onDeleteTask?: (childId: string, taskId: string) => void;
 }
 
-const ChildDetail: React.FC<ChildDetailProps> = ({ 
-  child, 
-  isParent, 
+const ChildDetail: React.FC<ChildDetailProps> = ({
+  child,
   availableTasks = [],
-  onSubmitTask, 
+  onSubmitTask,
   onClaimTask,
 }) => {
   const [taskToComplete, setTaskToComplete] = useState<Task | null>(null);
@@ -69,18 +64,18 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
   const recentTransactions = [...child.history]
     .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime())
     .slice(0, 12);
-  
+
   // Earnings Calculations
   const readyToCollectCents = child.customTasks
     .filter(t => t.status === 'PENDING_PAYMENT')
     .reduce((sum, t) => sum + calculateTaskValueCents(t.baselineMinutes, hourlyRateCents), 0);
   const readyToCollect = centsToDollars(readyToCollectCents);
-  
+
   const inReviewCents = child.customTasks
     .filter(t => t.status === 'PENDING_APPROVAL')
     .reduce((sum, t) => sum + calculateTaskValueCents(t.baselineMinutes, hourlyRateCents), 0);
   const inReview = centsToDollars(inReviewCents);
-  
+
   const canEarnTodayCents = availableTasks
     .reduce((sum, t) => sum + calculateTaskValueCents(t.baselineMinutes, hourlyRateCents), 0);
   const canEarnToday = centsToDollars(canEarnTodayCents);
@@ -94,7 +89,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
     .filter(tx => tx.type === 'EARNING' && new Date(tx.date) >= startOfWeek)
     .reduce((sum, tx) => sum + getTransactionAmountCents(tx), 0);
   const paidThisWeek = centsToDollars(paidThisWeekCents);
-  
+
   const totalEarnedThisWeek = paidThisWeek + readyToCollect;
 
   // Task Grouping
@@ -132,16 +127,16 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
   };
 
   const EmptyState = () => (
-    <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-12 text-center flex flex-col items-center">
-      <div className="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mb-6">
+    <div className="bg-white/5 border border-white/10 rounded-2xl p-12 text-center flex flex-col items-center">
+      <div className="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mb-6 ring-1 ring-blue-500/20">
         <Target className="w-10 h-10 text-blue-400" />
       </div>
       <h3 className="text-xl font-bold text-white mb-2">Ready to Earn?</h3>
-      <p className="text-gray-500 mb-8 max-w-sm">No tasks available right now. Ask your parents if there's anything you can help with!</p>
-      <div className="bg-[#FFCC00]/10 border border-[#FFCC00]/20 rounded-xl p-4 flex items-center gap-3">
-        <Lightbulb className="w-5 h-5 text-[#FFCC00]" />
-        <p className="text-sm text-[#FFCC00] font-medium text-left">
-          TIP: Keeping your grades up means earning more per hour. <br/>
+      <p className="text-gray-400 mb-8 max-w-sm">No tasks available right now. Ask your parents if there's anything you can help with!</p>
+      <div className="bg-primary-500/10 border border-primary-500/20 rounded-xl p-4 flex items-center gap-3 max-w-md mx-auto">
+        <Lightbulb className="w-5 h-5 text-primary-400" />
+        <p className="text-sm text-primary-300 font-medium text-left">
+          TIP: Keeping your grades up means earning more per hour. <br />
           <span className="text-white/60">Your current rate: {formatCurrency(hourlyRate)}/hr</span>
         </p>
       </div>
@@ -149,44 +144,44 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
   );
 
   return (
-    <div className="space-y-12 animate-in fade-in duration-700">
+    <div className="space-y-12 animate-in fade-in duration-700 font-sans">
       <style>{`
-        @keyframes pulse-orange {
+        @keyframes pulse-primary {
           0% { opacity: 1; }
           50% { opacity: 0.7; }
           100% { opacity: 1; }
         }
-        .animate-pulse-orange {
-          animation: pulse-orange 2s ease-in-out infinite;
+        .animate-pulse-primary {
+          animation: pulse-primary 2s ease-in-out infinite;
         }
       `}</style>
 
       {/* Top Cards Row */}
       <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6">
         {/* Your Earnings Card */}
-        <div className="relative bg-gradient-to-br from-[#990000]/10 to-[#FFCC00]/10 border border-[#FFCC00]/30 rounded-[32px] p-8 overflow-hidden group">
-          <p className="text-[0.875rem] font-bold text-gray-500 uppercase tracking-widest mb-6">Your Earnings</p>
-          
-          <div className="space-y-6 mb-8">
+        <div className="relative bg-gradient-to-br from-primary-900/40 to-primary-600/10 border border-primary-500/30 rounded-[32px] p-8 overflow-hidden group">
+          <p className="text-[0.875rem] font-bold text-primary-200/60 uppercase tracking-widest mb-6">Your Earnings</p>
+
+          <div className="space-y-6 mb-8 relative z-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-xl">💰</div>
+                <div className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-xl ring-1 ring-emerald-500/20">💰</div>
                 <span className="text-gray-300 font-medium">Ready to Collect</span>
               </div>
               <span className="text-xl font-bold text-emerald-400">{formatCurrency(readyToCollect)}</span>
             </div>
-            
+
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#FFCC00]/10 flex items-center justify-center text-xl">⏳</div>
+                <div className="w-10 h-10 rounded-full bg-primary-500/10 flex items-center justify-center text-xl ring-1 ring-primary-500/20">⏳</div>
                 <span className="text-gray-300 font-medium">In Review</span>
               </div>
-              <span className="text-xl font-bold text-[#FFCC00]">{formatCurrency(inReview)}</span>
+              <span className="text-xl font-bold text-primary-400">{formatCurrency(inReview)}</span>
             </div>
-            
+
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-xl">🎯</div>
+                <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-xl ring-1 ring-blue-500/20">🎯</div>
                 <span className="text-gray-300 font-medium">Can Earn Today</span>
               </div>
               <span className="text-xl font-bold text-blue-400">{formatCurrency(canEarnToday)}</span>
@@ -195,40 +190,40 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
           <div className="pt-6 border-t border-white/10 flex items-end justify-between relative z-10">
             <div>
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Total Earned This Week</p>
-              <div className="text-4xl font-bold bg-gradient-to-r from-[#990000] to-[#FFCC00] text-transparent bg-clip-text">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Total Earned This Week</p>
+              <div className="text-4xl font-bold bg-gradient-to-r from-primary-400 to-primary-200 text-transparent bg-clip-text">
                 {formatCurrency(totalEarnedThisWeek)}
               </div>
             </div>
             <div className="text-right">
-              <p className="text-[0.625rem] font-bold text-gray-600 uppercase tracking-widest">Resets Sunday</p>
+              <p className="text-[0.625rem] font-bold text-gray-500 uppercase tracking-widest">Resets Sunday</p>
             </div>
           </div>
 
           {/* Background Glows */}
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#FFCC00]/10 blur-[80px] rounded-full group-hover:bg-[#FFCC00]/15 transition-all duration-1000"></div>
-          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-[#990000]/10 blur-[80px] rounded-full"></div>
+          <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary-500/10 blur-[80px] rounded-full group-hover:bg-primary-500/20 transition-all duration-1000 pointer-events-none"></div>
+          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-primary-900/20 blur-[80px] rounded-full pointer-events-none"></div>
         </div>
 
         {/* Your Rate Card */}
-        <div className="bg-white/[0.03] border border-white/[0.08] rounded-[32px] p-8 flex flex-col justify-between group">
+        <div className="bg-white/[0.03] border border-white/10 rounded-[32px] p-8 flex flex-col justify-between group">
           <div>
             <p className="text-[0.875rem] font-bold text-gray-500 uppercase tracking-widest mb-4">Your Rate</p>
             <div className="flex items-baseline gap-2 mb-2">
-              <span className="text-5xl font-bold text-white">{formatCurrency(hourlyRate)}</span>
-              <span className="text-xl text-gray-600 font-medium">/hr</span>
+              <span className="text-5xl font-bold text-white tracking-tighter">{formatCurrency(hourlyRate)}</span>
+              <span className="text-xl text-gray-500 font-medium">/hr</span>
             </div>
-            <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+            <div className="mt-6 rounded-2xl border border-white/5 bg-black/20 p-4">
               <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-1">Current Balance</p>
               <div className="flex items-center gap-2">
                 <span
                   className="text-2xl font-bold"
-                  style={{ color: hasDebt ? '#b30000' : '#4ade80' }}
+                  style={{ color: hasDebt ? '#ef4444' : '#4ade80' }}
                 >
                   {formatCurrency(balance)}
                 </span>
                 {hasDebt && (
-                  <span className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold uppercase tracking-wider bg-[#b30000]/20 text-[#b30000]">
+                  <span className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold uppercase tracking-wider bg-red-500/20 text-red-500">
                     Debt
                   </span>
                 )}
@@ -236,15 +231,15 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
             </div>
           </div>
 
-          <div className="mt-8 bg-[#FFCC00]/5 border border-[#FFCC00]/10 rounded-2xl p-5 relative overflow-hidden">
+          <div className="mt-8 bg-primary-500/10 border border-primary-500/20 rounded-2xl p-5 relative overflow-hidden">
             <div className="flex items-start gap-3 relative z-10">
-              <Lightbulb className="w-5 h-5 text-[#FFCC00] shrink-0 mt-0.5" />
+              <Lightbulb className="w-5 h-5 text-primary-400 shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-bold text-[#FFCC00] mb-1">Earn more per hour!</p>
+                <p className="text-sm font-bold text-primary-400 mb-1">Earn more per hour!</p>
                 <p className="text-xs text-white/60 leading-relaxed">Improve your grades in subjects with B's or lower to increase your base earning power.</p>
               </div>
             </div>
-            <div className="absolute top-0 right-0 w-24 h-24 bg-[#FFCC00]/5 blur-2xl rounded-full"></div>
+            <div className="absolute top-0 right-0 w-24 h-24 bg-primary-500/10 blur-2xl rounded-full pointer-events-none"></div>
           </div>
         </div>
       </div>
@@ -253,17 +248,17 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
         <div className="mb-6 flex items-end justify-between gap-3">
           <div>
             <h3 className="text-xl font-bold text-white mb-1">Transaction History</h3>
-            <p className="text-sm text-gray-500">Professional ledger of earnings, advances, and adjustments</p>
+            <p className="text-sm text-gray-400">Professional ledger of earnings, advances, and adjustments</p>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] overflow-hidden">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] overflow-hidden">
           {recentTransactions.length === 0 && (
             <div className="p-8 text-sm text-gray-500 text-center">No transactions recorded yet.</div>
           )}
 
           {recentTransactions.length > 0 && (
-            <div className="divide-y divide-white/[0.06]">
+            <div className="divide-y divide-white/10">
               {recentTransactions.map((transaction) => {
                 const amountCents = getTransactionAmountCents(transaction);
                 const amount = centsToDollars(Math.abs(amountCents));
@@ -282,7 +277,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                       </p>
                       <p
                         className="text-base font-bold"
-                        style={{ color: isNegative ? '#b30000' : '#4ade80' }}
+                        style={{ color: isNegative ? '#ef4444' : '#4ade80' }}
                       >
                         {isNegative ? '-' : '+'}
                         {formatCurrency(amount)}
@@ -300,12 +295,12 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
       <section>
         <div className="mb-6">
           <h3 className="text-xl font-bold text-white mb-1">Academics</h3>
-          <p className="text-sm text-gray-500">Your grades determine your hourly rate</p>
+          <p className="text-sm text-gray-400">Your grades determine your hourly rate</p>
         </div>
-        
+
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {child.subjects.map(subject => (
-            <div key={subject.id} className="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-6 text-center hover:border-white/20 transition-all group">
+            <div key={subject.id} className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 text-center hover:border-white/20 transition-all group">
               <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 truncate">{subject.name}</p>
               <div className={`text-4xl font-bold ${getGradeColor(subject.grade)} group-hover:scale-110 transition-transform`}>
                 {subject.grade}
@@ -322,26 +317,26 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
           <section>
             <div className="flex items-center gap-3 mb-6">
               <h4 className="text-[1.125rem] font-bold text-blue-400 tracking-tight uppercase">🎯 Grab a Task</h4>
-              <span className="text-sm text-gray-600 font-bold">({grabTasks.length} available)</span>
+              <span className="text-sm text-gray-500 font-bold">({grabTasks.length} available)</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {grabTasks.map(task => (
-                <div key={task.id} className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6 hover:bg-white/[0.04] hover:border-blue-400/30 transition-all group">
+                <div key={task.id} className="bg-white/[0.02] border border-white/10 rounded-2xl p-6 hover:bg-white/[0.04] hover:border-blue-400/30 transition-all group">
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{getTaskIcon(task.name)}</span>
                       <h5 className="text-xl font-bold text-white">{task.name}</h5>
                     </div>
-                    <span className="text-2xl font-bold text-[#FFCC00]">
+                    <span className="text-2xl font-bold text-primary-400">
                       {formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate))}
                     </span>
                   </div>
                   <p className="text-sm text-gray-500 mb-6 font-medium">
                     {task.baselineMinutes} min × {formatCurrency(hourlyRate)}/hr
                   </p>
-                  <button 
+                  <button
                     onClick={() => onClaimTask(child.id, task.id)}
-                    className="w-full py-3.5 bg-gradient-to-r from-[#990000] to-[#FFCC00] text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-cardinal/20 active:scale-95 transition-all"
+                    className="w-full py-3.5 bg-gradient-to-r from-primary-700 to-primary-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary-500/20 active:scale-[0.98] transition-all cursor-pointer"
                   >
                     Claim Task <ArrowRight className="w-4 h-4" />
                   </button>
@@ -356,24 +351,24 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
           <section>
             <div className="flex items-center gap-3 mb-6">
               <h4 className="text-[1.125rem] font-bold text-blue-300 tracking-tight uppercase">⚡ Working On</h4>
-              <span className="text-sm text-gray-600 font-bold">({inProgress.length})</span>
+              <span className="text-sm text-gray-500 font-bold">({inProgress.length})</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {inProgress.map(task => (
-                <div key={task.id} className="bg-white/[0.02] border border-white/[0.08] rounded-2xl p-6">
+                <div key={task.id} className="bg-white/[0.02] border border-white/10 rounded-2xl p-6">
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{getTaskIcon(task.name)}</span>
                       <h5 className="text-xl font-bold text-white">{task.name}</h5>
                     </div>
-                    <span className="text-2xl font-bold text-[#FFCC00]">
+                    <span className="text-2xl font-bold text-primary-400">
                       {formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate))}
                     </span>
                   </div>
                   <p className="text-sm text-gray-500 mb-6">Baseline: {task.baselineMinutes} mins</p>
-                  <button 
+                  <button
                     onClick={() => setTaskToComplete(task)}
-                    className="w-full py-3.5 bg-white text-black font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#FFCC00] active:scale-95 transition-all"
+                    className="w-full py-3.5 bg-white text-gray-900 font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-primary-400 hover:text-white active:scale-[0.98] transition-all cursor-pointer"
                   >
                     Mark Complete <Check className="w-4 h-4" />
                   </button>
@@ -388,18 +383,18 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
           <section>
             <div className="flex items-center gap-3 mb-6">
               <h4 className="text-[1.125rem] font-bold text-orange-400 tracking-tight uppercase">⏳ Waiting for Approval</h4>
-              <span className="text-sm text-gray-600 font-bold">({waitingApproval.length + rejectedTasks.length})</span>
+              <span className="text-sm text-gray-500 font-bold">({waitingApproval.length + rejectedTasks.length})</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {waitingApproval.map(task => (
-                <div key={task.id} className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6 opacity-80">
+                <div key={task.id} className="bg-white/[0.02] border border-white/10 rounded-2xl p-6 opacity-80">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{getTaskIcon(task.name)}</span>
                       <h5 className="text-xl font-bold text-white">{task.name}</h5>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-bold text-[#FFCC00] uppercase tracking-wider mb-1">Will earn</p>
+                      <p className="text-xs font-bold text-primary-400 uppercase tracking-wider mb-1">Will earn</p>
                       <span className="text-xl font-bold text-white">
                         {formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate))}
                       </span>
@@ -413,7 +408,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
               ))}
 
               {rejectedTasks.map(task => (
-                <div key={task.id} className="bg-red-500/5 border border-red-500/40 rounded-2xl p-6 relative overflow-hidden group">
+                <div key={task.id} className="bg-red-500/5 border border-red-500/30 rounded-2xl p-6 relative overflow-hidden group">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{getTaskIcon(task.name)}</span>
@@ -423,7 +418,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                       {formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate))}
                     </span>
                   </div>
-                  
+
                   <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-6">
                     <p className="text-[0.6875rem] font-bold text-red-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
                       <AlertCircle className="w-3 h-3" /> Sent back with feedback:
@@ -431,16 +426,14 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                     <p className="text-sm text-white/90 leading-relaxed italic">"{task.rejectionComment}"</p>
                   </div>
 
-                  <button 
+                  <button
                     onClick={() => {
-                      // Marking "Redo" just clears the comment and keeps it as assigned/in-progress
                       const updatedTask = { ...task, rejectionComment: undefined };
-                      onSubmitTask(child.id, updatedTask); // We reuse submit logic to clear and update
-                      // Actually we need a clean redo action in App.tsx but for MVP we can simulate
+                      onSubmitTask(child.id, updatedTask);
                     }}
-                    className="w-full py-3.5 bg-gradient-to-r from-red-600 to-orange-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:-translate-y-0.5 transition-all shadow-lg shadow-red-900/20"
+                    className="w-full py-3.5 bg-gradient-to-r from-red-600 to-orange-600 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:-translate-y-0.5 transition-all shadow-lg shadow-red-900/20 cursor-pointer"
                   >
-                    Redo Task <RotateCcw className="w-4 h-4" />
+                    Redo Task <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               ))}
@@ -453,11 +446,11 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
           <section>
             <div className="flex items-center gap-3 mb-6">
               <h4 className="text-[1.125rem] font-bold text-emerald-400 tracking-tight uppercase">✅ Ready to Collect</h4>
-              <span className="text-sm text-gray-600 font-bold">({readyCollectTasks.length})</span>
+              <span className="text-sm text-gray-500 font-bold">({readyCollectTasks.length})</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {readyCollectTasks.map(task => (
-                <div key={task.id} className="bg-emerald-500/5 border border-emerald-400/30 rounded-2xl p-6 flex flex-col justify-between">
+                <div key={task.id} className="bg-emerald-500/5 border border-emerald-400/20 rounded-2xl p-6 flex flex-col justify-between">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{getTaskIcon(task.name)}</span>
@@ -481,41 +474,41 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
         )}
 
         {/* Overall Empty State */}
-        {grabTasks.length === 0 && 
-         inProgress.length === 0 && 
-         waitingApproval.length === 0 && 
-         rejectedTasks.length === 0 && 
-         readyCollectTasks.length === 0 && (
-           <EmptyState />
-        )}
+        {grabTasks.length === 0 &&
+          inProgress.length === 0 &&
+          waitingApproval.length === 0 &&
+          rejectedTasks.length === 0 &&
+          readyCollectTasks.length === 0 && (
+            <EmptyState />
+          )}
       </div>
 
       {/* Completion Confirmation Modal */}
       {taskToComplete && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setTaskToComplete(null)} />
-          <div className="relative w-full max-w-sm bg-[#1a1a1a] rounded-[28px] border border-white/[0.06] p-8 text-center animate-in zoom-in-95 duration-200 shadow-2xl">
-             <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto text-emerald-500 mb-4">
-               <Check className="w-8 h-8" />
-             </div>
-             <h3 className="text-xl font-bold text-white mb-2">{taskToComplete.name}</h3>
-             <p className="text-gray-400 mb-6 text-sm">
-               Submit for parent approval to earn <span className="text-emerald-400 font-bold">{formatCurrency(calculateTaskValue(taskToComplete.baselineMinutes, hourlyRate))}</span>.
-             </p>
-             <div className="flex gap-3">
-               <button 
-                 onClick={() => setTaskToComplete(null)} 
-                 className="flex-1 py-3.5 rounded-xl font-bold text-gray-500 bg-white/5 hover:bg-white/10 transition-all cursor-pointer"
-               >
-                 Cancel
-               </button>
-               <button 
-                 onClick={handleConfirmCompletion} 
-                 className="flex-1 py-3.5 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
-               >
-                 Complete
-               </button>
-             </div>
+          <div className="relative w-full max-w-sm glass-dark rounded-[28px] border border-white/10 p-8 text-center animate-in zoom-in-95 duration-200 shadow-2xl">
+            <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto text-emerald-500 mb-4 ring-1 ring-emerald-500/20">
+              <Check className="w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">{taskToComplete.name}</h3>
+            <p className="text-gray-400 mb-6 text-sm">
+              Submit for parent approval to earn <span className="text-emerald-400 font-bold">{formatCurrency(calculateTaskValue(taskToComplete.baselineMinutes, hourlyRate))}</span>.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setTaskToComplete(null)}
+                className="flex-1 py-3.5 rounded-xl font-bold text-gray-400 bg-white/5 hover:bg-white/10 transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmCompletion}
+                className="flex-1 py-3.5 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
+              >
+                Complete
+              </button>
+            </div>
           </div>
         </div>
       )}

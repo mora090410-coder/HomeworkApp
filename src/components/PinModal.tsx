@@ -178,7 +178,7 @@ export default function PinModal({
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" onClick={onClose} />
-      <div className="relative w-full max-w-[420px] bg-[#1a1a1a] rounded-[28px] border border-white/[0.06] overflow-hidden shadow-2xl">
+      <div className="relative w-full max-w-[420px] glass-dark rounded-[28px] border border-white/10 overflow-hidden shadow-2xl">
         <button
           type="button"
           onClick={onClose}
@@ -199,7 +199,7 @@ export default function PinModal({
             {[0, 1, 2, 3].map((index) => (
               <div
                 key={index}
-                className={`rounded-full transition-all ${pin.length > index ? 'w-4 h-4 bg-[#b30000]' : 'w-4 h-4 bg-[#333333]'}`}
+                className={`rounded-full transition-all ${pin.length > index ? 'w-4 h-4 bg-primary-600 shadow-[0_0_10px_rgba(var(--primary-600),0.5)]' : 'w-4 h-4 bg-white/10'}`}
               />
             ))}
           </div>
@@ -211,7 +211,7 @@ export default function PinModal({
                 type="button"
                 onClick={() => handleDigit(String(digit))}
                 disabled={isLoading}
-                className="aspect-square rounded-2xl bg-[#222222] border border-white/[0.06] text-white text-[1.75rem] font-[480] hover:bg-[#2a2a2a] hover:border-[#b30000]/40 disabled:opacity-60"
+                className="aspect-square rounded-2xl bg-white/5 border border-white/10 text-white text-[1.75rem] font-[480] hover:bg-white/10 hover:border-primary-500/40 transition-all disabled:opacity-60"
                 aria-label={`Enter digit ${digit}`}
               >
                 {digit}
@@ -219,14 +219,14 @@ export default function PinModal({
             ))}
 
             <div className="aspect-square flex items-center justify-center">
-              {isLoading && <Loader2 className="w-6 h-6 animate-spin text-[#b30000]" />}
+              {isLoading && <Loader2 className="w-6 h-6 animate-spin text-primary-500" />}
             </div>
 
             <button
               type="button"
               onClick={() => handleDigit('0')}
               disabled={isLoading}
-              className="aspect-square rounded-2xl bg-[#222222] border border-white/[0.06] text-white text-[1.75rem] font-[480] hover:bg-[#2a2a2a] hover:border-[#b30000]/40 disabled:opacity-60"
+              className="aspect-square rounded-2xl bg-white/5 border border-white/10 text-white text-[1.75rem] font-[480] hover:bg-white/10 hover:border-primary-500/40 transition-all disabled:opacity-60"
               aria-label="Enter digit 0"
             >
               0
@@ -248,7 +248,7 @@ export default function PinModal({
               <button
                 type="button"
                 onClick={onAuthorized}
-                className="w-full rounded-xl border border-[#b30000]/40 bg-[#b30000]/15 px-4 py-2 text-sm font-semibold text-[#ffb4b4] hover:bg-[#b30000]/25"
+                className="w-full rounded-xl border border-primary-500/40 bg-primary-500/10 px-4 py-2 text-sm font-semibold text-primary-300 hover:bg-primary-500/20 transition-colors"
                 aria-label="Enter child profile as admin without PIN"
               >
                 Enter as Admin (No PIN)
@@ -261,7 +261,7 @@ export default function PinModal({
                     value={masterPasswordInput}
                     onChange={(event) => setMasterPasswordInput(event.target.value)}
                     placeholder="Admin master password"
-                    className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-gray-500 focus:border-[#b30000]/60"
+                    className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-gray-500 focus:border-primary-500/60 transition-all font-mono"
                     aria-label="Admin master password"
                   />
                   <button
@@ -283,7 +283,7 @@ export default function PinModal({
             </div>
           )}
 
-          <div className="flex items-center justify-center gap-2 text-[#555555]">
+          <div className="flex items-center justify-center gap-2 text-gray-500">
             <Lock className="w-3 h-3" />
             <span className="text-xs font-medium tracking-wide">SECURE VERIFICATION</span>
           </div>

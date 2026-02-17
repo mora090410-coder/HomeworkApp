@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { ChoreCatalogItem } from '@/types';
@@ -127,13 +128,13 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 font-sans">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 font-sans text-white">
       <div
-        className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity duration-300"
+        className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity duration-300"
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-[520px] bg-[#1a1a1a] rounded-[28px] shadow-[0_24px_80px_rgba(0,0,0,0.6)] flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-white/[0.06]">
+      <div className="relative w-full max-w-[520px] glass-dark rounded-[28px] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-white/10">
         <div
           className="absolute inset-0 pointer-events-none opacity-[0.03] z-0"
           style={{
@@ -144,7 +145,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
 
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-all z-20"
+          className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-all z-20 cursor-pointer"
           aria-label="Close assign task modal"
         >
           <X className="w-4 h-4" />
@@ -155,7 +156,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
             <h2 className="text-[1.75rem] font-[590] text-white mb-2 leading-tight">
               {isEditing ? 'Edit Task' : isOpenTask ? 'Create Open Task' : `Assign Task to ${childName}`}
             </h2>
-            <p className="text-[0.9375rem] text-[#888]">
+            <p className="text-[0.9375rem] text-gray-400">
               {isEditing
                 ? 'Update task details'
                 : isOpenTask
@@ -168,7 +169,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
             <div className="mb-8">
               <label
                 htmlFor="catalogItem"
-                className="block text-[0.9375rem] font-[510] text-[#999] mb-3 ml-1"
+                className="block text-[0.9375rem] font-[510] text-gray-400 mb-3 ml-1"
               >
                 Household Chore Catalog
               </label>
@@ -176,14 +177,14 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                 id="catalogItem"
                 value={selectedCatalogItemId}
                 onChange={handleCatalogSelection}
-                className="w-full px-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-base outline-none focus:bg-white/[0.06] focus:border-[#FFCC00]/40"
+                className="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white text-base outline-none focus:bg-white/10 focus:border-primary-400/50 [&>option]:bg-gray-950"
                 aria-label="Choose a chore template"
               >
-                <option value="" className="bg-[#1a1a1a]">
+                <option value="">
                   One-off task (not from catalog)
                 </option>
                 {catalogItems.map((item) => (
-                  <option key={item.id} value={item.id} className="bg-[#1a1a1a]">
+                  <option key={item.id} value={item.id}>
                     {item.name} ({item.baselineMinutes} min)
                   </option>
                 ))}
@@ -192,7 +193,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
           )}
 
           <div className="mb-8">
-            <label htmlFor="taskName" className="block text-[0.9375rem] font-[510] text-[#999] mb-3 ml-1">
+            <label htmlFor="taskName" className="block text-[0.9375rem] font-[510] text-gray-400 mb-3 ml-1">
               Task Name
             </label>
             <input
@@ -205,14 +206,14 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                   ? 'e.g., Wash Car, Mow Lawn, Water Plants'
                   : 'e.g., Clean Room, Do Homework, Take Out Trash'
               }
-              className="w-full px-4 py-3.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-white text-base placeholder-[#555] outline-none focus:bg-white/[0.06] focus:border-[#FFCC00]/40"
+              className="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white text-base placeholder-gray-600 outline-none focus:bg-white/10 focus:border-primary-400/50"
               autoFocus
               aria-label="Task name"
             />
           </div>
 
           <div className="mb-8">
-            <label className="block text-[0.9375rem] font-[510] text-[#999] mb-3 ml-1">Baseline Time</label>
+            <label className="block text-[0.9375rem] font-[510] text-gray-400 mb-3 ml-1">Baseline Time</label>
             <div className="grid grid-cols-4 gap-3 mb-3">
               {QUICK_TIMES.map((minutes) => {
                 const isSelected = !isCustomTime && selectedMinutes === minutes;
@@ -220,11 +221,10 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                   <button
                     key={minutes}
                     onClick={() => handleQuickTimeClick(minutes)}
-                    className={`py-3.5 rounded-xl text-[0.9375rem] font-[510] transition-all duration-200 border ${
-                      isSelected
-                        ? 'bg-gradient-to-r from-[#990000]/20 to-[#FFCC00]/20 border-[#FFCC00]/40 text-[#FFCC00]'
-                        : 'bg-white/[0.04] border-white/[0.08] text-[#888] hover:bg-white/[0.08] hover:text-white'
-                    }`}
+                    className={`py-3.5 rounded-xl text-[0.9375rem] font-[510] transition-all duration-200 border cursor-pointer ${isSelected
+                        ? 'bg-gradient-to-r from-primary-700/20 to-primary-500/20 border-primary-500/40 text-primary-400'
+                        : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:text-white'
+                      }`}
                     aria-label={`Set baseline time to ${minutes} minutes`}
                   >
                     {minutes} min
@@ -235,11 +235,10 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
 
             <button
               onClick={handleCustomTimeToggle}
-              className={`w-full py-3.5 rounded-xl text-[0.9375rem] font-[510] transition-all duration-200 border mb-4 ${
-                isCustomTime
-                  ? 'bg-gradient-to-r from-[#990000]/20 to-[#FFCC00]/20 border-[#FFCC00]/40 text-[#FFCC00]'
-                  : 'bg-white/[0.04] border-white/[0.08] text-[#888] hover:bg-white/[0.08] hover:text-white'
-              }`}
+              className={`w-full py-3.5 rounded-xl text-[0.9375rem] font-[510] transition-all duration-200 border mb-4 cursor-pointer ${isCustomTime
+                  ? 'bg-gradient-to-r from-primary-700/20 to-primary-500/20 border-primary-500/40 text-primary-400'
+                  : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:text-white'
+                }`}
               aria-label="Toggle custom baseline time"
             >
               Custom Time
@@ -248,8 +247,8 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
             {isCustomTime && (
               <div className="animate-in slide-in-from-top-4 fade-in duration-300 pt-2 px-1">
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-xs font-bold text-[#666] uppercase tracking-wider">Select minutes</span>
-                  <span className="text-[1.25rem] font-bold bg-gradient-to-r from-[#990000] to-[#FFCC00] text-transparent bg-clip-text">
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Select minutes</span>
+                  <span className="text-[1.25rem] font-bold bg-gradient-to-r from-primary-700 to-primary-500 text-transparent bg-clip-text">
                     {customMinutes} min
                   </span>
                 </div>
@@ -261,7 +260,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                   step="5"
                   value={customMinutes}
                   onChange={handleSliderChange}
-                  className="w-full h-1.5 bg-gradient-to-r from-[#990000]/30 to-[#FFCC00]/30 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-gradient-to-r [&::-webkit-slider-thumb]:from-[#990000] [&::-webkit-slider-thumb]:to-[#FFCC00]"
+                  className="w-full h-1.5 bg-gradient-to-r from-primary-700/30 to-primary-500/30 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-gradient-to-r [&::-webkit-slider-thumb]:from-primary-700 [&::-webkit-slider-thumb]:to-primary-500"
                   aria-label="Custom baseline minutes"
                 />
               </div>
@@ -284,11 +283,10 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
           <button
             onClick={handleSubmit}
             disabled={!isValid}
-            className={`w-full py-4 rounded-xl font-[510] text-[1.0625rem] transition-all duration-200 ${
-              isValid
-                ? 'bg-gradient-to-r from-[#990000] to-[#FFCC00] text-white shadow-lg hover:shadow-[0_8px_24px_rgba(153,0,0,0.3)] hover:-translate-y-0.5 active:scale-[0.98]'
-                : 'bg-[#333] text-white/40 cursor-not-allowed opacity-60'
-            }`}
+            className={`w-full py-4 rounded-xl font-[510] text-[1.0625rem] transition-all duration-200 cursor-pointer ${isValid
+                ? 'bg-gradient-to-r from-primary-700 to-primary-500 text-white shadow-lg shadow-primary-500/20 hover:shadow-primary-500/30 hover:-translate-y-0.5 active:scale-[0.98]'
+                : 'bg-white/5 text-white/40 cursor-not-allowed opacity-60'
+              }`}
             aria-label="Submit task"
           >
             {isEditing ? 'Save Changes' : isOpenTask ? 'Create Task' : 'Assign Task'}
