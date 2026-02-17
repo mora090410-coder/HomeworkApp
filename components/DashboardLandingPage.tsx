@@ -22,7 +22,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon: Icon, title, body }) =>
 
 export default function DashboardLandingPage() {
     return (
-        <div className="relative min-h-screen w-full overflow-hidden bg-[#0a0c10] dark:bg-[#0a0c10] light:bg-[#f8f9fa] font-sans selection:bg-primary-500/30">
+        <div className="relative min-h-screen w-full overflow-hidden bg-[#0a0c10] dark:bg-[#0a0c10] font-sans selection:bg-primary-500/30">
             {/* Background Radial Glows */}
             <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
                 <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[80%] h-[60%] opacity-20 bg-[radial-gradient(circle_at_center,rgba(244,63,94,0.35),transparent_70%)] blur-[100px]" />
@@ -53,7 +53,7 @@ export default function DashboardLandingPage() {
 
                 <main className="flex flex-col items-center text-center">
                     {/* Centered Hero Content */}
-                    <div className="flex flex-col items-center max-w-[800px] mb-20">
+                    <div className="flex flex-col items-center max-w-[800px] mb-20 px-4">
                         <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 shadow-[0_0_15px_rgba(244,63,94,0.15)] mb-10">
                             <div className="relative flex items-center justify-center">
                                 <Activity className="w-3.5 h-3.5 text-primary-500 z-10" />
@@ -69,46 +69,24 @@ export default function DashboardLandingPage() {
                             without the chaos
                         </h1>
 
-                        <p className="text-[16px] sm:text-[18px] leading-relaxed text-white/40 max-w-[620px] mb-16 px-4">
+                        <p className="text-[16px] sm:text-[18px] leading-relaxed text-white/40 max-w-[620px] mb-16">
                             {landingData.hero.subtext}
                         </p>
 
                         {/* Centered Phone Mockup */}
-                        <div className="relative w-full max-w-[720px] aspect-[16/9] mb-20 flex justify-center">
+                        <div className="relative w-full max-w-[720px] mb-20 flex justify-center">
                             <div className="relative w-[340px] sm:w-[440px] group">
                                 {/* Glow behind phone */}
-                                <div className="absolute inset-0 bg-primary-500/20 blur-[100px] opacity-40 rounded-full scale-110 group-hover:opacity-60 transition-opacity duration-700" />
+                                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[60%] bg-primary-500/20 blur-[100px] opacity-40 rounded-full scale-125 group-hover:opacity-60 transition-opacity duration-700" />
 
-                                <div className="relative p-6 rounded-[48px] bg-[#1a1c24] border-[1px] border-white/20 shadow-[0_40px_100px_rgba(0,0,0,0.8)] transform -rotate-[15deg] perspective-[1200px] rotate-x-[15deg] transition-transform duration-700 group-hover:rotate-[-5deg] overflow-hidden">
-                                    {/* Mock UI Elements matching screenshot */}
-                                    <div className="flex flex-col gap-6">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
-                                                    <span className="text-[8px] font-bold text-white/70">HW</span>
-                                                </div>
-                                                <span className="text-[10px] font-bold text-white/80">HomeWork</span>
-                                            </div>
-                                        </div>
-
-                                        <div className="p-4 rounded-3xl bg-white/[0.03] border border-white/10">
-                                            <h4 className="text-[8px] font-bold tracking-widest text-primary-500 mb-4 uppercase">THIS WEEK AT A GLANCE</h4>
-                                            <div className="space-y-3">
-                                                {[
-                                                    { label: "Tasks Completed 14/18" },
-                                                    { label: "Allowance Approved $92.00" },
-                                                    { label: "Reading Streak 6 days" }
-                                                ].map((item, i) => (
-                                                    <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-white/[0.04] border border-white/5">
-                                                        <span className="text-[9px] font-medium text-white/80">{item.label}</span>
-                                                        <CheckCircle2 className="w-4 h-4 text-primary-500" />
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {/* Glass Shine */}
-                                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none" />
+                                <div className="relative transform transition-transform duration-700 group-hover:scale-[1.03]">
+                                    <img
+                                        src="/images/phone-mockup.png"
+                                        alt="HomeWork App Mockup"
+                                        className="w-full h-auto drop-shadow-[0_40px_100px_rgba(0,0,0,0.8)]"
+                                    />
+                                    {/* Glass Shine Overlay */}
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none rounded-[48px]" />
                                 </div>
                             </div>
                         </div>
