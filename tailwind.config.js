@@ -1,3 +1,5 @@
+import { colors } from './src/skillmaster/colors.js';
+
 /** @type {import('tailwindcss').Config} */
 export default {
     content: [
@@ -9,45 +11,9 @@ export default {
     theme: {
         extend: {
             colors: {
-                primary: {
-                    50: "#FFF1F2",
-                    100: "#FFE4E6",
-                    200: "#FECDD3",
-                    300: "#FDA4AF",
-                    400: "#FB7185",
-                    500: "#F43F5E",
-                    600: "#E11D48",
-                    700: "#BE123C",
-                    800: "#9F1239",
-                    900: "#881337",
-                },
-                secondary: {
-                    50: "#FBF8F2",
-                    100: "#F7F1E6",
-                    200: "#EEE2CC",
-                    300: "#E5D3B3",
-                    400: "#DEC499",
-                    500: "#D9C08D",
-                    600: "#B89E6B",
-                    700: "#967C4A",
-                    800: "#755B28",
-                    900: "#543906",
-                },
-                gray: {
-                    100: "#E9ECF3",
-                    200: "#CBD2E1",
-                    300: "#A2ABC0",
-                    400: "#77839A",
-                    500: "#55627A",
-                    600: "#39465E",
-                    700: "#24314A",
-                    750: "#1A2740",
-                    800: "#162033",
-                    850: "#101826",
-                    900: "#0B1220",
-                    925: "#0A0F18",
-                    950: "#070A0F",
-                }
+                primary: colors.primary,
+                secondary: colors.secondary,
+                gray: colors.grays, // Note: Tailwind uses 'gray', colors.js uses 'grays'
             },
             borderRadius: {
                 'card': '14px',

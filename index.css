@@ -5,9 +5,52 @@
 @tailwind utilities;
 
 /* Custom Overrides */
+:root {
+    /* Base Colors - attempting to use Tailwind theme but defining fallbacks/roots for non-tailwind contexts if needed */
+    --foreground-rgb: 15, 23, 42; /* slate-900 equivalent */
+    --background-start-rgb: 255, 255, 255;
+    --background-end-rgb: 255, 255, 255;
+}
+
 body {
     margin: 0;
     font-family: 'Manrope', sans-serif;
+    color: rgb(var(--foreground-rgb));
+    background: linear-gradient(
+        to bottom,
+        transparent,
+        rgb(var(--background-end-rgb))
+    ) rgb(var(--background-start-rgb));
+    line-height: 1.6; /* per uiskill.md guideline: 1.5-1.75 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Accessibility & Focus */
+:focus-visible {
+    outline: 2px solid theme('colors.primary.500');
+    outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+    background-color: theme('colors.primary.100');
+    color: theme('colors.primary.900');
+}
+
+/* Glassmorphism Utilities */
+.glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-dark {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .font-heading {
