@@ -11,11 +11,11 @@ interface FeatureCardProps {
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon: Icon, title, body }) => (
     <div className="group flex flex-col p-8 rounded-[32px] card-base transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-        <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-surface-2 mb-6 shadow-sm border border-highlight">
-            <Icon className="w-6 h-6 text-muted group-hover:text-primary-500 transition-colors" />
+        <div className="w-12 h-12 flex items-center justify-center rounded-2xl bg-surface-2 mb-6 shadow-sm border border-stroke-highlight">
+            <Icon className="w-6 h-6 text-content-muted group-hover:text-primary-500 transition-colors" />
         </div>
-        <h3 className="text-[20px] font-bold text-primary mb-3">{title}</h3>
-        <p className="text-[15px] leading-relaxed text-muted">{body}</p>
+        <h3 className="text-[20px] font-bold text-content-primary mb-3">{title}</h3>
+        <p className="text-[15px] leading-relaxed text-content-muted">{body}</p>
     </div>
 );
 
@@ -66,16 +66,16 @@ export default function LandingPage() {
                 {/* Header */}
                 <header className="flex items-center justify-between mb-24 sm:mb-32">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-2 border border-highlight shadow-sm">
-                            <span className="text-[14px] font-bold text-primary">HW</span>
+                        <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-surface-2 border border-stroke-highlight shadow-sm">
+                            <span className="text-[14px] font-bold text-content-primary">HW</span>
                         </div>
-                        <span className="text-[18px] font-bold tracking-tight text-primary">
+                        <span className="text-[18px] font-bold tracking-tight text-content-primary">
                             HomeWork
                         </span>
                     </div>
 
                     <div className="flex items-center gap-6">
-                        <Link to="/login" className="text-[14px] font-semibold text-muted hover:text-primary transition-colors">
+                        <Link to="/login" className="text-[14px] font-semibold text-content-muted hover:text-content-primary transition-colors">
                             Log In
                         </Link>
                         <Link to="/signup" className="px-5 py-2 rounded-full bg-primary-600 text-white text-[14px] font-bold hover:bg-primary-500 transition-all shadow-[0_0_20px_rgba(244,63,94,0.3)] shadow-primary-500/30">
@@ -97,12 +97,12 @@ export default function LandingPage() {
                             </span>
                         </div>
 
-                        <h1 className="text-[48px] sm:text-[64px] lg:text-[80px] leading-[1.1] font-bold text-primary tracking-tight mb-8">
+                        <h1 className="text-[48px] sm:text-[64px] lg:text-[80px] leading-[1.1] font-bold text-content-primary tracking-tight mb-8">
                             Tie Grades to Income.<br />
-                            <span className="text-muted">End the Weekly Arguments.</span>
+                            <span className="text-content-muted">End the Weekly Arguments.</span>
                         </h1>
 
-                        <p className="text-[16px] sm:text-[18px] leading-relaxed text-muted max-w-[620px] mb-16">
+                        <p className="text-[16px] sm:text-[18px] leading-relaxed text-content-muted max-w-[620px] mb-16">
                             Give your kids a real-world system where grades raise their hourly rate, chores earn income, and accountability is built in.
                         </p>
 
@@ -142,12 +142,12 @@ export default function LandingPage() {
 
                     {/* PROBLEM SECTION */}
                     <section className="w-full mb-32">
-                        <h2 className="text-[32px] sm:text-[40px] font-bold text-primary mb-12">The Problem Isn&apos;t Chores. It&apos;s Accountability.</h2>
+                        <h2 className="text-[32px] sm:text-[40px] font-bold text-content-primary mb-12">The Problem Isn&apos;t Chores. It&apos;s Accountability.</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mb-12">
                             {problemCards.map((card, idx) => (
                                 <div key={idx} className="flex flex-col p-8 rounded-[32px] card-base text-left">
-                                    <h3 className="text-[18px] font-bold text-primary mb-3">{card.title}</h3>
-                                    <p className="text-[14px] leading-relaxed text-muted">{card.body}</p>
+                                    <h3 className="text-[18px] font-bold text-content-primary mb-3">{card.title}</h3>
+                                    <p className="text-[14px] leading-relaxed text-content-muted">{card.body}</p>
                                 </div>
                             ))}
                         </div>
@@ -270,19 +270,19 @@ export default function LandingPage() {
                                 Start 14-Day Trial
                                 <ArrowRight className="w-6 h-6" />
                             </Link>
-                            <p className="text-muted font-medium">Cancel anytime.</p>
+                            <p className="text-content-muted font-medium">Cancel anytime.</p>
                         </div>
                     </section>
                 </main>
 
                 {/* Footer */}
-                <footer className="mt-auto pt-10 pb-6 border-t border-highlight flex flex-col sm:flex-row justify-between items-center gap-6">
-                    <p className="text-[13px] font-medium text-muted">
-                        <span className="text-primary">HomeWork.</span> Built for high-trust family systems.
+                <footer className="mt-auto pt-10 pb-6 border-t border-stroke-base flex flex-col sm:flex-row justify-between items-center gap-6">
+                    <p className="text-[13px] font-medium text-content-muted">
+                        <span className="text-content-primary">HomeWork.</span> Built for high-trust family systems.
                     </p>
                     <div className="flex items-center gap-8 text-[13px] font-bold">
-                        <Link to="/login" className="text-muted hover:text-primary transition-colors">Log In</Link>
-                        <Link to="/signup" className="text-muted hover:text-primary transition-colors">Sign Up</Link>
+                        <Link to="/login" className="text-content-muted hover:text-content-primary transition-colors">Log In</Link>
+                        <Link to="/signup" className="text-content-muted hover:text-content-primary transition-colors">Sign Up</Link>
                         <div className="pl-4 border-l border-highlight">
                             <ThemeSwitch />
                         </div>

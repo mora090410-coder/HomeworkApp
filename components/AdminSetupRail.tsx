@@ -11,15 +11,15 @@ const STEPS = ['Child Basics', 'Current Grades', 'Review & Finish'];
 
 export default function AdminSetupRail({ completedSteps, onStartAddChild }: AdminSetupRailProps) {
   return (
-    <section className="rounded-[28px] border border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-white/5 p-6 md:p-8 relative overflow-hidden group">
+    <section className="rounded-[28px] border border-stroke-base bg-surface-2 p-6 md:p-8 relative overflow-hidden group">
 
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
       <div className="grid gap-8 lg:grid-cols-[2fr_1fr] relative z-10">
         <div>
-          <h2 className="text-2xl font-[590] text-gray-900 dark:text-white tracking-tight">Set up your first child in under 2 minutes</h2>
-          <p className="mt-2 text-[0.9375rem] text-gray-500 dark:text-gray-400 leading-relaxed max-w-lg">
+          <h2 className="text-2xl font-[590] text-content-primary tracking-tight">Set up your first child in under 2 minutes</h2>
+          <p className="mt-2 text-[0.9375rem] text-content-muted leading-relaxed max-w-lg">
             Build your Family Economy foundation with a guided 3-step setup to unlock task tracking and financial management.
           </p>
 
@@ -43,12 +43,12 @@ export default function AdminSetupRail({ completedSteps, onStartAddChild }: Admi
                   `}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <p className={`text-[0.6875rem] font-bold uppercase tracking-wider ${isComplete ? 'text-emerald-600 dark:text-emerald-400' : isCurrent ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500'}`}>
+                    <p className={`text-[0.6875rem] font-bold uppercase tracking-wider ${isComplete ? 'text-emerald-600 dark:text-emerald-400' : isCurrent ? 'text-primary-600 dark:text-primary-400' : 'text-content-muted'}`}>
                       Step {stepNumber}
                     </p>
                     {isComplete && <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
                   </div>
-                  <p className={`text-sm font-semibold ${isComplete || isCurrent ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>
+                  <p className={`text-sm font-semibold ${isComplete || isCurrent ? 'text-content-primary' : 'text-content-muted'}`}>
                     {stepLabel}
                   </p>
                 </div>
@@ -66,8 +66,8 @@ export default function AdminSetupRail({ completedSteps, onStartAddChild }: Admi
           </Button>
         </div>
 
-        <aside className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white/50 dark:bg-black/20 p-5 self-start">
-          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">What Unlocks Next</p>
+        <aside className="rounded-2xl border border-stroke-base bg-white/50 dark:bg-black/20 p-5 self-start">
+          <p className="text-xs font-bold uppercase tracking-wider text-content-muted mb-4">What Unlocks Next</p>
           <ul className="space-y-3">
             {[
               "Centralized ledger visibility",

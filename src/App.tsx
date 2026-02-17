@@ -869,11 +869,11 @@ function DashboardPage() {
 
   if (!isFirebaseConfigured) {
     return (
-      <div className="min-h-screen bg-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-primary p-6 transition-colors duration-300">
+      <div className="min-h-screen bg-surface-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-content-primary p-6 transition-colors duration-300">
         <div className="max-w-lg w-full bg-white dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-2xl border border-gray-200 dark:border-white/10 text-center shadow-xl">
           <h2 className="text-2xl font-bold mb-4">Firebase Setup Required</h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-2">Phase 2 requires Firebase Auth and Firestore configuration.</p>
-          <p className="text-gray-500 text-sm">Add `VITE_FIREBASE_*` keys in `.env` and restart the app.</p>
+          <p className="text-content-primary mb-2">Phase 2 requires Firebase Auth and Firestore configuration.</p>
+          <p className="text-content-muted text-sm">Add `VITE_FIREBASE_*` keys in `.env` and restart the app.</p>
         </div>
       </div>
     );
@@ -896,7 +896,7 @@ function DashboardPage() {
 
   if (familyAuth.isInitializing) {
     return (
-      <div className="min-h-screen bg-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-primary">
+      <div className="min-h-screen bg-surface-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-content-primary">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600 dark:text-primary-400" />
       </div>
     );
@@ -956,7 +956,7 @@ function DashboardPage() {
 
   if (loadingChildren || loadingOpenTasks || !familyAuth.activeProfile) {
     return (
-      <div className="min-h-screen bg-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-primary">
+      <div className="min-h-screen bg-surface-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-content-primary">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600 dark:text-primary-400" />
       </div>
     );
@@ -969,7 +969,7 @@ function DashboardPage() {
 
     if (!activeChild) {
       return (
-        <div className="min-h-screen bg-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-primary">
+        <div className="min-h-screen bg-surface-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-content-primary">
           <div className="text-center">
             <p className="text-lg mb-4">Child profile data is still loading.</p>
             <button type="button" onClick={familyAuth.clearActiveProfileSelection} className="px-4 py-2 rounded-lg bg-primary-600 text-white">Back to Profile Picker</button>
@@ -1474,7 +1474,7 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
 
   if (!isResolved) {
     return (
-      <div className="min-h-screen bg-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-primary">
+      <div className="min-h-screen bg-surface-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-content-primary">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600 dark:text-primary-400" />
       </div>
     );
@@ -1508,7 +1508,7 @@ function UnknownRouteHandler() {
 
   if (!isResolved) {
     return (
-      <div className="min-h-screen bg-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-primary">
+      <div className="min-h-screen bg-surface-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-content-primary">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600 dark:text-primary-400" />
       </div>
     );

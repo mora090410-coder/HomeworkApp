@@ -57,6 +57,7 @@ export default defineConfig(({ mode }) => {
           cleanupOutdatedCaches: true,
           clientsClaim: true,
           skipWaiting: true,
+          maximumFileSizeToCacheInBytes: 5000000, // 5MB limit for large mockup images
           globPatterns: ['**/*.{js,css,html,ico,png,svg,json,webp}'],
           runtimeCaching: [
             {

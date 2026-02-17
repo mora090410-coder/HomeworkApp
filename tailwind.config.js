@@ -15,19 +15,19 @@ export default {
                 secondary: colors.secondary,
                 gray: colors.grays,
 
-                // Semantic Colors (Mapped to CSS Variables)
-                bg: {
+                // Semantic Tokens
+                surface: {
                     app: 'var(--bg-app)',
-                    'elev-1': 'var(--bg-elev-1)',
-                    surface: 'var(--bg-surface)',
-                    'surface-2': 'var(--bg-surface-2)',
+                    base: 'var(--bg-surface)',
+                    2: 'var(--bg-surface-2)',
+                    elev: 'var(--bg-elev-1)',
                 },
-                text: {
+                content: {
                     primary: 'var(--text-primary)',
                     muted: 'var(--text-muted)',
                     subtle: 'var(--text-subtle)',
                 },
-                border: {
+                stroke: {
                     base: 'var(--border-base)',
                     highlight: 'var(--border-highlight)',
                 }
