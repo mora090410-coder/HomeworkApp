@@ -25,8 +25,7 @@ import SettingsModal from '@/components/SettingsModal';
 import AuthScreen from '@/components/AuthScreen';
 import AdminSetupRail from '@/components/AdminSetupRail';
 import LandingScreen from '@/components/LandingScreen';
-import MarketingLandingPage from '@/components/MarketingLandingPage';
-import DashboardLandingPage from '@/components/DashboardLandingPage';
+import LandingPage from '@/components/LandingPage';
 import PinModal from '@/components/PinModal';
 import { auth, db, isFirebaseConfigured } from '@/services/firebase';
 import { householdService } from '@/services/householdService';
@@ -1529,7 +1528,7 @@ export default function App() {
           path="/"
           element={(
             <PublicOnlyRoute>
-              <MarketingLandingPage />
+              <LandingPage />
             </PublicOnlyRoute>
           )}
         />
