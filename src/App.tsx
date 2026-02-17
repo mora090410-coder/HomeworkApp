@@ -26,6 +26,7 @@ import AuthScreen from '@/components/AuthScreen';
 import AdminSetupRail from '@/components/AdminSetupRail';
 import LandingScreen from '@/components/LandingScreen';
 import MarketingLandingPage from '@/components/MarketingLandingPage';
+import DashboardLandingPage from '@/components/DashboardLandingPage';
 import PinModal from '@/components/PinModal';
 import { auth, db, isFirebaseConfigured } from '@/services/firebase';
 import { householdService } from '@/services/householdService';
@@ -1508,12 +1509,14 @@ function UnknownRouteHandler() {
     );
   }
 
+  // Allow the /dashboard route to be handled by its specific Route component
   if (location.pathname === '/dashboard') {
-    if (isAuthenticated) {
-      return <Navigate to="/admin-dashboard" replace />;
-    }
+    return null; // Route exists now, so don't redirect from here
+  }
 
-    return <Navigate to="/login" replace />;
+  // Existing logic for other unknown routes
+  if (isAuthenticated) {
+    return <Navigate to="/admin-dashboard" replace />;
   }
 
   return <Navigate to="/" replace />;
@@ -1549,6 +1552,7 @@ export default function App() {
         />
         <Route path="/setup-profile/:id" element={<SetupProfileRoute />} />
         <Route path="/admin-dashboard" element={<DashboardPage />} />
+        <Route path="/dashboard" element={<DashboardLandingPage />} />
         <Route path="*" element={<UnknownRouteHandler />} />
       </Routes>
     </BrowserRouter>
