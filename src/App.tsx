@@ -1509,9 +1509,8 @@ function UnknownRouteHandler() {
     );
   }
 
-  // Allow the /dashboard route to be handled by its specific Route component
   if (location.pathname === '/dashboard') {
-    return null; // Route exists now, so don't redirect from here
+    return <Navigate to="/" replace />;
   }
 
   // Existing logic for other unknown routes
@@ -1552,7 +1551,14 @@ export default function App() {
         />
         <Route path="/setup-profile/:id" element={<SetupProfileRoute />} />
         <Route path="/admin-dashboard" element={<DashboardPage />} />
-        <Route path="/dashboard" element={<DashboardLandingPage />} />
+        <Route
+          path="/"
+          element={
+            <PublicOnlyRoute>
+              <DashboardLandingPage />
+            </PublicOnlyRoute>
+          }
+        />
         <Route path="*" element={<UnknownRouteHandler />} />
       </Routes>
     </BrowserRouter>

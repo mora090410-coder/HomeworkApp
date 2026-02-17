@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, LucideIcon } from 'lucide-react';
+import { ArrowRight, LucideIcon, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ThemeSwitch from './ThemeSwitch';
 import { landingData } from '@/data/dashboard-landing';
@@ -11,82 +11,99 @@ interface FeatureCardProps {
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon: Icon, title, body }) => (
-    <div className="flex flex-col p-3.5 rounded-card min-h-[92px] transition-all bg-white/[0.06] border border-white/10 dark:bg-white/[0.06] dark:border-white/10 light:bg-white light:border-secondary-100 hover:-translate-y-1 shadow-card-soft">
-        <div className="w-7 h-7 flex items-center justify-center rounded-[10px] bg-white/[0.06] dark:bg-white/[0.06] light:bg-secondary-50">
-            <Icon className="w-4 h-4 text-white/70 dark:text-white/70 light:text-secondary-600" />
+    <div className="flex flex-col p-6 rounded-card transition-all bg-white/[0.04] border border-white/10 dark:bg-white/[0.04] dark:border-white/10 light:bg-white light:border-secondary-100 hover:bg-white/[0.06] transition-colors shadow-card-soft">
+        <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-primary-500/10 mb-4">
+            <Icon className="w-5 h-5 text-primary-500" />
         </div>
-        <h3 className="mt-2.5 text-card-title text-white/90 dark:text-white/90 light:text-secondary-900">{title}</h3>
-        <p className="mt-1.5 text-card-body text-white/65 dark:text-white/65 light:text-secondary-600">{body}</p>
+        <h3 className="text-[18px] font-semibold text-white/90 dark:text-white/90 light:text-secondary-900 mb-2">{title}</h3>
+        <p className="text-[14px] leading-relaxed text-white/60 dark:text-white/60 light:text-secondary-600">{body}</p>
     </div>
 );
 
 export default function DashboardLandingPage() {
     return (
-        <div className="relative min-h-screen w-full overflow-hidden bg-gray-950 dark:bg-gray-950 light:bg-secondary-50 font-sans transition-colors duration-300">
+        <div className="relative min-h-screen w-full overflow-hidden bg-[#070a0f] dark:bg-[#070a0f] light:bg-secondary-50 font-sans transition-colors duration-300">
             {/* Background Overlays */}
             <div className="pointer-events-none absolute inset-0 z-0">
-                {/* Dark Mode Glows */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] opacity-20 dark:opacity-20 light:opacity-10 bg-[radial-gradient(circle_at_center,rgba(244,63,94,0.4),transparent_70%)]" />
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[600px] opacity-10 dark:opacity-10 light:opacity-0 bg-[radial-gradient(circle_at_center,rgba(244,63,94,0.2),transparent_70%)]" />
+                <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] opacity-20 bg-[radial-gradient(circle_at_center,rgba(244,63,94,0.3),transparent_70%)]" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] opacity-10 bg-[radial-gradient(circle_at_center,rgba(244,63,94,0.2),transparent_70%)]" />
             </div>
 
-            <div className="relative z-10 mx-auto max-w-[1280px] px-5 sm:px-6 lg:px-10 py-6 sm:py-8 lg:py-12 flex flex-col min-h-screen">
-                {/* Header/Top Brand */}
-                <header className="flex items-center justify-between mb-14 sm:mb-18">
-                    <div className="flex items-center gap-2">
-                        <div className="w-[22px] h-[22px] flex items-center justify-center rounded bg-gray-850 dark:bg-gray-850 light:bg-secondary-100">
-                            <span className="text-[10px] font-bold text-white dark:text-white light:text-secondary-900">HW</span>
+            <div className="relative z-10 mx-auto max-w-[1440px] px-6 sm:px-10 lg:px-16 py-8 flex flex-col min-h-screen">
+                {/* Header */}
+                <header className="flex items-center justify-between mb-20 sm:mb-24">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-primary-500/10 border border-primary-500/20">
+                            <span className="text-[14px] font-bold text-primary-500">{landingData.header.logo}</span>
                         </div>
-                        <span className="text-[16px] font-heading font-semibold text-white dark:text-white light:text-secondary-900">HomeWork</span>
+                        <span className="text-[20px] font-heading font-bold text-white dark:text-white light:text-secondary-900">
+                            {landingData.header.brand}
+                        </span>
                     </div>
-                    <ThemeSwitch />
+
+                    <div className="flex items-center gap-4">
+                        <Link to="/login" className="px-6 py-2.5 rounded-full border border-white/10 dark:border-white/10 light:border-secondary-200 text-white/80 dark:text-white/80 light:text-secondary-700 font-medium hover:bg-white/5 transition-colors">
+                            {landingData.header.loginLabel}
+                        </Link>
+                        <Link to="/signup" className="px-6 py-2.5 rounded-full bg-primary-500 text-white font-semibold hover:bg-primary-600 transition-colors shadow-btn-primary">
+                            {landingData.header.signupLabel}
+                        </Link>
+                    </div>
                 </header>
 
                 <main className="flex-grow flex flex-col">
                     {/* Hero Section */}
-                    <section className="flex flex-col lg:grid lg:grid-cols-2 lg:items-center gap-10 lg:gap-16 mb-18 lg:mb-26">
+                    <section className="flex flex-col lg:grid lg:grid-cols-2 lg:items-center gap-16 mb-24 lg:mb-32">
                         <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
-                            <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-section-label bg-white/[0.06] border border-white/10 text-white/75 dark:bg-white/[0.06] dark:border-white/10 dark:text-white/75 light:bg-secondary-900/[0.04] light:border-secondary-900/[0.08] light:text-secondary-700">
-                                <div className="w-3 h-3 rounded-full flex items-center justify-center">
-                                    <div className="w-1.5 h-1.5 bg-primary-400 rounded-full animate-pulse" />
-                                </div>
-                                FAMILY ECONOMY SYSTEM
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-[12px] font-bold tracking-widest bg-white/[0.05] border border-white/10 text-white/50 dark:bg-white/[0.05] dark:border-white/10 dark:text-white/50 light:bg-secondary-900/[0.04] light:border-secondary-900/[0.08] light:text-secondary-700 uppercase">
+                                <div className="w-2 h-2 rounded-full bg-primary-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]" />
+                                {landingData.hero.badge}
                             </div>
 
-                            <h1 className="mt-4 sm:mt-6 text-hero-base sm:text-hero-sm md:text-hero-md lg:text-hero-lg max-w-[340px] sm:max-w-[520px] lg:max-w-[560px] text-white dark:text-white light:text-secondary-900">
-                                Build discipline without the chaos
+                            <h1 className="mt-8 text-[48px] sm:text-[64px] lg:text-[80px] leading-[1.1] font-heading font-bold text-white dark:text-white light:text-secondary-900 tracking-tight">
+                                {landingData.hero.title.split(' ').slice(0, 2).join(' ')}<br />
+                                {landingData.hero.title.split(' ').slice(2).join(' ')}
                             </h1>
 
-                            {/* Mobile Hero Media (centered) */}
-                            <div className="mt-8 mb-4 lg:hidden max-w-[320px] sm:max-w-[360px]">
-                                <div className="relative transform -rotate-[15deg] perspective-[1000px] rotate-x-[10deg] rotate-y-[5deg] rounded-phoneMock border border-white/20 dark:border-white/20 bg-gray-900 shadow-hero-media overflow-hidden">
-                                    <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&q=80&w=800" alt="App Preview" className="w-full h-auto opacity-90" />
-                                </div>
-                            </div>
+                            <p className="mt-8 text-[18px] sm:text-[20px] leading-relaxed text-white/60 dark:text-white/60 light:text-secondary-600 max-w-[540px]">
+                                {landingData.hero.subtext}
+                            </p>
 
-                            {/* CTAs */}
-                            <div className="mt-6 flex flex-col gap-2.5 w-full max-w-[360px]">
-                                <button className="h-11 rounded-full bg-primary-gradient text-white text-[14px] font-semibold flex items-center justify-center gap-2 transition-transform hover:scale-[1.02] active:scale-[0.98] shadow-btn-primary border border-white/10">
-                                    Get Started
-                                    <ArrowRight className="w-4 h-4" />
+                            <div className="mt-10 flex items-center gap-4">
+                                <button className="h-14 px-8 rounded-full bg-primary-500 text-white text-[16px] font-bold flex items-center justify-center gap-2 transition-all hover:bg-primary-600 hover:scale-[1.02] active:scale-[0.98] shadow-btn-primary">
+                                    {landingData.hero.primaryCTA}
+                                    <ArrowRight className="w-5 h-5" />
                                 </button>
-                                <button className="h-11 rounded-full bg-white/[0.06] border border-white/10 text-white/80 dark:bg-white/[0.06] dark:border-white/10 dark:text-white/80 light:bg-secondary-900/[0.04] light:border-secondary-900/[0.10] light:text-secondary-800 text-[14px] font-semibold transition-colors hover:bg-white/[0.1]">
-                                    I Have an Account
+                                <button className="h-14 px-8 rounded-full bg-white/[0.05] border border-white/10 text-white/80 dark:bg-white/[0.05] dark:border-white/10 dark:text-white/80 light:bg-secondary-900/[0.04] light:border-secondary-900/[0.10] light:text-secondary-800 text-[16px] font-bold transition-colors hover:bg-white/10">
+                                    {landingData.hero.secondaryCTA}
                                 </button>
                             </div>
                         </div>
 
-                        {/* Desktop Hero Media (right column) */}
-                        <div className="hidden lg:flex justify-end pr-4">
-                            <div className="relative max-w-[420px] xl:max-w-[460px] transform -rotate-[18deg] perspective-[1000px] rotate-x-[12deg] rotate-y-[8deg] rounded-phoneMock border border-white/20 dark:border-white/20 bg-gray-900 shadow-hero-media overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&q=80&w=800" alt="App Preview" className="w-full h-auto opacity-90" />
-                                <div className="absolute inset-0 bg-gradient-to-tr from-primary-500/10 to-transparent pointer-events-none" />
+                        {/* Hero Media Card */}
+                        <div className="flex justify-center lg:justify-end">
+                            <div className="w-full max-w-[480px] p-8 rounded-[32px] bg-white/[0.03] border border-white/10 backdrop-blur-xl shadow-[0_32px_64px_rgba(0,0,0,0.5)] transform -rotate-[5deg] lg:-rotate-[10deg] hover:rotate-0 transition-transform duration-700">
+                                <div className="mb-8">
+                                    <h4 className="text-[12px] font-bold tracking-widest text-primary-500 mb-6 uppercase">
+                                        {landingData.heroMedia.title}
+                                    </h4>
+                                    <div className="space-y-4">
+                                        {landingData.heroMedia.items.map((item, idx) => (
+                                            <div key={idx} className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.04] border border-white/5">
+                                                <span className="text-white/90 font-medium">{item.label}</span>
+                                                <CheckCircle2 className="w-6 h-6 text-primary-500" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                {/* Visual Accent */}
+                                <div className="absolute -z-10 -bottom-10 -right-10 w-40 h-40 bg-primary-500/20 rounded-full blur-[80px]" />
                             </div>
                         </div>
                     </section>
 
                     {/* Features Grid */}
-                    <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-12">
+                    <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-24">
                         {landingData.featureCards.map((card, idx) => (
                             <FeatureCard key={idx} icon={card.icon} title={card.title} body={card.body} />
                         ))}
@@ -94,17 +111,17 @@ export default function DashboardLandingPage() {
                 </main>
 
                 {/* Footer */}
-                <footer className="mt-auto pt-4 pb-2 border-t border-white/10 dark:border-white/10 light:border-secondary-900/10 flex flex-col sm:flex-row justify-between items-center gap-4 text-footer-sm">
-                    <p className="text-white/55 dark:text-white/55 light:text-secondary-900/55">{landingData.footer.leftText}</p>
-                    <div className="flex items-center gap-3">
-                        {landingData.footer.rightLinks.map((link, idx) => (
-                            <React.Fragment key={idx}>
-                                {idx > 0 && <span className="text-white/20 dark:text-white/20 light:text-secondary-900/20 px-1">•</span>}
-                                <Link to={link.href} className="text-white/70 hover:text-white dark:text-white/70 dark:hover:text-white light:text-secondary-700 light:hover:text-secondary-900 transition-colors">
+                <footer className="mt-auto pt-8 pb-4 border-t border-white/10 dark:border-white/10 light:border-secondary-900/10 flex flex-col sm:flex-row justify-between items-center gap-6 text-[14px]">
+                    <p className="text-white/40 dark:text-white/40 light:text-secondary-900/40">{landingData.footer.leftText}</p>
+                    <div className="flex items-center gap-6">
+                        <ThemeSwitch />
+                        <div className="flex items-center gap-6">
+                            {landingData.footer.rightLinks.map((link, idx) => (
+                                <Link key={idx} to={link.href} className="text-white/60 hover:text-white dark:text-white/60 dark:hover:text-white light:text-secondary-700 light:hover:text-secondary-900 transition-colors">
                                     {link.label}
                                 </Link>
-                            </React.Fragment>
-                        ))}
+                            ))}
+                        </div>
                     </div>
                 </footer>
             </div>

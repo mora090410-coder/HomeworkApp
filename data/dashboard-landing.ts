@@ -1,21 +1,42 @@
-import { Clock, Shield, Star } from 'lucide-react';
+import { Clock, Shield, Star, CheckCircle2 } from 'lucide-react';
 
 export const landingData = {
+    header: {
+        logo: "HW",
+        brand: "HomeWork",
+        loginLabel: "Log In",
+        signupLabel: "Sign Up"
+    },
+    hero: {
+        badge: "FAMILY ECONOMY SYSTEM",
+        title: "Build discipline without the chaos.",
+        subtext: "HomeWork gives parents a premium command center for chores, learning effort, and allowance outcomes.",
+        primaryCTA: "Get Started",
+        secondaryCTA: "I Have an Account"
+    },
+    heroMedia: {
+        title: "THIS WEEK AT A GLANCE",
+        items: [
+            { label: "Tasks Completed 14/18", completed: true },
+            { label: "Allowance Approved $92.00", completed: true },
+            { label: "Reading Streak 6 days", completed: true }
+        ]
+    },
     featureCards: [
         {
             icon: Clock,
             title: "Sunday Night Lock",
-            body: "Room within one time block until Sunday Night Lock."
+            body: "Plan chores, allowances, and expectations before the week starts so everyone knows."
         },
         {
             icon: Shield,
             title: "Family Ledger",
-            body: "Enable your installable payments and fill the family ledger."
+            body: "Track earnings, advances, and balance history in one place with clean accountability."
         },
         {
             icon: Star,
             title: "Progress Visibility",
-            body: "Progress while your progress visibility for earning stars."
+            body: "Turn everyday work into visible progress your kids can understand and stay motivated by."
         }
     ],
     footer: {
