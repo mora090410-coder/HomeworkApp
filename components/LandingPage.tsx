@@ -55,7 +55,7 @@ const faqs = [
 
 export default function LandingPage() {
     return (
-        <div className="relative min-h-screen w-full overflow-hidden bg-app font-sans selection:bg-primary-500/30 transition-colors duration-300">
+        <div className="relative min-h-screen w-full overflow-hidden bg-surface-app font-sans selection:bg-primary-500/30 transition-colors duration-300">
             {/* Background Radial Glows */}
             <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
                 <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[80%] h-[60%] opacity-15 dark:opacity-20 bg-[radial-gradient(circle_at_center,theme('colors.primary.500'),transparent_70%)] blur-[100px]" />
@@ -108,11 +108,11 @@ export default function LandingPage() {
 
                         {/* Centered Phone Mockup */}
                         <div className="relative w-full max-w-[720px] mb-20 flex justify-center">
-                            <div className="relative w-[340px] sm:w-[440px] group">
+                            <div className="relative w-[340px] sm:w-[440px] group bg-transparent">
                                 {/* Glow behind phone - DARK MODE ONLY */}
                                 <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[70%] bg-[radial-gradient(circle,theme('colors.primary.500'),transparent_70%)] opacity-0 dark:opacity-40 blur-[80px] rounded-full scale-150 group-hover:dark:opacity-60 transition-opacity duration-700 pointer-events-none" />
 
-                                <div className="relative transform transition-transform duration-700 group-hover:scale-[1.03]">
+                                <div className="relative transform transition-transform duration-700 group-hover:scale-[1.03] bg-transparent">
                                     <img
                                         src="/images/phone-mockup.png"
                                         alt="HomeWork App Mockup"
