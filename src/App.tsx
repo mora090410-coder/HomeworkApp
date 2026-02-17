@@ -870,7 +870,7 @@ function DashboardPage() {
   if (!isFirebaseConfigured) {
     return (
       <div className="min-h-screen bg-surface-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-content-primary p-6 transition-colors duration-300">
-        <div className="max-w-lg w-full bg-white dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-2xl border border-gray-200 dark:border-white/10 text-center shadow-xl">
+        <div className="max-w-lg w-full bg-surface-base backdrop-blur-xl p-8 rounded-2xl border border-stroke-base text-center shadow-xl">
           <h2 className="text-2xl font-bold mb-4">Firebase Setup Required</h2>
           <p className="text-content-primary mb-2">Phase 2 requires Firebase Auth and Firestore configuration.</p>
           <p className="text-content-muted text-sm">Add `VITE_FIREBASE_*` keys in `.env` and restart the app.</p>
@@ -979,15 +979,15 @@ function DashboardPage() {
     }
 
     return (
-      <div className="min-h-screen bg-app bg-app-gradient-light dark:bg-app-gradient-dark text-primary relative pb-12 transition-colors duration-300">
+      <div className="min-h-screen bg-surface-app bg-app-gradient-light dark:bg-app-gradient-dark text-content-primary relative pb-12 transition-colors duration-300">
         <div className="relative z-10 max-w-[1200px] mx-auto p-6 md:p-8">
           <header className="flex justify-between items-center mb-10">
             <div className="flex items-center gap-3">
-              <span className="text-2xl font-[590] tracking-tight text-primary">HomeWork</span>
-              <span className="px-2 py-0.5 rounded-md bg-gray-200 dark:bg-white/10 border border-gray-300 dark:border-white/5 text-[11px] font-bold tracking-wider text-gray-600 dark:text-gray-400 uppercase">Child</span>
+              <span className="text-2xl font-[590] tracking-tight text-content-primary">HomeWork</span>
+              <span className="px-2 py-0.5 rounded-md bg-surface-2 border border-stroke-base text-[11px] font-bold tracking-wider text-content-muted uppercase">Child</span>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => { void familyAuth.signOutUser(); }} className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+              <Button variant="ghost" size="icon" onClick={() => { void familyAuth.signOutUser(); }} className="text-content-muted hover:text-content-primary">
                 <LogOut className="w-5 h-5" />
               </Button>
             </div>

@@ -1,67 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>HomeWork | Family Economy System</title>
-    <meta name="description" content="HomeWork gives parents a premium command center for chores, learning effort, and allowance outcomes." />
-    <link rel="canonical" href="https://www.gethomework.app" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-            },
-            colors: {
-              primary: {
-                500: '#F43F5E',
-                600: '#E11D48',
-                700: '#BE123C',
-              },
-              surface: {
-                app: 'var(--bg-app)',
-                base: 'var(--bg-surface)',
-                2: 'var(--bg-surface-2)',
-                elev: 'var(--bg-elev-1)',
-              },
-              content: {
-                primary: 'var(--text-primary)',
-                muted: 'var(--text-muted)',
-                subtle: 'var(--text-subtle)',
-              },
-              stroke: {
-                base: 'var(--border-base)',
-                highlight: 'var(--border-highlight)',
-              }
-            },
-            borderRadius: {
-              '3xl': '1.5rem',
-              '4xl': '2rem',
-            }
-          }
-        }
-      }
-    </script>
-  <script type="importmap">
-{
-  "imports": {
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
-    "react": "https://aistudiocdn.com/react@^19.2.1",
-    "react/": "https://aistudiocdn.com/react@^19.2.1/",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HomeWork | Family Economy System</title>
+  <meta name="description"
+    content="HomeWork gives parents a premium command center for chores, learning effort, and allowance outcomes." />
+  <link rel="canonical" href="https://www.gethomework.app" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/index.css">
 </head>
-  <body class="bg-gray-50 text-gray-900 antialiased selection:bg-cardinal selection:text-white">
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
-  </body>
+
+<body class="bg-app text-primary antialiased">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
 </html>
