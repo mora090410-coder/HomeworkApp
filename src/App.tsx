@@ -1529,7 +1529,7 @@ export default function App() {
           path="/"
           element={(
             <PublicOnlyRoute>
-              <DashboardLandingPage />
+              <MarketingLandingPage />
             </PublicOnlyRoute>
           )}
         />
