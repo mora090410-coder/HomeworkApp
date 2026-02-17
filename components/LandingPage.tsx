@@ -109,17 +109,15 @@ export default function LandingPage() {
                         {/* Centered Phone Mockup */}
                         <div className="relative w-full max-w-[720px] mb-20 flex justify-center">
                             <div className="relative w-[340px] sm:w-[440px] group">
-                                {/* Glow behind phone */}
-                                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[60%] bg-primary-500/20 blur-[100px] opacity-0 dark:opacity-40 rounded-full scale-125 group-hover:dark:opacity-60 transition-opacity duration-700 pointer-events-none [mask-image:radial-gradient(closest-side,black,transparent)]" />
+                                {/* Glow behind phone - DARK MODE ONLY */}
+                                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[70%] bg-[radial-gradient(circle,theme('colors.primary.500'),transparent_70%)] opacity-0 dark:opacity-40 blur-[80px] rounded-full scale-150 group-hover:dark:opacity-60 transition-opacity duration-700 pointer-events-none" />
 
                                 <div className="relative transform transition-transform duration-700 group-hover:scale-[1.03]">
                                     <img
                                         src="/images/phone-mockup.png"
                                         alt="HomeWork App Mockup"
-                                        className="w-full h-auto drop-shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:drop-shadow-[0_40px_100px_rgba(0,0,0,0.6)]"
+                                        className="w-full h-auto drop-shadow-[0_28px_70px_rgba(0,0,0,0.18)] dark:drop-shadow-[0_40px_110px_rgba(0,0,0,0.55)]"
                                     />
-                                    {/* Glass Shine Overlay */}
-
                                 </div>
                             </div>
                         </div>
