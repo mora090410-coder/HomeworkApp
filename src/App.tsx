@@ -1200,7 +1200,7 @@ function DashboardPage() {
                   </div>
 
                   <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-neutral-200 scrollbar-track-transparent">
-                    {openTasks.length === 0 ? (
+                    {!loadingTasks && openTasks.length === 0 ? (
                       <div className="p-8 bg-white border border-neutral-200 border-dashed rounded-none text-center">
                         <p className="text-neutral-900 font-bold mb-1">No open tasks</p>
                         <p className="text-neutral-500 text-sm mb-4">Create tasks that any child can claim.</p>
