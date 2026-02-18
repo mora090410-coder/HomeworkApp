@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
+// Final clean build
 import { X, Plus } from 'lucide-react';
 import { Child, Grade, Subject } from '../types';
 import { DEFAULT_RATES } from '../constants';
