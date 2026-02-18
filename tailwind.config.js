@@ -6,7 +6,11 @@ const colors = {
         cardinalHover: '#e11d48', // rose-600
         gold: '#f1b04e', // amber-400 equivalent
     },
-    neutral: twColors.slate,
+    neutral: {
+        ...twColors.slate,
+        lightGray: twColors.slate[200],
+        darkGray: twColors.slate[700],
+    },
 };
 
 /**
