@@ -805,18 +805,7 @@ export const householdService = {
     }
   },
 
-  async saveGradeConfigs(householdId: string, configs: GradeConfig[]): Promise<void> {
-    const firestore = getFirestore();
-    const settingsRef = doc(firestore, `households/${householdId}/settings/grade_configs`);
 
-    // Convert array to map: { "K": 100, "1": 200, ... }
-    const data = configs.reduce((acc, config) => {
-      acc[config.grade] = config.valueCents;
-      return acc;
-    }, {} as Record<string, number>);
-
-    await setDoc(settingsRef, data, { merge: true });
-  },
 
   async createHouseholdForUser(
     userId: string,
@@ -2025,6 +2014,23 @@ export const householdService = {
       };
     } catch (error) {
       throw normalizeError('Failed to accept invite', error);
+    }
+  },
+
+  async saveGradeConfigs(householdId: string, configs: GradeConfig[]): Promise<void> {
+    try {
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+      const configRef = doc(getFirestore(), `households/${safeHouseholdId}/settings/grade_configs`);
+
+      // Map GradeConfig[] to the { Grade: cents } format
+      const payload = configs.reduce((acc, curr) => {
+        acc[curr.grade] = curr.valueCents;
+        return acc;
+      }, {} as Record<string, number>);
+
+      await setDoc(configRef, payload, { merge: true });
+    } catch (error) {
+      throw normalizeError('Failed to save grade configs', error);
     }
   },
 

@@ -465,7 +465,7 @@ function DashboardPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
 
-  // Single simplified task listener using collectionGroup
+  // Unified listener for ALL tasks in root and sub-collections
   React.useEffect(() => {
     if (!householdId || !db) {
       setTasks([]);
@@ -475,26 +475,22 @@ function DashboardPage() {
 
     setLoadingTasks(true);
 
+    // Unified listener for ALL tasks in root and sub-collections
     const q = query(
       collectionGroup(db, 'tasks'),
       where('householdId', '==', householdId)
     );
 
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const allTasks = snapshot.docs.map((d) =>
-          mapTask(d.id, householdId, d.data() as Record<string, unknown>)
-        );
-
-        setTasks(allTasks);
-        setLoadingTasks(false);
-      },
-      (error) => {
-        console.error('Failed to subscribe to tasks:', error);
-        setLoadingTasks(false);
-      }
-    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const allTasks = snapshot.docs.map((d) =>
+        mapTask(d.id, householdId, d.data() as Record<string, unknown>)
+      );
+      setTasks(allTasks);
+      setLoadingTasks(false);
+    }, (error) => {
+      console.error('Task stream failure:', error);
+      setLoadingTasks(false);
+    });
 
     return () => unsubscribe();
   }, [householdId]);
@@ -800,30 +796,15 @@ function DashboardPage() {
     setIsAddChildModalOpen(false);
   };
 
-  const handleSaveGrades = async (childId: string, updatedSubjects: Subject[], currentHourlyRate: number) => {
+  const handleSaveGrades = (childId: string, updatedSubjects: Subject[], currentHourlyRate: number) => {
     updateChildMutation.mutate({
       id: childId,
-      updates: {
-        subjects: updatedSubjects,
-        currentHourlyRate,
-      },
+      updates: { subjects: updatedSubjects, currentHourlyRate }
     });
 
+    // NEW: Force-save the global payscale to Firestore
     if (householdId) {
-      // Force persistence of global grade configs to ensure Payscale table is populated
-      const configsToSave =
-        gradeConfigs.length > 0
-          ? gradeConfigs
-          : Object.entries(DEFAULT_RATES).map(([grade, value]) => ({
-            grade: grade as Grade,
-            valueCents: dollarsToCents(value),
-          }));
-
-      try {
-        await householdService.saveGradeConfigs(householdId, configsToSave);
-      } catch (error) {
-        console.error('Failed to force-save grade configs:', error);
-      }
+      void householdService.saveGradeConfigs(householdId, gradeConfigs);
     }
 
     setIsUpdateGradesModalOpen(false);
