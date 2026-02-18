@@ -464,6 +464,7 @@ function DashboardPage() {
 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
+  const [taskStreamError, setTaskStreamError] = useState<string | null>(null);
 
   // Unified listener for ALL tasks in root and sub-collections
   React.useEffect(() => {
@@ -474,8 +475,11 @@ function DashboardPage() {
     }
 
     setLoadingTasks(true);
+    setTaskStreamError(null);
 
-    // Unified listener for ALL tasks in root and sub-collections
+    // Unified listener for ALL tasks in root and sub-collections.
+    // Requires a collection-group field override index on `householdId`
+    // (COLLECTION_GROUP scope) — see firestore.indexes.json.
     const q = query(
       collectionGroup(db, 'tasks'),
       where('householdId', '==', householdId)
@@ -487,9 +491,19 @@ function DashboardPage() {
       );
       setTasks(allTasks);
       setLoadingTasks(false);
+      setTaskStreamError(null);
     }, (error) => {
       console.error('Task stream failure:', error);
       setLoadingTasks(false);
+      // Surface permission-denied and index-missing errors so they're visible
+      // in the UI rather than silently producing an empty task list.
+      if ((error as { code?: string }).code === 'permission-denied') {
+        setTaskStreamError('Permission denied reading tasks. Check Firestore security rules.');
+      } else if ((error as { code?: string }).code === 'failed-precondition') {
+        setTaskStreamError('Task index not ready. Run: firebase deploy --only firestore:indexes');
+      } else {
+        setTaskStreamError(`Task stream error: ${error.message}`);
+      }
     });
 
     return () => unsubscribe();
@@ -796,15 +810,16 @@ function DashboardPage() {
     setIsAddChildModalOpen(false);
   };
 
-  const handleSaveGrades = (childId: string, updatedSubjects: Subject[], currentHourlyRate: number) => {
+  const handleSaveGrades = (childId: string, updatedSubjects: Subject[], currentHourlyRate: number, updatedGlobalConfigs: GradeConfig[]) => {
     updateChildMutation.mutate({
       id: childId,
       updates: { subjects: updatedSubjects, currentHourlyRate }
     });
 
-    // NEW: Force-save the global payscale to Firestore
-    if (householdId) {
-      void householdService.saveGradeConfigs(householdId, gradeConfigs);
+    // Persist the newly edited global payscale from the modal (not the stale fetched value)
+    if (householdId && updatedGlobalConfigs.length > 0) {
+      void householdService.saveGradeConfigs(householdId, updatedGlobalConfigs);
+      queryClient.invalidateQueries({ queryKey: ['gradeConfigs', householdId] });
     }
 
     setIsUpdateGradesModalOpen(false);
@@ -1119,6 +1134,13 @@ function DashboardPage() {
           </Button>
         </div>
 
+        {taskStreamError && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-none text-sm text-red-700 font-medium flex items-start gap-2">
+            <span className="shrink-0 font-bold">⚠ Firebase Error:</span>
+            <span>{taskStreamError}</span>
+          </div>
+        )}
+
         {hasChildren ? (
           <div className="mb-12">
             <div className="mb-8 bg-white p-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border border-neutral-200 rounded-none shadow-sm">
@@ -1255,6 +1277,7 @@ function DashboardPage() {
             setChildForGrades(null);
           }}
           child={childForGrades}
+          gradeConfigs={gradeConfigs}
           onSave={handleSaveGrades}
         />
         <SettingsModal

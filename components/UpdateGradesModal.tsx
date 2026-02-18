@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { X, Plus, Trash2, Calculator } from 'lucide-react';
-import { Child, Grade, Subject } from '../types';
+import { X, Plus, Trash2, Calculator, DollarSign } from 'lucide-react';
+import { Child, Grade, GradeConfig, Subject } from '../types';
 import { DEFAULT_RATES } from '../constants';
-import { calculateHourlyRate, formatCurrency } from '../utils';
+import { calculateHourlyRate, centsToDollars, dollarsToCents, formatCurrency } from '../utils';
 import { Button } from '@/src/components/ui/Button';
 import { Input } from '@/src/components/ui/Input';
 import { Select } from '@/src/components/ui/Select';
@@ -12,7 +12,8 @@ interface UpdateGradesModalProps {
   isOpen: boolean;
   onClose: () => void;
   child: Child | null;
-  onSave: (childId: string, updatedSubjects: Subject[], currentHourlyRate: number) => void;
+  gradeConfigs: GradeConfig[];
+  onSave: (childId: string, updatedSubjects: Subject[], currentHourlyRate: number, updatedGlobalConfigs: GradeConfig[]) => void;
 }
 
 const GRADE_OPTIONS: Grade[] = [
@@ -22,8 +23,18 @@ const GRADE_OPTIONS: Grade[] = [
   Grade.D, Grade.F
 ];
 
-const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({ isOpen, onClose, child, onSave }) => {
+type TabId = 'subjects' | 'payscale';
+
+const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({
+  isOpen,
+  onClose,
+  child,
+  gradeConfigs,
+  onSave,
+}) => {
+  const [activeTab, setActiveTab] = useState<TabId>('subjects');
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [localGradeConfigs, setLocalGradeConfigs] = useState<GradeConfig[]>([]);
 
   // Lock body scroll
   useEffect(() => {
@@ -35,24 +46,50 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({ isOpen, onClose, 
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
 
-  // Initialize state when child changes or modal opens
+  // Initialize subjects from child when modal opens
   useEffect(() => {
     if (child) {
-      // Ensure we have at least one empty subject if none exist, though unlikely for existing child
       const initialSubjects = child.subjects.length > 0
-        ? JSON.parse(JSON.stringify(child.subjects))
+        ? JSON.parse(JSON.stringify(child.subjects)) as Subject[]
         : [{ id: crypto.randomUUID(), name: '', grade: Grade.B }];
       setSubjects(initialSubjects);
     }
   }, [child, isOpen]);
 
+  // Initialize local grade configs from props when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      if (gradeConfigs.length > 0) {
+        // Deep-clone so edits don't mutate the upstream state
+        setLocalGradeConfigs(JSON.parse(JSON.stringify(gradeConfigs)) as GradeConfig[]);
+      } else {
+        // Bootstrap from DEFAULT_RATES so every grade has an editable value
+        const bootstrapped: GradeConfig[] = GRADE_OPTIONS.map((grade) => ({
+          grade,
+          valueCents: dollarsToCents(DEFAULT_RATES[grade] ?? 0),
+        }));
+        setLocalGradeConfigs(bootstrapped);
+      }
+      setActiveTab('subjects');
+    }
+  }, [isOpen, gradeConfigs]);
+
+  // Build a rate map from the local (possibly edited) payscale for the live preview
+  const liveRateMap = useMemo<Record<Grade, number>>(() => {
+    return localGradeConfigs.reduce((acc, cfg) => {
+      acc[cfg.grade] = centsToDollars(cfg.valueCents);
+      return acc;
+    }, {} as Record<Grade, number>);
+  }, [localGradeConfigs]);
+
   const currentHourlyRate = useMemo(() => {
     if (!child) return 0;
-    // Use the child's specific rates if available, otherwise default
-    const ratesToUse = child.rates || DEFAULT_RATES;
+    // Use the live payscale so the preview responds to payscale edits too
+    const ratesToUse = Object.keys(liveRateMap).length > 0 ? liveRateMap : (child.rates || DEFAULT_RATES);
     return calculateHourlyRate(subjects, ratesToUse);
-  }, [subjects, child]);
+  }, [subjects, child, liveRateMap]);
 
+  // Subjects tab handlers
   const handleGradeChange = (subjectId: string, newGrade: Grade) => {
     setSubjects(prev => prev.map(s =>
       s.id === subjectId ? { ...s, grade: newGrade } : s
@@ -69,7 +106,7 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({ isOpen, onClose, 
     const newSubject: Subject = {
       id: crypto.randomUUID(),
       name: '',
-      grade: Grade.B
+      grade: Grade.B,
     };
     setSubjects(prev => [...prev, newSubject]);
   };
@@ -80,13 +117,20 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({ isOpen, onClose, 
     }
   };
 
+  // Payscale tab handlers
+  const handlePayscaleChange = (grade: Grade, dollarValue: string) => {
+    const parsed = parseFloat(dollarValue);
+    const cents = Number.isFinite(parsed) && parsed >= 0 ? dollarsToCents(parsed) : 0;
+    setLocalGradeConfigs(prev =>
+      prev.map(cfg => cfg.grade === grade ? { ...cfg, valueCents: cents } : cfg)
+    );
+  };
+
   const handleSave = () => {
-    if (child) {
-      // Filter out empty subjects before saving
-      const validSubjects = subjects.filter(s => s.name.trim() !== '');
-      onSave(child.id, validSubjects, currentHourlyRate);
-      onClose();
-    }
+    if (!child) return;
+    const validSubjects = subjects.filter(s => s.name.trim() !== '');
+    onSave(child.id, validSubjects, currentHourlyRate, localGradeConfigs);
+    onClose();
   };
 
   if (!isOpen || !child) return null;
@@ -105,7 +149,7 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({ isOpen, onClose, 
         <div className="px-8 py-6 border-b border-neutral-100 flex justify-between items-center bg-white z-20">
           <div>
             <h2 className="text-2xl font-bold font-heading text-neutral-black">Grade Command Center</h2>
-            <p className="text-sm text-neutral-500">Update subjects & grades to set the hourly rate.</p>
+            <p className="text-sm text-neutral-500">Update subjects, grades, and the global payscale.</p>
           </div>
           <button
             onClick={onClose}
@@ -116,83 +160,149 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({ isOpen, onClose, 
           </button>
         </div>
 
-        {/* Scrollable Content */}
-        <div className="relative z-10 overflow-y-auto px-8 py-8 scrollbar-hide pb-32">
+        {/* Tab Bar */}
+        <div className="flex border-b border-neutral-200 bg-white z-10 shrink-0">
+          <button
+            onClick={() => setActiveTab('subjects')}
+            className={`flex-1 py-3 text-sm font-bold uppercase tracking-widest transition-colors ${
+              activeTab === 'subjects'
+                ? 'text-primary-cardinal border-b-2 border-primary-cardinal'
+                : 'text-neutral-400 hover:text-neutral-600'
+            }`}
+          >
+            Subjects
+          </button>
+          <button
+            onClick={() => setActiveTab('payscale')}
+            className={`flex-1 py-3 text-sm font-bold uppercase tracking-widest transition-colors ${
+              activeTab === 'payscale'
+                ? 'text-primary-cardinal border-b-2 border-primary-cardinal'
+                : 'text-neutral-400 hover:text-neutral-600'
+            }`}
+          >
+            Payscale
+          </button>
+        </div>
 
-          {/* Live Rate Display */}
-          <div className="mb-8 p-6 rounded-none bg-neutral-50 border border-neutral-200 text-center relative overflow-hidden group">
+        {/* Live Rate Display — always visible */}
+        <div className="px-8 pt-6 pb-2 bg-white shrink-0">
+          <div className="p-4 rounded-none bg-neutral-50 border border-neutral-200 text-center relative overflow-hidden group">
             <div className="relative z-10">
-              <div className="flex items-center justify-center gap-2 mb-2">
+              <div className="flex items-center justify-center gap-2 mb-1">
                 <Calculator className="w-4 h-4 text-neutral-400" />
                 <p className="text-xs font-bold text-neutral-500 uppercase tracking-widest">Effective Hourly Rate</p>
               </div>
-              <div className="text-6xl leading-none font-heading font-bold text-primary-cardinal drop-shadow-sm transition-all duration-300">
+              <div className="text-5xl leading-none font-heading font-bold text-primary-cardinal drop-shadow-sm transition-all duration-300">
                 {formatCurrency(currentHourlyRate)}
               </div>
-              <p className="text-sm text-neutral-400 mt-2 font-medium">Based on {subjects.length} subjects</p>
+              <p className="text-sm text-neutral-400 mt-1 font-medium">Based on {subjects.filter(s => s.name.trim() !== '').length} subject{subjects.filter(s => s.name.trim() !== '').length !== 1 ? 's' : ''}</p>
             </div>
           </div>
+        </div>
 
-          {/* Subject List */}
-          <div className="space-y-3">
-            {subjects.map((subject, index) => (
-              <div
-                key={subject.id}
-                className="group flex items-center gap-3 animate-in slide-in-from-bottom-2 duration-300 fill-mode-backwards"
-                style={{ animationDelay: `${index * 50}ms` }}
+        {/* Scrollable Content Area */}
+        <div className="overflow-y-auto px-8 py-4 scrollbar-hide pb-32 grow">
+
+          {/* ── Subjects Tab ── */}
+          {activeTab === 'subjects' && (
+            <div className="space-y-3 pt-2">
+              {subjects.map((subject, index) => (
+                <div
+                  key={subject.id}
+                  className="group flex items-center gap-3 animate-in slide-in-from-bottom-2 duration-300 fill-mode-backwards"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <div className="flex-1">
+                    <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-[0.15em] mb-1.5 ml-1">
+                      Subject Name
+                    </label>
+                    <Input
+                      value={subject.name}
+                      onChange={(e) => handleNameChange(subject.id, e.target.value)}
+                      placeholder="e.g. Math"
+                      className="w-full font-bold text-neutral-black h-12 px-4 bg-white border-neutral-200 focus:border-primary-cardinal transition-colors shadow-sm"
+                      autoFocus={index === subjects.length - 1 && subject.name === ''}
+                    />
+                  </div>
+
+                  <div className="w-32 shrink-0">
+                    <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-[0.15em] mb-1.5 ml-1 text-center">
+                      Grade
+                    </label>
+                    <Select
+                      value={subject.grade}
+                      onChange={(e) => handleGradeChange(subject.id, e.target.value as Grade)}
+                      className="w-full font-black text-xl h-12 text-center bg-white border-neutral-200 focus:border-primary-cardinal transition-colors shadow-sm"
+                    >
+                      {GRADE_OPTIONS.map((grade) => (
+                        <option key={grade} value={grade}>
+                          {grade}
+                        </option>
+                      ))}
+                    </Select>
+                  </div>
+
+                  <div className="pt-6">
+                    <button
+                      onClick={() => handleRemoveSubject(subject.id)}
+                      disabled={subjects.length <= 1}
+                      className="w-12 h-12 flex items-center justify-center rounded-none text-neutral-300 hover:text-semantic-destructive hover:bg-semantic-destructive/5 transition-all cursor-pointer disabled:opacity-0 disabled:cursor-not-allowed"
+                      aria-label="Remove subject"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              <Button
+                onClick={handleAddSubject}
+                variant="secondary"
+                className="w-full border-dashed py-6 mt-4 hover:border-neutral-300 hover:bg-neutral-50 text-neutral-500"
               >
-                <div className="flex-1">
-                  <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-[0.15em] mb-1.5 ml-1">
-                    Subject Name
-                  </label>
-                  <Input
-                    value={subject.name}
-                    onChange={(e) => handleNameChange(subject.id, e.target.value)}
-                    placeholder="e.g. Math"
-                    className="w-full font-bold text-neutral-black h-12 px-4 bg-white border-neutral-200 focus:border-primary-cardinal transition-colors shadow-sm"
-                    autoFocus={index === subjects.length - 1 && subject.name === ''}
-                  />
-                </div>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Another Subject
+              </Button>
+            </div>
+          )}
 
-                <div className="w-32 shrink-0">
-                  <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-[0.15em] mb-1.5 ml-1 text-center">
-                    Grade
-                  </label>
-                  <Select
-                    value={subject.grade}
-                    onChange={(e) => handleGradeChange(subject.id, e.target.value as Grade)}
-                    className="w-full font-black text-xl h-12 text-center bg-white border-neutral-200 focus:border-primary-cardinal transition-colors shadow-sm"
-                  >
-                    {GRADE_OPTIONS.map((grade) => (
-                      <option key={grade} value={grade}>
-                        {grade}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-
-                <div className="pt-6">
-                  <button
-                    onClick={() => handleRemoveSubject(subject.id)}
-                    disabled={subjects.length <= 1}
-                    className="w-12 h-12 flex items-center justify-center rounded-none text-neutral-300 hover:text-semantic-destructive hover:bg-semantic-destructive/5 transition-all cursor-pointer disabled:opacity-0 disabled:cursor-not-allowed"
-                    aria-label="Remove subject"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </div>
+          {/* ── Payscale Tab ── */}
+          {activeTab === 'payscale' && (
+            <div className="pt-2">
+              <p className="text-xs text-neutral-500 mb-4 font-medium">
+                Set the dollar value earned per grade. This is the <span className="font-bold text-neutral-700">global payscale</span> applied to all children unless they have custom rates.
+              </p>
+              <div className="space-y-2">
+                {localGradeConfigs.map((cfg) => (
+                  <div key={cfg.grade} className="flex items-center gap-4">
+                    <div className="w-14 shrink-0 text-center">
+                      <span className="text-xl font-black text-neutral-700">{cfg.grade}</span>
+                    </div>
+                    <div className="flex-1 relative">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none">
+                        <DollarSign className="w-4 h-4" />
+                      </div>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.25"
+                        value={centsToDollars(cfg.valueCents).toFixed(2)}
+                        onChange={(e) => handlePayscaleChange(cfg.grade, e.target.value)}
+                        className="w-full h-11 pl-8 font-bold text-neutral-black bg-white border-neutral-200 focus:border-primary-cardinal transition-colors shadow-sm"
+                        placeholder="0.00"
+                      />
+                    </div>
+                    <div className="w-24 shrink-0 text-right">
+                      <span className="text-xs text-neutral-400 font-medium">per subject</span>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-
-            <Button
-              onClick={handleAddSubject}
-              variant="secondary"
-              className="w-full border-dashed py-6 mt-6 hover:border-neutral-300 hover:bg-neutral-50 text-neutral-500"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Another Subject
-            </Button>
-          </div>
+              <p className="text-xs text-neutral-400 mt-4">
+                Changes apply globally to all children on next save. Tip: An A+ in one subject at $5.00/hr earns $5.00 added to the hourly rate.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Footer Actions */}
