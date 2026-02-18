@@ -10,6 +10,20 @@
                     "queryScope": "COLLECTION_GROUP"
                 }
             ]
+        },
+        {
+            "collectionGroup": "profiles",
+            "fieldPath": "loginUsernameCanonical",
+            "indexes": [
+                {
+                    "order": "ASCENDING",
+                    "queryScope": "COLLECTION"
+                },
+                {
+                    "order": "DESCENDING",
+                    "queryScope": "COLLECTION"
+                }
+            ]
         }
     ]
 }
