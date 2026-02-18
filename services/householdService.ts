@@ -1043,6 +1043,7 @@ export const householdService = {
         }));
       }
 
+      console.warn(`Grade Configs missing in Firestore at path: households/${safeHouseholdId}/settings/grade_configs`);
       return mapGradeConfigs({}, defaultRates());
     } catch (error) {
       throw normalizeError('Failed to load grade configs', error);

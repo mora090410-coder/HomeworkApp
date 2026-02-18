@@ -467,6 +467,11 @@ function DashboardPage() {
 
   // Composite real-time listener: merges root tasks (Open/Draft) with each
   // child's sub-collection tasks (Assigned/Pending/etc.) into a single state array.
+
+  // We use a source-keyed map to prevent race conditions where one snapshot overwrites another.
+  // Each listener updates only its own key.
+  const [tasksBySource, setTasksBySource] = useState<Record<string, Task[]>>({});
+
   React.useEffect(() => {
     if (!householdId || !db) {
       setTasks([]);
@@ -475,34 +480,37 @@ function DashboardPage() {
     }
 
     setLoadingTasks(true);
+    setTasksBySource({}); // Reset on household change
 
-    // Keyed snapshot store: 'root' + each childId → Task[]
-    const tasksBySource = new Map<string, Task[]>();
     const unsubscribers: Array<() => void> = [];
 
-    /** Merge all sources, deduplicate by id, and update state. */
-    const mergeAndCommit = () => {
-      const merged: Task[] = [];
-      const seen = new Set<string>();
-      for (const sourceTasks of tasksBySource.values()) {
-        for (const task of sourceTasks) {
-          if (!seen.has(task.id)) {
-            seen.add(task.id);
-            merged.push(task);
-          }
+    // We need to know when *all* listeners have fired at least once to stop loading.
+    // We'll track the set of source IDs we expect.
+    // 'root' + each child ID.
+    const expectedSources = new Set<string>(['root']);
+    familyAuth.profiles.forEach(p => {
+      if (p.role === 'CHILD') expectedSources.add(p.id);
+    });
+
+    const pendingSources = new Set(expectedSources);
+
+    const handleSnapshot = (sourceId: string, newTasks: Task[]) => {
+      // 1. Update the robust state map
+      setTasksBySource(prev => ({
+        ...prev,
+        [sourceId]: newTasks
+      }));
+
+      // 2. Handle loading state
+      if (pendingSources.has(sourceId)) {
+        pendingSources.delete(sourceId);
+        if (pendingSources.size === 0) {
+          // All sources have reported at least once.
+          // Add a small delay to prevent rapid flickering if they come in very close together
+          setTimeout(() => {
+            setLoadingTasks(false);
+          }, 200);
         }
-      }
-      setTasks(merged);
-    };
-
-    // Track how many listeners have yet to fire their first snapshot.
-    let pendingFirstSnapshots =
-      1 + familyAuth.profiles.filter((p) => p.role === 'CHILD').length;
-
-    const onFirstSnapshot = () => {
-      pendingFirstSnapshots -= 1;
-      if (pendingFirstSnapshots <= 0) {
-        setLoadingTasks(false);
       }
     };
 
@@ -510,18 +518,15 @@ function DashboardPage() {
     const rootUnsub = onSnapshot(
       collection(db, `households/${householdId}/tasks`),
       (snapshot) => {
-        tasksBySource.set(
-          'root',
-          snapshot.docs.map((d) =>
-            mapTask(d.id, householdId, d.data() as Record<string, unknown>),
-          ),
+        const rootTasks = snapshot.docs.map((d) =>
+          mapTask(d.id, householdId, d.data() as Record<string, unknown>)
         );
-        onFirstSnapshot();
-        mergeAndCommit();
+        handleSnapshot('root', rootTasks);
       },
       (error) => {
         console.error('Failed to subscribe to root tasks:', error);
-        onFirstSnapshot();
+        // Even on error, we mark it as "done" so we don't hang loading forever
+        handleSnapshot('root', []);
       },
     );
     unsubscribers.push(rootUnsub);
@@ -532,18 +537,14 @@ function DashboardPage() {
       const childUnsub = onSnapshot(
         collection(db, `households/${householdId}/profiles/${child.id}/tasks`),
         (snapshot) => {
-          tasksBySource.set(
-            child.id,
-            snapshot.docs.map((d) =>
-              mapTask(d.id, householdId, d.data() as Record<string, unknown>),
-            ),
+          const childTasks = snapshot.docs.map((d) =>
+            mapTask(d.id, householdId, d.data() as Record<string, unknown>)
           );
-          onFirstSnapshot();
-          mergeAndCommit();
+          handleSnapshot(child.id, childTasks);
         },
         (error) => {
           console.error(`Failed to subscribe to tasks for child ${child.id}:`, error);
-          onFirstSnapshot();
+          handleSnapshot(child.id, []);
         },
       );
       unsubscribers.push(childUnsub);
@@ -555,6 +556,19 @@ function DashboardPage() {
       }
     };
   }, [householdId, familyAuth.profiles]);
+
+  // Derive the flat list of tasks whenever the source map changes
+  React.useEffect(() => {
+    const allTasks = Object.values(tasksBySource).flat();
+
+    // Deduplicate by ID
+    const uniqueTasksMap = new Map<string, Task>();
+    for (const task of allTasks) {
+      uniqueTasksMap.set(task.id, task);
+    }
+
+    setTasks(Array.from(uniqueTasksMap.values()));
+  }, [tasksBySource]);
 
   const { data: gradeConfigs = [] } = useQuery<GradeConfig[]>({
     queryKey: ['gradeConfigs', householdId],
