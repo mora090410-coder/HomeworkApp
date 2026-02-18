@@ -3,6 +3,13 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ── COLLECTION GROUP: tasks ──────────────────────────────────────────
+    // This MUST be here for the dashboard to work!
+    match /{path=**}/tasks/{taskId} {
+      allow read: if isMember(resource.data.householdId);
+      allow write: if isMember(request.resource.data.householdId);
+    }
+
     // ── Helpers ─────────────────────────────────────────────────────────────
 
     // True when the request is made by a signed-in Firebase Auth user.
