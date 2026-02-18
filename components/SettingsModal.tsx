@@ -1,8 +1,7 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { X, Check, Trash2, Plus, AlertTriangle, Download, Upload, RefreshCcw } from 'lucide-react';
-import { Child, Grade, Subject } from '../types';
-import { formatCurrency } from '../utils';
+import React, { useState, useEffect } from 'react';
+import { X, Check, AlertTriangle, Download, Upload, RefreshCcw } from 'lucide-react';
+import { Child } from '../types';
 import { Button } from '@/src/components/ui/Button';
 import { Input } from '@/src/components/ui/Input';
 import { Select } from '@/src/components/ui/Select';
@@ -25,14 +24,7 @@ const SCHOOL_GRADES = [
   '11th Grade', '12th Grade'
 ];
 
-const LETTER_GRADES: Grade[] = [
-  Grade.A_PLUS, Grade.A, Grade.A_MINUS,
-  Grade.B_PLUS, Grade.B, Grade.B_MINUS,
-  Grade.C_PLUS, Grade.C, Grade.C_MINUS,
-  Grade.D, Grade.F
-];
 
-const DECREMENT_OPTIONS = [0.25, 0.50, 0.75, 1.00];
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
@@ -44,12 +36,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   onImportAll,
   onResetAll
 }) => {
-  const [activeTab, setActiveTab] = useState<'profile' | 'payscale' | 'data'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'data'>('profile');
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [gradeLevel, setGradeLevel] = useState('');
-  const [baseValue, setBaseValue] = useState(5.00);
-  const [decrement, setDecrement] = useState(0.25);
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [importText, setImportText] = useState('');
   const [copySuccess, setCopySuccess] = useState(false);
@@ -63,8 +54,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       setName(child.name);
       setUsername(child.loginUsername || '');
       setGradeLevel(child.gradeLevel);
-      setBaseValue(5.00);
-      setDecrement(0.25);
+
       setActiveTab('profile');
       setShowDeleteConfirm(false);
       setImportText('');
@@ -78,23 +68,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     }
   }, [child, isOpen]);
 
-  const calculatedRates = useMemo(() => {
-    const newRates: Record<string, number> = {};
-    const orderedGrades = [
-      Grade.A_PLUS, Grade.A, Grade.A_MINUS,
-      Grade.B_PLUS, Grade.B, Grade.B_MINUS,
-      Grade.C_PLUS, Grade.C, Grade.C_MINUS, Grade.D, Grade.F
-    ];
-    orderedGrades.forEach((g, index) => {
-      if (['C', 'C-', 'D', 'F'].includes(g)) {
-        newRates[g] = 0.00;
-      } else {
-        const val = baseValue - (index * decrement);
-        newRates[g] = Math.max(0, val);
-      }
-    });
-    return newRates;
-  }, [baseValue, decrement]);
+
 
   const handleExport = () => {
     const data = localStorage.getItem('homework-app-v2');
@@ -118,7 +92,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       name: name.trim() || child.name,
       loginUsername: username.trim() || undefined,
       gradeLevel: gradeLevel || child.gradeLevel,
-      rates: calculatedRates as Record<Grade, number>
     };
     onSave(child.id, updates);
     onClose();
@@ -164,14 +137,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       <div className="absolute inset-0 bg-neutral-black/60 backdrop-blur-sm transition-opacity duration-300" onClick={onClose} />
       <div className="relative w-full max-w-[580px] bg-white rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-neutral-200">
 
-        <button onClick={onClose} className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-50 text-neutral-500 transition-colors z-50 cursor-pointer">
+        <button onClick={onClose} aria-label="Close" className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-50 text-neutral-500 transition-colors z-50 cursor-pointer">
           <X className="w-5 h-5" />
         </button>
 
         <div className="relative z-20 border-b border-neutral-200 pt-10 px-10 pb-0 shrink-0 bg-white">
           <h2 className="text-3xl font-bold font-heading text-neutral-black mb-6">Parent Settings</h2>
           <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-            {['profile', 'payscale', 'data'].map(t => (
+            {['profile', 'data'].map(t => (
               <button
                 key={t}
                 onClick={() => setActiveTab(t as any)}
@@ -252,32 +225,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
             </div>
           )}
-          {activeTab === 'payscale' && (
-            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-bold text-neutral-500 uppercase mb-2 ml-1">Base Value ($)</label>
-                  <Input type="number" step="0.25" value={baseValue} onChange={(e) => setBaseValue(parseFloat(e.target.value) || 0)} className="px-4 py-3.5 text-base placeholder-neutral-400" />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-neutral-500 uppercase mb-2 ml-1">Decrement</label>
-                  <Select value={decrement} onChange={(e) => setDecrement(parseFloat(e.target.value))} className="w-full [&>option]:bg-white">
-                    {DECREMENT_OPTIONS.map(opt => (<option key={opt} value={opt}>${opt.toFixed(2)}</option>))}
-                  </Select>
-                </div>
-              </div>
-              <div className="bg-neutral-50 border border-neutral-200 rounded-none p-6">
-                <div className="grid grid-cols-3 gap-2">
-                  {LETTER_GRADES.map(g => (
-                    <div key={g} className="flex justify-between items-center px-3 py-3 bg-white rounded-none border border-neutral-200 shadow-sm">
-                      <span className="text-xs font-bold text-neutral-black">{g}</span>
-                      <span className="text-xs font-bold text-primary-cardinal">{formatCurrency(calculatedRates[g] || 0)}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+
           {activeTab === 'data' && (
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-8">
               <div className="p-5 rounded-none bg-neutral-50 border border-neutral-200">

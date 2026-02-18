@@ -394,7 +394,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
             </>
           )}
 
-          {!child.customTasks?.length && (
+          {allTasks.length === 0 && (
             <div className="py-8 text-center text-neutral-darkGray text-sm bg-neutral-50 rounded-none border border-neutral-lightGray border-dashed">No tasks assigned</div>
           )}
         </div>
