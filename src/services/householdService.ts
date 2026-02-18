@@ -1,4 +1,5 @@
 import { householdService as baseHouseholdService } from '../../services/householdService';
+import type { GradeConfig } from '../../types';
 
 export const householdService = baseHouseholdService;
 

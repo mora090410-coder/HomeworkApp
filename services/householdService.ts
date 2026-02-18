@@ -1598,7 +1598,7 @@ export const householdService = {
       const safeProfileId = assertNonEmptyString(profileId, 'profileId');
       const safePin = assertNonEmptyString(pin, 'pin');
 
-      if (!/^\d{ 4 } $ /.test(safePin)) {
+      if (!/^\d{4}$/.test(safePin)) {
         throw new Error('pin must be exactly 4 digits.');
       }
 
@@ -1806,7 +1806,7 @@ export const householdService = {
       const safeAvatarColor = assertNonEmptyString(input.avatarColor, 'avatarColor');
       const safeUsername = normalizeChildUsername(assertNonEmptyString(input.username, 'username'));
 
-      if (!/^\d{ 4 } $ /.test(safePin)) {
+      if (!/^\d{4}$/.test(safePin)) {
         throw new Error('PIN must be exactly 4 digits.');
       }
       if (!isValidChildUsername(safeUsername)) {

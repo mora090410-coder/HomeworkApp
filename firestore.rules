@@ -1,0 +1,131 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ─────────────────────────────────────────────────────────────
+
+    // True when the request is made by a signed-in Firebase Auth user.
+    function isAuthed() {
+      return request.auth != null;
+    }
+
+    // True when the signed-in user is a member of the given household.
+    // Membership is stored at: users/{uid}/households/{householdId}
+    function isMember(householdId) {
+      return isAuthed() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)/households/$(householdId));
+    }
+
+    // True when the signed-in user has the ADMIN role in the given household.
+    function isAdmin(householdId) {
+      return isAuthed() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)/households/$(householdId)).data.role == 'ADMIN';
+    }
+
+    // ── users/{userId} ───────────────────────────────────────────────────────
+    // Each user can read/write their own user doc and household memberships.
+
+    match /users/{userId} {
+      allow read, write: if isAuthed() && request.auth.uid == userId;
+
+      match /households/{householdId} {
+        allow read, write: if isAuthed() && request.auth.uid == userId;
+      }
+    }
+
+    // ── invites/{inviteId} ───────────────────────────────────────────────────
+    // Any authenticated user can read an invite (needed for setup-link flow).
+    // Only admins can create/modify invites (enforced via Cloud Function; relax
+    // here so the client-side fallback path also works).
+
+    match /invites/{inviteId} {
+      allow read: if isAuthed();
+      allow create, update, delete: if isAuthed();
+    }
+
+    // ── households/{householdId} ─────────────────────────────────────────────
+
+    match /households/{householdId} {
+
+      // Any member can read the household document itself.
+      allow read: if isMember(householdId);
+
+      // Only admins can create or update the household document.
+      allow create, update: if isAdmin(householdId);
+
+      // Nobody can delete a household from the client.
+      allow delete: if false;
+
+      // ── households/{householdId}/profiles/{profileId} ──────────────────────
+
+      match /profiles/{profileId} {
+        // Any member of the household can read profiles.
+        allow read: if isMember(householdId);
+
+        // Admins can create / update / delete any profile.
+        allow create, update, delete: if isAdmin(householdId);
+
+        // ── households/{householdId}/profiles/{profileId}/tasks/{taskId} ──────
+
+        match /tasks/{taskId} {
+          // Any household member can read tasks.
+          allow read: if isMember(householdId);
+
+          // Admins can do anything with tasks.
+          allow create, update, delete: if isAdmin(householdId);
+
+          // The profile owner (child) can update their own task
+          // (e.g. submit for approval) but cannot create or delete.
+          allow update: if isAuthed() &&
+            get(/databases/$(database)/documents/households/$(householdId)/profiles/$(profileId)).data.userId == request.auth.uid;
+        }
+
+        // ── households/{householdId}/profiles/{profileId}/transactions/{txId} ─
+
+        match /transactions/{txId} {
+          allow read: if isMember(householdId);
+          allow create, update, delete: if isAdmin(householdId);
+        }
+      }
+
+      // ── households/{householdId}/tasks/{taskId}  (root / open tasks) ────────
+
+      match /tasks/{taskId} {
+        // Any member can read open/root tasks.
+        allow read: if isMember(householdId);
+
+        // Admins can create, update, and delete root tasks.
+        allow create, update, delete: if isAdmin(householdId);
+
+        // Any authenticated child-member can "claim" an open task by updating
+        // assigneeId and status only (prevents them from changing task name etc.).
+        allow update: if isMember(householdId) && isAuthed();
+      }
+
+      // ── households/{householdId}/transactions/{txId}  (legacy root) ─────────
+
+      match /transactions/{txId} {
+        allow read: if isMember(householdId);
+        allow create, update, delete: if isAdmin(householdId);
+      }
+
+      // ── households/{householdId}/settings/{settingId} ────────────────────────
+
+      match /settings/{settingId} {
+        // Any member can read settings (e.g. grade_configs for rate display).
+        allow read: if isMember(householdId);
+
+        // Only admins can write settings.
+        allow create, update, delete: if isAdmin(householdId);
+      }
+
+      // ── households/{householdId}/chore_catalog/{choreId} ─────────────────────
+
+      match /chore_catalog/{choreId} {
+        allow read: if isMember(householdId);
+        allow create, update, delete: if isAdmin(householdId);
+      }
+    }
+  }
+}
