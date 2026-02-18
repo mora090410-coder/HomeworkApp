@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { X, ChevronDown, Check, Plus } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { X, Plus } from 'lucide-react';
 import { Child, Grade, Subject } from '../types';
 import { DEFAULT_RATES } from '../constants';
 import { calculateHourlyRate, formatCurrency } from '../utils';
@@ -24,7 +24,6 @@ const GRADE_OPTIONS: Grade[] = [
 
 const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({ isOpen, onClose, child, onSave }) => {
   const [subjects, setSubjects] = useState<Subject[]>([]);
-
 
   // Lock body scroll
   useEffect(() => {
@@ -102,7 +101,7 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({ isOpen, onClose, 
         </button>
 
         {/* Scrollable Content */}
-        <div className="relative z-10 overflow-y-auto px-8 md:px-12 py-10 scrollbar-hide">
+        <div className="relative z-10 overflow-y-auto px-8 md:px-12 py-10 scrollbar-hide pb-32">
 
           {/* Header */}
           <div className="mb-8 text-center md:text-left">
@@ -121,7 +120,7 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({ isOpen, onClose, 
           </div>
 
           {/* Subject List */}
-          <div className="space-y-6 pb-12">
+          <div className="space-y-6">
             {subjects.map((subject) => (
               <div
                 key={subject.id}
@@ -161,7 +160,7 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({ isOpen, onClose, 
                     <button
                       onClick={() => handleRemoveSubject(subject.id)}
                       disabled={subjects.length <= 1}
-                      className="w-10 h-10 flex items-center justify-center rounded-none text-neutral-300 hover:text-semantic-destructive hover:bg-semantic-destructive/5 transition-all cursor-pointer disabled:opacity-0 disabled:cursor-not-allowed"
+                      className="w-11 h-11 flex items-center justify-center rounded-none text-neutral-300 hover:text-semantic-destructive hover:bg-semantic-destructive/5 transition-all cursor-pointer disabled:opacity-0 disabled:cursor-not-allowed"
                       aria-label="Remove subject"
                     >
                       <X className="w-5 h-5" />
@@ -170,25 +169,23 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({ isOpen, onClose, 
                 </div>
               </div>
             ))}
-            node_identifier:components/UpdateGradesModal.tsx#L124-165
 
             <Button
               onClick={handleAddSubject}
               variant="secondary"
-              className="w-full border-dashed py-6"
+              className="w-full border-dashed py-8 mt-4"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Subject
             </Button>
           </div>
-
         </div>
 
         {/* Footer Actions */}
-        <div className="absolute bottom-0 left-0 right-0 p-8 pt-6 bg-white border-t border-neutral-200">
+        <div className="absolute bottom-0 left-0 right-0 p-8 bg-white border-t border-neutral-100 z-20">
           <Button
             onClick={handleSave}
-            className="w-full h-14 text-lg font-bold"
+            className="w-full h-14 text-lg font-bold shadow-lg"
             variant="primary"
           >
             Save Changes
