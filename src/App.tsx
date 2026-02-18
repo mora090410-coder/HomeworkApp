@@ -29,6 +29,7 @@ import AdminSetupRail from '@/components/AdminSetupRail';
 import ProfileSelectionScreen from '@/components/ProfileSelectionScreen';
 import LandingPage from '@/components/LandingPage';
 import PinModal from '@/components/PinModal';
+import ErrorBoundary from './components/ErrorBoundary';
 import { auth, db, isFirebaseConfigured } from '@/services/firebase';
 import { householdService } from '@/services/householdService';
 import { notificationService } from '@/services/notificationService';
@@ -1583,36 +1584,38 @@ function UnknownRouteHandler() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={(
-            <PublicOnlyRoute>
-              <LandingPage />
-            </PublicOnlyRoute>
-          )}
-        />
-        <Route
-          path="/login"
-          element={(
-            <PublicOnlyRoute>
-              <LoginRoute />
-            </PublicOnlyRoute>
-          )}
-        />
-        <Route
-          path="/signup"
-          element={(
-            <PublicOnlyRoute>
-              <SignupRoute />
-            </PublicOnlyRoute>
-          )}
-        />
-        <Route path="/setup-profile/:id" element={<SetupProfileRoute />} />
-        <Route path="/admin-dashboard" element={<DashboardPage />} />
-        <Route path="*" element={<UnknownRouteHandler />} />
-      </Routes>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/"
+            element={(
+              <PublicOnlyRoute>
+                <LandingPage />
+              </PublicOnlyRoute>
+            )}
+          />
+          <Route
+            path="/login"
+            element={(
+              <PublicOnlyRoute>
+                <LoginRoute />
+              </PublicOnlyRoute>
+            )}
+          />
+          <Route
+            path="/signup"
+            element={(
+              <PublicOnlyRoute>
+                <SignupRoute />
+              </PublicOnlyRoute>
+            )}
+          />
+          <Route path="/setup-profile/:id" element={<SetupProfileRoute />} />
+          <Route path="/admin-dashboard" element={<DashboardPage />} />
+          <Route path="*" element={<UnknownRouteHandler />} />
+        </Routes>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
