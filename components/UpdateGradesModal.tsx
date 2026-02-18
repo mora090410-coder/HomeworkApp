@@ -121,37 +121,33 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({ isOpen, onClose, 
           </div>
 
           {/* Subject List */}
-          <div className="space-y-4 pb-12">
+          <div className="space-y-6 pb-12">
             {subjects.map((subject) => (
               <div
                 key={subject.id}
-                className="flex flex-col gap-3 bg-white border border-neutral-200 p-4 rounded-none transition-colors group hover:border-primary-gold/50"
+                className="group relative animate-in fade-in slide-in-from-bottom-2 duration-300"
               >
-                <div className="flex items-center justify-between gap-3">
-                  <Input
-                    value={subject.name}
-                    onChange={(e) => handleNameChange(subject.id, e.target.value)}
-                    placeholder="Subject Name"
-                    className="flex-1 font-medium text-neutral-black h-10"
-                  />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRemoveSubject(subject.id)}
-                    className="text-semantic-destructive hover:bg-semantic-destructive/10 p-2"
-                    aria-label="Remove subject"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
+                <div className="flex items-end gap-3">
+                  <div className="flex-1">
+                    <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-[0.15em] mb-2 ml-1">
+                      Subject
+                    </label>
+                    <Input
+                      value={subject.name}
+                      onChange={(e) => handleNameChange(subject.id, e.target.value)}
+                      placeholder="e.g. Math"
+                      className="w-full font-bold text-neutral-black h-12 px-4 bg-white border-neutral-200 focus:border-primary-cardinal transition-colors shadow-sm"
+                    />
+                  </div>
 
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-neutral-500 uppercase tracking-widest">Grade</span>
-                  <div className="w-32">
+                  <div className="w-28 shrink-0">
+                    <label className="block text-[10px] font-black text-neutral-400 uppercase tracking-[0.15em] mb-2 ml-1 text-center">
+                      Grade
+                    </label>
                     <Select
                       value={subject.grade}
                       onChange={(e) => handleGradeChange(subject.id, e.target.value as Grade)}
-                      className="font-bold text-lg h-auto py-2"
+                      className="w-full font-black text-xl h-12 text-center bg-white border-neutral-200 focus:border-primary-cardinal transition-colors shadow-sm [&>option]:text-sm [&>option]:font-sans"
                     >
                       {GRADE_OPTIONS.map((grade) => (
                         <option key={grade} value={grade}>
@@ -160,9 +156,21 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({ isOpen, onClose, 
                       ))}
                     </Select>
                   </div>
+
+                  <div className="pb-1">
+                    <button
+                      onClick={() => handleRemoveSubject(subject.id)}
+                      disabled={subjects.length <= 1}
+                      className="w-10 h-10 flex items-center justify-center rounded-none text-neutral-300 hover:text-semantic-destructive hover:bg-semantic-destructive/5 transition-all cursor-pointer disabled:opacity-0 disabled:cursor-not-allowed"
+                      aria-label="Remove subject"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
+            node_identifier:components/UpdateGradesModal.tsx#L124-165
 
             <Button
               onClick={handleAddSubject}
