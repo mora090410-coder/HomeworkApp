@@ -48,7 +48,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [gradeLevel, setGradeLevel] = useState('');
-  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [baseValue, setBaseValue] = useState(5.00);
   const [decrement, setDecrement] = useState(0.25);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -64,7 +63,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       setName(child.name);
       setUsername(child.loginUsername || '');
       setGradeLevel(child.gradeLevel);
-      setSubjects(JSON.parse(JSON.stringify(child.subjects)));
       setBaseValue(5.00);
       setDecrement(0.25);
       setActiveTab('profile');
@@ -112,18 +110,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       onImportAll(importText.trim());
       onClose();
     }
-  };
-
-  const handleAddSubject = () => {
-    setSubjects(prev => [...prev, { id: crypto.randomUUID(), name: '', grade: Grade.B }]);
-  };
-
-  const handleRemoveSubject = (id: string) => {
-    if (subjects.length > 1) setSubjects(prev => prev.filter(s => s.id !== id));
-  };
-
-  const handleSubjectNameChange = (id: string, newName: string) => {
-    setSubjects(prev => prev.map(s => s.id === id ? { ...s, name: newName } : s));
   };
 
   const handleSave = () => {

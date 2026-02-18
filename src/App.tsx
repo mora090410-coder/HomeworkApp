@@ -29,6 +29,7 @@ import AdminSetupRail from '@/components/AdminSetupRail';
 import ProfileSelectionScreen from '@/components/ProfileSelectionScreen';
 import LandingPage from '@/components/LandingPage';
 import PinModal from '@/components/PinModal';
+import OpenTaskCard from '@/components/OpenTaskCard';
 import UpdateGradesModal from '@/components/UpdateGradesModal';
 import ErrorBoundary from './components/ErrorBoundary';
 import { auth, db, isFirebaseConfigured } from '@/services/firebase';
@@ -781,6 +782,7 @@ function DashboardPage() {
       ...data,
       subjects: data.subjects.map((subject) => ({ ...subject, id: crypto.randomUUID() })),
       rates: effectiveRateMap,
+      currentHourlyRate: data.currentHourlyRate ?? 0,
       balanceCents: 0,
       balance: 0,
       history: [],
@@ -1137,9 +1139,10 @@ function DashboardPage() {
 
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="col-span-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
+              <div className="xl:col-span-2 space-y-8">
+                {/* Children Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {childrenWithRateMap.map((child) => (
                     <ChildCard
                       key={child.id}
@@ -1163,9 +1166,71 @@ function DashboardPage() {
                       onUndoApproval={(childId, taskId) => statusTaskMutation.mutate({ taskId, status: 'PENDING_APPROVAL', childId })}
                     />
                   ))}
+                  <div className="flex h-full min-h-[200px] items-center justify-center rounded-none border-2 border-dashed border-neutral-200 bg-neutral-50/50 p-6 hover:border-neutral-300 hover:bg-neutral-100 transition-colors cursor-pointer group" onClick={() => setIsAddChildModalOpen(true)}>
+                    <div className="text-center group-hover:scale-105 transition-transform duration-200">
+                      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-neutral-200 group-hover:ring-primary-200">
+                        <Plus className="h-6 w-6 text-neutral-400 group-hover:text-primary-600" />
+                      </div>
+                      <h3 className="text-sm font-bold text-neutral-900">Add Child Profile</h3>
+                      <p className="mt-1 text-xs text-neutral-500">Track chores & allowance</p>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="col-span-1">
+
+              <div className="xl:col-span-1 space-y-8">
+                {/* Open Tasks Column */}
+                <div className="relative">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-bold font-heading text-neutral-900 flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-semantic-success animate-pulse"></span>
+                      Open Tasks
+                    </h3>
+                    <span className="px-2 py-0.5 bg-neutral-100 text-neutral-600 text-xs font-bold rounded-none border border-neutral-200">
+                      {openTasks.length} Live
+                    </span>
+                  </div>
+
+                  <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-neutral-200 scrollbar-track-transparent">
+                    {openTasks.length === 0 ? (
+                      <div className="p-8 bg-white border border-neutral-200 border-dashed rounded-none text-center">
+                        <p className="text-neutral-900 font-bold mb-1">No open tasks</p>
+                        <p className="text-neutral-500 text-sm mb-4">Create tasks that any child can claim.</p>
+                        <Button variant="secondary" size="sm" onClick={() => { setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }} className="w-full">
+                          <Plus className="w-4 h-4 mr-2" />
+                          Create Open Task
+                        </Button>
+                      </div>
+                    ) : (
+                      openTasks.map(task => (
+                        <OpenTaskCard
+                          key={task.id}
+                          task={task}
+                          children={childrenWithRateMap}
+                          onEdit={(t) => {
+                            setEditingTask({ childId: '', task: t });
+                            setIsOpenTaskMode(true);
+                            setIsAddTaskModalOpen(true);
+                          }}
+                          onDelete={(id) => statusTaskMutation.mutate({ taskId: id, status: 'DELETED' })}
+                          onAssign={(taskId, childId) => {
+                            const taskToAssign = openTasks.find(t => t.id === taskId);
+                            if (taskToAssign) {
+                              assignTaskMutation.mutate({
+                                childId,
+                                task: { ...taskToAssign, status: 'ASSIGNED' },
+                                options: { saveToCatalog: false, catalogItemId: null }
+                              });
+                            }
+                          }}
+                        />
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="h-px bg-neutral-200 w-full my-6"></div>
+
                 <FamilyActivityFeed familyId={householdId!} />
               </div>
             </div>
