@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Child, Grade, StandardTask, Task } from '@/types';
+import { db } from '@/services/firebase';
+import { collection, onSnapshot, query } from 'firebase/firestore';
 import {
   calculateHourlyRate,
   calculateTaskValue,
@@ -10,6 +12,7 @@ import {
   formatCurrency,
   getTaskIcon,
   getTransactionAmountCents,
+  mapTask,
 } from '@/utils';
 import { DEFAULT_RATES } from '@/constants';
 import {
@@ -44,11 +47,24 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
   onClaimTask,
 }) => {
   const [taskToComplete, setTaskToComplete] = useState<Task | null>(null);
+  const [subCollectionTasks, setSubCollectionTasks] = useState<Task[]>([]);
   const prevBalance = useRef(child.balance);
 
   useEffect(() => {
     prevBalance.current = child.balance;
   }, [child.balance]);
+
+  useEffect(() => {
+    if (!child.householdId || !child.id) return;
+
+    const q = query(collection(db, `households/${child.householdId}/profiles/${child.id}/tasks`));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const mapped = snapshot.docs.map(doc => mapTask(doc.id, child.householdId, doc.data()));
+      setSubCollectionTasks(mapped);
+    });
+
+    return () => unsubscribe();
+  }, [child.householdId, child.id]);
 
   const hourlyRate = calculateHourlyRate(child.subjects, child.rates || DEFAULT_RATES);
   const hourlyRateCents = dollarsToCents(hourlyRate);
@@ -59,19 +75,37 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
     .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime())
     .slice(0, 12);
 
+  const getTaskValueCents = (task: Task) => {
+    if (task.valueCents !== undefined) return task.valueCents;
+    return calculateTaskValueCents(task.baselineMinutes, hourlyRateCents);
+  };
+
+  const getTaskDisplayValue = (task: Task) => {
+    if (task.valueCents !== undefined) return formatCurrency(centsToDollars(task.valueCents));
+    return formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate));
+  };
+
+  // Merge tasks
+  const allCustomTasks = [...(child.customTasks || []), ...subCollectionTasks].reduce((acc, task) => {
+    if (!acc.some(t => t.id === task.id)) {
+      acc.push(task);
+    }
+    return acc;
+  }, [] as Task[]);
+
   // Earnings Calculations
-  const readyToCollectCents = child.customTasks
+  const readyToCollectCents = allCustomTasks
     .filter(t => t.status === 'PENDING_PAYMENT')
-    .reduce((sum, t) => sum + calculateTaskValueCents(t.baselineMinutes, hourlyRateCents), 0);
+    .reduce((sum, t) => sum + getTaskValueCents(t), 0);
   const readyToCollect = centsToDollars(readyToCollectCents);
 
-  const inReviewCents = child.customTasks
+  const inReviewCents = allCustomTasks
     .filter(t => t.status === 'PENDING_APPROVAL')
-    .reduce((sum, t) => sum + calculateTaskValueCents(t.baselineMinutes, hourlyRateCents), 0);
+    .reduce((sum, t) => sum + getTaskValueCents(t), 0);
   const inReview = centsToDollars(inReviewCents);
 
   const canEarnTodayCents = availableTasks
-    .reduce((sum, t) => sum + calculateTaskValueCents(t.baselineMinutes, hourlyRateCents), 0);
+    .reduce((sum, t) => sum + getTaskValueCents(t), 0);
   const canEarnToday = centsToDollars(canEarnTodayCents);
 
   // Weekly total calculation
@@ -88,10 +122,10 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
   // Task Grouping
   const grabTasks = availableTasks;
-  const inProgress = child.customTasks.filter(t => t.status === 'ASSIGNED' && !t.rejectionComment);
-  const waitingApproval = child.customTasks.filter(t => t.status === 'PENDING_APPROVAL');
-  const rejectedTasks = child.customTasks.filter(t => t.status === 'ASSIGNED' && t.rejectionComment);
-  const readyCollectTasks = child.customTasks.filter(t => t.status === 'PENDING_PAYMENT');
+  const inProgress = allCustomTasks.filter(t => t.status === 'ASSIGNED' && !t.rejectionComment);
+  const waitingApproval = allCustomTasks.filter(t => t.status === 'PENDING_APPROVAL');
+  const rejectedTasks = allCustomTasks.filter(t => t.status === 'ASSIGNED' && t.rejectionComment);
+  const readyCollectTasks = allCustomTasks.filter(t => t.status === 'PENDING_PAYMENT');
 
   const formatLedgerDate = (value: string): string => {
     const parsed = new Date(value);
@@ -308,7 +342,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                       <h5 className="text-xl font-bold font-heading text-neutral-black">{task.name}</h5>
                     </div>
                     <span className="text-2xl font-bold text-primary-cardinal font-heading">
-                      {formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate))}
+                      {getTaskDisplayValue(task)}
                     </span>
                   </div>
                   <p className="text-sm text-neutral-darkGray mb-6 font-medium font-sans">
@@ -343,7 +377,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                       <h5 className="text-xl font-bold font-heading text-neutral-black">{task.name}</h5>
                     </div>
                     <span className="text-2xl font-bold text-primary-cardinal font-heading">
-                      {formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate))}
+                      {getTaskDisplayValue(task)}
                     </span>
                   </div>
                   <p className="text-sm text-neutral-darkGray mb-6 font-sans">Baseline: {task.baselineMinutes} mins</p>
@@ -378,7 +412,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                     <div className="text-right">
                       <p className="text-xs font-bold text-neutral-darkGray uppercase tracking-wider mb-1 font-sans">Will earn</p>
                       <span className="text-xl font-bold text-neutral-black font-heading">
-                        {formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate))}
+                        {getTaskDisplayValue(task)}
                       </span>
                     </div>
                   </div>
@@ -397,7 +431,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                       <h5 className="text-xl font-bold font-heading text-neutral-black">{task.name}</h5>
                     </div>
                     <span className="text-xl font-bold text-red-700 font-heading">
-                      {formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate))}
+                      {getTaskDisplayValue(task)}
                     </span>
                   </div>
 
@@ -441,7 +475,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                     <div className="text-right">
                       <p className="text-xs font-bold text-emerald-700 uppercase tracking-wider mb-1 font-sans">Earned</p>
                       <span className="text-2xl font-bold text-emerald-700 font-heading">
-                        {formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate))}
+                        {getTaskDisplayValue(task)}
                       </span>
                     </div>
                   </div>
@@ -475,7 +509,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
             </div>
             <h3 className="text-xl font-bold font-heading text-neutral-black mb-2">{taskToComplete.name}</h3>
             <p className="text-neutral-darkGray mb-6 text-sm font-sans">
-              Submit for parent approval to earn <span className="text-emerald-700 font-bold">{formatCurrency(calculateTaskValue(taskToComplete.baselineMinutes, hourlyRate))}</span>.
+              Submit for parent approval to earn <span className="text-emerald-700 font-bold">{getTaskDisplayValue(taskToComplete)}</span>.
             </p>
             <div className="flex gap-3">
               <Button

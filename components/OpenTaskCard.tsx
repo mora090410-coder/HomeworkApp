@@ -4,7 +4,7 @@ import { Task, Child } from '../types';
 import { Clock, MoreVertical, Trash2, Edit2, UserPlus, ChevronRight } from 'lucide-react';
 import { Button } from '@/src/components/ui/Button';
 import { Card } from '@/src/components/ui/Card';
-import { getTaskIcon } from '../utils';
+import { getTaskIcon, formatCurrency, centsToDollars } from '../utils';
 
 interface OpenTaskCardProps {
   task: Task;
@@ -165,7 +165,7 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
         </div>
 
         <span className="px-2.5 py-1 rounded-none bg-blue-50 text-blue-700 text-[0.75rem] font-bold uppercase tracking-wider border border-blue-200">
-          Available
+          {task.valueCents ? formatCurrency(centsToDollars(task.valueCents)) : 'Available'}
         </span>
       </div>
     </Card>

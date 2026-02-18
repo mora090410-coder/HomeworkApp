@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { signOut, User, onAuthStateChanged } from 'firebase/auth';
-import { collection, onSnapshot, query } from 'firebase/firestore';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { Calendar, Check, Loader2, LogOut, Plus, Share2, UserPlus, Users } from 'lucide-react';
 import { Button } from './components/ui/Button';
 import { Input } from './components/ui/Input';
@@ -39,6 +39,7 @@ import {
   calculateTaskValueCents,
   centsToDollars,
   dollarsToCents,
+  mapTask,
 } from '@/utils';
 import { isValidChildUsername, normalizeChildUsername } from '@/src/features/auth/childCredentials';
 import { shouldBypassPinVerification } from '@/src/features/auth/sessionGate';
@@ -457,23 +458,43 @@ function DashboardPage() {
   const familyAuth = useFamilyAuth();
   const householdId = familyAuth.householdId;
 
-  const { data: children = [], isLoading: loadingChildren } = useQuery({
-    queryKey: ['children', householdId],
-    queryFn: () => (householdId ? householdService.getChildren(householdId) : Promise.resolve([])),
-    enabled: familyAuth.stage === 'AUTHORIZED' && !!householdId,
-  });
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loadingTasks, setLoadingTasks] = useState(true);
 
-  const { data: openTasks = [], isLoading: loadingOpenTasks } = useQuery({
-    queryKey: ['openTasks', householdId],
-    queryFn: () => (householdId ? householdService.getOpenTasks(householdId) : Promise.resolve([])),
-    enabled: familyAuth.stage === 'AUTHORIZED' && !!householdId,
-  });
+  // Real-time listener for tasks
+  React.useEffect(() => {
+    if (!householdId || !db) {
+      setTasks([]);
+      setLoadingTasks(false);
+      return;
+    }
+
+    setLoadingTasks(true);
+    const tasksQuery = query(collection(db, `households/${householdId}/tasks`));
+
+    const unsubscribe = onSnapshot(tasksQuery, (snapshot) => {
+      const mappedTasks = snapshot.docs.map(doc =>
+        mapTask(doc.id, householdId, doc.data() as Record<string, unknown>)
+      );
+      setTasks(mappedTasks);
+      setLoadingTasks(false);
+    }, (error) => {
+      console.error("Failed to subscribe to tasks:", error);
+      setLoadingTasks(false);
+    });
+
+    return () => unsubscribe();
+  }, [householdId]);
 
   const { data: gradeConfigs = [] } = useQuery<GradeConfig[]>({
     queryKey: ['gradeConfigs', householdId],
     queryFn: () => (householdId ? householdService.getGradeConfigs(householdId) : Promise.resolve([])),
     enabled: familyAuth.stage === 'AUTHORIZED' && !!householdId,
   });
+
+  const openTasks = useMemo(() => {
+    return tasks.filter(t => t.status === 'OPEN');
+  }, [tasks]);
 
   const { data: choreCatalog = [] } = useQuery({
     queryKey: ['choreCatalog', householdId],
@@ -499,10 +520,36 @@ function DashboardPage() {
   }, [gradeConfigs]);
 
   const childrenWithRateMap = useMemo(() => {
-    return children.map((child) => ({ ...child, rates: effectiveRateMap }));
-  }, [children, effectiveRateMap]);
+    // Filter profiles to get only children
+    const childProfiles = familyAuth.profiles.filter(p => p.role === 'CHILD');
+
+    return childProfiles.map((child) => {
+      // 1. Resolve Rates: Prefer child's specific rates if they exist and aren't all zero (unless explicitly needed), 
+      // otherwise fall back to global effectiveRateMap. 
+      // The SettingsModal persists rates to the child profile, so we should trust `child.rates`.
+      // However, we need to ensure we don't accidentally use empty default rates if they weren't set.
+      // Logic: If child.rates has values > 0, use it. OR if we want to enforce the settings modal to be the source of truth,
+      // we assume whatever is on the profile is correct.
+      // For safety, let's use child.rates if available, else effectiveRateMap.
+
+      const hasCustomRates = child.rates && Object.values(child.rates).some(r => r > 0);
+      const ratesToUse = hasCustomRates ? child.rates : effectiveRateMap;
+
+      // 2. Aggregate Tasks: Filter all tasks for this child
+      const childTasks = tasks.filter(t => t.assigneeId === child.id);
+
+      return {
+        ...child,
+        rates: ratesToUse,
+        customTasks: childTasks
+      };
+    });
+  }, [familyAuth.profiles, effectiveRateMap, tasks]);
 
   const hasChildren = childrenWithRateMap.length > 0;
+  // Use isProfilesLoading instead of loadingChildren since we use familyAuth.profiles
+  const isLoading = familyAuth.isProfilesLoading || loadingTasks;
+
   const pendingSetupCount = childrenWithRateMap.filter(
     (child) => (child.setupStatus ?? 'PROFILE_CREATED') !== 'SETUP_COMPLETE',
   ).length;
@@ -645,11 +692,15 @@ function DashboardPage() {
   });
 
   const statusTaskMutation = useMutation({
-    mutationFn: (vars: { taskId: string; status: string; comment?: string }) => {
-      return householdService.updateTaskById(vars.taskId, {
-        status: vars.status as Task['status'],
-        rejectionComment: typeof vars.comment === 'string' ? vars.comment : '',
-      });
+    mutationFn: (vars: { taskId: string; status: string; comment?: string; childId?: string }) => {
+      return householdService.updateTaskById(
+        vars.taskId,
+        {
+          status: vars.status as Task['status'],
+          rejectionComment: typeof vars.comment === 'string' ? vars.comment : '',
+        },
+        vars.childId
+      );
     },
     onSuccess: async (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ['children'] });
@@ -765,6 +816,7 @@ function DashboardPage() {
       baselineMinutes,
       status: 'OPEN',
       catalogItemId: catalogItem?.id ?? null,
+      valueCents: payload.valueCents,
     };
 
     const mutationOptions = {
@@ -955,7 +1007,7 @@ function DashboardPage() {
     );
   }
 
-  if (loadingChildren || loadingOpenTasks || !familyAuth.activeProfile) {
+  if (isLoading || !familyAuth.activeProfile) {
     return (
       <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-neutral-900">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
@@ -1000,7 +1052,7 @@ function DashboardPage() {
             standardTasks={COMMON_TASKS}
             availableTasks={openTasks}
             onUpdateGrade={handleUpdateGrade}
-            onSubmitTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_APPROVAL' })}
+            onSubmitTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_APPROVAL', childId })}
             onApproveTask={() => undefined}
             onPayTask={handlePayTask}
             onRejectTask={() => undefined}
@@ -1091,13 +1143,13 @@ function DashboardPage() {
                         void handleGenerateProfileSetupLink(toProfileFromChild(candidate));
                       }}
                       onAssignTask={(candidate) => { setSelectedChildId(candidate.id); setIsAddTaskModalOpen(true); }}
-                      onDeleteTask={(childId, taskId) => statusTaskMutation.mutate({ taskId, status: 'DELETED' })}
+                      onDeleteTask={(childId, taskId) => statusTaskMutation.mutate({ taskId, status: 'DELETED', childId })}
                       onEditTask={(task) => { setEditingTask({ childId: child.id, task }); setIsAddTaskModalOpen(true); }}
                       onReassignTask={() => undefined}
-                      onApproveTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_PAYMENT' })}
+                      onApproveTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_PAYMENT', childId })}
                       onRejectTask={(childId, task) => { setTaskToReject({ childId, task }); setRejectionComment(''); }}
                       onPayTask={handlePayTask}
-                      onUndoApproval={(childId, taskId) => statusTaskMutation.mutate({ taskId, status: 'PENDING_APPROVAL' })}
+                      onUndoApproval={(childId, taskId) => statusTaskMutation.mutate({ taskId, status: 'PENDING_APPROVAL', childId })}
                     />
                   ))}
                 </div>
@@ -1175,7 +1227,7 @@ function DashboardPage() {
                   if (!taskToReject || rejectionComment.trim().length === 0) {
                     return;
                   }
-                  statusTaskMutation.mutate({ taskId: taskToReject.task.id, status: 'ASSIGNED', comment: rejectionComment });
+                  statusTaskMutation.mutate({ taskId: taskToReject.task.id, status: 'ASSIGNED', comment: rejectionComment, childId: taskToReject.childId });
                   setTaskToReject(null);
                   setRejectionComment('');
                 }} disabled={rejectionComment.trim().length === 0} className="flex-1 py-3 bg-red-600 rounded-none font-bold text-white disabled:opacity-50 hover:bg-red-700 transition-colors shadow-sm">

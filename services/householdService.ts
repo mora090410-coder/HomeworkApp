@@ -33,7 +33,7 @@ import {
 import { isValidChildUsername, normalizeChildUsername } from '@/src/features/auth/childCredentials';
 import { auth, db, ensureFirebaseConfigured, functions } from '@/services/firebase';
 import { ledgerService } from '@/services/ledgerService';
-import { centsToDollars, dollarsToCents } from '@/utils';
+import { centsToDollars, dollarsToCents, mapTask, parseTaskStatus } from '@/utils';
 
 const ACTIVE_PROFILE_STORAGE_KEY = 'homework-active-profile';
 const DEFAULT_INVITE_EXPIRY_HOURS = 24;
@@ -325,23 +325,7 @@ const parseProfileSetupStatus = (value: unknown): ProfileSetupStatus => {
   return 'PROFILE_CREATED';
 };
 
-const parseTaskStatus = (value: unknown): TaskStatus => {
-  const supported: TaskStatus[] = [
-    'DRAFT',
-    'OPEN',
-    'ASSIGNED',
-    'PENDING_APPROVAL',
-    'PENDING_PAYMENT',
-    'PAID',
-    'DELETED',
-  ];
 
-  if (typeof value === 'string' && supported.includes(value as TaskStatus)) {
-    return value as TaskStatus;
-  }
-
-  return 'OPEN';
-};
 
 const parseAdvanceCategory = (value: unknown): AdvanceCategory | undefined => {
   const supported: AdvanceCategory[] = [
@@ -514,19 +498,7 @@ const mapSetupProfileFromCallable = (
   };
 };
 
-const mapTask = (taskId: string, householdId: string, source: Record<string, unknown>): Task => {
-  return {
-    id: taskId,
-    householdId,
-    familyId: householdId,
-    name: typeof source.name === 'string' ? source.name : 'Untitled Task',
-    baselineMinutes: typeof source.baselineMinutes === 'number' ? source.baselineMinutes : 0,
-    status: parseTaskStatus(source.status),
-    rejectionComment: typeof source.rejectionComment === 'string' ? source.rejectionComment : undefined,
-    assigneeId: typeof source.assigneeId === 'string' ? source.assigneeId : null,
-    catalogItemId: typeof source.catalogItemId === 'string' ? source.catalogItemId : null,
-  };
-};
+
 
 const mapTransaction = (
   transactionId: string,
@@ -674,15 +646,49 @@ const resolveProfileLocationById = async (
 const resolveTaskLocationById = async (
   taskId: string,
   householdId?: string,
-): Promise<{ householdId: string; taskId: string } | null> => {
+  profileId?: string,
+): Promise<{ householdId: string; taskId: string; profileId?: string } | null> => {
   const safeTaskId = assertNonEmptyString(taskId, 'taskId');
   const firestore = getFirestore();
   const candidateHouseholdIds = await getCandidateHouseholdIds(householdId);
 
+  // 1. If profileId is provided, check that specific location first (Optimization)
+  if (profileId && typeof profileId === 'string') {
+    for (const candidateHouseholdId of candidateHouseholdIds) {
+      const taskSnapshot = await getDoc(
+        doc(firestore, `households/${candidateHouseholdId}/profiles/${profileId}/tasks/${safeTaskId}`),
+      );
+      if (taskSnapshot.exists()) {
+        return { householdId: candidateHouseholdId, taskId: safeTaskId, profileId };
+      }
+    }
+  }
+
+  // 2. Check root tasks collection (Legacy / Open Tasks)
   for (const candidateHouseholdId of candidateHouseholdIds) {
     const taskSnapshot = await getDoc(doc(firestore, `households/${candidateHouseholdId}/tasks/${safeTaskId}`));
     if (taskSnapshot.exists()) {
       return { householdId: candidateHouseholdId, taskId: safeTaskId };
+    }
+  }
+
+  // 3. Fallback: Search in all profiles if not found yet (Expensive but necessary if profileId missing)
+  // For now, avoiding full iteration unless strictly necessary.
+  // Could rely on collectionGroup if indexed, but 'tasks' is generic.
+  // Given the UI context, we usually know the profileId. 
+  // If we really miss it, we might fail to find the task.
+  // Let's iterate profiles for the FIRST candidate household (likely the active one)
+  if (candidateHouseholdIds.length > 0) {
+    const mainHouseholdId = candidateHouseholdIds[0];
+    const profilesSnapshot = await getDocs(getProfilesCollectionRef(mainHouseholdId));
+    for (const profileDoc of profilesSnapshot.docs) {
+      if (profileDoc.id === profileId) continue; // Already checked
+      const taskSnapshot = await getDoc(
+        doc(firestore, `households/${mainHouseholdId}/profiles/${profileDoc.id}/tasks/${safeTaskId}`)
+      );
+      if (taskSnapshot.exists()) {
+        return { householdId: mainHouseholdId, taskId: safeTaskId, profileId: profileDoc.id };
+      }
     }
   }
 
@@ -899,6 +905,8 @@ export const householdService = {
       );
 
       const profileTransactionsByProfileId = new Map<string, Transaction[]>();
+      const profileTasksByProfileId = new Map<string, Task[]>();
+
       await Promise.all(
         childrenSnapshot.docs.map(async (childDoc) => {
           const profileTransactionsSnapshot = await getDocs(
@@ -912,14 +920,32 @@ export const householdService = {
             ),
           );
           profileTransactionsByProfileId.set(childDoc.id, profileTransactions);
+
+          const profileTasksSnapshot = await getDocs(
+            collection(getFirestore(), `households/${safeHouseholdId}/profiles/${childDoc.id}/tasks`),
+          );
+          const profileTasks = profileTasksSnapshot.docs.map((taskDoc) =>
+            mapTask(taskDoc.id, safeHouseholdId, taskDoc.data() as Record<string, unknown>),
+          );
+          profileTasksByProfileId.set(childDoc.id, profileTasks);
         }),
       );
 
       return childrenSnapshot.docs.map((childDoc) => {
         const profile = mapProfile(childDoc.id, safeHouseholdId, childDoc.data() as Record<string, unknown>);
-        const childTasks = allTasks.filter(
+        const rootTasksForChild = allTasks.filter(
           (task) => task.assigneeId === childDoc.id && task.status !== 'PAID' && task.status !== 'DELETED',
         );
+        const subCollectionTasks = profileTasksByProfileId.get(childDoc.id) ?? [];
+
+        // Merge tasks, preferring sub-collection if ID duplicates exist (shouldn't happen with UUIDs but safe)
+        const combinedTasks = [...rootTasksForChild, ...subCollectionTasks];
+
+        // Deduplicate by ID just in case
+        const uniqueTasksMap = new Map();
+        combinedTasks.forEach(t => uniqueTasksMap.set(t.id, t));
+        const uniqueTasks = Array.from(uniqueTasksMap.values()) as Task[];
+
         const childHistory = [...(profileTransactionsByProfileId.get(childDoc.id) ?? []), ...legacyTransactions]
           .filter((transaction) => transaction.profileId === childDoc.id)
           .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime())
@@ -929,7 +955,7 @@ export const householdService = {
           ...profile,
           pin: profile.pinHash ? '****' : '',
           history: childHistory,
-          customTasks: childTasks,
+          customTasks: uniqueTasks,
         };
       });
     } catch (error) {
@@ -1199,7 +1225,13 @@ export const householdService = {
       const safeTaskName = assertNonEmptyString(task.name, 'task.name');
       const status = parseTaskStatus(task.status);
 
-      const taskCollection = getTasksCollectionRef(safeHouseholdId);
+      let taskCollection;
+      if (typeof task.assigneeId === 'string' && task.assigneeId.length > 0) {
+        taskCollection = collection(getFirestore(), `households/${safeHouseholdId}/profiles/${task.assigneeId}/tasks`);
+      } else {
+        taskCollection = getTasksCollectionRef(safeHouseholdId);
+      }
+
       const taskRef =
         typeof task.id === 'string' && task.id.trim().length > 0
           ? doc(taskCollection, task.id)
@@ -1218,6 +1250,7 @@ export const householdService = {
             : typeof task.catalogItemId === 'string'
               ? task.catalogItemId
               : null,
+        valueCents: typeof task.valueCents === 'number' ? task.valueCents : undefined,
       };
 
       await setDoc(taskRef, {
@@ -1257,17 +1290,19 @@ export const householdService = {
     }
   },
 
-  async updateTaskById(taskId: string, updates: Partial<Task>): Promise<void> {
+  async updateTaskById(taskId: string, updates: Partial<Task>, profileId?: string): Promise<void> {
     try {
       const safeTaskId = assertNonEmptyString(taskId, 'taskId');
-      const resolvedTask = await resolveTaskLocationById(safeTaskId);
+      const resolvedTask = await resolveTaskLocationById(safeTaskId, undefined, profileId);
 
       if (!resolvedTask) {
         throw new Error('Task not found.');
       }
 
       const firestore = getFirestore();
-      const taskRef = doc(firestore, `households/${resolvedTask.householdId}/tasks/${resolvedTask.taskId}`);
+      const taskRef = resolvedTask.profileId
+        ? doc(firestore, `households/${resolvedTask.householdId}/profiles/${resolvedTask.profileId}/tasks/${resolvedTask.taskId}`)
+        : doc(firestore, `households/${resolvedTask.householdId}/tasks/${resolvedTask.taskId}`);
 
       const updatePayload: Record<string, unknown> = {
         updatedAt: serverTimestamp(),

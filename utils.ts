@@ -1,5 +1,5 @@
 import { GRADE_VALUES } from '@/constants';
-import { Grade, GradeConfig, Subject, Transaction } from '@/types';
+import { Grade, GradeConfig, Subject, Task, TaskStatus, Transaction } from '@/types';
 
 const DEFAULT_RATE_MAP: Record<Grade, number> = GRADE_VALUES;
 
@@ -135,4 +135,37 @@ export const getTaskIcon = (name: string): string => {
   if (lower.includes('plant') || lower.includes('water')) return '🪴';
   if (lower.includes('cook') || lower.includes('meal') || lower.includes('dinner')) return '🍳';
   return '📝';
+};
+
+export const parseTaskStatus = (value: unknown): TaskStatus => {
+  const supported: TaskStatus[] = [
+    'DRAFT',
+    'OPEN',
+    'ASSIGNED',
+    'PENDING_APPROVAL',
+    'PENDING_PAYMENT',
+    'PAID',
+    'DELETED',
+  ];
+
+  if (typeof value === 'string' && supported.includes(value as TaskStatus)) {
+    return value as TaskStatus;
+  }
+
+  return 'OPEN';
+};
+
+export const mapTask = (taskId: string, householdId: string, source: Record<string, unknown>): Task => {
+  return {
+    id: taskId,
+    householdId,
+    familyId: householdId,
+    name: typeof source.name === 'string' ? source.name : 'Untitled Task',
+    baselineMinutes: typeof source.baselineMinutes === 'number' ? source.baselineMinutes : 0,
+    status: parseTaskStatus(source.status),
+    rejectionComment: typeof source.rejectionComment === 'string' ? source.rejectionComment : undefined,
+    assigneeId: typeof source.assigneeId === 'string' ? source.assigneeId : null,
+    catalogItemId: typeof source.catalogItemId === 'string' ? source.catalogItemId : null,
+    valueCents: typeof source.valueCents === 'number' ? source.valueCents : undefined,
+  };
 };

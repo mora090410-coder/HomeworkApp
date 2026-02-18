@@ -1,6 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { Child, Task } from '@/types';
+import { db } from '@/services/firebase';
+import { collection, onSnapshot, query } from 'firebase/firestore';
 import {
   calculateHourlyRate,
   calculateTaskValue,
@@ -10,6 +12,7 @@ import {
   formatCurrency,
   getTaskIcon,
   getTransactionAmountCents,
+  mapTask,
 } from '@/utils';
 import {
   Settings,
@@ -75,6 +78,19 @@ const ChildCard: React.FC<ChildCardProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [activeSubmenuId, setActiveSubmenuId] = useState<string | null>(null);
+  const [subCollectionTasks, setSubCollectionTasks] = useState<Task[]>([]);
+
+  useEffect(() => {
+    if (!child.householdId || !child.id) return;
+
+    const q = query(collection(db, `households/${child.householdId}/profiles/${child.id}/tasks`));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const mapped = snapshot.docs.map(doc => mapTask(doc.id, child.householdId, doc.data()));
+      setSubCollectionTasks(mapped);
+    });
+
+    return () => unsubscribe();
+  }, [child.householdId, child.id]);
 
   const hourlyRate = calculateHourlyRate(child.subjects, child.rates);
   const hourlyRateCents = dollarsToCents(hourlyRate);
@@ -94,18 +110,38 @@ const ChildCard: React.FC<ChildCardProps> = ({
         ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
         : 'bg-blue-50 text-blue-700 border-blue-200';
 
+  // Helper to determine task value (flat rate vs hourly)
+  const getTaskValueCents = (task: Task) => {
+    if (task.valueCents !== undefined) return task.valueCents;
+    return calculateTaskValueCents(task.baselineMinutes, hourlyRateCents);
+  };
+
+  const getTaskDisplayValue = (task: Task) => {
+    if (task.valueCents !== undefined) return formatCurrency(centsToDollars(task.valueCents));
+    return formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate));
+  };
+
   // TASK GROUPING LOGIC
-  const awaitingApproval = child.customTasks?.filter(t => t.status === 'PENDING_APPROVAL') || [];
-  const readyToPay = child.customTasks?.filter(t => t.status === 'PENDING_PAYMENT') || [];
-  const inProgress = child.customTasks?.filter(t => t.status === 'ASSIGNED' || !t.status) || [];
+  // Merge tasks from props (root collection) and sub-collection
+  // Deduplicate by ID (prefer sub-collection if simple ID match, though unlikely with UUIDs)
+  const allTasks = [...(child.customTasks || []), ...subCollectionTasks].reduce((acc, task) => {
+    if (!acc.some(t => t.id === task.id)) {
+      acc.push(task);
+    }
+    return acc;
+  }, [] as Task[]);
+
+  const awaitingApproval = allTasks.filter(t => t.status === 'PENDING_APPROVAL');
+  const readyToPay = allTasks.filter(t => t.status === 'PENDING_PAYMENT');
+  const inProgress = allTasks.filter(t => t.status === 'ASSIGNED' || !t.status);
 
   // STATS CALCULATIONS
   const earnedAmountCents = readyToPay.reduce(
-    (sum, task) => sum + calculateTaskValueCents(task.baselineMinutes, hourlyRateCents),
+    (sum, task) => sum + getTaskValueCents(task),
     0,
   );
   const pendingAmountCents = [...inProgress, ...awaitingApproval].reduce(
-    (sum, task) => sum + calculateTaskValueCents(task.baselineMinutes, hourlyRateCents),
+    (sum, task) => sum + getTaskValueCents(task),
     0,
   );
   const paidAmount = child.history
@@ -134,13 +170,13 @@ const ChildCard: React.FC<ChildCardProps> = ({
     if (!isExpanded) {
       if (awaitingApproval.length > 0) return `Show Tasks — ${awaitingApproval.length} Need Approval ⚠️`;
       if (readyToPay.length > 0) return `Show Tasks — ${readyToPay.length} Ready to Pay 💰`;
-      return `Show Tasks (${child.customTasks?.length || 0})`;
+      return `Show Tasks (${allTasks.length})`;
     }
     if (awaitingApproval.length > 0 || readyToPay.length > 0) {
       const urgentCount = awaitingApproval.length + readyToPay.length;
       return `Hide Tasks (${urgentCount} need attention)`;
     }
-    return `Hide Tasks (${child.customTasks?.length || 0})`;
+    return `Hide Tasks (${allTasks.length})`;
   };
 
   return (
@@ -259,7 +295,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4">
                     <div className="flex items-center gap-1 text-neutral-darkGray text-xs font-medium"><Clock className="w-3 h-3" /> {task.baselineMinutes} min</div>
                     <span className="px-2 py-0.5 rounded-none bg-primary-cardinal/10 text-primary-cardinal text-[0.625rem] font-black uppercase tracking-widest animate-pulse">Awaiting Approval</span>
-                    <span className="text-xs font-bold text-primary-cardinal">Will earn: {formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate))}</span>
+                    <span className="text-xs font-bold text-primary-cardinal">Will earn: {getTaskDisplayValue(task)}</span>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <Button onClick={() => onApproveTask(child.id, task)} variant="primary" className="w-full"><Check className="w-4 h-4 mr-2" /> Approve</Button>
@@ -300,7 +336,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4">
                     <div className="flex items-center gap-1 text-neutral-darkGray text-xs font-medium"><Clock className="w-3 h-3" /> {task.baselineMinutes} min</div>
                     <span className="px-2 py-0.5 rounded-none bg-emerald-50 text-emerald-700 text-[0.625rem] font-black uppercase tracking-widest">Approved</span>
-                    <span className="text-xs font-bold text-emerald-600">Earned: {formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate))}</span>
+                    <span className="text-xs font-bold text-emerald-600">Earned: {getTaskDisplayValue(task)}</span>
                   </div>
                   <Button onClick={() => onPayTask(child.id, task)} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm border border-transparent"><DollarSign className="w-4 h-4 mr-2" /> Mark as Paid</Button>
                 </div>

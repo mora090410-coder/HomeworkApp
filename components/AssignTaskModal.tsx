@@ -9,6 +9,7 @@ export interface AssignTaskPayload {
   minutes: number;
   catalogItemId?: string;
   saveToCatalog?: boolean;
+  valueCents?: number;
 }
 
 interface AssignTaskModalProps {
@@ -32,11 +33,13 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
   initialTask,
   onAssign,
 }) => {
-  const [taskName, setTaskName] = useState('');
+  const [taskName, setTaskName] = React.useState(initialTask?.name ?? '');
+  const [minutes, setMinutes] = React.useState(initialTask?.minutes ?? 15);
+  const [taskValueCents, setTaskValueCents] = React.useState<number | undefined>(undefined);
   const [selectedMinutes, setSelectedMinutes] = useState<number | null>(null);
   const [isCustomTime, setIsCustomTime] = useState(false);
   const [customMinutes, setCustomMinutes] = useState(30);
-  const [selectedCatalogItemId, setSelectedCatalogItemId] = useState('');
+  const [selectedCatalogItemId, setSelectedCatalogItemId] = React.useState<string | undefined>(undefined);
   const [saveToCatalog, setSaveToCatalog] = useState(false);
 
   useEffect(() => {
@@ -117,6 +120,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
       minutes: selectedMinutes,
       catalogItemId: selectedCatalogItemId || undefined,
       saveToCatalog: Boolean(saveToCatalog && !selectedCatalogItemId),
+      valueCents: taskValueCents,
     });
     onClose();
   };
@@ -256,6 +260,30 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                 />
               </div>
             )}
+          </div>
+
+          <div className="mb-8">
+            <label htmlFor="taskValue" className="block text-sm font-bold text-neutral-darkGray uppercase tracking-wider mb-3">
+              Value ($) <span className="text-neutral-400 font-normal normal-case">(Optional)</span>
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span className="text-neutral-500">$</span>
+              </div>
+              <input
+                id="taskValue"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                value={taskValueCents !== undefined ? (taskValueCents / 100).toString() : ''}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  setTaskValueCents(Number.isNaN(val) ? undefined : Math.round(val * 100));
+                }}
+                className="w-full pl-7 pr-4 py-3.5 rounded-none border border-neutral-lightGray bg-white text-neutral-black placeholder-neutral-lightGray focus:border-primary-gold focus:ring-2 focus:ring-primary-gold/10 transition-all font-sans outline-none"
+              />
+            </div>
           </div>
 
           {!selectedCatalogItemId && (

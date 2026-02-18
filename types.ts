@@ -58,6 +58,7 @@ export interface Task {
   rejectionComment?: string;
   assigneeId?: string | null;
   catalogItemId?: string | null;
+  valueCents?: number;
 }
 
 export interface ChoreCatalogItem {
