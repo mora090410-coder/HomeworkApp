@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Delete, Loader2, Lock, X } from 'lucide-react';
 import { Button } from './ui/Button';
+import { Input } from './ui/Input';
 import { setProfilePin, verifyProfilePin } from '../services/householdService';
 
 type PinMode = 'VERIFY' | 'SETUP';
@@ -172,126 +173,140 @@ export default function PinModal({
     void processPin();
   }, [pin, mode, onAuthorized, setupStep, initialPin, isLoading, householdId, profileId]);
 
-  if (!isOpen) {
-    return null;
-  }
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-xl" onClick={onClose} />
-      <div className="relative w-full max-w-[420px] glass-dark rounded-[28px] border border-white/10 overflow-hidden shadow-2xl">
+      <div className="absolute inset-0 bg-neutral-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-[420px] bg-white rounded-none border border-neutral-lightGray overflow-hidden shadow-2xl">
+
+        {/* Close Button */}
         <button
-          type="button"
           onClick={onClose}
-          className="absolute top-6 right-6 w-8 h-8 rounded-full bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white flex items-center justify-center"
-          aria-label="Close PIN dialog"
+          className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-mutedBg text-neutral-darkGray transition-colors z-20"
         >
-          <X className="w-4 h-4" />
+          <X className="w-5 h-5" />
         </button>
 
-        <div className="px-8 pb-8 pt-10">
-          <div className="text-center mb-8">
-            <h3 className="text-2xl font-[590] text-white mb-2">{title}</h3>
-            <p className="text-sm text-gray-400">{subtitle}</p>
-            {errorMessage && <p className="mt-3 text-xs text-red-400">{errorMessage}</p>}
+        <div className="px-8 pt-12 pb-10 flex flex-col items-center">
+          <div className="w-16 h-16 rounded-full bg-primary-cardinal/10 flex items-center justify-center mb-6">
+            <Lock className="w-8 h-8 text-primary-cardinal" />
           </div>
 
-          <div className="flex items-center justify-center gap-4 mb-8 h-4">
-            {[0, 1, 2, 3].map((index) => (
+          <h3 className="text-2xl font-bold font-heading text-neutral-black mb-2">
+            {title}
+          </h3>
+
+          <p className="text-neutral-darkGray text-sm text-center mb-8 max-w-[280px]">
+            {subtitle}
+          </p>
+
+          {/* PIN Display */}
+          <div className="flex gap-4 mb-10">
+            {[0, 1, 2, 3].map((i) => (
               <div
-                key={index}
-                className={`rounded-full transition-all ${pin.length > index ? 'w-4 h-4 bg-primary-600 shadow-[0_0_10px_rgba(var(--primary-600),0.5)]' : 'w-4 h-4 bg-white/10'}`}
+                key={i}
+                className={`
+                  w-4 h-4 rounded-full transition-all duration-300 transform
+                  ${i < pin.length
+                    ? 'bg-primary-cardinal scale-110'
+                    : 'bg-neutral-lightGray'
+                  }
+                  ${errorMessage ? 'bg-semantic-error animate-shake' : ''}
+                `}
               />
             ))}
           </div>
 
-          <div className="grid grid-cols-3 gap-3 w-full mb-6">
+          {/* Keypad */}
+          <div className="grid grid-cols-3 gap-4 w-full max-w-[280px] mb-6">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((digit) => (
-              <Button
+              <button
                 key={digit}
                 type="button"
-                variant="glass"
                 onClick={() => handleDigit(String(digit))}
                 disabled={isLoading}
-                className="aspect-square rounded-2xl text-[1.75rem] font-[480] hover:border-primary-500/40 p-0"
+                className="aspect-square rounded-full text-2xl font-medium text-neutral-black hover:bg-neutral-mutedBg active:bg-neutral-lightGray transition-all focus:outline-none focus:ring-2 focus:ring-primary-cardinal/20 disabled:opacity-50"
                 aria-label={`Enter digit ${digit}`}
               >
                 {digit}
-              </Button>
+              </button>
             ))}
 
             <div className="aspect-square flex items-center justify-center">
-              {isLoading && <Loader2 className="w-6 h-6 animate-spin text-primary-500" />}
+              {isLoading && <Loader2 className="w-6 h-6 animate-spin text-primary-cardinal" />}
             </div>
 
-            <Button
+            <button
               type="button"
-              variant="glass"
               onClick={() => handleDigit('0')}
               disabled={isLoading}
-              className="aspect-square rounded-2xl text-[1.75rem] font-[480] hover:border-primary-500/40 p-0"
+              className="aspect-square rounded-full text-2xl font-medium text-neutral-black hover:bg-neutral-mutedBg active:bg-neutral-lightGray transition-all focus:outline-none focus:ring-2 focus:ring-primary-cardinal/20 disabled:opacity-50"
               aria-label="Enter digit 0"
             >
               0
-            </Button>
+            </button>
 
-            <Button
+            <button
               type="button"
-              variant="glass"
               onClick={handleDelete}
               disabled={isLoading}
-              className="aspect-square rounded-2xl text-[#666666] hover:text-white p-0 flex items-center justify-center"
+              className="aspect-square rounded-full flex items-center justify-center text-neutral-darkGray hover:text-neutral-black hover:bg-neutral-mutedBg active:bg-neutral-lightGray transition-all disabled:opacity-50"
               aria-label="Delete last digit"
             >
-              <Delete className="w-6 h-6" strokeWidth={1.5} />
-            </Button>
+              <Delete className="w-7 h-7" strokeWidth={1.5} />
+            </button>
           </div>
 
-          {canAdminBypass && profileRole === 'CHILD' && mode === 'VERIFY' && (
-            <div className="mt-2 rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={onAuthorized}
-                className="w-full text-white bg-primary-500/10 border-primary-500/40 hover:bg-primary-500/20 shadow-none"
-              >
-                Enter as Admin (No PIN)
-              </Button>
+          {errorMessage && (
+            <div className="text-semantic-error text-sm font-medium animate-in fade-in slide-in-from-top-1 mb-4">
+              {errorMessage}
+            </div>
+          )}
 
-              {adminMasterPassword.trim().length > 0 && (
-                <div className="mt-3 flex gap-2">
-                  <input
-                    type="password"
-                    value={masterPasswordInput}
-                    onChange={(event) => setMasterPasswordInput(event.target.value)}
-                    placeholder="Admin master password"
-                    className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white outline-none placeholder:text-gray-500 focus:border-primary-500/60 transition-all font-mono"
-                    aria-label="Admin master password"
-                  />
+          {canAdminBypass && (
+            <div className="mt-4 w-full">
+              {profileRole === 'CHILD' && mode === 'VERIFY' && (
+                <div className="w-full">
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     size="sm"
-                    onClick={() => {
-                      if (masterPasswordInput === adminMasterPassword) {
-                        setErrorMessage(null);
-                        onAuthorized();
-                        return;
-                      }
-                      setErrorMessage('Master password is incorrect.');
-                    }}
-                    className="whitespace-nowrap h-full"
+                    onClick={onAuthorized}
+                    className="w-full mb-3"
                   >
-                    Use Password
+                    Enter as Admin (No PIN)
                   </Button>
+                  {/* Master password hidden for now or implemented if needed matching original */}
+                  {adminMasterPassword.trim().length > 0 && (
+                    <div className="flex gap-2">
+                      <Input
+                        type="password"
+                        value={masterPasswordInput}
+                        onChange={(e) => setMasterPasswordInput(e.target.value)}
+                        placeholder="Master password"
+                        className="flex-1 rounded-xl px-3 py-2 text-sm"
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (masterPasswordInput === adminMasterPassword) {
+                            setErrorMessage(null);
+                            onAuthorized();
+                          } else {
+                            setErrorMessage('Incorrect master password');
+                          }
+                        }}
+                      >
+                        Go
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           )}
 
-          <div className="flex items-center justify-center gap-2 text-gray-500">
-            <Lock className="w-3 h-3" />
-            <span className="text-xs font-medium tracking-wide">SECURE VERIFICATION</span>
-          </div>
         </div>
       </div>
     </div>

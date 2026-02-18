@@ -1,0 +1,93 @@
+{
+  "meta": {
+    "brand_name": "HomeWork",
+    "description": "Core design tokens for HomeWork brand."
+  },
+  "colors": {
+    "primary": {
+      "cardinal": "#990000",
+      "gold": "#FFCC00",
+      "cardinal_hover": "#7A0000"
+    },
+    "neutral": {
+      "black": "#000000",
+      "white": "#FFFFFF",
+      "light_gray": "#CCCCCC",
+      "dark_gray": "#767676",
+      "muted_bg": "#F7F7F7"
+    },
+    "semantic": {
+      "success": "#10B981",
+      "destructive": "#EF4444"
+    },
+    "tertiary": [
+      "#F2C6A7",
+      "#F26178",
+      "#2B5597",
+      "#908C13",
+      "#FDE021",
+      "#DAE343",
+      "#FF9015",
+      "#E43D30"
+    ],
+    "gradients": {
+      "primary": "linear-gradient(to right, #990000, #FFCC00)"
+    }
+  },
+  "typography": {
+    "font_family_headings": [
+      "Libre Baskerville",
+      "Georgia",
+      "serif"
+    ],
+    "font_family_body": [
+      "Inter",
+      "system-ui",
+      "sans-serif"
+    ],
+    "weights": {
+      "regular": 400,
+      "medium": 500,
+      "bold": 700
+    },
+    "scale": {
+      "h1": {
+        "size": "3rem",
+        "line_height": "1.05",
+        "letter_spacing": "-0.02em"
+      },
+      "h2": {
+        "size": "2.25rem",
+        "line_height": "1.10",
+        "letter_spacing": "-0.015em"
+      },
+      "h3": {
+        "size": "1.75rem",
+        "line_height": "1.15",
+        "letter_spacing": "-0.01em"
+      },
+      "h4": {
+        "size": "1.375rem",
+        "line_height": "1.20",
+        "letter_spacing": "-0.005em"
+      },
+      "body": {
+        "size": "1rem",
+        "line_height": "1.5"
+      },
+      "small": {
+        "size": "0.875rem",
+        "line_height": "1.45"
+      },
+      "caption": {
+        "size": "0.75rem",
+        "line_height": "1.35"
+      }
+    }
+  },
+  "ui": {
+    "border_radius": "0px",
+    "border_width_card": "1px",
+    "focus_ring_color": "#FFCC00"
+  }
+}

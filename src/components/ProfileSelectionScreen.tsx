@@ -99,11 +99,11 @@ export default function ProfileSelectionScreen({
 
   return (
     // Background: Changed from static #0a0a0a to bg-gray-950
-    <div className="min-h-screen bg-gray-950 text-white relative overflow-hidden font-sans selection:bg-primary-500/30">
-      <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' /%3E%3C/svg%3E")` }}></div>
+    <div className="min-h-screen bg-white text-neutral-black relative overflow-hidden font-sans selection:bg-primary-500/30">
+
       <div className="relative z-10 mx-auto max-w-6xl px-6 pb-12 pt-8">
         <header className="flex items-center justify-between mb-16">
-          <div className="text-xl font-[590] tracking-tight text-white">HomeWork</div>
+          <div className="text-xl font-[590] tracking-tight text-neutral-black font-heading">HomeWork</div>
           <div className="flex items-center gap-3">
             {canAddProfile && (
               <Button
@@ -128,22 +128,22 @@ export default function ProfileSelectionScreen({
 
         <main>
           <div className="mx-auto max-w-3xl text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-[590] tracking-tight mb-3 text-white">Who&apos;s watching?</h1>
-            <p className="text-gray-400">Choose a profile to continue to your household dashboard.</p>
+            <h1 className="text-4xl md:text-5xl font-bold font-heading tracking-tight mb-3 text-neutral-black">Who&apos;s watching?</h1>
+            <p className="text-neutral-500 font-sans">Choose a profile to continue to your household dashboard.</p>
           </div>
 
           {isLoading && (
-            <div className="mx-auto flex max-w-xl items-center justify-center rounded-2xl border border-white/10 bg-white/[0.02] p-8">
-              <Loader2 className="w-6 h-6 animate-spin text-primary-500" />
-              <span className="ml-3 text-sm text-gray-300">Loading profiles...</span>
+            <div className="mx-auto flex max-w-xl items-center justify-center rounded-none border border-neutral-200 bg-neutral-50 p-8">
+              <Loader2 className="w-6 h-6 animate-spin text-primary-cardinal" />
+              <span className="ml-3 text-sm text-neutral-900">Loading profiles...</span>
             </div>
           )}
 
           {!isLoading && profiles.length === 0 && (
-            <div className="mx-auto max-w-xl rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-center glass-dark">
-              <p className="text-sm text-gray-300">No profiles found in this household yet.</p>
+            <div className="mx-auto max-w-xl rounded-none border border-neutral-200 bg-neutral-50 p-8 text-center text-neutral-500">
+              <p className="text-sm">No profiles found in this household yet.</p>
               {profilesError && (
-                <p className="mt-3 text-xs text-red-400" aria-label="Profile load error">
+                <p className="mt-3 text-xs text-red-500" aria-label="Profile load error">
                   {profilesError}
                 </p>
               )}
@@ -157,10 +157,10 @@ export default function ProfileSelectionScreen({
                 return (
                   <div
                     key={profile.id}
-                    // Card: Added glass-dark and dynamic border colors
-                    className={`group rounded-2xl border p-6 text-left transition-all ${isSelected
-                      ? 'border-primary-500 bg-primary-500/10 shadow-glow-primary'
-                      : 'glass-dark border-white/10 hover:border-primary-500/40 hover:bg-white/[0.05] hover:shadow-card-hover hover:-translate-y-1'
+                    // Card: Standard clean style
+                    className={`group rounded-none border p-6 text-left transition-all ${isSelected
+                      ? 'border-primary-cardinal bg-primary-gold/5 shadow-md'
+                      : 'bg-white border-neutral-200 hover:border-primary-gold/50 hover:shadow-lg hover:-translate-y-0.5'
                       }`}
                   >
                     <button
@@ -171,20 +171,22 @@ export default function ProfileSelectionScreen({
                     >
                       <div
                         className={`mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full border transition-transform group-hover:scale-105 ${profile.role === 'ADMIN'
-                          ? 'border-primary-500/60 text-primary-300'
-                          : 'border-white/20 text-white'
+                          ? 'border-primary-gold bg-primary-gold/10 text-primary-cardinal'
+                          : 'border-neutral-200 bg-neutral-100 text-neutral-500'
                           }`}
                         style={{
                           backgroundColor:
                             profile.role === 'ADMIN'
-                              ? 'rgba(var(--primary-500), 0.2)'
-                              : profile.avatarColor ?? 'rgba(255,255,255,0.1)',
+                              ? undefined
+                              : profile.avatarColor ?? undefined,
+                          color: profile.avatarColor ? 'white' : undefined,
+                          borderColor: profile.avatarColor ? 'transparent' : undefined
                         }}
                       >
                         {profileIcon(profile.role)}
                       </div>
-                      <div className="text-lg font-semibold text-white group-hover:text-primary-100 transition-colors">{profile.name}</div>
-                      <div className="mt-1 text-xs uppercase tracking-wide text-gray-400">{profile.role}</div>
+                      <div className="text-lg font-bold font-heading text-neutral-black group-hover:text-primary-cardinal transition-colors">{profile.name}</div>
+                      <div className="mt-1 text-xs uppercase tracking-wide text-neutral-500 font-bold">{profile.role}</div>
                     </button>
 
                     {isAdminUser && profile.role === 'CHILD' && (
@@ -197,7 +199,7 @@ export default function ProfileSelectionScreen({
                             void onGenerateSetupLink(profile);
                           }}
                           leftIcon={<Link2 className="h-3.5 w-3.5" />}
-                          className="text-xs uppercase tracking-wide px-3 py-1.5 h-auto text-gray-300 hover:text-white"
+                          className="text-xs uppercase tracking-wide px-3 py-1.5 h-auto text-neutral-900 hover:text-white"
                         >
                           Generate Link
                         </Button>
@@ -229,21 +231,21 @@ export default function ProfileSelectionScreen({
             onClick={closeAddProfile}
             aria-hidden="true"
           />
-          <div className="relative w-full max-w-md rounded-3xl border border-white/10 bg-gray-900 p-6 shadow-2xl glass-dark">
+          <div className="relative w-full max-w-md rounded-none border border-neutral-200 bg-white p-6 shadow-2xl">
             <button
               type="button"
-              className="absolute right-4 top-4 rounded-full bg-white/5 p-2 text-gray-400 hover:bg-white/10 hover:text-white transition-colors"
+              className="absolute right-4 top-4 rounded-full bg-neutral-50 p-2 text-neutral-500 hover:bg-white/10 hover:text-white transition-colors"
               onClick={closeAddProfile}
               aria-label="Close add profile modal"
             >
               <X className="h-4 w-4" />
             </button>
-            <h2 className="text-xl font-semibold text-white">Add Profile</h2>
-            <p className="mt-1 text-sm text-gray-400">Create a child profile for this household.</p>
+            <h2 className="text-xl font-semibold text-neutral-900">Add Profile</h2>
+            <p className="mt-1 text-sm text-neutral-500">Create a child profile for this household.</p>
 
             <form className="mt-6 space-y-4" onSubmit={handleCreateProfile}>
               <div>
-                <label htmlFor="profile-name" className="mb-1 block text-xs uppercase tracking-wide text-gray-400">
+                <label htmlFor="profile-name" className="mb-1 block text-xs uppercase tracking-wide text-neutral-500">
                   Name
                 </label>
                 <input
@@ -252,14 +254,14 @@ export default function ProfileSelectionScreen({
                   value={name}
                   onChange={(event) => setName(event.target.value)}
                   maxLength={40}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white outline-none placeholder:text-gray-500 focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/60 transition-all"
+                  className="w-full rounded-none border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-900 outline-none placeholder:text-gray-500 focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/60 transition-all"
                   placeholder="Emily"
                   aria-label="Profile name"
                 />
               </div>
 
               <div>
-                <label htmlFor="profile-pin" className="mb-1 block text-xs uppercase tracking-wide text-gray-400">
+                <label htmlFor="profile-pin" className="mb-1 block text-xs uppercase tracking-wide text-neutral-500">
                   4-digit PIN (optional)
                 </label>
                 <input
@@ -270,14 +272,14 @@ export default function ProfileSelectionScreen({
                   inputMode="numeric"
                   pattern="[0-9]{4}"
                   maxLength={4}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white outline-none placeholder:text-gray-500 focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/60 transition-all"
+                  className="w-full rounded-none border border-neutral-200 bg-neutral-50 px-3 py-2 text-neutral-900 outline-none placeholder:text-gray-500 focus:border-primary-500/60 focus:ring-1 focus:ring-primary-500/60 transition-all"
                   placeholder="0000"
                   aria-label="Profile PIN"
                 />
               </div>
 
               <div>
-                <span className="mb-2 block text-xs uppercase tracking-wide text-gray-400">Avatar Color</span>
+                <span className="mb-2 block text-xs uppercase tracking-wide text-neutral-500">Avatar Color</span>
                 <div className="flex gap-2">
                   {colorOptions.map((color) => (
                     <button

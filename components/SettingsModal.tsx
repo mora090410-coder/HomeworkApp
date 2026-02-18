@@ -3,6 +3,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { X, Check, Trash2, Plus, AlertTriangle, Download, Upload, RefreshCcw } from 'lucide-react';
 import { Child, Grade, Subject } from '../types';
 import { formatCurrency } from '../utils';
+import { Button } from '@/src/components/ui/Button';
+import { Input } from '@/src/components/ui/Input';
+import { Select } from '@/src/components/ui/Select';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -172,86 +175,93 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   if (!isOpen || !child) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 font-sans text-white">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity duration-300" onClick={onClose} />
-      <div className="relative w-full max-w-[580px] glass-dark rounded-[28px] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-white/10">
-        <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-0"
-          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' /%3E%3C/svg%3E")` }}>
-        </div>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 font-sans text-neutral-black">
+      <div className="absolute inset-0 bg-neutral-black/60 backdrop-blur-sm transition-opacity duration-300" onClick={onClose} />
+      <div className="relative w-full max-w-[580px] bg-white rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-neutral-lightGray">
 
-        <button onClick={onClose} className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-all z-50 cursor-pointer">
-          <X className="w-4 h-4" />
+        <button onClick={onClose} className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-mutedBg text-neutral-darkGray transition-colors z-50 cursor-pointer">
+          <X className="w-5 h-5" />
         </button>
 
-        <div className="relative z-20 border-b border-white/10 pt-10 px-10 pb-0 shrink-0">
-          <h2 className="text-[1.75rem] font-[590] text-white mb-6">Parent Settings</h2>
+        <div className="relative z-20 border-b border-neutral-lightGray pt-10 px-10 pb-0 shrink-0 bg-white">
+          <h2 className="text-3xl font-bold font-heading text-neutral-black mb-6">Parent Settings</h2>
           <div className="flex gap-2 overflow-x-auto scrollbar-hide">
             {['profile', 'subjects', 'payscale', 'data'].map(t => (
-              <button key={t} onClick={() => setActiveTab(t as any)} className={`px-5 py-3 text-[0.9375rem] font-[510] border-b-2 transition-all shrink-0 cursor-pointer ${activeTab === t ? 'border-primary-400 text-primary-400' : 'border-transparent text-gray-400 hover:text-gray-300'}`}>
+              <button
+                key={t}
+                onClick={() => setActiveTab(t as any)}
+                className={`
+                  px-5 py-3 text-sm font-bold border-b-2 transition-all shrink-0 cursor-pointer uppercase tracking-wider
+                  ${activeTab === t
+                    ? 'border-primary-cardinal text-primary-cardinal'
+                    : 'border-transparent text-neutral-darkGray hover:text-neutral-black hover:border-neutral-lightGray'
+                  }
+                `}
+              >
                 {t === 'data' ? 'Family Data' : t.charAt(0).toUpperCase() + t.slice(1)}
               </button>
             ))}
           </div>
         </div>
 
-        <div className="relative z-10 flex-1 overflow-y-auto p-10 scrollbar-hide pb-32">
+        <div className="relative z-10 flex-1 overflow-y-auto p-10 scrollbar-hide pb-32 bg-white">
           {activeTab === 'profile' && (
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
               <div>
-                <label className="block text-[0.8125rem] font-bold text-gray-400 uppercase mb-2 ml-1">Name</label>
-                <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white outline-none focus:border-primary-400/50 transition-all placeholder:text-gray-600" />
+                <label className="block text-sm font-bold text-neutral-darkGray uppercase mb-2 ml-1">Name</label>
+                <Input type="text" value={name} onChange={(e) => setName(e.target.value)} className="px-4 py-3.5 text-base placeholder-neutral-lightGray" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[0.8125rem] font-bold text-gray-400 uppercase mb-2 ml-1">Grade Level</label>
-                  <select value={gradeLevel} onChange={(e) => setGradeLevel(e.target.value)} className="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white outline-none focus:border-primary-400/50 transition-all [&>option]:bg-gray-950">
+                  <label className="block text-sm font-bold text-neutral-darkGray uppercase mb-2 ml-1">Grade Level</label>
+                  <Select value={gradeLevel} onChange={(e) => setGradeLevel(e.target.value)} className="w-full [&>option]:bg-white">
                     {SCHOOL_GRADES.map(g => (<option key={g} value={g}>{g}</option>))}
-                  </select>
+                  </Select>
                 </div>
                 <div>
-                  <label className="block text-[0.8125rem] font-bold text-gray-400 uppercase mb-2 ml-1">Username</label>
-                  <input
+                  <Input
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white outline-none focus:border-primary-400/50 transition-all placeholder:text-gray-600"
+                    className="px-4 py-3.5 text-base placeholder-neutral-lightGray"
                     aria-label="Username"
                   />
                 </div>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 space-y-3">
-                <h4 className="text-sm font-semibold text-white">Reset PIN</h4>
+              <div className="rounded-none border border-neutral-lightGray bg-neutral-mutedBg p-6 space-y-4">
+                <h4 className="text-sm font-bold text-neutral-black font-heading">Reset PIN</h4>
                 <div className="grid grid-cols-2 gap-3">
-                  <input
+                  <Input
                     type="password"
                     maxLength={4}
                     value={resetPinValue}
                     onChange={(e) => setResetPinValue(e.target.value.replace(/\D/g, ''))}
-                    className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white outline-none focus:border-primary-400/50 transition-all placeholder:text-gray-600"
+                    className="px-4 py-3 text-base placeholder-neutral-lightGray"
                     placeholder="New PIN"
                     aria-label="New PIN"
                   />
-                  <input
+                  <Input
                     type="password"
                     maxLength={4}
                     value={confirmResetPinValue}
                     onChange={(e) => setConfirmResetPinValue(e.target.value.replace(/\D/g, ''))}
-                    className="w-full px-4 py-3 rounded-xl bg-black/40 border border-white/10 text-white outline-none focus:border-primary-400/50 transition-all placeholder:text-gray-600"
+                    className="px-4 py-3 text-base placeholder-neutral-lightGray"
                     placeholder="Confirm PIN"
                     aria-label="Confirm PIN"
                   />
                 </div>
-                <button
+                <Button
                   type="button"
+                  variant="secondary"
                   onClick={() => { void handleResetPin(); }}
                   disabled={isResettingPin}
-                  className="w-full py-3 rounded-xl font-bold bg-white/5 border border-white/10 text-white hover:bg-white/10 disabled:opacity-60 transition-all cursor-pointer"
-                  aria-label="Reset PIN"
+                  className="w-full"
+                  isLoading={isResettingPin}
                 >
                   {isResettingPin ? 'Resetting...' : 'Reset PIN'}
-                </button>
+                </Button>
                 {credentialMessage && (
-                  <p className={`text-sm ${credentialMessage.includes('success') ? 'text-emerald-400' : 'text-red-400'}`}>
+                  <p className={`text-sm font-medium ${credentialMessage.includes('success') ? 'text-semantic-success' : 'text-semantic-destructive'}`}>
                     {credentialMessage}
                   </p>
                 )}
@@ -262,35 +272,37 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="space-y-3 mb-6">
                 {subjects.map(s => (
-                  <div key={s.id} className="flex items-center gap-3 px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-colors">
-                    <input type="text" value={s.name} onChange={(e) => handleSubjectNameChange(s.id, e.target.value)} className="flex-1 bg-transparent border-none outline-none text-white placeholder:text-gray-600" placeholder="Subject Name" />
-                    <button onClick={() => handleRemoveSubject(s.id)} disabled={subjects.length <= 1} className="w-7 h-7 flex items-center justify-center rounded-md text-gray-400 hover:text-red-400 cursor-pointer"><X className="w-3 h-3" /></button>
+                  <div key={s.id} className="flex items-center gap-3 px-4 py-3.5 rounded-none bg-white border border-neutral-lightGray hover:border-primary-gold/50 transition-colors">
+                    <Input type="text" value={s.name} onChange={(e) => handleSubjectNameChange(s.id, e.target.value)} className="flex-1 bg-transparent border-none outline-none text-neutral-black placeholder-neutral-lightGray font-medium h-auto p-0 focus:ring-0" placeholder="Subject Name" />
+                    <button onClick={() => handleRemoveSubject(s.id)} disabled={subjects.length <= 1} className="w-7 h-7 flex items-center justify-center rounded-sm text-neutral-lightGray hover:text-semantic-destructive cursor-pointer transition-colors"><X className="w-4 h-4" /></button>
                   </div>
                 ))}
               </div>
-              <button onClick={handleAddSubject} className="w-full py-3 rounded-xl border border-dashed border-white/20 text-gray-400 flex items-center justify-center gap-2 hover:border-primary-400 hover:text-primary-400 transition-all cursor-pointer"><Plus className="w-4 h-4" /> Add Subject</button>
+              <Button onClick={handleAddSubject} variant="secondary" className="w-full border-dashed" leftIcon={<Plus className="w-4 h-4" />}>
+                Add Subject
+              </Button>
             </div>
           )}
           {activeTab === 'payscale' && (
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[0.8125rem] font-bold text-gray-400 uppercase mb-2 ml-1">Base Value ($)</label>
-                  <input type="number" step="0.25" value={baseValue} onChange={(e) => setBaseValue(parseFloat(e.target.value) || 0)} className="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white outline-none focus:border-primary-400/50" />
+                  <label className="block text-sm font-bold text-neutral-darkGray uppercase mb-2 ml-1">Base Value ($)</label>
+                  <Input type="number" step="0.25" value={baseValue} onChange={(e) => setBaseValue(parseFloat(e.target.value) || 0)} className="px-4 py-3.5 text-base placeholder-neutral-lightGray" />
                 </div>
                 <div>
-                  <label className="block text-[0.8125rem] font-bold text-gray-400 uppercase mb-2 ml-1">Decrement</label>
-                  <select value={decrement} onChange={(e) => setDecrement(parseFloat(e.target.value))} className="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white outline-none [&>option]:bg-gray-950">
+                  <label className="block text-sm font-bold text-neutral-darkGray uppercase mb-2 ml-1">Decrement</label>
+                  <Select value={decrement} onChange={(e) => setDecrement(parseFloat(e.target.value))} className="w-full [&>option]:bg-white">
                     {DECREMENT_OPTIONS.map(opt => (<option key={opt} value={opt}>${opt.toFixed(2)}</option>))}
-                  </select>
+                  </Select>
                 </div>
               </div>
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+              <div className="bg-neutral-mutedBg border border-neutral-lightGray rounded-none p-6">
                 <div className="grid grid-cols-3 gap-2">
                   {LETTER_GRADES.map(g => (
-                    <div key={g} className="flex justify-between items-center px-3 py-3 bg-white/5 rounded-lg border border-white/5">
-                      <span className="text-[0.75rem] font-bold text-white">{g}</span>
-                      <span className="text-[0.75rem] font-bold text-primary-400">{formatCurrency(calculatedRates[g] || 0)}</span>
+                    <div key={g} className="flex justify-between items-center px-3 py-3 bg-white rounded-none border border-neutral-lightGray shadow-sm">
+                      <span className="text-xs font-bold text-neutral-black">{g}</span>
+                      <span className="text-xs font-bold text-primary-cardinal">{formatCurrency(calculatedRates[g] || 0)}</span>
                     </div>
                   ))}
                 </div>
@@ -299,67 +311,88 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           )}
           {activeTab === 'data' && (
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-8">
-              <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
-                <h4 className="text-white font-bold mb-2 flex items-center gap-2">
-                  <Download className="w-4 h-4 text-primary-400" /> Export Data
+              <div className="p-5 rounded-none bg-neutral-mutedBg border border-neutral-lightGray">
+                <h4 className="text-neutral-black font-bold mb-2 flex items-center gap-2 font-heading">
+                  <Download className="w-4 h-4 text-primary-cardinal" /> Export Data
                 </h4>
-                <p className="text-sm text-gray-400 mb-4">Copy your entire family setup to move it to another phone or tablet.</p>
-                <button
+                <p className="text-sm text-neutral-darkGray mb-4">Copy your entire family setup to move it to another phone or tablet.</p>
+                <Button
                   onClick={handleExport}
-                  className={`w-full py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${copySuccess ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-white/5 text-white hover:bg-white/10 border border-white/10'}`}
+                  variant={copySuccess ? "secondary" : "secondary"}
+                  className={`w-full ${copySuccess ? 'text-semantic-success border-semantic-success' : ''}`}
+                  leftIcon={copySuccess ? <Check className="w-4 h-4" /> : <Download className="w-4 h-4" />}
                 >
-                  {copySuccess ? <Check className="w-4 h-4" /> : <Download className="w-4 h-4" />}
                   {copySuccess ? 'Copied to Clipboard!' : 'Copy Export Code'}
-                </button>
+                </Button>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/[0.06]">
-                <h4 className="text-white font-bold mb-2 flex items-center gap-2">
-                  <Upload className="w-4 h-4 text-blue-400" /> Import Data
+              <div className="p-5 rounded-none bg-neutral-mutedBg border border-neutral-lightGray">
+                <h4 className="text-neutral-black font-bold mb-2 flex items-center gap-2 font-heading">
+                  <Upload className="w-4 h-4 text-primary-cardinal" /> Import Data
                 </h4>
-                <p className="text-sm text-gray-400 mb-4">Paste an export code to overwrite this device's data.</p>
+                <p className="text-sm text-neutral-darkGray mb-4">Paste an export code to overwrite this device's data.</p>
                 <textarea
                   value={importText}
                   onChange={(e) => setImportText(e.target.value)}
                   placeholder="Paste code here..."
-                  className="w-full h-24 p-3 rounded-xl bg-black/40 border border-white/10 text-xs text-white/60 mb-3 outline-none focus:border-blue-400/40 resize-none"
+                  className="w-full h-24 p-3 rounded-none bg-white border border-neutral-lightGray text-xs text-neutral-black mb-3 outline-none focus:ring-2 focus:ring-primary-gold focus:border-transparent resize-none placeholder:text-neutral-lightGray"
                 />
-                <button
+                <Button
                   onClick={handleImport}
                   disabled={!importText.trim()}
-                  className="w-full py-3 rounded-xl font-bold bg-blue-500/10 text-blue-400 border border-blue-500/30 hover:bg-blue-500/20 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+                  variant="secondary"
+                  className="w-full"
                 >
                   Import Code
-                </button>
+                </Button>
               </div>
 
-              <div className="p-5 rounded-2xl bg-red-500/5 border border-red-500/20">
-                <h4 className="text-red-400 font-bold mb-2 flex items-center gap-2">
+              <div className="p-5 rounded-none bg-semantic-destructive/5 border border-semantic-destructive/20">
+                <h4 className="text-semantic-destructive font-bold mb-2 flex items-center gap-2 font-heading">
                   <RefreshCcw className="w-4 h-4" /> Reset App
                 </h4>
-                <p className="text-sm text-gray-400 mb-4">Clear all children, tasks, and history. Use this to start a fresh real-world trial.</p>
-                <button
+                <p className="text-sm text-neutral-darkGray mb-4">Clear all children, tasks, and history. Use this to start a fresh real-world trial.</p>
+                <Button
                   onClick={() => { if (confirm("Are you sure? This deletes everything.")) onResetAll?.(); }}
-                  className="w-full py-3 rounded-xl font-bold bg-red-500/10 text-red-500 border border-red-500/30 hover:bg-red-500/20 transition-all cursor-pointer"
+                  variant="destructive"
+                  className="w-full"
                 >
                   Clear All Family Data
-                </button>
+                </Button>
               </div>
             </div>
           )}
         </div>
-        <div className="absolute bottom-0 left-0 right-0 z-20 glass-dark border-t border-white/10 px-10 py-8 flex gap-4">
-          <button onClick={() => setShowDeleteConfirm(true)} className="flex-1 py-4 rounded-xl font-bold text-[#ff4444] bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 transition-all cursor-pointer">Delete Profile</button>
-          <button onClick={handleSave} className="flex-1 py-4 rounded-xl font-bold text-white bg-gradient-to-r from-primary-700 to-primary-500 shadow-lg hover:scale-[1.02] shadow-primary-500/20 transition-all cursor-pointer">Save Changes</button>
+
+        <div className="absolute bottom-0 left-0 right-0 z-20 bg-white border-t border-neutral-lightGray px-10 py-8 flex gap-4">
+          <Button
+            onClick={() => setShowDeleteConfirm(true)}
+            variant="destructive"
+            className="flex-1 h-14"
+          >
+            Delete Profile
+          </Button>
+          <Button
+            onClick={handleSave}
+            variant="primary"
+            className="flex-1 h-14 shadow-lg"
+          >
+            Save Changes
+          </Button>
         </div>
+
         {showDeleteConfirm && (
-          <div className="absolute inset-0 z-[110] glass-dark flex flex-col items-center justify-center p-10 text-center animate-in fade-in duration-200">
-            <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center mb-6 text-[#ff4444]"><AlertTriangle className="w-10 h-10" /></div>
-            <h3 className="text-2xl font-[590] text-white mb-2">Delete Profile?</h3>
-            <p className="text-gray-400 mb-8">This action is permanent.</p>
+          <div className="absolute inset-0 z-[110] bg-white flex flex-col items-center justify-center p-10 text-center animate-in fade-in duration-200">
+            <div className="w-20 h-20 rounded-full bg-semantic-destructive/10 flex items-center justify-center mb-6 text-semantic-destructive"><AlertTriangle className="w-10 h-10" /></div>
+            <h3 className="text-2xl font-bold font-heading text-neutral-black mb-2">Delete Profile?</h3>
+            <p className="text-neutral-darkGray mb-8">This action is permanent.</p>
             <div className="flex gap-4 w-full">
-              <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 py-4 rounded-xl font-bold text-white bg-white/[0.06] hover:bg-white/[0.1] transition-all cursor-pointer">Cancel</button>
-              <button onClick={() => { if (child) { onDelete(child.id); onClose(); } }} className="flex-1 py-4 rounded-xl font-bold text-white bg-[#ff4444] hover:bg-[#eb0000] transition-all cursor-pointer">Yes, Delete</button>
+              <Button onClick={() => setShowDeleteConfirm(false)} variant="secondary" className="flex-1 h-14">
+                Cancel
+              </Button>
+              <Button onClick={() => { if (child) { onDelete(child.id); onClose(); } }} variant="destructive" className="flex-1 h-14">
+                Yes, Delete
+              </Button>
             </div>
           </div>
         )}

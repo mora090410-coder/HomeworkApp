@@ -19,11 +19,18 @@ export default {
     theme: {
         extend: {
             colors: {
-                primary: colors.primary,
-                secondary: colors.secondary,
-                gray: colors.grays,
+                primary: {
+                    DEFAULT: colors.primary.cardinal,
+                    hover: colors.primary.cardinalHover,
+                    ...colors.primary,
+                },
+                secondary: {
+                    DEFAULT: colors.primary.gold,
+                    ...colors.primary, // map generic secondary to gold/primary for safety or strict new tokens
+                },
+                neutral: colors.neutral,
 
-                // Semantic Tokens (reference CSS variables from design-tokens.css)
+                // Semantic Tokens
                 surface: {
                     app: 'var(--bg-app)',
                     base: 'var(--bg-surface)',
@@ -41,57 +48,21 @@ export default {
                 }
             },
             borderRadius: {
-                'card': '20px',
-                'phoneMock': '24px',
+                'card': '0px', // Brand identity says 0px radius or clean cards? "clean cards"
+                // Checking design-tokens.json: "border_radius": "0px"
             },
             fontFamily: {
-                sans: ['Manrope', 'sans-serif'],
-                heading: ['Sora', 'system-ui', 'sans-serif'],
+                sans: ['Inter', 'system-ui', 'sans-serif'],
+                heading: ['"Libre Baskerville"', 'Georgia', 'serif'],
             },
-            fontSize: {
-                'hero-base': ['32px', { lineHeight: '1.05', fontWeight: '800', letterSpacing: '-0.02em' }],
-                'hero-sm': ['40px', { lineHeight: '1.05', fontWeight: '800', letterSpacing: '-0.02em' }],
-                'hero-md': ['48px', { lineHeight: '1.05', fontWeight: '800', letterSpacing: '-0.02em' }],
-                'hero-lg': ['56px', { lineHeight: '1.05', fontWeight: '800', letterSpacing: '-0.02em' }],
-                'section-label': ['12px', { lineHeight: '1.2', fontWeight: '600', letterSpacing: '0.08em' }],
-                'card-title': ['13px', { lineHeight: '1.3', fontWeight: '700' }],
-                'card-body': ['12px', { lineHeight: '1.4', fontWeight: '400' }],
-                'footer-sm': ['11px', { lineHeight: '1.4', fontWeight: '400' }],
+            backgroundImage: {
+                'primary-gradient': `linear-gradient(to right, ${colors.primary.cardinal}, ${colors.primary.gold})`,
             },
             boxShadow: {
                 'sm': 'var(--shadow-sm)',
                 'md': 'var(--shadow-md)',
                 'lg': 'var(--shadow-lg)',
-                'glass': 'var(--glass-shadow)',
-                'hero-media': `0 20px 60px -5px ${colors.accents.shadowSoft}, 0 10px 30px -5px ${colors.accents.shadowCrimson}`,
-                'card-soft': 'var(--shadow-sm)',
-                'card-hover': 'var(--shadow-md)',
-                'btn-primary': `0 4px 14px 0 ${colors.primary[600]}80`,
-                'btn-primary-hover': `0 6px 20px ${colors.primary[600]}66`,
-                'btn-secondary': `0 4px 14px 0 ${colors.secondary[500]}66`,
-                'glow-primary': `0 0 20px ${colors.primary[600]}99`,
-                'glow-secondary': `0 0 20px ${colors.secondary[500]}80`,
             },
-            backgroundImage: {
-                'primary-gradient': `linear-gradient(135deg, ${colors.primary[500]} 0%, ${colors.primary[600]} 100%)`,
-                'primary-gradient-hover': `linear-gradient(135deg, ${colors.primary[400]} 0%, ${colors.primary[500]} 100%)`,
-                'secondary-gradient': `linear-gradient(135deg, ${colors.secondary[500]} 0%, ${colors.secondary[600]} 100%)`,
-                'secondary-gradient-hover': `linear-gradient(135deg, ${colors.secondary[400]} 0%, ${colors.secondary[500]} 100%)`,
-                'glass-gradient': `linear-gradient(135deg, ${colors.accents.cardBorderLight} 0%, rgba(255,255,255,0.05) 100%)`,
-                'app-gradient-light': `radial-gradient(circle at 50% 0%, ${colors.primary[500]}08 0%, transparent 50%), radial-gradient(circle at 100% 0%, ${colors.secondary[500]}0D 0%, transparent 40%)`,
-                'app-gradient-dark': `radial-gradient(circle at 50% 0%, ${colors.primary[500]}14 0%, transparent 50%), radial-gradient(circle at 100% 0%, ${colors.secondary[500]}0F 0%, transparent 40%)`,
-                'accent-wash': 'var(--accent-wash)',
-            },
-            animation: {
-                'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                'float': 'float 6s ease-in-out infinite',
-            },
-            keyframes: {
-                float: {
-                    '0%, 100%': { transform: 'translateY(0)' },
-                    '50%': { transform: 'translateY(-10px)' },
-                }
-            }
         },
     },
     plugins: [],

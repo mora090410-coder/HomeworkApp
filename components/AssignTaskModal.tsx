@@ -1,7 +1,8 @@
 
 import React, { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 import { ChoreCatalogItem } from '@/types';
+import { Input } from '@/src/components/ui/Input';
 
 export interface AssignTaskPayload {
   taskName: string;
@@ -128,35 +129,27 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 font-sans text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 font-sans">
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity duration-300"
+        className="absolute inset-0 bg-neutral-black/60 backdrop-blur-sm transition-opacity duration-300"
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-[520px] glass-dark rounded-[28px] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-white/10">
-        <div
-          className="absolute inset-0 pointer-events-none opacity-[0.03] z-0"
-          style={{
-            backgroundImage:
-              'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'3\' /%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\' /%3E%3C/svg%3E")',
-          }}
-        />
-
+      <div className="relative w-full max-w-[520px] bg-white rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-neutral-lightGray">
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-all z-20 cursor-pointer"
+          className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-mutedBg text-neutral-darkGray transition-colors z-20"
           aria-label="Close assign task modal"
         >
-          <X className="w-4 h-4" />
+          <X className="w-5 h-5" />
         </button>
 
         <div className="relative z-10 p-8 md:px-12 md:py-10 overflow-y-auto scrollbar-hide">
           <div className="mb-10 text-center md:text-left">
-            <h2 className="text-[1.75rem] font-[590] text-white mb-2 leading-tight">
+            <h2 className="text-3xl font-bold font-heading text-neutral-black mb-2 leading-tight">
               {isEditing ? 'Edit Task' : isOpenTask ? 'Create Open Task' : `Assign Task to ${childName}`}
             </h2>
-            <p className="text-[0.9375rem] text-gray-400">
+            <p className="text-base text-neutral-darkGray">
               {isEditing
                 ? 'Update task details'
                 : isOpenTask
@@ -169,7 +162,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
             <div className="mb-8">
               <label
                 htmlFor="catalogItem"
-                className="block text-[0.9375rem] font-[510] text-gray-400 mb-3 ml-1"
+                className="block text-sm font-bold text-neutral-darkGray uppercase tracking-wider mb-3"
               >
                 Household Chore Catalog
               </label>
@@ -177,12 +170,10 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                 id="catalogItem"
                 value={selectedCatalogItemId}
                 onChange={handleCatalogSelection}
-                className="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white text-base outline-none focus:bg-white/10 focus:border-primary-400/50 [&>option]:bg-gray-950"
+                className="w-full px-4 py-3.5 rounded-none bg-white border border-neutral-lightGray text-neutral-black text-base outline-none focus:ring-2 focus:ring-primary-gold focus:border-transparent transition-all"
                 aria-label="Choose a chore template"
               >
-                <option value="">
-                  One-off task (not from catalog)
-                </option>
+                <option value="">One-off task (not from catalog)</option>
                 {catalogItems.map((item) => (
                   <option key={item.id} value={item.id}>
                     {item.name} ({item.baselineMinutes} min)
@@ -193,10 +184,10 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
           )}
 
           <div className="mb-8">
-            <label htmlFor="taskName" className="block text-[0.9375rem] font-[510] text-gray-400 mb-3 ml-1">
+            <label htmlFor="taskName" className="block text-sm font-bold text-neutral-darkGray uppercase tracking-wider mb-3">
               Task Name
             </label>
-            <input
+            <Input
               id="taskName"
               type="text"
               value={taskName}
@@ -206,14 +197,14 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                   ? 'e.g., Wash Car, Mow Lawn, Water Plants'
                   : 'e.g., Clean Room, Do Homework, Take Out Trash'
               }
-              className="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white text-base placeholder-gray-600 outline-none focus:bg-white/10 focus:border-primary-400/50"
+              className="px-4 py-3.5 text-base placeholder-neutral-lightGray rounded-none bg-white border border-neutral-lightGray outline-none focus:ring-2 focus:ring-primary-gold focus:border-transparent transition-all"
               autoFocus
               aria-label="Task name"
             />
           </div>
 
           <div className="mb-8">
-            <label className="block text-[0.9375rem] font-[510] text-gray-400 mb-3 ml-1">Baseline Time</label>
+            <label className="block text-sm font-bold text-neutral-darkGray uppercase tracking-wider mb-3">Baseline Time</label>
             <div className="grid grid-cols-4 gap-3 mb-3">
               {QUICK_TIMES.map((minutes) => {
                 const isSelected = !isCustomTime && selectedMinutes === minutes;
@@ -221,9 +212,9 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                   <button
                     key={minutes}
                     onClick={() => handleQuickTimeClick(minutes)}
-                    className={`py-3.5 rounded-xl text-[0.9375rem] font-[510] transition-all duration-200 border cursor-pointer ${isSelected
-                        ? 'bg-gradient-to-r from-primary-700/20 to-primary-500/20 border-primary-500/40 text-primary-400'
-                        : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:text-white'
+                    className={`py-3.5 rounded-none text-sm font-bold transition-all duration-200 border cursor-pointer ${isSelected
+                      ? 'bg-primary-cardinal border-primary-cardinal text-white shadow-sm'
+                      : 'bg-white border-neutral-lightGray text-neutral-darkGray hover:bg-neutral-mutedBg hover:text-neutral-black'
                       }`}
                     aria-label={`Set baseline time to ${minutes} minutes`}
                   >
@@ -235,9 +226,9 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
 
             <button
               onClick={handleCustomTimeToggle}
-              className={`w-full py-3.5 rounded-xl text-[0.9375rem] font-[510] transition-all duration-200 border mb-4 cursor-pointer ${isCustomTime
-                  ? 'bg-gradient-to-r from-primary-700/20 to-primary-500/20 border-primary-500/40 text-primary-400'
-                  : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:text-white'
+              className={`w-full py-3.5 rounded-none text-sm font-bold transition-all duration-200 border mb-4 cursor-pointer ${isCustomTime
+                ? 'bg-primary-cardinal border-primary-cardinal text-white shadow-sm'
+                : 'bg-white border-neutral-lightGray text-neutral-darkGray hover:bg-neutral-mutedBg hover:text-neutral-black'
                 }`}
               aria-label="Toggle custom baseline time"
             >
@@ -247,8 +238,8 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
             {isCustomTime && (
               <div className="animate-in slide-in-from-top-4 fade-in duration-300 pt-2 px-1">
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Select minutes</span>
-                  <span className="text-[1.25rem] font-bold bg-gradient-to-r from-primary-700 to-primary-500 text-transparent bg-clip-text">
+                  <span className="text-xs font-bold text-neutral-darkGray uppercase tracking-wider">Select minutes</span>
+                  <span className="text-xl font-bold text-primary-cardinal">
                     {customMinutes} min
                   </span>
                 </div>
@@ -260,7 +251,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                   step="5"
                   value={customMinutes}
                   onChange={handleSliderChange}
-                  className="w-full h-1.5 bg-gradient-to-r from-primary-700/30 to-primary-500/30 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-gradient-to-r [&::-webkit-slider-thumb]:from-primary-700 [&::-webkit-slider-thumb]:to-primary-500"
+                  className="w-full h-1.5 bg-neutral-lightGray rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary-cardinal focus:outline-none focus:ring-2 focus:ring-primary-gold"
                   aria-label="Custom baseline minutes"
                 />
               </div>
@@ -268,29 +259,32 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
           </div>
 
           {!selectedCatalogItemId && (
-            <label className="mb-8 flex items-center gap-3 text-sm text-gray-300">
+            <label className="mb-8 flex items-center gap-3 text-sm text-neutral-darkGray cursor-pointer group">
               <input
                 type="checkbox"
                 checked={saveToCatalog}
                 onChange={(event) => setSaveToCatalog(event.target.checked)}
-                className="h-4 w-4 rounded border-white/20 bg-white/5"
+                className="h-4 w-4 rounded-sm border-neutral-lightGray text-primary-cardinal focus:ring-primary-gold"
                 aria-label="Save this one-off task to the household chore catalog"
               />
-              Save this one-off task to household catalog
+              <span className="group-hover:text-neutral-black transition-colors">Save to household catalog</span>
             </label>
           )}
 
-          <button
-            onClick={handleSubmit}
-            disabled={!isValid}
-            className={`w-full py-4 rounded-xl font-[510] text-[1.0625rem] transition-all duration-200 cursor-pointer ${isValid
-                ? 'bg-gradient-to-r from-primary-700 to-primary-500 text-white shadow-lg shadow-primary-500/20 hover:shadow-primary-500/30 hover:-translate-y-0.5 active:scale-[0.98]'
-                : 'bg-white/5 text-white/40 cursor-not-allowed opacity-60'
-              }`}
-            aria-label="Submit task"
-          >
-            {isEditing ? 'Save Changes' : isOpenTask ? 'Create Task' : 'Assign Task'}
-          </button>
+          <div className="pt-4">
+            <button
+              onClick={handleSubmit}
+              disabled={!isValid}
+              className={`w-full py-4 rounded-none font-bold text-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 ${isValid
+                ? 'bg-primary-cardinal text-white shadow-md hover:shadow-lg hover:-translate-y-0.5'
+                : 'bg-neutral-lightGray text-neutral-darkGray cursor-not-allowed opacity-70'
+                }`}
+              aria-label="Submit task"
+            >
+              <Check className="w-5 h-5" />
+              {isEditing ? 'Save Changes' : isOpenTask ? 'Create Task' : 'Assign Task'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

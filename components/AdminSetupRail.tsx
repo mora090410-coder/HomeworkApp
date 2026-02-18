@@ -11,15 +11,15 @@ const STEPS = ['Child Basics', 'Current Grades', 'Review & Finish'];
 
 export default function AdminSetupRail({ completedSteps, onStartAddChild }: AdminSetupRailProps) {
   return (
-    <section className="rounded-[28px] border border-stroke-base bg-surface-2 p-6 md:p-8 relative overflow-hidden group">
+    <section className="bg-white border border-neutral-lightGray p-6 md:p-8 relative overflow-hidden group rounded-none shadow-sm">
 
-      {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+      {/* Background decoration - subtle brand accent */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-primary-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
       <div className="grid gap-8 lg:grid-cols-[2fr_1fr] relative z-10">
         <div>
-          <h2 className="text-2xl font-[590] text-content-primary tracking-tight">Set up your first child in under 2 minutes</h2>
-          <p className="mt-2 text-[0.9375rem] text-content-muted leading-relaxed max-w-lg">
+          <h2 className="text-2xl font-bold font-heading text-neutral-900 tracking-tight">Set up your first child in under 2 minutes</h2>
+          <p className="mt-2 text-[0.9375rem] text-neutral-500 leading-relaxed max-w-lg font-sans">
             Build your Family Economy foundation with a guided 3-step setup to unlock task tracking and financial management.
           </p>
 
@@ -33,22 +33,22 @@ export default function AdminSetupRail({ completedSteps, onStartAddChild }: Admi
                 <div
                   key={stepLabel}
                   className={`
-                    rounded-xl border px-4 py-3.5 transition-all duration-300
+                    border px-4 py-3.5 transition-all duration-300 rounded-none
                     ${isComplete
-                      ? 'border-emerald-500/30 bg-emerald-500/10'
+                      ? 'border-primary-success/30 bg-primary-success/5'
                       : isCurrent
-                        ? 'border-primary-200 dark:border-primary-500/40 bg-primary-50 dark:bg-primary-500/10 shadow-[0_0_15px_rgba(var(--primary-500),0.1)]'
-                        : 'border-gray-200 dark:border-white/5 bg-white dark:bg-white/[0.02]'
+                        ? 'border-primary-gold ring-1 ring-primary-gold bg-white shadow-sm'
+                        : 'border-neutral-lightGray bg-neutral-mutedBg'
                     }
                   `}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <p className={`text-[0.6875rem] font-bold uppercase tracking-wider ${isComplete ? 'text-emerald-600 dark:text-emerald-400' : isCurrent ? 'text-primary-600 dark:text-primary-400' : 'text-content-muted'}`}>
+                    <p className={`text-[0.6875rem] font-bold uppercase tracking-wider font-sans ${isComplete ? 'text-primary-success' : isCurrent ? 'text-primary-cardinal' : 'text-neutral-darkGray'}`}>
                       Step {stepNumber}
                     </p>
-                    {isComplete && <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+                    {isComplete && <Check className="w-3.5 h-3.5 text-primary-success" />}
                   </div>
-                  <p className={`text-sm font-semibold ${isComplete || isCurrent ? 'text-content-primary' : 'text-content-muted'}`}>
+                  <p className={`text-sm font-semibold font-sans ${isComplete || isCurrent ? 'text-neutral-black' : 'text-neutral-darkGray'}`}>
                     {stepLabel}
                   </p>
                 </div>
@@ -56,26 +56,29 @@ export default function AdminSetupRail({ completedSteps, onStartAddChild }: Admi
             })}
           </div>
 
-          <Button
-            size="lg"
-            onClick={onStartAddChild}
-            className="mt-8 bg-gradient-to-r from-primary-700 to-primary-500 text-white shadow-lg shadow-primary-500/20"
-          >
-            Add First Child
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
+          <div className="mt-8">
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={onStartAddChild}
+              className="pl-6 pr-8 shadow-md shadow-primary-700/20"
+            >
+              Add First Child
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
         </div>
 
-        <aside className="rounded-2xl border border-stroke-base bg-white/50 dark:bg-black/20 p-5 self-start">
-          <p className="text-xs font-bold uppercase tracking-wider text-content-muted mb-4">What Unlocks Next</p>
+        <aside className="border border-neutral-lightGray bg-neutral-mutedBg p-6 self-start rounded-none">
+          <p className="text-xs font-bold uppercase tracking-wider text-neutral-darkGray mb-4 font-sans">What Unlocks Next</p>
           <ul className="space-y-3">
             {[
               "Centralized ledger visibility",
               "Sunday grade-lock automation",
               "Task assignment and approvals"
             ].map((item, i) => (
-              <li key={i} className="flex items-start gap-3 text-[0.8125rem] text-gray-600 dark:text-gray-300">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary-500 mt-1.5 shrink-0" />
+              <li key={i} className="flex items-start gap-3 text-[0.8125rem] text-neutral-600 font-medium font-sans">
+                <div className="w-1.5 h-1.5 rounded-full bg-primary-cardinal mt-1.5 shrink-0" />
                 {item}
               </li>
             ))}

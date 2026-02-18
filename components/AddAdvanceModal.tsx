@@ -3,6 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { X, ChevronDown } from 'lucide-react';
 import { AdvanceCategory, Child } from '@/types';
 import { parseCurrencyInputToCents } from '@/utils';
+import { Button } from '@/src/components/ui/Button';
+import { Input } from '@/src/components/ui/Input';
+import { Select } from '@/src/components/ui/Select';
 
 interface AddAdvanceModalProps {
   isOpen: boolean;
@@ -64,36 +67,31 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 font-sans text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 font-sans">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-md transition-opacity duration-300"
+        className="absolute inset-0 bg-neutral-black/60 backdrop-blur-sm transition-opacity duration-300"
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-[520px] glass-dark rounded-[28px] shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300 border border-white/10">
-
-        {/* Noise Texture */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-0"
-          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' /%3E%3C/svg%3E")` }}>
-        </div>
+      <div className="relative w-full max-w-[520px] bg-white rounded-none shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300 border border-neutral-lightGray">
 
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white transition-all z-20 cursor-pointer"
+          className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-mutedBg text-neutral-darkGray transition-colors z-20"
         >
-          <X className="w-4 h-4" />
+          <X className="w-5 h-5" />
         </button>
 
         <div className="relative z-10 p-8 md:px-12 md:py-10">
 
           {/* Header */}
           <div className="mb-8 text-center md:text-left">
-            <h2 className="text-[1.75rem] font-[590] text-white mb-2 leading-tight">
+            <h2 className="text-3xl font-bold font-heading text-neutral-black mb-2 leading-tight">
               Record Advance
             </h2>
-            <p className="text-[0.9375rem] text-gray-400">
+            <p className="text-base text-neutral-darkGray">
               Track upfront spending or debts
             </p>
           </div>
@@ -102,81 +100,72 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
 
             {/* Child Selection */}
             <div>
-              <label className="block text-[0.9375rem] font-[510] text-gray-400 mb-3 ml-1">Child Account</label>
-              <div className="relative">
-                <select
-                  value={childId}
-                  onChange={(e) => setChildId(e.target.value)}
-                  className="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white text-base outline-none appearance-none focus:bg-white/10 focus:border-primary-400/50 focus:shadow-[0_0_12px_rgba(var(--primary-400),0.15)] transition-all cursor-pointer [&>option]:bg-gray-950"
-                >
-                  {childrenData.map(child => (
-                    <option key={child.id} value={child.id}>{child.name}</option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-              </div>
+              <label className="block text-sm font-bold text-neutral-darkGray uppercase tracking-wider mb-3 ml-1">Child Account</label>
+              <Select
+                value={childId}
+                onChange={(e) => setChildId(e.target.value)}
+                className="w-full"
+              >
+                {childrenData.map(child => (
+                  <option key={child.id} value={child.id}>{child.name}</option>
+                ))}
+              </Select>
             </div>
 
             {/* Amount & Category */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-[0.9375rem] font-[510] text-gray-400 mb-3 ml-1">Amount</label>
+                <label className="block text-sm font-bold text-neutral-darkGray uppercase tracking-wider mb-3 ml-1">Amount</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-lg">$</span>
-                  <input
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-darkGray font-bold text-lg">$</span>
+                  <Input
                     type="number"
                     step="0.01"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="0.00"
-                    className="w-full pl-9 pr-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white text-lg font-bold outline-none focus:bg-white/10 focus:border-primary-400/50 focus:shadow-[0_0_12px_rgba(var(--primary-400),0.15)] transition-all placeholder:text-gray-600"
+                    className="pl-9 pr-4 py-3.5 text-lg font-bold placeholder-neutral-lightGray"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[0.9375rem] font-[510] text-gray-400 mb-3 ml-1">Category</label>
-                <div className="relative">
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value as AdvanceCategory)}
-                    className="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white text-base outline-none appearance-none focus:bg-white/10 focus:border-primary-400/50 focus:shadow-[0_0_12px_rgba(var(--primary-400),0.15)] transition-all cursor-pointer [&>option]:bg-gray-950"
-                  >
-                    {CATEGORIES.map(cat => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-                </div>
+                <label className="block text-sm font-bold text-neutral-darkGray uppercase tracking-wider mb-3 ml-1">Category</label>
+                <Select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value as AdvanceCategory)}
+                  className="w-full"
+                >
+                  {CATEGORIES.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </Select>
               </div>
             </div>
 
             {/* Memo */}
             <div>
-              <label className="block text-[0.9375rem] font-[510] text-gray-400 mb-3 ml-1">Memo</label>
-              <input
+              <label className="block text-sm font-bold text-neutral-darkGray uppercase tracking-wider mb-3 ml-1">Memo</label>
+              <Input
                 type="text"
                 value={memo}
                 onChange={(e) => setMemo(e.target.value)}
                 placeholder="e.g. Starbucks, Robux, Uber"
-                className="w-full px-4 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white text-base outline-none focus:bg-white/10 focus:border-primary-400/50 focus:shadow-[0_0_12px_rgba(var(--primary-400),0.15)] transition-all placeholder:text-gray-600"
+                className="px-4 py-3.5 text-base placeholder-neutral-lightGray"
               />
             </div>
 
             {/* Action Button */}
-            <button
-              onClick={handleSubmit}
-              disabled={!isValid}
-              className={`
-                w-full py-4 rounded-xl font-[510] text-[1.0625rem] transition-all duration-200 mt-2 cursor-pointer
-                ${isValid
-                  ? 'bg-gradient-to-r from-primary-700 to-primary-500 text-white shadow-lg shadow-primary-500/20 hover:shadow-primary-500/30 hover:-translate-y-0.5 active:scale-[0.98]'
-                  : 'bg-white/5 text-white/40 cursor-not-allowed opacity-60'
-                }
-              `}
-            >
-              Record Advance
-            </button>
+            <div className="pt-2">
+              <Button
+                onClick={handleSubmit}
+                disabled={!isValid}
+                className="w-full h-14 text-lg font-bold"
+                variant="primary"
+              >
+                Record Advance
+              </Button>
+            </div>
 
           </div>
         </div>

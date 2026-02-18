@@ -1,6 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&display=swap');
 
-/* Design tokens — auto-generated from colors.js, do NOT edit directly */
+/* Design tokens — auto-generated from colors.js */
 @import './src/generated/design-tokens.css';
 
 @import "tailwindcss";
@@ -8,23 +8,17 @@
 
 body {
     margin: 0;
-    font-family: 'Manrope', sans-serif;
+    font-family: 'Inter', sans-serif;
     background-color: var(--bg-app);
     color: var(--text-primary);
-    transition: background-color 0.3s ease, color 0.3s ease;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
 /* Accessibility & Focus */
 :focus-visible {
-    @apply outline-none ring-2 ring-primary-500/50 ring-offset-2;
+    @apply outline-none ring-2 ring-orange-400 ring-offset-2;
     --tw-ring-offset-color: var(--bg-app);
-}
-
-/* Selection */
-::selection {
-    background: rgba(244, 63, 94, 0.3);
 }
 
 /* Scrollbar */
@@ -40,211 +34,41 @@ body {
 ::-webkit-scrollbar-thumb {
     background-color: var(--border-base);
     border-radius: 9999px;
-    border: 2px solid transparent;
+    border: 2px solid transparent; /* padding around thumb */
     background-clip: content-box;
-    transition: background-color 0.2s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
     background-color: var(--text-subtle);
 }
 
-
 /* ========================================
-   PREMIUM COMPONENT UTILITIES
-   All surface/border/text colors reference
-   CSS vars generated from colors.js.
+   PREMIUM COMPONENT UTILITIES (Refactored)
    ======================================== */
 @layer components {
 
-    /* --- Glass Panel (Nav, Modals) --- */
-    .glass-panel {
-        @apply backdrop-blur-xl transition-all duration-300;
-        background-color: var(--glass-surface);
-        border: 1px solid var(--glass-border);
-        box-shadow: var(--glass-shadow);
-    }
-
-    /* --- Glass Card (Premium depth card) --- */
-    .glass-card {
-        @apply rounded-[24px] backdrop-blur-md transition-all duration-300 relative overflow-hidden;
-        background: var(--bg-surface);
-        border: 1px solid var(--border-base);
-        box-shadow: var(--shadow-sm);
-    }
-
-    .glass-card::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        border-radius: 24px;
-        box-shadow: inset 0 1px 0 0 var(--border-highlight);
-    }
-
-    .glass-card:hover {
-        border-color: var(--border-highlight);
-        box-shadow: var(--shadow-lg);
-        transform: translateY(-2px);
-    }
-
-    /* --- Standard Card (Surface + Border + Shadow + Inner Highlight) --- */
+    /* --- Standard Card (Clean White) --- */
     .card-base {
-        @apply rounded-[20px] transition-all duration-300 relative overflow-hidden;
-        background-color: var(--bg-surface);
-        border: 1px solid var(--border-base);
-        box-shadow: var(--shadow-sm);
-    }
-
-    .card-base::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        border-radius: 20px;
-        box-shadow: inset 0 1px 0 0 var(--border-highlight);
+        @apply bg-surface-base border border-stroke-base shadow-sm transition-shadow duration-200;
+        /* No border radius per brand guidelines? design-tokens.json says 0px. */
     }
 
     .card-hover {
-        @apply hover:-translate-y-1;
-        box-shadow: var(--shadow-md);
+        @apply hover:shadow-md;
     }
 
-    .card-hover:hover {
-        box-shadow: var(--shadow-lg);
-        border-color: var(--border-highlight);
+    /* --- Primary Button --- */
+    .btn-primary {
+        @apply bg-primary text-white font-semibold px-6 py-2 transition-colors duration-200;
+        /* Hover: Darker Cardinal */
+        @apply hover:bg-primary-hover;
+        /* Focus ring */
+        @apply focus:ring-secondary; 
     }
 
-    /* --- Accent Glow Card (hover border glow) --- */
-    .card-glow:hover {
-        border-color: rgba(244, 63, 94, 0.3);
-        box-shadow: var(--shadow-lg), 0 0 20px rgba(244, 63, 94, 0.08);
-    }
-
-    .dark .card-glow:hover {
-        box-shadow: var(--shadow-lg), 0 0 30px rgba(244, 63, 94, 0.12);
-    }
-
-    /* --- Glass Button --- */
-    .glass-button {
-        @apply backdrop-blur-sm transition-all duration-200 shadow-sm hover:shadow-md active:scale-95;
-        background-color: var(--bg-surface-2);
-        border: 1px solid var(--border-base);
-        color: var(--text-primary);
-    }
-
-    .glass-button:hover {
-        background-color: var(--bg-elev-1);
-        border-color: var(--border-highlight);
-    }
-
-    /* --- Gradient Text --- */
-    .text-gradient-primary {
-        @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-rose-400 dark:from-primary-400 dark:to-rose-300;
-    }
-
-    .text-gradient-gold {
-        @apply bg-clip-text text-transparent bg-gradient-to-r from-secondary-500 to-amber-300;
-    }
-
-    /* --- Accent Wash --- */
-    .accent-wash {
-        background-image: var(--accent-wash);
-    }
-
-    /* --- Shimmer Button (Primary CTA shine) --- */
-    .btn-shimmer {
-        position: relative;
-        overflow: hidden;
-    }
-
-    .btn-shimmer::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 50%;
-        height: 100%;
-        background: linear-gradient(90deg,
-                transparent,
-                rgba(255, 255, 255, 0.15),
-                transparent);
-        animation: shimmer 3s ease-in-out infinite;
-    }
-}
-
-
-/* ========================================
-   ANIMATIONS
-   ======================================== */
-
-@keyframes shimmer {
-    0% {
-        left: -100%;
-    }
-
-    50%,
-    100% {
-        left: 150%;
-    }
-}
-
-@keyframes fade-in-up {
-    from {
-        opacity: 0;
-        transform: translateY(24px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.animate-fade-in-up {
-    animation: fade-in-up 0.6s ease-out both;
-}
-
-.animate-fade-in-up-delay-1 {
-    animation: fade-in-up 0.6s ease-out 0.1s both;
-}
-
-.animate-fade-in-up-delay-2 {
-    animation: fade-in-up 0.6s ease-out 0.2s both;
-}
-
-.animate-fade-in-up-delay-3 {
-    animation: fade-in-up 0.6s ease-out 0.3s both;
-}
-
-.animate-float {
-    animation: float 6s ease-in-out infinite;
-}
-
-.animate-pulse-glow {
-    animation: pulse-glow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes float {
-
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-10px);
-    }
-}
-
-@keyframes pulse-glow {
-
-    0%,
-    100% {
-        opacity: 1;
-    }
-
-    50% {
-        opacity: 0.7;
+    /* --- Secondary Button --- */
+    .btn-secondary {
+        @apply bg-white text-primary border border-neutral-lightGray px-6 py-2 transition-colors duration-200;
+        @apply hover:bg-neutral-mutedBg;
     }
 }

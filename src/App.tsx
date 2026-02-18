@@ -2,8 +2,9 @@ import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { signOut, User, onAuthStateChanged } from 'firebase/auth';
 import { collection, onSnapshot, query } from 'firebase/firestore';
-import { Calendar, Loader2, LogOut, Plus, Share2, UserPlus, Users } from 'lucide-react';
+import { Calendar, Check, Loader2, LogOut, Plus, Share2, UserPlus, Users } from 'lucide-react';
 import { Button } from './components/ui/Button';
+import { Input } from './components/ui/Input';
 import {
   BrowserRouter,
   Navigate,
@@ -869,11 +870,11 @@ function DashboardPage() {
 
   if (!isFirebaseConfigured) {
     return (
-      <div className="min-h-screen bg-surface-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-content-primary p-6 transition-colors duration-300">
-        <div className="max-w-lg w-full bg-surface-base backdrop-blur-xl p-8 rounded-2xl border border-stroke-base text-center shadow-xl">
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-neutral-900 p-6 transition-colors duration-300">
+        <div className="max-w-lg w-full bg-white p-8 rounded-none border border-neutral-200 text-center shadow-xl">
           <h2 className="text-2xl font-bold mb-4">Firebase Setup Required</h2>
-          <p className="text-content-primary mb-2">Phase 2 requires Firebase Auth and Firestore configuration.</p>
-          <p className="text-content-muted text-sm">Add `VITE_FIREBASE_*` keys in `.env` and restart the app.</p>
+          <p className="text-neutral-600 mb-2">Phase 2 requires Firebase Auth and Firestore configuration.</p>
+          <p className="text-neutral-500 text-sm">Add `VITE_FIREBASE_*` keys in `.env` and restart the app.</p>
         </div>
       </div>
     );
@@ -896,8 +897,8 @@ function DashboardPage() {
 
   if (familyAuth.isInitializing) {
     return (
-      <div className="min-h-screen bg-surface-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-content-primary">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-600 dark:text-primary-400" />
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-neutral-900">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
       </div>
     );
   }
@@ -956,8 +957,8 @@ function DashboardPage() {
 
   if (loadingChildren || loadingOpenTasks || !familyAuth.activeProfile) {
     return (
-      <div className="min-h-screen bg-surface-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-content-primary">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-600 dark:text-primary-400" />
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-neutral-900">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
       </div>
     );
   }
@@ -969,25 +970,25 @@ function DashboardPage() {
 
     if (!activeChild) {
       return (
-        <div className="min-h-screen bg-surface-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-content-primary">
+        <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-neutral-900">
           <div className="text-center">
             <p className="text-lg mb-4">Child profile data is still loading.</p>
-            <button type="button" onClick={familyAuth.clearActiveProfileSelection} className="px-4 py-2 rounded-lg bg-primary-600 text-white">Back to Profile Picker</button>
+            <button type="button" onClick={familyAuth.clearActiveProfileSelection} className="px-4 py-2 rounded-none bg-primary-600 text-white shadow-sm hover:bg-primary-700 transition-colors">Back to Profile Picker</button>
           </div>
         </div>
       );
     }
 
     return (
-      <div className="min-h-screen bg-surface-app bg-app-gradient-light dark:bg-app-gradient-dark text-content-primary relative pb-12 transition-colors duration-300">
+      <div className="min-h-screen bg-neutral-mutedBg text-neutral-black relative pb-12 font-sans">
         <div className="relative z-10 max-w-[1200px] mx-auto p-6 md:p-8">
           <header className="flex justify-between items-center mb-10">
             <div className="flex items-center gap-3">
-              <span className="text-2xl font-[590] tracking-tight text-content-primary">HomeWork</span>
-              <span className="px-2 py-0.5 rounded-md bg-surface-2 border border-stroke-base text-[11px] font-bold tracking-wider text-content-muted uppercase">Child</span>
+              <span className="text-2xl font-bold font-heading track-tight text-primary-cardinal">HomeWork</span>
+              <span className="px-2 py-0.5 rounded-none bg-white border border-neutral-lightGray text-[11px] font-bold tracking-wider text-neutral-darkGray uppercase">Child</span>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => { void familyAuth.signOutUser(); }} className="text-content-muted hover:text-content-primary">
+              <Button variant="ghost" size="icon" onClick={() => { void familyAuth.signOutUser(); }} className="text-neutral-darkGray hover:text-neutral-black">
                 <LogOut className="w-5 h-5" />
               </Button>
             </div>
@@ -1011,38 +1012,38 @@ function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-app bg-app-gradient-light dark:bg-app-gradient-dark text-content-primary relative pb-12 transition-colors duration-300">
+    <div className="min-h-screen bg-neutral-50 text-neutral-900 relative pb-12 font-sans">
       <div className="relative z-10 max-w-[1400px] mx-auto p-6 md:p-8">
         <header className="flex justify-between items-center mb-10">
           <div className="flex items-center gap-3">
-            <span className="text-2xl font-[590] tracking-tight text-content-primary">HomeWork</span>
-            <span className="px-2 py-0.5 rounded-md bg-surface-2 border border-stroke-base text-[11px] font-bold tracking-wider text-content-muted uppercase">Admin</span>
+            <span className="text-2xl font-bold font-heading track-tight text-primary-cardinal">HomeWork</span>
+            <span className="px-2 py-0.5 rounded-none bg-white border border-neutral-200 text-[11px] font-bold tracking-wider text-neutral-500 uppercase shadow-sm">Admin</span>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => { void familyAuth.signOutUser(); }} className="text-content-muted hover:text-content-primary">
+            <Button variant="ghost" size="icon" onClick={() => { void familyAuth.signOutUser(); }} className="text-neutral-500 hover:text-neutral-900">
               <LogOut className="w-5 h-5" />
             </Button>
           </div>
         </header>
 
         <div className="flex flex-wrap items-center gap-3 mb-8">
-          <Button variant="primary" onClick={() => setIsAddChildModalOpen(true)} className="gap-2 shadow-lg shadow-primary-500/20">
+          <Button variant="primary" onClick={() => setIsAddChildModalOpen(true)} className="gap-2 shadow-sm">
             <UserPlus className="w-[18px] h-[18px]" />
             <span className="hidden sm:inline">Add Child</span>
           </Button>
-          <Button variant="outline" onClick={() => { setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }} disabled={!hasChildren} className="gap-2 border-stroke-base text-content-primary hover:bg-surface-2">
+          <Button variant="outline" onClick={() => { setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }} disabled={!hasChildren} className="gap-2">
             <Calendar className="w-[18px] h-[18px]" />
             <span className="hidden sm:inline">Add Open Task</span>
           </Button>
-          <Button variant="outline" onClick={() => { setIsOpenTaskMode(false); setSelectedChildId(''); setIsAddTaskModalOpen(true); }} disabled={!hasChildren} className="gap-2 border-stroke-base text-content-primary hover:bg-surface-2">
+          <Button variant="outline" onClick={() => { setIsOpenTaskMode(false); setSelectedChildId(''); setIsAddTaskModalOpen(true); }} disabled={!hasChildren} className="gap-2">
             <Calendar className="w-[18px] h-[18px]" />
             <span className="hidden sm:inline">Create Draft</span>
           </Button>
-          <Button variant="outline" onClick={() => { if (hasChildren) { setSelectedChildId(childrenWithRateMap[0].id); setIsAdvanceModalOpen(true); } }} disabled={!hasChildren} className="gap-2 border-stroke-base text-content-primary hover:bg-surface-2">
+          <Button variant="outline" onClick={() => { if (hasChildren) { setSelectedChildId(childrenWithRateMap[0].id); setIsAdvanceModalOpen(true); } }} disabled={!hasChildren} className="gap-2">
             <Plus className="w-[18px] h-[18px]" />
             <span className="hidden sm:inline">Add Advance</span>
           </Button>
-          <Button variant="ghost" onClick={handleGenerateInvite} className="gap-2 border-dashed border-stroke-base text-content-muted hover:text-content-primary">
+          <Button variant="ghost" onClick={handleGenerateInvite} className="gap-2 border-dashed border-neutral-300 text-neutral-500 hover:text-neutral-900">
             <Share2 className="w-4 h-4" />
             <span className="text-xs font-bold uppercase tracking-wider">Invite</span>
           </Button>
@@ -1050,10 +1051,10 @@ function DashboardPage() {
 
         {hasChildren ? (
           <div className="mb-12">
-            <div className="mb-8 card-base p-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-l-4 border-l-primary-500">
+            <div className="mb-8 bg-white p-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border border-neutral-200 rounded-none shadow-sm">
               <div>
-                <h2 className="text-lg font-bold text-content-primary mb-1">Family Command Center</h2>
-                <p className="text-sm text-content-muted">
+                <h2 className="text-lg font-bold font-heading text-neutral-900 mb-1">Family Command Center</h2>
+                <p className="text-sm text-neutral-500 font-sans">
                   {pendingSetupCount > 0
                     ? `${pendingSetupCount} profile${pendingSetupCount === 1 ? '' : 's'} awaiting setup completion.`
                     : 'All systems operational.'}
@@ -1061,7 +1062,7 @@ function DashboardPage() {
               </div>
               <div className="flex items-center gap-3">
                 {inviteSentCount > 0 && (
-                  <span className="px-3 py-1 rounded-full bg-primary-500/20 text-primary-200 text-xs font-bold border border-primary-500/30">
+                  <span className="px-3 py-1 rounded-none bg-neutral-100 text-neutral-600 text-xs font-bold border border-neutral-200">
                     {inviteSentCount} Invite{inviteSentCount !== 1 ? 's' : ''} Sent
                   </span>
                 )}
@@ -1164,12 +1165,12 @@ function DashboardPage() {
 
         {taskToReject && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setTaskToReject(null)} />
-            <div className="relative w-full max-w-[480px] bg-surface-base rounded-[24px] border border-stroke-base p-10 shadow-2xl">
-              <h3 className="text-xl font-bold mb-4 text-content-primary">Reject Task: {taskToReject.task.name}</h3>
-              <textarea value={rejectionComment} onChange={(event) => setRejectionComment(event.target.value)} placeholder="What needs to be fixed?" className="w-full min-h-[120px] p-4 bg-surface-2 border border-stroke-base rounded-xl mb-6 outline-none focus:border-primary-500 text-content-primary placeholder:text-content-subtle" autoFocus />
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setTaskToReject(null)} />
+            <div className="relative w-full max-w-[480px] bg-white rounded-none border border-neutral-200 p-8 shadow-xl animate-in zoom-in-95 duration-200">
+              <h3 className="text-xl font-bold mb-4 text-neutral-900">Reject Task: {taskToReject.task.name}</h3>
+              <textarea value={rejectionComment} onChange={(event) => setRejectionComment(event.target.value)} placeholder="What needs to be fixed?" className="w-full min-h-[120px] p-4 bg-neutral-50 border border-neutral-200 rounded-none mb-6 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-neutral-900 placeholder:text-neutral-400 resize-none font-sans" autoFocus />
               <div className="flex gap-4">
-                <button type="button" onClick={() => setTaskToReject(null)} className="flex-1 py-3 text-content-muted bg-surface-2 hover:bg-surface-elev rounded-xl transition-colors">Cancel</button>
+                <button type="button" onClick={() => setTaskToReject(null)} className="flex-1 py-3 text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-none transition-colors font-medium">Cancel</button>
                 <button type="button" onClick={() => {
                   if (!taskToReject || rejectionComment.trim().length === 0) {
                     return;
@@ -1177,7 +1178,7 @@ function DashboardPage() {
                   statusTaskMutation.mutate({ taskId: taskToReject.task.id, status: 'ASSIGNED', comment: rejectionComment });
                   setTaskToReject(null);
                   setRejectionComment('');
-                }} disabled={rejectionComment.trim().length === 0} className="flex-1 py-3 bg-red-600 rounded-xl font-bold text-white disabled:opacity-50 hover:bg-red-700 transition-colors">
+                }} disabled={rejectionComment.trim().length === 0} className="flex-1 py-3 bg-red-600 rounded-none font-bold text-white disabled:opacity-50 hover:bg-red-700 transition-colors shadow-sm">
                   Send Back
                 </button>
               </div>
@@ -1187,10 +1188,10 @@ function DashboardPage() {
 
         {isInviteModalOpen && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setIsInviteModalOpen(false)} />
-            <div className="relative w-full max-w-[560px] bg-surface-base rounded-[24px] border border-stroke-base p-8 text-left shadow-2xl">
-              <h3 className="text-xl font-bold mb-2 text-content-primary">Invite Child Device</h3>
-              <p className="text-content-muted mb-5 text-sm">Choose a child profile to generate a unique setup URL.</p>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsInviteModalOpen(false)} />
+            <div className="relative w-full max-w-[560px] bg-white rounded-none border border-neutral-200 p-8 text-left shadow-xl animate-in zoom-in-95 duration-200">
+              <h3 className="text-xl font-bold mb-2 text-neutral-900">Invite Child Device</h3>
+              <p className="text-neutral-500 mb-5 text-sm">Choose a child profile to generate a unique setup URL.</p>
               <div className="space-y-2 max-h-[320px] overflow-auto pr-1 custom-scrollbar">
                 {childrenWithRateMap.map((child) => (
                   <button
@@ -1200,29 +1201,29 @@ function DashboardPage() {
                       void handleGenerateProfileSetupLink(toProfileFromChild(child));
                       setIsInviteModalOpen(false);
                     }}
-                    className="w-full rounded-xl border border-stroke-base bg-surface-2 px-4 py-3 text-left hover:bg-surface-elev transition-colors"
+                    className="w-full rounded-none border border-neutral-200 bg-neutral-50 px-4 py-3 text-left hover:bg-white hover:border-primary-500 hover:shadow-md transition-all group"
                   >
-                    <div className="text-sm font-semibold text-content-primary">{child.name}</div>
-                    <div className="text-xs text-content-muted">{child.gradeLevel}</div>
+                    <div className="text-sm font-semibold text-neutral-900 group-hover:text-primary-600">{child.name}</div>
+                    <div className="text-xs text-neutral-500">{child.gradeLevel}</div>
                   </button>
                 ))}
               </div>
-              <button type="button" onClick={() => setIsInviteModalOpen(false)} className="mt-5 w-full py-3 bg-surface-2 rounded-xl font-bold text-content-primary hover:bg-surface-elev transition-colors">Close</button>
+              <button type="button" onClick={() => setIsInviteModalOpen(false)} className="mt-5 w-full py-3 bg-neutral-100 rounded-none font-bold text-neutral-700 hover:bg-neutral-200 transition-colors">Close</button>
             </div>
           </div>
         )}
 
         {profileSetupLink && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setProfileSetupLink(null)} />
-            <div className="relative w-full max-w-[560px] bg-surface-base rounded-[24px] border border-stroke-base p-10 text-center shadow-2xl">
-              <h3 className="text-xl font-bold mb-4 text-content-primary">Profile Setup Link</h3>
-              <p className="text-content-muted mb-6 text-sm">Send this one-time link so the child can set their own PIN and avatar.</p>
-              <div className="flex items-center gap-2 bg-surface-2 p-3 rounded-xl mb-6 border border-stroke-base">
-                <code className="text-xs text-primary-600 dark:text-primary-400 flex-1 truncate">{profileSetupLink}</code>
-                <button type="button" onClick={() => { void navigator.clipboard.writeText(profileSetupLink); }} className="text-xs font-bold bg-surface-elev px-3 py-1.5 rounded-lg hover:bg-surface-2 text-content-primary transition-colors">COPY</button>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setProfileSetupLink(null)} />
+            <div className="relative w-full max-w-[560px] bg-white rounded-none border border-neutral-200 p-10 text-center shadow-xl animate-in zoom-in-95 duration-200">
+              <h3 className="text-xl font-bold mb-4 text-neutral-900">Profile Setup Link</h3>
+              <p className="text-neutral-500 mb-6 text-sm">Send this one-time link so the child can set their own PIN and avatar.</p>
+              <div className="flex items-center gap-2 bg-neutral-50 p-3 rounded-none mb-6 border border-neutral-200">
+                <code className="text-xs text-primary-600 flex-1 truncate font-mono">{profileSetupLink}</code>
+                <button type="button" onClick={() => { void navigator.clipboard.writeText(profileSetupLink); }} className="text-xs font-bold bg-white border border-neutral-200 px-3 py-1.5 rounded-none hover:bg-neutral-50 text-neutral-700 transition-colors shadow-sm">COPY</button>
               </div>
-              <button type="button" onClick={() => setProfileSetupLink(null)} className="w-full py-3 bg-surface-2 rounded-xl font-bold text-content-primary hover:bg-surface-elev transition-colors">Close</button>
+              <button type="button" onClick={() => setProfileSetupLink(null)} className="w-full py-3 bg-neutral-100 rounded-none font-bold text-neutral-700 hover:bg-neutral-200 transition-colors">Close</button>
             </div>
           </div>
         )}
@@ -1337,33 +1338,39 @@ function SetupProfileRoute() {
   };
 
   return (
-    <div className="min-h-screen bg-app bg-app-gradient-light dark:bg-app-gradient-dark text-primary flex items-center justify-center p-6 transition-colors duration-300">
-      <div className="w-full max-w-md rounded-3xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900/60 backdrop-blur-xl p-6 shadow-xl">
+    <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-6 transition-colors duration-300">
+      <div className="w-full max-w-md rounded-none border border-neutral-200 bg-white p-6 shadow-xl relative overflow-hidden">
+        {/* Decorative background element */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+
         {isLoading ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 className="h-6 w-6 animate-spin text-primary-500" />
+          <div className="flex items-center justify-center py-16 relative z-10">
+            <Loader2 className="h-6 w-6 animate-spin text-primary-600" />
           </div>
         ) : isComplete ? (
-          <div className="text-center py-6">
-            <h1 className="text-2xl font-semibold">Setup Complete</h1>
-            <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">Your profile is ready. Use Child Sign In with your username and PIN on any device.</p>
+          <div className="text-center py-6 relative z-10">
+            <div className="w-16 h-16 rounded-none bg-emerald-100 flex items-center justify-center mx-auto mb-4 text-emerald-600">
+              <Check className="w-8 h-8" />
+            </div>
+            <h1 className="text-2xl font-bold text-neutral-900 font-heading">Setup Complete</h1>
+            <p className="mt-3 text-sm text-neutral-500">Your profile is ready. Use Child Sign In with your username and PIN on any device.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <h1 className="text-2xl font-semibold">Set Up {profileName}</h1>
-              <p className="mt-2 text-sm text-gray-400">Choose a username, avatar color, and create your 4-digit PIN.</p>
+          <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
+            <div className="text-center mb-6">
+              <h1 className="text-2xl font-bold text-neutral-900 font-heading">Set Up {profileName}</h1>
+              <p className="mt-2 text-sm text-neutral-500">Choose a username, avatar color, and create your 4-digit PIN.</p>
             </div>
 
             <div>
-              <span className="mb-2 block text-xs uppercase tracking-wide text-gray-400">Avatar Color</span>
-              <div className="flex gap-2 flex-wrap">
+              <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-neutral-500">Avatar Color</span>
+              <div className="flex gap-3 flex-wrap justify-center">
                 {colorOptions.map((color) => (
                   <button
                     key={color}
                     type="button"
                     onClick={() => setAvatarColor(color)}
-                    className={`h-9 w-9 rounded-full border ${avatarColor === color ? 'border-white' : 'border-white/20'}`}
+                    className={`h-10 w-10 rounded-none border-2 transition-transform hover:scale-110 ${avatarColor === color ? 'border-neutral-900 ring-2 ring-neutral-900/20' : 'border-transparent hover:border-black/10'}`}
                     style={{ backgroundColor: color }}
                     aria-label={`Select avatar color ${color}`}
                   />
@@ -1372,55 +1379,55 @@ function SetupProfileRoute() {
             </div>
 
             <div>
-              <label htmlFor="setup-username" className="mb-1 block text-xs uppercase tracking-wide text-gray-400">Username</label>
-              <input
+              <label htmlFor="setup-username" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-neutral-500">Username</label>
+              <Input
                 id="setup-username"
                 type="text"
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
                 maxLength={24}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white outline-none placeholder:text-gray-500 focus:border-primary-500/60"
+                className="w-full px-4 py-3 rounded-none border border-neutral-lightGray bg-white text-neutral-black placeholder-neutral-lightGray focus:border-primary-gold focus:ring-2 focus:ring-primary-gold/10 transition-all font-sans"
                 placeholder="emma_01"
                 aria-label="Setup Username"
               />
             </div>
 
             <div>
-              <label htmlFor="setup-pin" className="mb-1 block text-xs uppercase tracking-wide text-gray-400">4-digit PIN</label>
-              <input
+              <label htmlFor="setup-pin" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-neutral-500">4-digit PIN</label>
+              <Input
                 id="setup-pin"
                 type="password"
                 value={pin}
                 onChange={(event) => setPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
                 inputMode="numeric"
                 maxLength={4}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white outline-none placeholder:text-gray-500 focus:border-primary-500/60"
+                className="w-full px-4 py-3 rounded-none border border-neutral-lightGray bg-white text-neutral-black placeholder-neutral-lightGray focus:border-primary-gold focus:ring-2 focus:ring-primary-gold/10 transition-all font-mono tracking-widest text-center text-lg hidden-cursor"
                 placeholder="0000"
                 aria-label="Setup PIN"
               />
             </div>
 
             <div>
-              <label htmlFor="setup-pin-confirm" className="mb-1 block text-xs uppercase tracking-wide text-gray-400">Confirm PIN</label>
-              <input
+              <label htmlFor="setup-pin-confirm" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-neutral-500">Confirm PIN</label>
+              <Input
                 id="setup-pin-confirm"
                 type="password"
                 value={confirmPin}
                 onChange={(event) => setConfirmPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
                 inputMode="numeric"
                 maxLength={4}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white outline-none placeholder:text-gray-500 focus:border-primary-500/60"
+                className="w-full px-4 py-3 rounded-none border border-neutral-lightGray bg-white text-neutral-black placeholder-neutral-lightGray focus:border-primary-gold focus:ring-2 focus:ring-primary-gold/10 transition-all font-mono tracking-widest text-center text-lg hidden-cursor"
                 placeholder="0000"
                 aria-label="Confirm setup PIN"
               />
             </div>
 
-            {error && <p className="text-sm text-red-400">{error}</p>}
+            {error && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-none border border-red-100 text-center font-medium">{error}</p>}
 
             <button
               type="submit"
               disabled={isSubmitting || !id || !householdId}
-              className="w-full rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-60"
+              className="w-full rounded-none bg-primary-600 px-4 py-3.5 text-base font-bold text-white hover:bg-primary-700 disabled:opacity-60 shadow-md shadow-primary-700/20 transition-all hover:-translate-y-0.5"
             >
               {isSubmitting ? 'Saving...' : 'Finish Setup'}
             </button>
@@ -1470,8 +1477,8 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
 
   if (!isResolved) {
     return (
-      <div className="min-h-screen bg-surface-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-content-primary">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-600 dark:text-primary-400" />
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-neutral-900">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
       </div>
     );
   }
@@ -1504,8 +1511,8 @@ function UnknownRouteHandler() {
 
   if (!isResolved) {
     return (
-      <div className="min-h-screen bg-surface-app bg-app-gradient-light dark:bg-app-gradient-dark flex items-center justify-center text-content-primary">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-600 dark:text-primary-400" />
+      <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-neutral-900">
+        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
       </div>
     );
   }

@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Task, Child } from '../types';
 import { Clock, MoreVertical, Trash2, Edit2, UserPlus, ChevronRight } from 'lucide-react';
 import { Button } from '@/src/components/ui/Button';
+import { Card } from '@/src/components/ui/Card';
 import { getTaskIcon } from '../utils';
 
 interface OpenTaskCardProps {
@@ -69,13 +70,13 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
   };
 
   return (
-    <div className="bg-gray-50/50 dark:bg-white/[0.02] border border-gray-200 dark:border-white/10 rounded-[16px] p-5 hover:bg-gray-100 dark:hover:bg-white/[0.04] transition-colors group relative overflow-visible">
+    <Card className="transition-all duration-200 hover:shadow-md group relative overflow-visible p-5" noPadding>
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-start gap-2.5">
-          <span className="text-[1.25rem] leading-none mt-0.5">
+          <span className="text-[1.25rem] leading-none mt-0.5 text-neutral-darkGray">
             {getTaskIcon(task.name)}
           </span>
-          <span className="text-[1.0625rem] font-[510] text-content-primary leading-tight">
+          <span className="text-[1.0625rem] font-bold text-neutral-black leading-tight font-heading">
             {task.name}
           </span>
         </div>
@@ -83,26 +84,26 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
         <div className="relative" ref={menuRef}>
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
             onClick={(e) => {
               e.stopPropagation();
               setIsMenuOpen(!isMenuOpen);
               setShowAssignSubmenu(false);
             }}
-            className="text-content-muted hover:text-content-primary"
+            className="w-8 h-8 p-0 text-neutral-darkGray hover:text-neutral-black"
           >
             <MoreVertical className="w-4 h-4" />
           </Button>
 
           {isMenuOpen && (
-            <div className="absolute right-0 top-full mt-2 w-48 glass-card border border-stroke-base rounded-xl shadow-[0_12px_32px_rgba(0,0,0,0.5)] z-50 animate-in fade-in zoom-in-95 duration-200">
+            <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-neutral-lightGray rounded-none shadow-xl z-50 animate-in fade-in zoom-in-95 duration-200">
               <div className="p-1">
                 <div className="relative">
                   <button
                     type="button"
                     onClick={toggleAssignSubmenu}
                     onMouseEnter={() => setShowAssignSubmenu(true)}
-                    className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium flex items-center justify-between gap-2 transition-colors cursor-pointer ${showAssignSubmenu ? 'bg-black/[0.05] dark:bg-white/10 text-content-primary' : 'text-content-muted hover:bg-black/[0.05] dark:hover:bg-white/5 hover:text-content-primary'}`}
+                    className={`w-full text-left px-3 py-2.5 rounded-none text-sm font-medium flex items-center justify-between gap-2 transition-colors cursor-pointer ${showAssignSubmenu ? 'bg-neutral-lightGray/10 text-neutral-black' : 'text-neutral-darkGray hover:bg-neutral-lightGray/10 hover:text-neutral-black'}`}
                   >
                     <div className="flex items-center gap-2">
                       <UserPlus className="w-4 h-4" />
@@ -113,7 +114,7 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
 
                   {showAssignSubmenu && (
                     <div
-                      className="absolute left-full top-0 w-44 glass-card border border-stroke-base rounded-xl shadow-2xl overflow-hidden z-[60] ml-1 animate-in slide-in-from-left-2 duration-200"
+                      className="absolute left-full top-0 w-44 bg-white border border-neutral-lightGray rounded-none shadow-xl overflow-hidden z-[60] ml-1 animate-in slide-in-from-left-2 duration-200"
                       onMouseLeave={() => setShowAssignSubmenu(false)}
                     >
                       {children.length > 0 ? children.map(child => (
@@ -121,12 +122,12 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
                           key={child.id}
                           type="button"
                           onClick={(e) => handleAssignClick(e, child.id)}
-                          className="w-full text-left px-4 py-3 text-sm font-medium text-content-muted hover:bg-black/[0.05] dark:hover:bg-white/5 hover:text-content-primary truncate cursor-pointer"
+                          className="w-full text-left px-4 py-3 text-sm font-medium text-neutral-darkGray hover:bg-neutral-lightGray/10 hover:text-neutral-black truncate cursor-pointer"
                         >
                           {child.name}
                         </button>
                       )) : (
-                        <div className="px-4 py-3 text-xs text-content-muted italic">No children found</div>
+                        <div className="px-4 py-3 text-xs text-neutral-darkGray italic">No children found</div>
                       )}
                     </div>
                   )}
@@ -135,18 +136,18 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
                 <button
                   type="button"
                   onClick={handleEditClick}
-                  className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-content-muted hover:bg-black/[0.05] dark:hover:bg-white/5 hover:text-content-primary flex items-center gap-2 cursor-pointer"
+                  className="w-full text-left px-3 py-2.5 rounded-none text-sm font-medium text-neutral-darkGray hover:bg-neutral-lightGray/10 hover:text-neutral-black flex items-center gap-2 cursor-pointer"
                 >
                   <Edit2 className="w-4 h-4" />
                   Edit Baseline
                 </button>
 
-                <div className="h-px bg-stroke-base my-1" />
+                <div className="h-px bg-neutral-lightGray my-1" />
 
                 <button
                   type="button"
                   onClick={handleDeleteClick}
-                  className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center gap-2 cursor-pointer"
+                  className="w-full text-left px-3 py-2.5 rounded-none text-sm font-medium text-semantic-destructive hover:bg-neutral-lightGray/10 flex items-center gap-2 cursor-pointer"
                 >
                   <Trash2 className="w-4 h-4" />
                   Delete Task
@@ -158,16 +159,16 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
       </div>
 
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5 text-content-muted">
+        <div className="flex items-center gap-1.5 text-neutral-darkGray">
           <Clock className="w-3.5 h-3.5" />
-          <span className="text-[0.875rem] font-medium">{task.baselineMinutes} min baseline</span>
+          <span className="text-[0.875rem] font-medium font-sans">{task.baselineMinutes} min baseline</span>
         </div>
 
-        <span className="px-2.5 py-1 rounded-full bg-blue-100 dark:bg-blue-400/10 text-blue-600 dark:text-blue-300 text-[0.75rem] font-[510] uppercase tracking-wider border border-blue-200 dark:border-blue-400/20">
+        <span className="px-2.5 py-1 rounded-none bg-blue-50 text-blue-700 text-[0.75rem] font-bold uppercase tracking-wider border border-blue-200">
           Available
         </span>
       </div>
-    </div>
+    </Card>
   );
 };
 
