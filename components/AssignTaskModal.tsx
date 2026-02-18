@@ -139,10 +139,10 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-[520px] bg-white rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-neutral-lightGray">
+      <div className="relative w-full max-w-[520px] bg-white rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-neutral-200">
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-mutedBg text-neutral-darkGray transition-colors z-20"
+          className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-mutedBg text-neutral-500 transition-colors z-20"
           aria-label="Close assign task modal"
         >
           <X className="w-5 h-5" />
@@ -153,7 +153,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
             <h2 className="text-3xl font-bold font-heading text-neutral-black mb-2 leading-tight">
               {isEditing ? 'Edit Task' : isOpenTask ? 'Create Open Task' : `Assign Task to ${childName}`}
             </h2>
-            <p className="text-base text-neutral-darkGray">
+            <p className="text-base text-neutral-500">
               {isEditing
                 ? 'Update task details'
                 : isOpenTask
@@ -166,7 +166,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
             <div className="mb-8">
               <label
                 htmlFor="catalogItem"
-                className="block text-sm font-bold text-neutral-darkGray uppercase tracking-wider mb-3"
+                className="block text-sm font-bold text-neutral-500 uppercase tracking-wider mb-3"
               >
                 Household Chore Catalog
               </label>
@@ -174,7 +174,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                 id="catalogItem"
                 value={selectedCatalogItemId}
                 onChange={handleCatalogSelection}
-                className="w-full px-4 py-3.5 rounded-none bg-white border border-neutral-lightGray text-neutral-black text-base outline-none focus:ring-2 focus:ring-primary-gold focus:border-transparent transition-all"
+                className="w-full px-4 py-3.5 rounded-none bg-white border border-neutral-200 text-neutral-black text-base outline-none focus:ring-2 focus:ring-primary-gold focus:border-transparent transition-all"
                 aria-label="Choose a chore template"
               >
                 <option value="">One-off task (not from catalog)</option>
@@ -188,7 +188,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
           )}
 
           <div className="mb-8">
-            <label htmlFor="taskName" className="block text-sm font-bold text-neutral-darkGray uppercase tracking-wider mb-3">
+            <label htmlFor="taskName" className="block text-sm font-bold text-neutral-500 uppercase tracking-wider mb-3">
               Task Name
             </label>
             <Input
@@ -201,14 +201,14 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                   ? 'e.g., Wash Car, Mow Lawn, Water Plants'
                   : 'e.g., Clean Room, Do Homework, Take Out Trash'
               }
-              className="px-4 py-3.5 text-base placeholder-neutral-lightGray rounded-none bg-white border border-neutral-lightGray outline-none focus:ring-2 focus:ring-primary-gold focus:border-transparent transition-all"
+              className="px-4 py-3.5 text-base placeholder-neutral-400 rounded-none bg-white border border-neutral-200 outline-none focus:ring-2 focus:ring-primary-gold focus:border-transparent transition-all"
               autoFocus
               aria-label="Task name"
             />
           </div>
 
           <div className="mb-8">
-            <label className="block text-sm font-bold text-neutral-darkGray uppercase tracking-wider mb-3">Baseline Time</label>
+            <label className="block text-sm font-bold text-neutral-500 uppercase tracking-wider mb-3">Baseline Time</label>
             <div className="grid grid-cols-4 gap-3 mb-3">
               {QUICK_TIMES.map((minutes) => {
                 const isSelected = !isCustomTime && selectedMinutes === minutes;
@@ -218,7 +218,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                     onClick={() => handleQuickTimeClick(minutes)}
                     className={`py-3.5 rounded-none text-sm font-bold transition-all duration-200 border cursor-pointer ${isSelected
                       ? 'bg-primary-cardinal border-primary-cardinal text-white shadow-sm'
-                      : 'bg-white border-neutral-lightGray text-neutral-darkGray hover:bg-neutral-mutedBg hover:text-neutral-black'
+                      : 'bg-white border-neutral-200 text-neutral-500 hover:bg-neutral-mutedBg hover:text-neutral-black'
                       }`}
                     aria-label={`Set baseline time to ${minutes} minutes`}
                   >
@@ -232,7 +232,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
               onClick={handleCustomTimeToggle}
               className={`w-full py-3.5 rounded-none text-sm font-bold transition-all duration-200 border mb-4 cursor-pointer ${isCustomTime
                 ? 'bg-primary-cardinal border-primary-cardinal text-white shadow-sm'
-                : 'bg-white border-neutral-lightGray text-neutral-darkGray hover:bg-neutral-mutedBg hover:text-neutral-black'
+                : 'bg-white border-neutral-200 text-neutral-500 hover:bg-neutral-mutedBg hover:text-neutral-black'
                 }`}
               aria-label="Toggle custom baseline time"
             >
@@ -255,7 +255,9 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                   step="5"
                   value={customMinutes}
                   onChange={handleSliderChange}
-                  className="w-full h-1.5 bg-neutral-lightGray rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary-cardinal focus:outline-none focus:ring-2 focus:ring-primary-gold"
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Select minutes</span>
+                  <span className="text-xl font-bold text-primary-cardinal">
                   aria-label="Custom baseline minutes"
                 />
               </div>
@@ -263,7 +265,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
           </div>
 
           <div className="mb-8">
-            <label htmlFor="taskValue" className="block text-sm font-bold text-neutral-darkGray uppercase tracking-wider mb-3">
+            <label htmlFor="taskValue" className="block text-sm font-bold text-neutral-500 uppercase tracking-wider mb-3">
               Value ($) <span className="text-neutral-400 font-normal normal-case">(Optional)</span>
             </label>
             <div className="relative">
@@ -287,36 +289,36 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
           </div>
 
           {!selectedCatalogItemId && (
-            <label className="mb-8 flex items-center gap-3 text-sm text-neutral-darkGray cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={saveToCatalog}
-                onChange={(event) => setSaveToCatalog(event.target.checked)}
-                className="h-4 w-4 rounded-sm border-neutral-lightGray text-primary-cardinal focus:ring-primary-gold"
-                aria-label="Save this one-off task to the household chore catalog"
-              />
-              <span className="group-hover:text-neutral-black transition-colors">Save to household catalog</span>
-            </label>
-          )}
+              <label className="mb-8 flex items-center gap-3 text-sm text-neutral-500 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  checked={saveToCatalog}
+                  onChange={(event) => setSaveToCatalog(event.target.checked)}
+                  className="h-4 w-4 rounded-sm border-neutral-200 text-primary-cardinal focus:ring-primary-gold"
+                  aria-label="Save this one-off task to the household chore catalog"
+                />
+                <span className="group-hover:text-neutral-black transition-colors">Save to household catalog</span>
+              </label>
+            )}
 
-          <div className="pt-4">
-            <button
-              onClick={handleSubmit}
-              disabled={!isValid}
-              className={`w-full py-4 rounded-none font-bold text-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 ${isValid
-                ? 'bg-primary-cardinal text-white shadow-md hover:shadow-lg hover:-translate-y-0.5'
-                : 'bg-neutral-lightGray text-neutral-darkGray cursor-not-allowed opacity-70'
-                }`}
-              aria-label="Submit task"
-            >
-              <Check className="w-5 h-5" />
-              {isEditing ? 'Save Changes' : isOpenTask ? 'Create Task' : 'Assign Task'}
-            </button>
+            <div className="pt-4">
+              <button
+                onClick={handleSubmit}
+                disabled={!isValid}
+                className={`w-full py-4 rounded-none font-bold text-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 ${isValid
+                  ? 'bg-primary-cardinal text-white shadow-md hover:shadow-lg hover:-translate-y-0.5'
+                  : 'bg-neutral-200 text-neutral-500 cursor-not-allowed opacity-70'
+                  }`}
+                aria-label="Submit task"
+              >
+                <Check className="w-5 h-5" />
+                {isEditing ? 'Save Changes' : isOpenTask ? 'Create Task' : 'Assign Task'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
+      );
 };
 
-export default AssignTaskModal;
+      export default AssignTaskModal;

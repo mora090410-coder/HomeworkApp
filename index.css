@@ -34,7 +34,8 @@ body {
 ::-webkit-scrollbar-thumb {
     background-color: var(--border-base);
     border-radius: 9999px;
-    border: 2px solid transparent; /* padding around thumb */
+    border: 2px solid transparent;
+    /* padding around thumb */
     background-clip: content-box;
 }
 
@@ -63,12 +64,12 @@ body {
         /* Hover: Darker Cardinal */
         @apply hover:bg-primary-hover;
         /* Focus ring */
-        @apply focus:ring-secondary; 
+        @apply focus:ring-secondary;
     }
 
     /* --- Secondary Button --- */
     .btn-secondary {
-        @apply bg-white text-primary border border-neutral-lightGray px-6 py-2 transition-colors duration-200;
+        @apply bg-white text-primary border border-neutral-200 px-6 py-2 transition-colors duration-200;
         @apply hover:bg-neutral-mutedBg;
     }
 }

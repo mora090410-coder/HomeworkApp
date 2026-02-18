@@ -71,12 +71,12 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({ isOpen, onClose, 
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-[520px] bg-white rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-neutral-lightGray">
+      <div className="relative w-full max-w-[520px] bg-white rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-neutral-200">
 
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-mutedBg text-neutral-darkGray transition-colors z-20"
+          className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-mutedBg text-neutral-500 transition-colors z-20"
         >
           <X className="w-5 h-5" />
         </button>
@@ -87,13 +87,13 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({ isOpen, onClose, 
           {/* Header */}
           <div className="mb-8 text-center md:text-left">
             <h2 className="text-3xl font-bold font-heading text-neutral-black mb-2">Update Grades</h2>
-            <p className="text-base text-neutral-darkGray">Current grades determine hourly earning rate</p>
+            <p className="text-base text-neutral-500">Current grades determine hourly earning rate</p>
           </div>
 
           {/* Live Rate Display */}
-          <div className="mb-8 p-6 rounded-none bg-neutral-mutedBg border border-neutral-lightGray text-center relative overflow-hidden group transition-all duration-300">
+          <div className="mb-8 p-6 rounded-none bg-neutral-mutedBg border border-neutral-200 text-center relative overflow-hidden group transition-all duration-300">
             <div className="relative z-10">
-              <p className="text-xs font-bold text-neutral-darkGray uppercase tracking-widest mb-2">Current Hourly Rate</p>
+              <p className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Current Hourly Rate</p>
               <div className="text-5xl leading-none font-heading font-bold text-primary-cardinal drop-shadow-sm transition-all duration-300">
                 {formatCurrency(currentHourlyRate)}
               </div>
@@ -129,7 +129,7 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({ isOpen, onClose, 
         </div>
 
         {/* Footer Actions */}
-        <div className="absolute bottom-0 left-0 right-0 p-8 pt-6 bg-white border-t border-neutral-lightGray">
+        <div className="absolute bottom-0 left-0 right-0 p-8 pt-6 bg-white border-t border-neutral-200">
           <Button
             onClick={handleSave}
             className="w-full h-14 text-lg font-bold"

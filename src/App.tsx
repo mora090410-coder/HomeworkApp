@@ -1037,7 +1037,7 @@ function DashboardPage() {
           <header className="flex justify-between items-center mb-10">
             <div className="flex items-center gap-3">
               <span className="text-2xl font-bold font-heading track-tight text-primary-cardinal">HomeWork</span>
-              <span className="px-2 py-0.5 rounded-none bg-white border border-neutral-lightGray text-[11px] font-bold tracking-wider text-neutral-darkGray uppercase">Child</span>
+              <span className="px-2 py-0.5 rounded-none bg-white border border-neutral-200 text-[11px] font-bold tracking-wider text-neutral-darkGray uppercase">Child</span>
             </div>
             <div className="flex items-center gap-3">
               <Button variant="ghost" size="icon" onClick={() => { void familyAuth.signOutUser(); }} className="text-neutral-darkGray hover:text-neutral-black">
@@ -1438,7 +1438,7 @@ function SetupProfileRoute() {
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
                 maxLength={24}
-                className="w-full px-4 py-3 rounded-none border border-neutral-lightGray bg-white text-neutral-black placeholder-neutral-lightGray focus:border-primary-gold focus:ring-2 focus:ring-primary-gold/10 transition-all font-sans"
+                className="w-full px-4 py-3 rounded-none border border-neutral-200 bg-white text-neutral-black placeholder-neutral-400 focus:border-primary-gold focus:ring-2 focus:ring-primary-gold/10 transition-all font-sans"
                 placeholder="emma_01"
                 aria-label="Setup Username"
               />
@@ -1453,7 +1453,7 @@ function SetupProfileRoute() {
                 onChange={(event) => setPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
                 inputMode="numeric"
                 maxLength={4}
-                className="w-full px-4 py-3 rounded-none border border-neutral-lightGray bg-white text-neutral-black placeholder-neutral-lightGray focus:border-primary-gold focus:ring-2 focus:ring-primary-gold/10 transition-all font-mono tracking-widest text-center text-lg hidden-cursor"
+                className="w-full px-4 py-3 rounded-none border border-neutral-200 bg-white text-neutral-black placeholder-neutral-400 focus:border-primary-gold focus:ring-2 focus:ring-primary-gold/10 transition-all font-mono tracking-widest text-center text-lg hidden-cursor"
                 placeholder="0000"
                 aria-label="Setup PIN"
               />
@@ -1468,7 +1468,7 @@ function SetupProfileRoute() {
                 onChange={(event) => setConfirmPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
                 inputMode="numeric"
                 maxLength={4}
-                className="w-full px-4 py-3 rounded-none border border-neutral-lightGray bg-white text-neutral-black placeholder-neutral-lightGray focus:border-primary-gold focus:ring-2 focus:ring-primary-gold/10 transition-all font-mono tracking-widest text-center text-lg hidden-cursor"
+                className="w-full px-4 py-3 rounded-none border border-neutral-200 bg-white text-neutral-black placeholder-neutral-400 focus:border-primary-gold focus:ring-2 focus:ring-primary-gold/10 transition-all font-mono tracking-widest text-center text-lg hidden-cursor"
                 placeholder="0000"
                 aria-label="Confirm setup PIN"
               />

@@ -178,7 +178,7 @@ export default function PinModal({
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-neutral-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-[420px] bg-white rounded-none border border-neutral-lightGray overflow-hidden shadow-2xl">
+      <div className="relative w-full max-w-[420px] bg-white rounded-none border border-neutral-200 overflow-hidden shadow-2xl">
 
         {/* Close Button */}
         <button
@@ -226,7 +226,7 @@ export default function PinModal({
                 type="button"
                 onClick={() => handleDigit(String(digit))}
                 disabled={isLoading}
-                className="aspect-square rounded-full text-2xl font-medium text-neutral-black hover:bg-neutral-mutedBg active:bg-neutral-lightGray transition-all focus:outline-none focus:ring-2 focus:ring-primary-cardinal/20 disabled:opacity-50"
+                className="aspect-square rounded-full text-2xl font-medium text-neutral-black hover:bg-neutral-mutedBg active:bg-neutral-200 transition-all focus:outline-none focus:ring-2 focus:ring-primary-cardinal/20 disabled:opacity-50"
                 aria-label={`Enter digit ${digit}`}
               >
                 {digit}
@@ -241,7 +241,7 @@ export default function PinModal({
               type="button"
               onClick={() => handleDigit('0')}
               disabled={isLoading}
-              className="aspect-square rounded-full text-2xl font-medium text-neutral-black hover:bg-neutral-mutedBg active:bg-neutral-lightGray transition-all focus:outline-none focus:ring-2 focus:ring-primary-cardinal/20 disabled:opacity-50"
+              className="aspect-square rounded-full text-2xl font-medium text-neutral-black hover:bg-neutral-mutedBg active:bg-neutral-200 transition-all focus:outline-none focus:ring-2 focus:ring-primary-cardinal/20 disabled:opacity-50"
               aria-label="Enter digit 0"
             >
               0
@@ -251,7 +251,7 @@ export default function PinModal({
               type="button"
               onClick={handleDelete}
               disabled={isLoading}
-              className="aspect-square rounded-full flex items-center justify-center text-neutral-darkGray hover:text-neutral-black hover:bg-neutral-mutedBg active:bg-neutral-lightGray transition-all disabled:opacity-50"
+              className="aspect-square rounded-full flex items-center justify-center text-neutral-darkGray hover:text-neutral-black hover:bg-neutral-mutedBg active:bg-neutral-200 transition-all disabled:opacity-50"
               aria-label="Delete last digit"
             >
               <Delete className="w-7 h-7" strokeWidth={1.5} />

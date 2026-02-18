@@ -177,13 +177,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 font-sans text-neutral-black">
       <div className="absolute inset-0 bg-neutral-black/60 backdrop-blur-sm transition-opacity duration-300" onClick={onClose} />
-      <div className="relative w-full max-w-[580px] bg-white rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-neutral-lightGray">
+      <div className="relative w-full max-w-[580px] bg-white rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-neutral-200">
 
-        <button onClick={onClose} className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-mutedBg text-neutral-darkGray transition-colors z-50 cursor-pointer">
+        <button onClick={onClose} className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-mutedBg text-neutral-500 transition-colors z-50 cursor-pointer">
           <X className="w-5 h-5" />
         </button>
 
-        <div className="relative z-20 border-b border-neutral-lightGray pt-10 px-10 pb-0 shrink-0 bg-white">
+        <div className="relative z-20 border-b border-neutral-200 pt-10 px-10 pb-0 shrink-0 bg-white">
           <h2 className="text-3xl font-bold font-heading text-neutral-black mb-6">Parent Settings</h2>
           <div className="flex gap-2 overflow-x-auto scrollbar-hide">
             {['profile', 'subjects', 'payscale', 'data'].map(t => (
@@ -194,7 +194,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   px-5 py-3 text-sm font-bold border-b-2 transition-all shrink-0 cursor-pointer uppercase tracking-wider
                   ${activeTab === t
                     ? 'border-primary-cardinal text-primary-cardinal'
-                    : 'border-transparent text-neutral-darkGray hover:text-neutral-black hover:border-neutral-lightGray'
+                    : 'border-transparent text-neutral-500 hover:text-neutral-black hover:border-neutral-200'
                   }
                 `}
               >
@@ -208,12 +208,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           {activeTab === 'profile' && (
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
               <div>
-                <label className="block text-sm font-bold text-neutral-darkGray uppercase mb-2 ml-1">Name</label>
-                <Input type="text" value={name} onChange={(e) => setName(e.target.value)} className="px-4 py-3.5 text-base placeholder-neutral-lightGray" />
+                <label className="block text-sm font-bold text-neutral-500 uppercase mb-2 ml-1">Name</label>
+                <Input type="text" value={name} onChange={(e) => setName(e.target.value)} className="px-4 py-3.5 text-base placeholder-neutral-400" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-neutral-darkGray uppercase mb-2 ml-1">Grade Level</label>
+                  <label className="block text-sm font-bold text-neutral-500 uppercase mb-2 ml-1">Grade Level</label>
                   <Select value={gradeLevel} onChange={(e) => setGradeLevel(e.target.value)} className="w-full [&>option]:bg-white">
                     {SCHOOL_GRADES.map(g => (<option key={g} value={g}>{g}</option>))}
                   </Select>
@@ -236,7 +236,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     maxLength={4}
                     value={resetPinValue}
                     onChange={(e) => setResetPinValue(e.target.value.replace(/\D/g, ''))}
-                    className="px-4 py-3 text-base placeholder-neutral-lightGray"
+                    className="px-4 py-3 text-base placeholder-neutral-400"
                     placeholder="New PIN"
                     aria-label="New PIN"
                   />
@@ -245,7 +245,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     maxLength={4}
                     value={confirmResetPinValue}
                     onChange={(e) => setConfirmResetPinValue(e.target.value.replace(/\D/g, ''))}
-                    className="px-4 py-3 text-base placeholder-neutral-lightGray"
+                    className="px-4 py-3 text-base placeholder-neutral-400"
                     placeholder="Confirm PIN"
                     aria-label="Confirm PIN"
                   />
@@ -272,9 +272,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="space-y-3 mb-6">
                 {subjects.map(s => (
-                  <div key={s.id} className="flex items-center gap-3 px-4 py-3.5 rounded-none bg-white border border-neutral-lightGray hover:border-primary-gold/50 transition-colors">
-                    <Input type="text" value={s.name} onChange={(e) => handleSubjectNameChange(s.id, e.target.value)} className="flex-1 bg-transparent border-none outline-none text-neutral-black placeholder-neutral-lightGray font-medium h-auto p-0 focus:ring-0" placeholder="Subject Name" />
-                    <button onClick={() => handleRemoveSubject(s.id)} disabled={subjects.length <= 1} className="w-7 h-7 flex items-center justify-center rounded-sm text-neutral-lightGray hover:text-semantic-destructive cursor-pointer transition-colors"><X className="w-4 h-4" /></button>
+                  <div key={s.id} className="flex items-center gap-3 px-4 py-3.5 rounded-none bg-white border border-neutral-200 hover:border-primary-gold/50 transition-colors">
+                    <Input type="text" value={s.name} onChange={(e) => handleSubjectNameChange(s.id, e.target.value)} className="flex-1 bg-transparent border-none outline-none text-neutral-black placeholder-neutral-400 font-medium h-auto p-0 focus:ring-0" placeholder="Subject Name" />
+                    <button onClick={() => handleRemoveSubject(s.id)} disabled={subjects.length <= 1} className="w-7 h-7 flex items-center justify-center rounded-sm text-neutral-400 hover:text-semantic-destructive cursor-pointer transition-colors"><X className="w-4 h-4" /></button>
                   </div>
                 ))}
               </div>
@@ -287,20 +287,20 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-neutral-darkGray uppercase mb-2 ml-1">Base Value ($)</label>
-                  <Input type="number" step="0.25" value={baseValue} onChange={(e) => setBaseValue(parseFloat(e.target.value) || 0)} className="px-4 py-3.5 text-base placeholder-neutral-lightGray" />
+                  <label className="block text-sm font-bold text-neutral-500 uppercase mb-2 ml-1">Base Value ($)</label>
+                  <Input type="number" step="0.25" value={baseValue} onChange={(e) => setBaseValue(parseFloat(e.target.value) || 0)} className="px-4 py-3.5 text-base placeholder-neutral-400" />
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-neutral-darkGray uppercase mb-2 ml-1">Decrement</label>
+                  <label className="block text-sm font-bold text-neutral-500 uppercase mb-2 ml-1">Decrement</label>
                   <Select value={decrement} onChange={(e) => setDecrement(parseFloat(e.target.value))} className="w-full [&>option]:bg-white">
                     {DECREMENT_OPTIONS.map(opt => (<option key={opt} value={opt}>${opt.toFixed(2)}</option>))}
                   </Select>
                 </div>
               </div>
-              <div className="bg-neutral-mutedBg border border-neutral-lightGray rounded-none p-6">
+              <div className="bg-neutral-mutedBg border border-neutral-200 rounded-none p-6">
                 <div className="grid grid-cols-3 gap-2">
                   {LETTER_GRADES.map(g => (
-                    <div key={g} className="flex justify-between items-center px-3 py-3 bg-white rounded-none border border-neutral-lightGray shadow-sm">
+                    <div key={g} className="flex justify-between items-center px-3 py-3 bg-white rounded-none border border-neutral-200 shadow-sm">
                       <span className="text-xs font-bold text-neutral-black">{g}</span>
                       <span className="text-xs font-bold text-primary-cardinal">{formatCurrency(calculatedRates[g] || 0)}</span>
                     </div>
@@ -311,11 +311,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           )}
           {activeTab === 'data' && (
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-8">
-              <div className="p-5 rounded-none bg-neutral-mutedBg border border-neutral-lightGray">
+              <div className="p-5 rounded-none bg-neutral-mutedBg border border-neutral-200">
                 <h4 className="text-neutral-black font-bold mb-2 flex items-center gap-2 font-heading">
                   <Download className="w-4 h-4 text-primary-cardinal" /> Export Data
                 </h4>
-                <p className="text-sm text-neutral-darkGray mb-4">Copy your entire family setup to move it to another phone or tablet.</p>
+                <p className="text-sm text-neutral-500 mb-4">Copy your entire family setup to move it to another phone or tablet.</p>
                 <Button
                   onClick={handleExport}
                   variant={copySuccess ? "secondary" : "secondary"}
@@ -330,13 +330,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 <h4 className="text-neutral-black font-bold mb-2 flex items-center gap-2 font-heading">
                   <Upload className="w-4 h-4 text-primary-cardinal" /> Import Data
                 </h4>
-                <p className="text-sm text-neutral-darkGray mb-4">Paste an export code to overwrite this device's data.</p>
-                <textarea
-                  value={importText}
-                  onChange={(e) => setImportText(e.target.value)}
-                  placeholder="Paste code here..."
-                  className="w-full h-24 p-3 rounded-none bg-white border border-neutral-lightGray text-xs text-neutral-black mb-3 outline-none focus:ring-2 focus:ring-primary-gold focus:border-transparent resize-none placeholder:text-neutral-lightGray"
-                />
+              <div className="p-5 rounded-none bg-neutral-mutedBg border border-neutral-200">
+                <h4 className="text-neutral-black font-bold mb-2 flex items-center gap-2 font-heading">
+                  <Upload className="w-4 h-4 text-primary-cardinal" /> Import Data
+                </h4>
                 <Button
                   onClick={handleImport}
                   disabled={!importText.trim()}
@@ -351,7 +348,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 <h4 className="text-semantic-destructive font-bold mb-2 flex items-center gap-2 font-heading">
                   <RefreshCcw className="w-4 h-4" /> Reset App
                 </h4>
-                <p className="text-sm text-neutral-darkGray mb-4">Clear all children, tasks, and history. Use this to start a fresh real-world trial.</p>
+                <p className="text-sm text-neutral-500 mb-4">Clear all children, tasks, and history. Use this to start a fresh real-world trial.</p>
                 <Button
                   onClick={() => { if (confirm("Are you sure? This deletes everything.")) onResetAll?.(); }}
                   variant="destructive"
@@ -364,7 +361,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           )}
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 z-20 bg-white border-t border-neutral-lightGray px-10 py-8 flex gap-4">
+        <div className="absolute bottom-0 left-0 right-0 z-20 bg-white border-t border-neutral-200 px-10 py-8 flex gap-4">
           <Button
             onClick={() => setShowDeleteConfirm(true)}
             variant="destructive"
@@ -382,23 +379,23 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         {showDeleteConfirm && (
-          <div className="absolute inset-0 z-[110] bg-white flex flex-col items-center justify-center p-10 text-center animate-in fade-in duration-200">
-            <div className="w-20 h-20 rounded-full bg-semantic-destructive/10 flex items-center justify-center mb-6 text-semantic-destructive"><AlertTriangle className="w-10 h-10" /></div>
-            <h3 className="text-2xl font-bold font-heading text-neutral-black mb-2">Delete Profile?</h3>
-            <p className="text-neutral-darkGray mb-8">This action is permanent.</p>
-            <div className="flex gap-4 w-full">
-              <Button onClick={() => setShowDeleteConfirm(false)} variant="secondary" className="flex-1 h-14">
-                Cancel
-              </Button>
-              <Button onClick={() => { if (child) { onDelete(child.id); onClose(); } }} variant="destructive" className="flex-1 h-14">
-                Yes, Delete
-              </Button>
+            <div className="absolute inset-0 z-[110] bg-white flex flex-col items-center justify-center p-10 text-center animate-in fade-in duration-200">
+              <div className="w-20 h-20 rounded-full bg-semantic-destructive/10 flex items-center justify-center mb-6 text-semantic-destructive"><AlertTriangle className="w-10 h-10" /></div>
+              <h3 className="text-2xl font-bold font-heading text-neutral-black mb-2">Delete Profile?</h3>
+              <p className="text-neutral-500 mb-8">This action is permanent.</p>
+              <div className="flex gap-4 w-full">
+                <Button onClick={() => setShowDeleteConfirm(false)} variant="secondary" className="flex-1 h-14">
+                  Cancel
+                </Button>
+                <Button onClick={() => { if (child) { onDelete(child.id); onClose(); } }} variant="destructive" className="flex-1 h-14">
+                  Yes, Delete
+                </Button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
-  );
+      );
 };
 
-export default SettingsModal;
+      export default SettingsModal;

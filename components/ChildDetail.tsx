@@ -155,7 +155,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
   };
 
   const EmptyState = () => (
-    <div className="bg-white border border-neutral-lightGray rounded-none p-12 text-center flex flex-col items-center">
+    <div className="bg-white border border-neutral-200 rounded-none p-12 text-center flex flex-col items-center">
       <div className="w-20 h-20 bg-neutral-mutedBg rounded-full flex items-center justify-center mb-6">
         <Target className="w-10 h-10 text-primary-cardinal" />
       </div>
@@ -176,7 +176,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
       {/* Top Cards Row */}
       <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-6">
         {/* Your Earnings Card */}
-        <div className="relative bg-white border border-neutral-lightGray rounded-none p-8 overflow-hidden group">
+        <div className="relative bg-white border border-neutral-200 rounded-none p-8 overflow-hidden group">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary-gold/10 rounded-bl-full pointer-events-none" />
 
           <p className="text-[0.875rem] font-bold text-neutral-darkGray uppercase tracking-widest mb-6 font-sans">Your Earnings</p>
@@ -207,7 +207,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
             </div>
           </div>
 
-          <div className="pt-6 border-t border-neutral-lightGray flex items-end justify-between relative z-10">
+          <div className="pt-6 border-t border-neutral-200 flex items-end justify-between relative z-10">
             <div>
               <p className="text-xs font-bold text-neutral-darkGray uppercase tracking-widest mb-1 font-sans">Total Earned This Week</p>
               <div className="text-4xl font-bold font-heading text-neutral-black">
@@ -221,14 +221,14 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
         </div>
 
         {/* Your Rate Card */}
-        <div className="bg-white border border-neutral-lightGray rounded-none p-8 flex flex-col justify-between group relative overflow-hidden">
+        <div className="bg-white border border-neutral-200 rounded-none p-8 flex flex-col justify-between group relative overflow-hidden">
           <div>
             <p className="text-[0.875rem] font-bold text-neutral-darkGray uppercase tracking-widest mb-4 font-sans">Your Rate</p>
             <div className="flex items-baseline gap-2 mb-2">
               <span className="text-5xl font-bold text-neutral-black tracking-tighter font-heading">{formatCurrency(hourlyRate)}</span>
               <span className="text-xl text-neutral-darkGray font-medium font-sans">/hr</span>
             </div>
-            <div className="mt-6 border border-neutral-lightGray bg-neutral-mutedBg p-4 rounded-none">
+            <div className="mt-6 border border-neutral-200 bg-neutral-mutedBg p-4 rounded-none">
               <p className="text-xs font-bold uppercase tracking-widest text-neutral-darkGray mb-1 font-sans">Current Balance</p>
               <div className="flex items-center gap-2">
                 <span
@@ -266,13 +266,13 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
           </div>
         </div>
 
-        <div className="border border-neutral-lightGray bg-white overflow-hidden rounded-none">
+        <div className="border border-neutral-200 bg-white overflow-hidden rounded-none">
           {recentTransactions.length === 0 && (
             <div className="p-8 text-sm text-neutral-darkGray text-center font-sans">No transactions recorded yet.</div>
           )}
 
           {recentTransactions.length > 0 && (
-            <div className="divide-y divide-neutral-lightGray">
+            <div className="divide-y divide-neutral-200">
               {recentTransactions.map((transaction) => {
                 const amountCents = getTransactionAmountCents(transaction);
                 const amount = centsToDollars(Math.abs(amountCents));
@@ -314,7 +314,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {child.subjects.map(subject => (
-            <div key={subject.id} className="bg-white border border-neutral-lightGray rounded-none p-6 text-center hover:shadow-md transition-all group">
+            <div key={subject.id} className="bg-white border border-neutral-200 rounded-none p-6 text-center hover:shadow-md transition-all group">
               <p className="text-xs font-bold text-neutral-darkGray uppercase tracking-widest mb-3 truncate font-sans">{subject.name}</p>
               <div className={`text-4xl font-bold ${getGradeColor(subject.grade)} font-heading`}>
                 {subject.grade}
@@ -335,7 +335,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {grabTasks.map(task => (
-                <div key={task.id} className="bg-white border border-neutral-lightGray rounded-none p-6 hover:shadow-md transition-all group">
+                <div key={task.id} className="bg-white border border-neutral-200 rounded-none p-6 hover:shadow-md transition-all group">
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{getTaskIcon(task.name)}</span>
@@ -370,7 +370,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {inProgress.map(task => (
-                <div key={task.id} className="bg-white border border-neutral-lightGray rounded-none p-6 shadow-sm">
+                <div key={task.id} className="bg-white border border-neutral-200 rounded-none p-6 shadow-sm">
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{getTaskIcon(task.name)}</span>
@@ -403,7 +403,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {waitingApproval.map(task => (
-                <div key={task.id} className="bg-neutral-mutedBg border border-neutral-lightGray rounded-none p-6">
+                <div key={task.id} className="bg-neutral-mutedBg border border-neutral-200 rounded-none p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{getTaskIcon(task.name)}</span>
@@ -504,8 +504,8 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-neutral-black/50 backdrop-blur-sm" onClick={() => setTaskToComplete(null)} />
           <div className="relative w-full max-w-sm bg-white rounded-none border border-neutral-200 p-8 text-center animate-in zoom-in-95 duration-200 shadow-xl">
-            <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto text-emerald-700 mb-4">
-              <Check className="w-8 h-8" />
+            <div className="mx-auto w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center text-neutral-400 mb-3">
+              <Check className="w-6 h-6" />
             </div>
             <h3 className="text-xl font-bold font-heading text-neutral-black mb-2">{taskToComplete.name}</h3>
             <p className="text-neutral-darkGray mb-6 text-sm font-sans">

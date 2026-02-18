@@ -77,7 +77,7 @@ export default function LandingPage() {
         <div className="relative min-h-screen w-full overflow-hidden bg-neutral-mutedBg font-sans text-neutral-black selection:bg-primary-gold/30">
 
             {/* ── Sticky Header ── */}
-            <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-neutral-lightGray">
+            <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-neutral-200">
                 <div className="max-w-[1240px] mx-auto px-6 sm:px-10 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 flex items-center justify-center rounded-none bg-primary-cardinal text-white shadow-sm">
@@ -108,7 +108,7 @@ export default function LandingPage() {
                     <div className="flex flex-col items-center max-w-[900px] mb-20 px-4 animate-fade-in-up">
 
                         {/* Badge */}
-                        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white border border-neutral-lightGray shadow-sm mb-8">
+                        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white border border-neutral-200 shadow-sm mb-8">
                             <Activity className="w-4 h-4 text-primary-gold" />
                             <span className="text-xs font-bold tracking-widest text-neutral-darkGray uppercase">
                                 Family Performance System
@@ -170,7 +170,7 @@ export default function LandingPage() {
                                 </div>
                             ))}
                         </div>
-                        <p className="text-lg font-bold text-neutral-black mt-12 bg-white inline-block px-6 py-2 rounded-full border border-neutral-lightGray shadow-sm">
+                        <p className="text-lg font-bold text-neutral-black mt-12 bg-white inline-block px-6 py-2 rounded-full border border-neutral-200 shadow-sm">
                             HomeWork fixes the incentive structure.
                         </p>
                     </section>
@@ -187,19 +187,19 @@ export default function LandingPage() {
                     </section>
 
                     {/* ═══════════════ VALUE EXAMPLE ═══════════════ */}
-                    <section className="w-full mb-32 max-w-[800px] bg-white rounded-none border border-neutral-lightGray p-12 shadow-sm">
+                    <section className="w-full mb-32 max-w-[800px] bg-white rounded-none border border-neutral-200 p-12 shadow-sm">
                         <h2 className="text-3xl sm:text-4xl font-bold font-heading text-neutral-black mb-4">See How Incentives</h2>
                         <p className="text-2xl font-medium text-primary-cardinal mb-14">Change Behavior</p>
                         <div className="flex flex-col gap-4">
                             <div className="flex items-center justify-between rounded-none bg-neutral-mutedBg p-8 border border-primary-gold/30 relative overflow-hidden">
                                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary-gold" />
                                 <span className="text-xl font-bold text-neutral-black">GPA 3.8</span>
-                                <div className="h-px flex-1 bg-neutral-lightGray mx-6"></div>
+                                <div className="h-px flex-1 bg-neutral-200 mx-6"></div>
                                 <span className="text-3xl font-bold text-primary-cardinal">$12/hour</span>
                             </div>
-                            <div className="flex items-center justify-between rounded-none bg-white p-8 border border-neutral-lightGray opacity-60 grayscale">
+                            <div className="flex items-center justify-between rounded-none bg-white p-8 border border-neutral-200 opacity-60 grayscale">
                                 <span className="text-xl font-bold text-neutral-black">GPA 2.5</span>
-                                <div className="h-px flex-1 bg-neutral-lightGray mx-6"></div>
+                                <div className="h-px flex-1 bg-neutral-200 mx-6"></div>
                                 <span className="text-3xl font-bold text-neutral-darkGray">$7/hour</span>
                             </div>
                             <p className="text-neutral-darkGray mt-6 font-medium italic">When effort affects earnings, motivation changes.</p>
@@ -248,7 +248,7 @@ export default function LandingPage() {
                                 <ul className="space-y-4 mb-10">
                                     {['Unlimited children', 'Grade-based hourly engine', 'Earnings dashboard', 'Weekly planning system', 'Two-parent access'].map((f) => (
                                         <li key={f} className="flex items-center gap-3 text-sm text-neutral-darkGray">
-                                            <CheckCircle2 className="w-5 h-5 text-neutral-lightGray flex-shrink-0" />
+                                            <CheckCircle2 className="w-5 h-5 text-neutral-200 flex-shrink-0" />
                                             {f}
                                         </li>
                                     ))}
@@ -270,7 +270,7 @@ export default function LandingPage() {
                             ].map((item) => (
                                 <div key={item.label} className={`p-6 rounded-none border transition-all duration-300 ${item.active
                                     ? 'border-primary-gold bg-primary-gold/5 shadow-sm ring-1 ring-primary-gold/20'
-                                    : 'border-neutral-lightGray bg-white hover:border-neutral-darkGray'}`}>
+                                    : 'border-neutral-200 bg-white hover:border-neutral-darkGray'}`}>
                                     <div className="text-xs font-bold text-neutral-darkGray uppercase tracking-widest mb-2">{item.label}</div>
                                     <div className={`text-xl font-bold ${item.active ? 'text-primary-cardinal' : 'text-neutral-black'}`}>{item.value}</div>
                                 </div>
@@ -292,7 +292,7 @@ export default function LandingPage() {
                     </section>
 
                     {/* ═══════════════ FINAL CTA ═══════════════ */}
-                    <section className="w-full mb-32 py-20 rounded-none bg-white border border-neutral-lightGray shadow-lg relative overflow-hidden">
+                    <section className="w-full mb-32 py-20 rounded-none bg-white border border-neutral-200 shadow-lg relative overflow-hidden">
                         <div className="absolute inset-x-0 bottom-0 h-2 bg-gradient-to-r from-primary-cardinal to-primary-gold" />
                         <div className="relative z-10 px-6">
                             <h2 className="text-4xl sm:text-5xl font-bold font-heading text-neutral-black mb-4 leading-tight">Start Building Accountability</h2>
@@ -309,7 +309,7 @@ export default function LandingPage() {
                 </main>
 
                 {/* ── Footer ── */}
-                <footer className="mt-auto pt-10 pb-6 border-t border-neutral-lightGray flex flex-col sm:flex-row justify-between items-center gap-6">
+                <footer className="mt-auto pt-10 pb-6 border-t border-neutral-200 flex flex-col sm:flex-row justify-between items-center gap-6">
                     <div className="text-sm font-medium text-neutral-darkGray">
                         <span className="text-neutral-black font-bold">HomeWork.</span> Built for high-trust family systems.
                     </div>
