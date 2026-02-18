@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "tokens": "node scripts/generate-tokens.js",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -22,15 +23,16 @@
     "vite-plugin-pwa": "^1.2.0"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/node": "^22.19.7",
     "@vitejs/plugin-react": "^5.0.0",
     "autoprefixer": "^10.4.24",
+    "firebase-tools": "^13.29.1",
     "jsdom": "^28.1.0",
     "postcss": "^8.5.6",
-    "@tailwindcss/postcss": "^4.1.18",
     "tailwindcss": "^4.1.18",
     "typescript": "~5.8.2",
     "vite": "^6.2.0",
