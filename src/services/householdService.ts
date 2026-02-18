@@ -17,3 +17,10 @@ export const setProfilePin = async (
 ): Promise<void> => {
   await baseHouseholdService.setProfilePinInHousehold(householdId, profileId, pin);
 };
+
+export const saveGradeConfigs = async (
+  householdId: string,
+  configs: GradeConfig[],
+): Promise<void> => {
+  return baseHouseholdService.saveGradeConfigs(householdId, configs);
+};

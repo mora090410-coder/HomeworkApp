@@ -795,97 +795,105 @@ export const householdService = {
       const householdData = householdSnapshot.data();
       return {
         id: householdSnapshot.id,
-        name:
-          typeof householdData.name === 'string' && householdData.name.trim().length > 0
-            ? householdData.name
-            : 'Untitled Household',
-      };
-    } catch (error) {
-      throw normalizeError('Failed to load household context', error);
-    }
-  },
-
-  async createHouseholdForUser(
-    userId: string,
-    householdName: string,
-    userName: string,
-  ): Promise<{ household: Household; profile: Profile }> {
-    try {
-      const firestore = getFirestore();
-      const safeUserId = assertNonEmptyString(userId, 'userId');
-      const safeHouseholdName = assertNonEmptyString(householdName, 'householdName');
-      const safeUserName = assertNonEmptyString(userName, 'userName');
-
-      const householdRef = doc(collection(firestore, 'households'));
-      const profilesCollection = collection(firestore, `households/${householdRef.id}/profiles`);
-      const adminProfileRef = doc(profilesCollection);
-
-      const adminProfile: FirestoreProfile = {
-        householdId: householdRef.id,
-        name: safeUserName,
-        role: 'ADMIN',
-        pinHash: '',
-        gradeLevel: 'Adult',
-        subjects: [],
-        rates: defaultRates(),
-        currentHourlyRate: 0,
-        balanceCents: 0,
-        balance: 0,
-      };
-
-      await setDoc(householdRef, {
-        name: safeHouseholdName,
-        ownerUserId: safeUserId,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-
-      await setDoc(adminProfileRef, {
-        ...adminProfile,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-
-      await setDoc(doc(firestore, `users/${safeUserId}/households/${householdRef.id}`), {
-        householdId: householdRef.id,
-        role: 'ADMIN',
-        profileId: adminProfileRef.id,
-        updatedAt: serverTimestamp(),
-      });
-
-      return {
-        household: {
-          id: householdRef.id,
-          name: safeHouseholdName,
-        },
-        profile: {
-          id: adminProfileRef.id,
-          familyId: householdRef.id,
-          ...adminProfile,
-        },
-      };
-    } catch (error) {
-      throw normalizeError('Failed to create household', error);
-    }
-  },
-
-  async getAdminProfile(householdId: string): Promise<Profile | null> {
-    try {
-      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
-      const adminSnapshot = await getDocs(
-        query(getProfilesCollectionRef(safeHouseholdId), where('role', '==', 'ADMIN'), limit(1)),
-      );
-
-      if (adminSnapshot.empty) {
-        return null;
+      } catch (error) {
+        throw normalizeError('Failed to load household context', error);
       }
+    },
 
-      const adminDoc = adminSnapshot.docs[0];
-      return mapProfile(adminDoc.id, safeHouseholdId, adminDoc.data() as Record<string, unknown>);
-    } catch (error) {
-      throw normalizeError('Failed to load admin profile', error);
+  async saveGradeConfigs(householdId: string, configs: GradeConfig[]): Promise < void> {
+      const firestore = getFirestore();
+      const settingsRef = doc(firestore, `households/${householdId}/settings/grade_configs`);
+
+      // Convert array to map: { "K": 100, "1": 200, ... }
+      const data = configs.reduce((acc, config) => {
+        acc[config.grade] = config.valueCents;
+        return acc;
+      }, {} as Record<string, number>);
+
+      await setDoc(settingsRef, data, { merge: true });
+    },
+
+      async createHouseholdForUser(
+        userId: string,
+        householdName: string,
+        userName: string,
+      ): Promise < { household: Household; profile: Profile } > {
+        try {
+          const firestore = getFirestore();
+          const safeUserId = assertNonEmptyString(userId, 'userId');
+          const safeHouseholdName = assertNonEmptyString(householdName, 'householdName');
+          const safeUserName = assertNonEmptyString(userName, 'userName');
+
+          const householdRef = doc(collection(firestore, 'households'));
+          const profilesCollection = collection(firestore, `households/${householdRef.id}/profiles`);
+          const adminProfileRef = doc(profilesCollection);
+
+          const adminProfile: FirestoreProfile = {
+            householdId: householdRef.id,
+            name: safeUserName,
+            role: 'ADMIN',
+            pinHash: '',
+            gradeLevel: 'Adult',
+            subjects: [],
+            rates: defaultRates(),
+            currentHourlyRate: 0,
+            balanceCents: 0,
+            balance: 0,
+          };
+
+          await setDoc(householdRef, {
+            name: safeHouseholdName,
+            ownerUserId: safeUserId,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          });
+
+          await setDoc(adminProfileRef, {
+            ...adminProfile,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          });
+
+          await setDoc(doc(firestore, `users/${safeUserId}/households/${householdRef.id}`), {
+            householdId: householdRef.id,
+            role: 'ADMIN',
+            profileId: adminProfileRef.id,
+            updatedAt: serverTimestamp(),
+          });
+
+          return {
+            household: {
+              id: householdRef.id,
+              name: safeHouseholdName,
+            },
+            profile: {
+              id: adminProfileRef.id,
+              familyId: householdRef.id,
+              ...adminProfile,
+            },
+          };
+        } catch(error) {
+          throw normalizeError('Failed to create household', error);
+        }
+      },
+
+        async getAdminProfile(householdId: string): Promise < Profile | null > {
+          try {
+            const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+            const adminSnapshot = await getDocs(
+              query(getProfilesCollectionRef(safeHouseholdId), where('role', '==', 'ADMIN'), limit(1)),
+            );
+
+            if(adminSnapshot.empty) {
+      return null;
     }
-  },
+
+    const adminDoc = adminSnapshot.docs[0];
+    return mapProfile(adminDoc.id, safeHouseholdId, adminDoc.data() as Record<string, unknown>);
+  } catch(error) {
+    throw normalizeError('Failed to load admin profile', error);
+  }
+},
 
   async getChildren(householdId: string): Promise<Child[]> {
     try {
@@ -968,1113 +976,1113 @@ export const householdService = {
     }
   },
 
-  async getOpenTasks(householdId: string): Promise<Task[]> {
-    try {
-      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
-      const taskSnapshot = await getDocs(
-        query(
-          getTasksCollectionRef(safeHouseholdId),
-          where('status', '==', 'OPEN'),
-          where('assigneeId', '==', null),
-        ),
-      );
-
-      return taskSnapshot.docs.map((taskDoc) =>
-        mapTask(taskDoc.id, safeHouseholdId, taskDoc.data() as Record<string, unknown>),
-      );
-    } catch (error) {
-      throw normalizeError('Failed to load open tasks', error);
-    }
-  },
-
-  async getDraftTasks(householdId: string): Promise<Task[]> {
-    try {
-      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
-      const taskSnapshot = await getDocs(
-        query(getTasksCollectionRef(safeHouseholdId), where('status', '==', 'DRAFT')),
-      );
-
-      return taskSnapshot.docs.map((taskDoc) =>
-        mapTask(taskDoc.id, safeHouseholdId, taskDoc.data() as Record<string, unknown>),
-      );
-    } catch (error) {
-      throw normalizeError('Failed to load draft tasks', error);
-    }
-  },
-
-  async getChoreCatalog(householdId: string): Promise<ChoreCatalogItem[]> {
-    try {
-      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
-      const catalogSnapshot = await getDocs(getChoreCatalogCollectionRef(safeHouseholdId));
-
-      return catalogSnapshot.docs
-        .map((catalogDoc) =>
-          mapChoreCatalogItem(
-            catalogDoc.id,
-            safeHouseholdId,
-            catalogDoc.data() as Record<string, unknown>,
+    async getOpenTasks(householdId: string): Promise < Task[] > {
+      try {
+        const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+        const taskSnapshot = await getDocs(
+          query(
+            getTasksCollectionRef(safeHouseholdId),
+            where('status', '==', 'OPEN'),
+            where('assigneeId', '==', null),
           ),
-        )
-        .sort((left, right) => left.name.localeCompare(right.name));
+        );
+
+        return taskSnapshot.docs.map((taskDoc) =>
+          mapTask(taskDoc.id, safeHouseholdId, taskDoc.data() as Record<string, unknown>),
+        );
+      } catch(error) {
+        throw normalizeError('Failed to load open tasks', error);
+      }
+    },
+
+      async getDraftTasks(householdId: string): Promise < Task[] > {
+        try {
+          const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+          const taskSnapshot = await getDocs(
+            query(getTasksCollectionRef(safeHouseholdId), where('status', '==', 'DRAFT')),
+          );
+
+          return taskSnapshot.docs.map((taskDoc) =>
+            mapTask(taskDoc.id, safeHouseholdId, taskDoc.data() as Record<string, unknown>),
+          );
+        } catch(error) {
+          throw normalizeError('Failed to load draft tasks', error);
+        }
+      },
+
+        async getChoreCatalog(householdId: string): Promise < ChoreCatalogItem[] > {
+          try {
+            const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+            const catalogSnapshot = await getDocs(getChoreCatalogCollectionRef(safeHouseholdId));
+
+            return catalogSnapshot.docs
+              .map((catalogDoc) =>
+                mapChoreCatalogItem(
+                  catalogDoc.id,
+                  safeHouseholdId,
+                  catalogDoc.data() as Record<string, unknown>,
+                ),
+              )
+              .sort((left, right) => left.name.localeCompare(right.name));
+          } catch(error) {
+            throw normalizeError('Failed to load chore catalog', error);
+          }
+        },
+
+          async getGradeConfigs(householdId: string): Promise < GradeConfig[] > {
+            try {
+              const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+              const configRef = doc(getFirestore(), `households/${safeHouseholdId}/settings/grade_configs`);
+              const configSnapshot = await getDoc(configRef);
+
+              if(configSnapshot.exists()) {
+  const payload = configSnapshot.data() as Record<string, unknown>;
+  return mapGradeConfigs(payload, defaultRates());
+}
+
+const adminSnapshot = await getDocs(
+  query(getProfilesCollectionRef(safeHouseholdId), where('role', '==', 'ADMIN'), limit(1)),
+);
+if (!adminSnapshot.empty) {
+  const adminRates = parseRates((adminSnapshot.docs[0].data() as Record<string, unknown>).rates);
+  return Object.values(Grade).map((grade) => ({
+    grade,
+    valueCents: dollarsToCents(adminRates[grade] ?? 0),
+  }));
+}
+
+console.warn(`Grade Configs missing in Firestore at path: households/${safeHouseholdId}/settings/grade_configs`);
+return mapGradeConfigs({}, defaultRates());
     } catch (error) {
-      throw normalizeError('Failed to load chore catalog', error);
-    }
+  throw normalizeError('Failed to load grade configs', error);
+}
   },
 
-  async getGradeConfigs(householdId: string): Promise<GradeConfig[]> {
-    try {
-      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
-      const configRef = doc(getFirestore(), `households/${safeHouseholdId}/settings/grade_configs`);
-      const configSnapshot = await getDoc(configRef);
+  async createChild(householdId: string, child: Partial<Child>): Promise < Child > {
+  try {
+    const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+    const childName = assertNonEmptyString(child.name, 'child.name');
+    const gradeLevel = typeof child.gradeLevel === 'string' ? child.gradeLevel : 'Unknown';
+    const subjects = parseSubjects(child.subjects);
+    const rates = parseRates(child.rates);
 
-      if (configSnapshot.exists()) {
-        const payload = configSnapshot.data() as Record<string, unknown>;
-        return mapGradeConfigs(payload, defaultRates());
-      }
+    const childRef = doc(getProfilesCollectionRef(safeHouseholdId));
+    const childProfile = createProfileWritePayload({
+      householdId: safeHouseholdId,
+      name: childName,
+      pinHash: '',
+      gradeLevel,
+      subjects,
+      rates,
+      currentHourlyRate: typeof child.currentHourlyRate === 'number' ? child.currentHourlyRate : 0,
+    });
 
-      const adminSnapshot = await getDocs(
-        query(getProfilesCollectionRef(safeHouseholdId), where('role', '==', 'ADMIN'), limit(1)),
-      );
-      if (!adminSnapshot.empty) {
-        const adminRates = parseRates((adminSnapshot.docs[0].data() as Record<string, unknown>).rates);
-        return Object.values(Grade).map((grade) => ({
-          grade,
-          valueCents: dollarsToCents(adminRates[grade] ?? 0),
-        }));
-      }
+    await setDoc(childRef, {
+      ...childProfile,
+      createdAt: serverTimestamp(),
+  updatedAt: serverTimestamp(),
+});
 
-      console.warn(`Grade Configs missing in Firestore at path: households/${safeHouseholdId}/settings/grade_configs`);
-      return mapGradeConfigs({}, defaultRates());
+return {
+  ...childProfile,
+  id: childRef.id,
+  familyId: safeHouseholdId,
+  pin: child.pin,
+  history: [],
+  customTasks: [],
+};
     } catch (error) {
-      throw normalizeError('Failed to load grade configs', error);
-    }
-  },
-
-  async createChild(householdId: string, child: Partial<Child>): Promise<Child> {
-    try {
-      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
-      const childName = assertNonEmptyString(child.name, 'child.name');
-      const gradeLevel = typeof child.gradeLevel === 'string' ? child.gradeLevel : 'Unknown';
-      const subjects = parseSubjects(child.subjects);
-      const rates = parseRates(child.rates);
-
-      const childRef = doc(getProfilesCollectionRef(safeHouseholdId));
-      const childProfile = createProfileWritePayload({
-        householdId: safeHouseholdId,
-        name: childName,
-        pinHash: '',
-        gradeLevel,
-        subjects,
-        rates,
-        currentHourlyRate: typeof child.currentHourlyRate === 'number' ? child.currentHourlyRate : 0,
-      });
-
-      await setDoc(childRef, {
-        ...childProfile,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-
-      return {
-        ...childProfile,
-        id: childRef.id,
-        familyId: safeHouseholdId,
-        pin: child.pin,
-        history: [],
-        customTasks: [],
-      };
-    } catch (error) {
-      throw normalizeError('Failed to create child profile', error);
-    }
+  throw normalizeError('Failed to create child profile', error);
+}
   },
 
   async createProfile(
-    householdId: string,
-    payload: { name: string; pin?: string; avatarColor?: string },
-  ): Promise<Profile> {
-    try {
-      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
-      const profileName = assertNonEmptyString(payload.name, 'profile.name');
-      const pin = typeof payload.pin === 'string' ? payload.pin.trim() : '';
-      if (pin && !/^\d{4}$/.test(pin)) {
-        throw new Error('profile.pin must be exactly 4 digits when provided.');
-      }
-      const pinHash = pin ? await hashPin(pin) : '';
-      const profileRef = doc(getProfilesCollectionRef(safeHouseholdId));
-      const profile = createProfileWritePayload({
-        householdId: safeHouseholdId,
-        name: profileName,
-        pinHash,
-        avatarColor: typeof payload.avatarColor === 'string' ? payload.avatarColor : '#3b82f6',
-      });
+  householdId: string,
+  payload: { name: string; pin?: string; avatarColor?: string },
+): Promise < Profile > {
+  try {
+    const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+    const profileName = assertNonEmptyString(payload.name, 'profile.name');
+    const pin = typeof payload.pin === 'string' ? payload.pin.trim() : '';
+    if(pin && !/^\d{4}$/.test(pin)) {
+  throw new Error('profile.pin must be exactly 4 digits when provided.');
+}
+const pinHash = pin ? await hashPin(pin) : '';
+const profileRef = doc(getProfilesCollectionRef(safeHouseholdId));
+const profile = createProfileWritePayload({
+  householdId: safeHouseholdId,
+  name: profileName,
+  pinHash,
+  avatarColor: typeof payload.avatarColor === 'string' ? payload.avatarColor : '#3b82f6',
+});
 
-      await setDoc(profileRef, {
-        ...profile,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
+await setDoc(profileRef, {
+  ...profile,
+  createdAt: serverTimestamp(),
+  updatedAt: serverTimestamp(),
+});
 
-      return {
-        ...profile,
-        id: profileRef.id,
-        familyId: safeHouseholdId,
-      };
+return {
+  ...profile,
+  id: profileRef.id,
+  familyId: safeHouseholdId,
+};
     } catch (error) {
-      throw normalizeError('Failed to create profile', error);
-    }
+  throw normalizeError('Failed to create profile', error);
+}
   },
 
-  async childLogin(input: { username: string; pin: string; householdId?: string }): Promise<ChildLoginResponse> {
-    try {
-      const payload = buildChildLoginPayload(input);
+  async childLogin(input: { username: string; pin: string; householdId?: string }): Promise < ChildLoginResponse > {
+  try {
+    const payload = buildChildLoginPayload(input);
 
-      if (!functions) {
-        throw new Error('Child sign-in requires Firebase Functions configuration.');
-      }
+    if(!functions) {
+      throw new Error('Child sign-in requires Firebase Functions configuration.');
+    }
 
       const callable = httpsCallable<ChildLoginRequest, ChildLoginResponse>(functions, 'childLogin');
-      const result = await callWithExponentialBackoff(() => callable(payload));
-      const response = result.data;
+    const result = await callWithExponentialBackoff(() => callable(payload));
+    const response = result.data;
 
-      if (!response || typeof response !== 'object') {
-        throw new Error('Child sign-in failed.');
-      }
+    if(!response || typeof response !== 'object') {
+  throw new Error('Child sign-in failed.');
+}
 
-      if (
-        typeof response.token !== 'string' ||
-        typeof response.householdId !== 'string' ||
-        typeof response.profileId !== 'string' ||
-        response.role !== 'CHILD'
-      ) {
-        throw new Error('Child sign-in failed.');
-      }
+if (
+  typeof response.token !== 'string' ||
+  typeof response.householdId !== 'string' ||
+  typeof response.profileId !== 'string' ||
+  response.role !== 'CHILD'
+) {
+  throw new Error('Child sign-in failed.');
+}
 
-      return response;
+return response;
     } catch (error) {
-      throw normalizeError('Failed child sign-in', error);
-    }
+  throw normalizeError('Failed child sign-in', error);
+}
   },
 
   async adminResetChildPin(input: {
-    householdId: string;
-    profileId: string;
-    newPin: string;
-  }): Promise<void> {
-    try {
-      const payload = buildAdminResetPinPayload(input);
+  householdId: string;
+  profileId: string;
+  newPin: string;
+}): Promise < void> {
+  try {
+    const payload = buildAdminResetPinPayload(input);
 
-      if (functions) {
-        const callable = httpsCallable<AdminResetChildPinRequest, { success: true }>(
-          functions,
-          'adminResetChildPin',
-        );
-        await callWithExponentialBackoff(() => callable(payload));
-        return;
-      }
+    if(functions) {
+      const callable = httpsCallable<AdminResetChildPinRequest, { success: true }>(
+        functions,
+        'adminResetChildPin',
+      );
+      await callWithExponentialBackoff(() => callable(payload));
+      return;
+    }
 
       await householdService.setProfilePinInHousehold(payload.householdId, payload.profileId, payload.newPin);
-    } catch (error) {
-      throw normalizeError('Failed to reset child PIN', error);
-    }
-  },
+  } catch(error) {
+    throw normalizeError('Failed to reset child PIN', error);
+  }
+},
 
   async updateChildUsername(input: {
     householdId: string;
     profileId: string;
     username: string;
-  }): Promise<void> {
+  }): Promise < void> {
     try {
       const firestore = getFirestore();
       const householdId = assertNonEmptyString(input.householdId, 'householdId');
       const profileId = assertNonEmptyString(input.profileId, 'profileId');
       const username = normalizeChildUsername(assertNonEmptyString(input.username, 'username'));
 
-      if (!isValidChildUsername(username)) {
-        throw new Error('username must be 3-24 characters and use letters, numbers, dot, dash, or underscore.');
-      }
+      if(!isValidChildUsername(username)) {
+  throw new Error('username must be 3-24 characters and use letters, numbers, dot, dash, or underscore.');
+}
 
-      const existingUsernameQuery = await getDocs(
-        query(
-          getProfilesCollectionRef(householdId),
-          where('loginUsernameCanonical', '==', username),
-          limit(2),
-        ),
-      );
+const existingUsernameQuery = await getDocs(
+  query(
+    getProfilesCollectionRef(householdId),
+    where('loginUsernameCanonical', '==', username),
+    limit(2),
+  ),
+);
 
-      const hasConflict = existingUsernameQuery.docs.some((profileDoc) => profileDoc.id !== profileId);
-      if (hasConflict) {
-        throw new Error('Username is already used by another child profile.');
-      }
+const hasConflict = existingUsernameQuery.docs.some((profileDoc) => profileDoc.id !== profileId);
+if (hasConflict) {
+  throw new Error('Username is already used by another child profile.');
+}
 
-      const profileRef = doc(firestore, `households/${householdId}/profiles/${profileId}`);
-      const profileSnapshot = await getDoc(profileRef);
-      if (!profileSnapshot.exists()) {
-        throw new Error('Profile not found in this household.');
-      }
+const profileRef = doc(firestore, `households/${householdId}/profiles/${profileId}`);
+const profileSnapshot = await getDoc(profileRef);
+if (!profileSnapshot.exists()) {
+  throw new Error('Profile not found in this household.');
+}
 
-      await updateDoc(profileRef, {
-        loginUsername: username,
-        loginUsernameCanonical: username,
-        updatedAt: serverTimestamp(),
-      });
+await updateDoc(profileRef, {
+  loginUsername: username,
+  loginUsernameCanonical: username,
+  updatedAt: serverTimestamp(),
+});
     } catch (error) {
-      throw normalizeError('Failed to update child username', error);
-    }
+  throw normalizeError('Failed to update child username', error);
+}
   },
 
   async createTask(
-    householdId: string,
-    task: Task,
-    options?: { saveToCatalog?: boolean; catalogItemId?: string | null },
-  ): Promise<Task> {
-    try {
-      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
-      const safeTaskName = assertNonEmptyString(task.name, 'task.name');
-      const status = parseTaskStatus(task.status);
+  householdId: string,
+  task: Task,
+  options ?: { saveToCatalog?: boolean; catalogItemId?: string | null },
+): Promise < Task > {
+  try {
+    const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+    const safeTaskName = assertNonEmptyString(task.name, 'task.name');
+    const status = parseTaskStatus(task.status);
 
-      let taskCollection;
-      if (typeof task.assigneeId === 'string' && task.assigneeId.length > 0) {
-        taskCollection = collection(getFirestore(), `households/${safeHouseholdId}/profiles/${task.assigneeId}/tasks`);
-      } else {
-        taskCollection = getTasksCollectionRef(safeHouseholdId);
-      }
+    let taskCollection;
+    if(typeof task.assigneeId === 'string' && task.assigneeId.length > 0) {
+  taskCollection = collection(getFirestore(), `households/${safeHouseholdId}/profiles/${task.assigneeId}/tasks`);
+} else {
+  taskCollection = getTasksCollectionRef(safeHouseholdId);
+}
 
-      const taskRef =
-        typeof task.id === 'string' && task.id.trim().length > 0
-          ? doc(taskCollection, task.id)
-          : doc(taskCollection);
+const taskRef =
+  typeof task.id === 'string' && task.id.trim().length > 0
+    ? doc(taskCollection, task.id)
+    : doc(taskCollection);
 
-      const firestoreTask: FirestoreTask = {
-        householdId: safeHouseholdId,
-        name: safeTaskName,
-        baselineMinutes: Number.isFinite(task.baselineMinutes) ? task.baselineMinutes : 0,
-        status,
-        rejectionComment: task.rejectionComment,
-        assigneeId: typeof task.assigneeId === 'string' ? task.assigneeId : null,
-        catalogItemId:
-          typeof options?.catalogItemId === 'string'
-            ? options.catalogItemId
-            : typeof task.catalogItemId === 'string'
-              ? task.catalogItemId
-              : null,
-        valueCents: typeof task.valueCents === 'number' ? task.valueCents : undefined,
-      };
+const firestoreTask: FirestoreTask = {
+  householdId: safeHouseholdId,
+  name: safeTaskName,
+  baselineMinutes: Number.isFinite(task.baselineMinutes) ? task.baselineMinutes : 0,
+  status,
+  rejectionComment: task.rejectionComment,
+  assigneeId: typeof task.assigneeId === 'string' ? task.assigneeId : null,
+  catalogItemId:
+    typeof options?.catalogItemId === 'string'
+      ? options.catalogItemId
+      : typeof task.catalogItemId === 'string'
+        ? task.catalogItemId
+        : null,
+  valueCents: typeof task.valueCents === 'number' ? task.valueCents : undefined,
+};
 
-      await setDoc(taskRef, {
-        ...firestoreTask,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
+await setDoc(taskRef, {
+  ...firestoreTask,
+  createdAt: serverTimestamp(),
+  updatedAt: serverTimestamp(),
+});
 
-      if (options?.saveToCatalog) {
-        const normalizedCatalogId = safeTaskName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        const catalogDocId =
-          normalizedCatalogId.length > 0
-            ? normalizedCatalogId
-            : `${safeTaskName.toLowerCase()}-${Math.floor(Date.now() / 1000)}`;
-        const catalogRef = doc(getChoreCatalogCollectionRef(safeHouseholdId), catalogDocId);
+if (options?.saveToCatalog) {
+  const normalizedCatalogId = safeTaskName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const catalogDocId =
+    normalizedCatalogId.length > 0
+      ? normalizedCatalogId
+      : `${safeTaskName.toLowerCase()}-${Math.floor(Date.now() / 1000)}`;
+  const catalogRef = doc(getChoreCatalogCollectionRef(safeHouseholdId), catalogDocId);
 
-        await setDoc(
-          catalogRef,
-          {
-            householdId: safeHouseholdId,
-            name: safeTaskName,
-            baselineMinutes: firestoreTask.baselineMinutes,
-            updatedAt: serverTimestamp(),
-            createdAt: serverTimestamp(),
-          },
-          { merge: true },
-        );
-      }
+  await setDoc(
+    catalogRef,
+    {
+      householdId: safeHouseholdId,
+      name: safeTaskName,
+      baselineMinutes: firestoreTask.baselineMinutes,
+      updatedAt: serverTimestamp(),
+      createdAt: serverTimestamp(),
+    },
+    { merge: true },
+  );
+}
 
-      return {
-        id: taskRef.id,
-        familyId: safeHouseholdId,
-        ...firestoreTask,
-      };
+return {
+  id: taskRef.id,
+  familyId: safeHouseholdId,
+  ...firestoreTask,
+};
     } catch (error) {
-      throw normalizeError('Failed to create task', error);
-    }
+  throw normalizeError('Failed to create task', error);
+}
   },
 
-  async updateTaskById(taskId: string, updates: Partial<Task>, profileId?: string): Promise<void> {
-    try {
-      const safeTaskId = assertNonEmptyString(taskId, 'taskId');
-      const resolvedTask = await resolveTaskLocationById(safeTaskId, undefined, profileId);
+  async updateTaskById(taskId: string, updates: Partial<Task>, profileId ?: string): Promise < void> {
+  try {
+    const safeTaskId = assertNonEmptyString(taskId, 'taskId');
+    const resolvedTask = await resolveTaskLocationById(safeTaskId, undefined, profileId);
 
-      if (!resolvedTask) {
-        throw new Error('Task not found.');
-      }
+    if(!resolvedTask) {
+      throw new Error('Task not found.');
+    }
 
       const firestore = getFirestore();
-      const taskRef = resolvedTask.profileId
-        ? doc(firestore, `households/${resolvedTask.householdId}/profiles/${resolvedTask.profileId}/tasks/${resolvedTask.taskId}`)
-        : doc(firestore, `households/${resolvedTask.householdId}/tasks/${resolvedTask.taskId}`);
+    const taskRef = resolvedTask.profileId
+      ? doc(firestore, `households/${resolvedTask.householdId}/profiles/${resolvedTask.profileId}/tasks/${resolvedTask.taskId}`)
+      : doc(firestore, `households/${resolvedTask.householdId}/tasks/${resolvedTask.taskId}`);
 
-      const updatePayload: Record<string, unknown> = {
-        updatedAt: serverTimestamp(),
+    const updatePayload: Record<string, unknown> = {
+  updatedAt: serverTimestamp(),
       };
 
-      if (typeof updates.name === 'string' && updates.name.trim().length > 0) {
-        updatePayload.name = updates.name;
-      }
-      if (typeof updates.baselineMinutes === 'number' && Number.isFinite(updates.baselineMinutes)) {
-        updatePayload.baselineMinutes = updates.baselineMinutes;
-      }
-      if (typeof updates.status === 'string') {
-        updatePayload.status = parseTaskStatus(updates.status);
-      }
-      if (typeof updates.rejectionComment === 'string') {
-        updatePayload.rejectionComment = updates.rejectionComment;
-      }
-      if (updates.assigneeId === null) {
-        updatePayload.assigneeId = null;
-      }
-      if (typeof updates.assigneeId === 'string') {
-        updatePayload.assigneeId = updates.assigneeId;
-      }
-      if (updates.catalogItemId === null) {
-        updatePayload.catalogItemId = null;
-      }
-      if (typeof updates.catalogItemId === 'string') {
-        updatePayload.catalogItemId = updates.catalogItemId;
-      }
+if (typeof updates.name === 'string' && updates.name.trim().length > 0) {
+  updatePayload.name = updates.name;
+}
+if (typeof updates.baselineMinutes === 'number' && Number.isFinite(updates.baselineMinutes)) {
+  updatePayload.baselineMinutes = updates.baselineMinutes;
+}
+if (typeof updates.status === 'string') {
+  updatePayload.status = parseTaskStatus(updates.status);
+}
+if (typeof updates.rejectionComment === 'string') {
+  updatePayload.rejectionComment = updates.rejectionComment;
+}
+if (updates.assigneeId === null) {
+  updatePayload.assigneeId = null;
+}
+if (typeof updates.assigneeId === 'string') {
+  updatePayload.assigneeId = updates.assigneeId;
+}
+if (updates.catalogItemId === null) {
+  updatePayload.catalogItemId = null;
+}
+if (typeof updates.catalogItemId === 'string') {
+  updatePayload.catalogItemId = updates.catalogItemId;
+}
 
-      await updateDoc(taskRef, updatePayload);
+await updateDoc(taskRef, updatePayload);
     } catch (error) {
-      throw normalizeError('Failed to update task', error);
-    }
+  throw normalizeError('Failed to update task', error);
+}
   },
 
-  async updateChildById(childId: string, updates: Partial<Child>): Promise<void> {
-    try {
-      const safeChildId = assertNonEmptyString(childId, 'childId');
-      const resolvedProfile = await resolveProfileLocationById(safeChildId);
+  async updateChildById(childId: string, updates: Partial<Child>): Promise < void> {
+  try {
+    const safeChildId = assertNonEmptyString(childId, 'childId');
+    const resolvedProfile = await resolveProfileLocationById(safeChildId);
 
-      if (!resolvedProfile) {
-        throw new Error('Child profile not found.');
-      }
+    if(!resolvedProfile) {
+      throw new Error('Child profile not found.');
+    }
 
       const firestore = getFirestore();
-      const profileRef = doc(
-        firestore,
-        `households/${resolvedProfile.householdId}/profiles/${resolvedProfile.profileId}`,
-      );
+    const profileRef = doc(
+      firestore,
+      `households/${resolvedProfile.householdId}/profiles/${resolvedProfile.profileId}`,
+    );
 
-      const updatePayload: Record<string, unknown> = {
-        updatedAt: serverTimestamp(),
+    const updatePayload: Record<string, unknown> = {
+  updatedAt: serverTimestamp(),
       };
 
-      if (typeof updates.name === 'string' && updates.name.trim().length > 0) {
-        updatePayload.name = updates.name;
-      }
-      if (typeof updates.gradeLevel === 'string' && updates.gradeLevel.trim().length > 0) {
-        updatePayload.gradeLevel = updates.gradeLevel;
-      }
-      if (Array.isArray(updates.subjects)) {
-        updatePayload.subjects = parseSubjects(updates.subjects);
-      }
-      if (updates.rates && typeof updates.rates === 'object') {
-        updatePayload.rates = parseRates(updates.rates);
-      }
-      if (typeof updates.currentHourlyRate === 'number') {
-        updatePayload.currentHourlyRate = updates.currentHourlyRate;
-      }
-      if (typeof updates.loginUsername === 'string') {
-        const normalizedUsername = normalizeChildUsername(updates.loginUsername);
-        if (!isValidChildUsername(normalizedUsername)) {
-          throw new Error(
-            'username must be 3-24 characters and use letters, numbers, dot, dash, or underscore.',
-          );
-        }
-        const existingUsernameSnapshot = await getDocs(
-          query(
-            getProfilesCollectionRef(resolvedProfile.householdId),
-            where('loginUsernameCanonical', '==', normalizedUsername),
-            limit(2),
-          ),
-        );
-        const hasConflict = existingUsernameSnapshot.docs.some((profileDoc) => {
-          return profileDoc.id !== resolvedProfile.profileId;
-        });
-        if (hasConflict) {
-          throw new Error('Username is already used by another child profile.');
-        }
-        updatePayload.loginUsername = normalizedUsername;
-        updatePayload.loginUsernameCanonical = normalizedUsername;
-      }
+if (typeof updates.name === 'string' && updates.name.trim().length > 0) {
+  updatePayload.name = updates.name;
+}
+if (typeof updates.gradeLevel === 'string' && updates.gradeLevel.trim().length > 0) {
+  updatePayload.gradeLevel = updates.gradeLevel;
+}
+if (Array.isArray(updates.subjects)) {
+  updatePayload.subjects = parseSubjects(updates.subjects);
+}
+if (updates.rates && typeof updates.rates === 'object') {
+  updatePayload.rates = parseRates(updates.rates);
+}
+if (typeof updates.currentHourlyRate === 'number') {
+  updatePayload.currentHourlyRate = updates.currentHourlyRate;
+}
+if (typeof updates.loginUsername === 'string') {
+  const normalizedUsername = normalizeChildUsername(updates.loginUsername);
+  if (!isValidChildUsername(normalizedUsername)) {
+    throw new Error(
+      'username must be 3-24 characters and use letters, numbers, dot, dash, or underscore.',
+    );
+  }
+  const existingUsernameSnapshot = await getDocs(
+    query(
+      getProfilesCollectionRef(resolvedProfile.householdId),
+      where('loginUsernameCanonical', '==', normalizedUsername),
+      limit(2),
+    ),
+  );
+  const hasConflict = existingUsernameSnapshot.docs.some((profileDoc) => {
+    return profileDoc.id !== resolvedProfile.profileId;
+  });
+  if (hasConflict) {
+    throw new Error('Username is already used by another child profile.');
+  }
+  updatePayload.loginUsername = normalizedUsername;
+  updatePayload.loginUsernameCanonical = normalizedUsername;
+}
 
-      await updateDoc(profileRef, updatePayload);
+await updateDoc(profileRef, updatePayload);
     } catch (error) {
-      throw normalizeError('Failed to update child profile', error);
-    }
+  throw normalizeError('Failed to update child profile', error);
+}
   },
 
   async addEarning(
-    profileId: string,
-    taskId: string,
-    amountCents: number,
-    memo: string,
-    householdId?: string,
-  ): Promise<void> {
-    try {
-      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
-      const safeTaskId = assertNonEmptyString(taskId, 'taskId');
-      const safeMemo = assertNonEmptyString(memo, 'memo');
+  profileId: string,
+  taskId: string,
+  amountCents: number,
+  memo: string,
+  householdId ?: string,
+): Promise < void> {
+  try {
+    const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+    const safeTaskId = assertNonEmptyString(taskId, 'taskId');
+    const safeMemo = assertNonEmptyString(memo, 'memo');
 
-      const firestore = getFirestore();
+    const firestore = getFirestore();
 
-      const normalizedAmountCents = Math.round(amountCents);
-      if (!Number.isFinite(normalizedAmountCents) || normalizedAmountCents <= 0) {
-        throw new Error('amountCents must be a positive integer.');
-      }
+    const normalizedAmountCents = Math.round(amountCents);
+    if(!Number.isFinite(normalizedAmountCents) || normalizedAmountCents <= 0) {
+  throw new Error('amountCents must be a positive integer.');
+}
 
-      const resolvedProfileHouseholdId =
-        typeof householdId === 'string' && householdId.trim().length > 0
-          ? householdId.trim()
-          : (await resolveProfileLocationById(safeProfileId))?.householdId;
+const resolvedProfileHouseholdId =
+  typeof householdId === 'string' && householdId.trim().length > 0
+    ? householdId.trim()
+    : (await resolveProfileLocationById(safeProfileId))?.householdId;
 
-      if (!resolvedProfileHouseholdId) {
-        throw new Error('Profile not found.');
-      }
+if (!resolvedProfileHouseholdId) {
+  throw new Error('Profile not found.');
+}
 
-      await ledgerService.recordTaskPayment({
-        firestore,
-        householdId: resolvedProfileHouseholdId,
-        profileId: safeProfileId,
-        taskId: safeTaskId,
-        amountCents: normalizedAmountCents,
-        memo: safeMemo,
-      });
+await ledgerService.recordTaskPayment({
+  firestore,
+  householdId: resolvedProfileHouseholdId,
+  profileId: safeProfileId,
+  taskId: safeTaskId,
+  amountCents: normalizedAmountCents,
+  memo: safeMemo,
+});
     } catch (error) {
-      throw normalizeError('Failed to apply earning', error);
-    }
+  throw normalizeError('Failed to apply earning', error);
+}
   },
 
   async addAdvance(
-    profileId: string,
-    amountCents: number,
-    memo: string,
-    category: string,
-    householdId?: string,
-  ): Promise<void> {
-    try {
-      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
-      const safeMemo = assertNonEmptyString(memo, 'memo');
+  profileId: string,
+  amountCents: number,
+  memo: string,
+  category: string,
+  householdId ?: string,
+): Promise < void> {
+  try {
+    const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+    const safeMemo = assertNonEmptyString(memo, 'memo');
 
-      const safeCategory = parseAdvanceCategory(category) ?? 'Other';
+    const safeCategory = parseAdvanceCategory(category) ?? 'Other';
 
-      const firestore = getFirestore();
+    const firestore = getFirestore();
 
-      const normalizedAmountCents = Math.round(amountCents);
-      if (!Number.isFinite(normalizedAmountCents) || normalizedAmountCents <= 0) {
-        throw new Error('amountCents must be a positive integer.');
-      }
+    const normalizedAmountCents = Math.round(amountCents);
+    if(!Number.isFinite(normalizedAmountCents) || normalizedAmountCents <= 0) {
+  throw new Error('amountCents must be a positive integer.');
+}
 
-      const resolvedProfileHouseholdId =
-        typeof householdId === 'string' && householdId.trim().length > 0
-          ? householdId.trim()
-          : (await resolveProfileLocationById(safeProfileId))?.householdId;
+const resolvedProfileHouseholdId =
+  typeof householdId === 'string' && householdId.trim().length > 0
+    ? householdId.trim()
+    : (await resolveProfileLocationById(safeProfileId))?.householdId;
 
-      if (!resolvedProfileHouseholdId) {
-        throw new Error('Profile not found.');
-      }
+if (!resolvedProfileHouseholdId) {
+  throw new Error('Profile not found.');
+}
 
-      await ledgerService.recordAdvance({
-        firestore,
-        householdId: resolvedProfileHouseholdId,
-        profileId: safeProfileId,
-        amountCents: normalizedAmountCents,
-        memo: safeMemo,
-        category: safeCategory,
-      });
+await ledgerService.recordAdvance({
+  firestore,
+  householdId: resolvedProfileHouseholdId,
+  profileId: safeProfileId,
+  amountCents: normalizedAmountCents,
+  memo: safeMemo,
+  category: safeCategory,
+});
     } catch (error) {
-      throw normalizeError('Failed to apply advance', error);
-    }
+  throw normalizeError('Failed to apply advance', error);
+}
   },
 
   async addManualAdjustment(
-    profileId: string,
-    amountCents: number,
-    memo: string,
-    householdId?: string,
-  ): Promise<void> {
-    try {
-      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
-      const safeMemo = assertNonEmptyString(memo, 'memo');
-      const normalizedAmountCents = Math.round(amountCents);
-      if (!Number.isFinite(normalizedAmountCents) || normalizedAmountCents === 0) {
-        throw new Error('amountCents must be a non-zero integer.');
-      }
+  profileId: string,
+  amountCents: number,
+  memo: string,
+  householdId ?: string,
+): Promise < void> {
+  try {
+    const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+    const safeMemo = assertNonEmptyString(memo, 'memo');
+    const normalizedAmountCents = Math.round(amountCents);
+    if(!Number.isFinite(normalizedAmountCents) || normalizedAmountCents === 0) {
+  throw new Error('amountCents must be a non-zero integer.');
+}
 
-      const resolvedProfileHouseholdId =
-        typeof householdId === 'string' && householdId.trim().length > 0
-          ? householdId.trim()
-          : (await resolveProfileLocationById(safeProfileId))?.householdId;
+const resolvedProfileHouseholdId =
+  typeof householdId === 'string' && householdId.trim().length > 0
+    ? householdId.trim()
+    : (await resolveProfileLocationById(safeProfileId))?.householdId;
 
-      if (!resolvedProfileHouseholdId) {
-        throw new Error('Profile not found.');
-      }
+if (!resolvedProfileHouseholdId) {
+  throw new Error('Profile not found.');
+}
 
-      await ledgerService.recordManualAdjustment({
-        firestore: getFirestore(),
-        householdId: resolvedProfileHouseholdId,
-        profileId: safeProfileId,
-        amountCents: normalizedAmountCents,
-        memo: safeMemo,
-      });
+await ledgerService.recordManualAdjustment({
+  firestore: getFirestore(),
+  householdId: resolvedProfileHouseholdId,
+  profileId: safeProfileId,
+  amountCents: normalizedAmountCents,
+  memo: safeMemo,
+});
     } catch (error) {
-      throw normalizeError('Failed to apply manual adjustment', error);
-    }
+  throw normalizeError('Failed to apply manual adjustment', error);
+}
   },
 
-  async setProfilePinHash(profileId: string, pinHash: string): Promise<void> {
-    try {
-      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
-      const safePinHash = assertNonEmptyString(pinHash, 'pinHash');
-      const resolvedProfile = await resolveProfileLocationById(safeProfileId);
+  async setProfilePinHash(profileId: string, pinHash: string): Promise < void> {
+  try {
+    const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+    const safePinHash = assertNonEmptyString(pinHash, 'pinHash');
+    const resolvedProfile = await resolveProfileLocationById(safeProfileId);
 
-      if (!resolvedProfile) {
-        throw new Error('Profile not found.');
-      }
+    if(!resolvedProfile) {
+      throw new Error('Profile not found.');
+    }
 
       const firestore = getFirestore();
-      const profileRef = doc(
-        firestore,
-        `households/${resolvedProfile.householdId}/profiles/${resolvedProfile.profileId}`,
-      );
+    const profileRef = doc(
+      firestore,
+      `households/${resolvedProfile.householdId}/profiles/${resolvedProfile.profileId}`,
+    );
 
-      await updateDoc(profileRef, {
-        pinHash: safePinHash,
-        updatedAt: serverTimestamp(),
-      });
+    await updateDoc(profileRef, {
+      pinHash: safePinHash,
+      updatedAt: serverTimestamp(),
+});
     } catch (error) {
-      throw normalizeError('Failed to save PIN hash', error);
-    }
+  throw normalizeError('Failed to save PIN hash', error);
+}
   },
 
-  async verifyProfilePinHash(profileId: string, candidatePinHash: string): Promise<boolean> {
-    try {
-      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
-      const safeCandidatePinHash = assertNonEmptyString(candidatePinHash, 'candidatePinHash');
-      const resolvedProfile = await resolveProfileLocationById(safeProfileId);
+  async verifyProfilePinHash(profileId: string, candidatePinHash: string): Promise < boolean > {
+  try {
+    const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+    const safeCandidatePinHash = assertNonEmptyString(candidatePinHash, 'candidatePinHash');
+    const resolvedProfile = await resolveProfileLocationById(safeProfileId);
 
-      if (!resolvedProfile) {
-        return false;
-      }
+    if(!resolvedProfile) {
+      return false;
+    }
 
       const firestore = getFirestore();
-      const profileSnapshot = await getDoc(
-        doc(firestore, `households/${resolvedProfile.householdId}/profiles/${resolvedProfile.profileId}`),
-      );
+    const profileSnapshot = await getDoc(
+      doc(firestore, `households/${resolvedProfile.householdId}/profiles/${resolvedProfile.profileId}`),
+    );
 
-      if (!profileSnapshot.exists()) {
-        return false;
-      }
+    if(!profileSnapshot.exists()) {
+  return false;
+}
 
-      const storedPinHash = profileSnapshot.data().pinHash;
-      return typeof storedPinHash === 'string' && storedPinHash === safeCandidatePinHash;
+const storedPinHash = profileSnapshot.data().pinHash;
+return typeof storedPinHash === 'string' && storedPinHash === safeCandidatePinHash;
     } catch (error) {
-      throw normalizeError('Failed to verify profile PIN', error);
-    }
+  throw normalizeError('Failed to verify profile PIN', error);
+}
   },
 
-  async setProfilePin(profileId: string, pin: string): Promise<void> {
-    const pinHash = await hashPin(pin);
-    await householdService.setProfilePinHash(profileId, pinHash);
-  },
+  async setProfilePin(profileId: string, pin: string): Promise < void> {
+  const pinHash = await hashPin(pin);
+  await householdService.setProfilePinHash(profileId, pinHash);
+},
 
-  async verifyProfilePin(profileId: string, pin: string): Promise<boolean> {
+  async verifyProfilePin(profileId: string, pin: string): Promise < boolean > {
     const candidatePinHash = await hashPin(pin);
     return householdService.verifyProfilePinHash(profileId, candidatePinHash);
   },
 
-  async setProfilePinInHousehold(householdId: string, profileId: string, pin: string): Promise<void> {
-    try {
-      const firestore = getFirestore();
-      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
-      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
-      const safePin = assertNonEmptyString(pin, 'pin');
+    async setProfilePinInHousehold(householdId: string, profileId: string, pin: string): Promise < void> {
+      try {
+        const firestore = getFirestore();
+        const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+        const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+        const safePin = assertNonEmptyString(pin, 'pin');
 
-      if (!/^\d{4}$/.test(safePin)) {
-        throw new Error('pin must be exactly 4 digits.');
-      }
+        if(!/^\d{ 4 } $ /.test(safePin)) {
+  throw new Error('pin must be exactly 4 digits.');
+}
 
-      const pinHash = await hashPin(safePin);
-      const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);
-      const profileSnapshot = await getDoc(profileRef);
+const pinHash = await hashPin(safePin);
+const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);
+const profileSnapshot = await getDoc(profileRef);
 
-      if (!profileSnapshot.exists()) {
-        throw new Error('Profile not found in this household.');
-      }
+if (!profileSnapshot.exists()) {
+  throw new Error('Profile not found in this household.');
+}
 
-      await updateDoc(profileRef, {
-        pinHash,
-        updatedAt: serverTimestamp(),
-      });
+await updateDoc(profileRef, {
+  pinHash,
+  updatedAt: serverTimestamp(),
+});
     } catch (error) {
-      throw normalizeError('Failed to save profile PIN', error);
-    }
+  throw normalizeError('Failed to save profile PIN', error);
+}
   },
 
   async verifyProfilePinInHousehold(
-    householdId: string,
-    profileId: string,
-    pin: string,
-  ): Promise<boolean> {
-    try {
-      const firestore = getFirestore();
-      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
-      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
-      const safePin = assertNonEmptyString(pin, 'pin');
-      const candidatePinHash = await hashPin(safePin);
+  householdId: string,
+  profileId: string,
+  pin: string,
+): Promise < boolean > {
+  try {
+    const firestore = getFirestore();
+    const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+    const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+    const safePin = assertNonEmptyString(pin, 'pin');
+    const candidatePinHash = await hashPin(safePin);
 
-      const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);
-      const profileSnapshot = await getDoc(profileRef);
-      if (!profileSnapshot.exists()) {
-        return false;
-      }
+    const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);
+    const profileSnapshot = await getDoc(profileRef);
+    if(!profileSnapshot.exists()) {
+  return false;
+}
 
-      const storedPinHash = (profileSnapshot.data() as Record<string, unknown>).pinHash;
-      return typeof storedPinHash === 'string' && storedPinHash === candidatePinHash;
+const storedPinHash = (profileSnapshot.data() as Record<string, unknown>).pinHash;
+return typeof storedPinHash === 'string' && storedPinHash === candidatePinHash;
     } catch (error) {
-      throw normalizeError('Failed to verify profile PIN', error);
-    }
+  throw normalizeError('Failed to verify profile PIN', error);
+}
   },
 
-  async generateProfileSetupLink(householdId: string, profileId: string): Promise<string> {
-    try {
-      const firestore = getFirestore();
-      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
-      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
-      const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);
-      const profileSnapshot = await getDoc(profileRef);
+  async generateProfileSetupLink(householdId: string, profileId: string): Promise < string > {
+  try {
+    const firestore = getFirestore();
+    const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+    const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+    const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);
+    const profileSnapshot = await getDoc(profileRef);
 
-      if (!profileSnapshot.exists()) {
-        throw new Error('Profile not found in this household.');
-      }
+    if(!profileSnapshot.exists()) {
+  throw new Error('Profile not found in this household.');
+}
 
-      const rawToken =
-        typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
-          ? crypto.randomUUID().replace(/-/g, '')
-          : `${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`;
-      const tokenHash = await hashToken(rawToken);
-      const expiresAt = Timestamp.fromDate(
-        new Date(Date.now() + DEFAULT_PROFILE_SETUP_EXPIRY_HOURS * 60 * 60 * 1000),
-      );
+const rawToken =
+  typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+    ? crypto.randomUUID().replace(/-/g, '')
+    : `${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`;
+const tokenHash = await hashToken(rawToken);
+const expiresAt = Timestamp.fromDate(
+  new Date(Date.now() + DEFAULT_PROFILE_SETUP_EXPIRY_HOURS * 60 * 60 * 1000),
+);
 
-      await updateDoc(profileRef, {
-        setupTokenHash: tokenHash,
-        setupTokenExpiresAt: expiresAt,
-        setupTokenUsedAt: null,
-        setupStatus: 'INVITE_SENT',
-        inviteLastSentAt: Timestamp.now(),
-        updatedAt: serverTimestamp(),
-      });
+await updateDoc(profileRef, {
+  setupTokenHash: tokenHash,
+  setupTokenExpiresAt: expiresAt,
+  setupTokenUsedAt: null,
+  setupStatus: 'INVITE_SENT',
+  inviteLastSentAt: Timestamp.now(),
+  updatedAt: serverTimestamp(),
+});
 
-      const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-      const setupLinkQuery = new URLSearchParams({
-        token: rawToken,
-        householdId: safeHouseholdId,
-      });
-      return `${baseUrl}/setup-profile/${safeProfileId}?${setupLinkQuery.toString()}`;
+const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+const setupLinkQuery = new URLSearchParams({
+  token: rawToken,
+  householdId: safeHouseholdId,
+});
+return `${baseUrl}/setup-profile/${safeProfileId}?${setupLinkQuery.toString()}`;
     } catch (error) {
-      throw normalizeError('Failed to generate profile setup link', error);
-    }
+  throw normalizeError('Failed to generate profile setup link', error);
+}
   },
 
   async validateProfileSetupLink(
-    profileId: string,
-    token: string,
-    householdId?: string,
-  ): Promise<{ householdId: string; profile: Profile }> {
-    try {
-      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
-      const safeToken = assertNonEmptyString(token, 'token');
-      const safeHouseholdId =
-        typeof householdId === 'string' && householdId.trim().length > 0 ? householdId.trim() : undefined;
+  profileId: string,
+  token: string,
+  householdId ?: string,
+): Promise < { householdId: string; profile: Profile } > {
+  try {
+    const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+    const safeToken = assertNonEmptyString(token, 'token');
+    const safeHouseholdId =
+      typeof householdId === 'string' && householdId.trim().length > 0 ? householdId.trim() : undefined;
 
-      if (functions) {
-        const callable = httpsCallable<ValidateProfileSetupLinkRequest, ValidateProfileSetupLinkResponse>(
-          functions,
-          'validateProfileSetupLink',
-        );
-        try {
-          const result = await callWithExponentialBackoff(() => {
-            return callable({
-              profileId: safeProfileId,
-              token: safeToken,
-              householdId: safeHouseholdId,
-            });
+    if(functions) {
+      const callable = httpsCallable<ValidateProfileSetupLinkRequest, ValidateProfileSetupLinkResponse>(
+        functions,
+        'validateProfileSetupLink',
+      );
+      try {
+        const result = await callWithExponentialBackoff(() => {
+          return callable({
+            profileId: safeProfileId,
+            token: safeToken,
+            householdId: safeHouseholdId,
           });
+        });
 
-          const payload = result.data;
-          if (!payload || typeof payload !== 'object') {
-            throw new Error('Profile setup link is invalid.');
-          }
-          if (typeof payload.householdId !== 'string' || payload.householdId.trim().length === 0) {
-            throw new Error('Profile setup link is invalid.');
-          }
-          if (!payload.profile || typeof payload.profile !== 'object') {
-            throw new Error('Profile setup link is invalid.');
-          }
-          const profilePayload = payload.profile;
-          if (typeof profilePayload.id !== 'string' || typeof profilePayload.name !== 'string') {
-            throw new Error('Profile setup link is invalid.');
-          }
+        const payload = result.data;
+        if (!payload || typeof payload !== 'object') {
+          throw new Error('Profile setup link is invalid.');
+        }
+        if (typeof payload.householdId !== 'string' || payload.householdId.trim().length === 0) {
+          throw new Error('Profile setup link is invalid.');
+        }
+        if (!payload.profile || typeof payload.profile !== 'object') {
+          throw new Error('Profile setup link is invalid.');
+        }
+        const profilePayload = payload.profile;
+        if (typeof profilePayload.id !== 'string' || typeof profilePayload.name !== 'string') {
+          throw new Error('Profile setup link is invalid.');
+        }
 
-          return {
-            householdId: payload.householdId,
-            profile: mapSetupProfileFromCallable(payload.householdId, {
-              id: profilePayload.id,
-              name: profilePayload.name,
-              avatarColor:
-                typeof profilePayload.avatarColor === 'string' ? profilePayload.avatarColor : undefined,
-              loginUsername:
-                typeof profilePayload.loginUsername === 'string'
-                  ? profilePayload.loginUsername
-                  : undefined,
-            }),
-          };
-        } catch (callableError) {
-          const code = getCallableErrorCode(callableError);
-          if (code !== 'not-found' && code !== 'unimplemented') {
-            throw callableError;
-          }
+        return {
+          householdId: payload.householdId,
+          profile: mapSetupProfileFromCallable(payload.householdId, {
+            id: profilePayload.id,
+            name: profilePayload.name,
+            avatarColor:
+              typeof profilePayload.avatarColor === 'string' ? profilePayload.avatarColor : undefined,
+            loginUsername:
+              typeof profilePayload.loginUsername === 'string'
+                ? profilePayload.loginUsername
+                : undefined,
+          }),
+        };
+      } catch (callableError) {
+        const code = getCallableErrorCode(callableError);
+        if (code !== 'not-found' && code !== 'unimplemented') {
+          throw callableError;
         }
       }
+    }
 
       const resolvedProfile = await resolveProfileLocationById(safeProfileId, safeHouseholdId);
-      if (!resolvedProfile) {
-        throw new Error('Profile setup link is invalid.');
-      }
+    if(!resolvedProfile) {
+      throw new Error('Profile setup link is invalid.');
+    }
 
       const firestore = getFirestore();
-      const profileRef = doc(
-        firestore,
-        `households/${resolvedProfile.householdId}/profiles/${resolvedProfile.profileId}`,
-      );
-      const profileSnapshot = await getDoc(profileRef);
-      if (!profileSnapshot.exists()) {
-        throw new Error('Profile setup link is invalid.');
-      }
+    const profileRef = doc(
+      firestore,
+      `households/${resolvedProfile.householdId}/profiles/${resolvedProfile.profileId}`,
+    );
+    const profileSnapshot = await getDoc(profileRef);
+    if(!profileSnapshot.exists()) {
+  throw new Error('Profile setup link is invalid.');
+}
 
-      const payload = profileSnapshot.data() as Record<string, unknown>;
-      const storedTokenHash = payload.setupTokenHash;
-      const expiresAt = payload.setupTokenExpiresAt;
-      const usedAt = payload.setupTokenUsedAt;
+const payload = profileSnapshot.data() as Record<string, unknown>;
+const storedTokenHash = payload.setupTokenHash;
+const expiresAt = payload.setupTokenExpiresAt;
+const usedAt = payload.setupTokenUsedAt;
 
-      if (typeof storedTokenHash !== 'string' || storedTokenHash.length === 0) {
-        throw new Error('Profile setup link is invalid.');
-      }
-      if (!(expiresAt instanceof Timestamp) || expiresAt.toMillis() < Date.now()) {
-        throw new Error('Profile setup link has expired.');
-      }
-      if (usedAt instanceof Timestamp) {
-        throw new Error('Profile setup link has already been used.');
-      }
+if (typeof storedTokenHash !== 'string' || storedTokenHash.length === 0) {
+  throw new Error('Profile setup link is invalid.');
+}
+if (!(expiresAt instanceof Timestamp) || expiresAt.toMillis() < Date.now()) {
+  throw new Error('Profile setup link has expired.');
+}
+if (usedAt instanceof Timestamp) {
+  throw new Error('Profile setup link has already been used.');
+}
 
-      const candidateTokenHash = await hashToken(safeToken);
-      if (candidateTokenHash !== storedTokenHash) {
-        throw new Error('Profile setup link is invalid.');
-      }
+const candidateTokenHash = await hashToken(safeToken);
+if (candidateTokenHash !== storedTokenHash) {
+  throw new Error('Profile setup link is invalid.');
+}
 
-      return {
-        householdId: resolvedProfile.householdId,
-        profile: mapProfile(resolvedProfile.profileId, resolvedProfile.householdId, payload),
-      };
+return {
+  householdId: resolvedProfile.householdId,
+  profile: mapProfile(resolvedProfile.profileId, resolvedProfile.householdId, payload),
+};
     } catch (error) {
-      throw normalizeError('Failed to validate profile setup link', error);
-    }
+  throw normalizeError('Failed to validate profile setup link', error);
+}
   },
 
   async completeProfileSetup(input: {
-    householdId: string;
-    profileId: string;
-    token: string;
-    pin: string;
-    avatarColor: string;
-    username: string;
-  }): Promise<void> {
-    try {
-      const safeHouseholdId = assertNonEmptyString(input.householdId, 'householdId');
-      const safeProfileId = assertNonEmptyString(input.profileId, 'profileId');
-      const safeToken = assertNonEmptyString(input.token, 'token');
-      const safePin = assertNonEmptyString(input.pin, 'pin');
-      const safeAvatarColor = assertNonEmptyString(input.avatarColor, 'avatarColor');
-      const safeUsername = normalizeChildUsername(assertNonEmptyString(input.username, 'username'));
+  householdId: string;
+  profileId: string;
+  token: string;
+  pin: string;
+  avatarColor: string;
+  username: string;
+}): Promise < void> {
+  try {
+    const safeHouseholdId = assertNonEmptyString(input.householdId, 'householdId');
+    const safeProfileId = assertNonEmptyString(input.profileId, 'profileId');
+    const safeToken = assertNonEmptyString(input.token, 'token');
+    const safePin = assertNonEmptyString(input.pin, 'pin');
+    const safeAvatarColor = assertNonEmptyString(input.avatarColor, 'avatarColor');
+    const safeUsername = normalizeChildUsername(assertNonEmptyString(input.username, 'username'));
 
-      if (!/^\d{4}$/.test(safePin)) {
-        throw new Error('PIN must be exactly 4 digits.');
-      }
-      if (!isValidChildUsername(safeUsername)) {
-        throw new Error(
-          'Username must be 3-24 characters and use letters, numbers, dot, dash, or underscore.',
-        );
-      }
+    if(!/^\d{ 4 } $ /.test(safePin)) {
+  throw new Error('PIN must be exactly 4 digits.');
+}
+if (!isValidChildUsername(safeUsername)) {
+  throw new Error(
+    'Username must be 3-24 characters and use letters, numbers, dot, dash, or underscore.',
+  );
+}
 
-      if (functions) {
-        const callable = httpsCallable<CompleteProfileSetupRequest, { success: boolean }>(
-          functions,
-          'completeProfileSetup',
-        );
-        try {
-          await callWithExponentialBackoff(() => {
-            return callable({
-              householdId: safeHouseholdId,
-              profileId: safeProfileId,
-              token: safeToken,
-              pin: safePin,
-              avatarColor: safeAvatarColor,
-              username: safeUsername,
-            });
-          });
-          return;
-        } catch (callableError) {
-          const code = getCallableErrorCode(callableError);
-          if (code !== 'not-found' && code !== 'unimplemented') {
-            throw callableError;
-          }
-        }
-      }
-
-      const firestore = getFirestore();
-      const pinHash = await hashPin(safePin);
-      const candidateTokenHash = await hashToken(safeToken);
-      const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);
-
-      await runTransaction(firestore, async (transaction) => {
-        const profileSnapshot = await transaction.get(profileRef);
-        if (!profileSnapshot.exists()) {
-          throw new Error('Profile setup link is invalid.');
-        }
-
-        const payload = profileSnapshot.data() as Record<string, unknown>;
-        const storedTokenHash = payload.setupTokenHash;
-        const expiresAt = payload.setupTokenExpiresAt;
-        const usedAt = payload.setupTokenUsedAt;
-
-        if (typeof storedTokenHash !== 'string' || storedTokenHash.length === 0) {
-          throw new Error('Profile setup link is invalid.');
-        }
-        if (!(expiresAt instanceof Timestamp) || expiresAt.toMillis() < Date.now()) {
-          throw new Error('Profile setup link has expired.');
-        }
-        if (usedAt instanceof Timestamp) {
-          throw new Error('Profile setup link has already been used.');
-        }
-        if (candidateTokenHash !== storedTokenHash) {
-          throw new Error('Profile setup link is invalid.');
-        }
-
-        const existingUsernameSnapshot = await getDocs(
-          query(
-            getProfilesCollectionRef(safeHouseholdId),
-            where('loginUsernameCanonical', '==', safeUsername),
-            limit(1), // We only need to know if one exists
-          ),
-        );
-        const hasConflict = existingUsernameSnapshot.docs.some((docSnapshot) => {
-          return docSnapshot.id !== safeProfileId;
-        });
-        if (hasConflict) {
-          throw new Error('Username is already taken in this household.');
-        }
-
-        transaction.update(profileRef, {
-          pinHash,
-          loginUsername: safeUsername,
-          loginUsernameCanonical: safeUsername,
-          avatarColor: safeAvatarColor,
-          setupTokenHash: null,
-          setupTokenUsedAt: Timestamp.now(),
-          setupStatus: 'SETUP_COMPLETE',
-          setupCompletedAt: Timestamp.now(),
-          updatedAt: serverTimestamp(),
-        });
-      });
-    } catch (error) {
-      throw normalizeError('Failed to complete profile setup', error);
-    }
-  },
-
-  async deleteProfileInHousehold(householdId: string, profileId: string): Promise<void> {
-    try {
-      const firestore = getFirestore();
-      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
-      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
-      const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);
-      const profileSnapshot = await getDoc(profileRef);
-
-      if (!profileSnapshot.exists()) {
-        throw new Error('Profile not found in this household.');
-      }
-
-      const role = parseRole((profileSnapshot.data() as Record<string, unknown>).role);
-      if (role === 'ADMIN') {
-        throw new Error('Admin profiles cannot be deleted.');
-      }
-
-      await deleteDoc(profileRef);
-    } catch (error) {
-      throw normalizeError('Failed to delete profile', error);
-    }
-  },
-
-  async generateInvite(householdId: string, role: 'ADMIN' | 'MEMBER'): Promise<string> {
-    try {
-      const firestore = getFirestore();
-      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
-      const safeRole: Role = role;
-      const token =
-        typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
-          ? crypto.randomUUID().replace(/-/g, '')
-          : Math.random().toString(36).slice(2);
-
-      const inviteExpiry = new Date(Date.now() + DEFAULT_INVITE_EXPIRY_HOURS * 60 * 60 * 1000);
-
-      await addDoc(collection(firestore, 'invites'), {
+if (functions) {
+  const callable = httpsCallable<CompleteProfileSetupRequest, { success: boolean }>(
+    functions,
+    'completeProfileSetup',
+  );
+  try {
+    await callWithExponentialBackoff(() => {
+      return callable({
         householdId: safeHouseholdId,
-        role: safeRole,
-        token,
-        expiresAt: Timestamp.fromDate(inviteExpiry),
-        createdAt: serverTimestamp(),
+        profileId: safeProfileId,
+        token: safeToken,
+        pin: safePin,
+        avatarColor: safeAvatarColor,
+        username: safeUsername,
       });
-
-      const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-      return `${baseUrl}/?join=${token}`;
-    } catch (error) {
-      throw normalizeError('Failed to generate invite', error);
+    });
+    return;
+  } catch (callableError) {
+    const code = getCallableErrorCode(callableError);
+    if (code !== 'not-found' && code !== 'unimplemented') {
+      throw callableError;
     }
+  }
+}
+
+const firestore = getFirestore();
+const pinHash = await hashPin(safePin);
+const candidateTokenHash = await hashToken(safeToken);
+const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);
+
+await runTransaction(firestore, async (transaction) => {
+  const profileSnapshot = await transaction.get(profileRef);
+  if (!profileSnapshot.exists()) {
+    throw new Error('Profile setup link is invalid.');
+  }
+
+  const payload = profileSnapshot.data() as Record<string, unknown>;
+  const storedTokenHash = payload.setupTokenHash;
+  const expiresAt = payload.setupTokenExpiresAt;
+  const usedAt = payload.setupTokenUsedAt;
+
+  if (typeof storedTokenHash !== 'string' || storedTokenHash.length === 0) {
+    throw new Error('Profile setup link is invalid.');
+  }
+  if (!(expiresAt instanceof Timestamp) || expiresAt.toMillis() < Date.now()) {
+    throw new Error('Profile setup link has expired.');
+  }
+  if (usedAt instanceof Timestamp) {
+    throw new Error('Profile setup link has already been used.');
+  }
+  if (candidateTokenHash !== storedTokenHash) {
+    throw new Error('Profile setup link is invalid.');
+  }
+
+  const existingUsernameSnapshot = await getDocs(
+    query(
+      getProfilesCollectionRef(safeHouseholdId),
+      where('loginUsernameCanonical', '==', safeUsername),
+      limit(1), // We only need to know if one exists
+    ),
+  );
+  const hasConflict = existingUsernameSnapshot.docs.some((docSnapshot) => {
+    return docSnapshot.id !== safeProfileId;
+  });
+  if (hasConflict) {
+    throw new Error('Username is already taken in this household.');
+  }
+
+  transaction.update(profileRef, {
+    pinHash,
+    loginUsername: safeUsername,
+    loginUsernameCanonical: safeUsername,
+    avatarColor: safeAvatarColor,
+    setupTokenHash: null,
+    setupTokenUsedAt: Timestamp.now(),
+    setupStatus: 'SETUP_COMPLETE',
+    setupCompletedAt: Timestamp.now(),
+    updatedAt: serverTimestamp(),
+  });
+});
+    } catch (error) {
+  throw normalizeError('Failed to complete profile setup', error);
+}
   },
 
-  async acceptInvite(token: string, name: string, userId?: string): Promise<Profile> {
-    try {
-      const firestore = getFirestore();
-      const safeToken = assertNonEmptyString(token, 'token');
-      const safeName = assertNonEmptyString(name, 'name');
+  async deleteProfileInHousehold(householdId: string, profileId: string): Promise < void> {
+  try {
+    const firestore = getFirestore();
+    const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+    const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+    const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);
+    const profileSnapshot = await getDoc(profileRef);
 
-      const inviteSnapshot = await getDocs(
-        query(collection(firestore, 'invites'), where('token', '==', safeToken), limit(1)),
-      );
+    if(!profileSnapshot.exists()) {
+  throw new Error('Profile not found in this household.');
+}
 
-      if (inviteSnapshot.empty) {
-        throw new Error('Invite token is invalid or expired.');
-      }
+const role = parseRole((profileSnapshot.data() as Record<string, unknown>).role);
+if (role === 'ADMIN') {
+  throw new Error('Admin profiles cannot be deleted.');
+}
 
-      const inviteDoc = inviteSnapshot.docs[0];
-      const invite = inviteDoc.data() as Record<string, unknown>;
+await deleteDoc(profileRef);
+    } catch (error) {
+  throw normalizeError('Failed to delete profile', error);
+}
+  },
 
-      const householdId = assertNonEmptyString(invite.householdId, 'invite.householdId');
-      const role = parseRole(invite.role);
-      const expiresAt = invite.expiresAt;
-      const expiryMs = expiresAt instanceof Timestamp ? expiresAt.toMillis() : NaN;
+  async generateInvite(householdId: string, role: 'ADMIN' | 'MEMBER'): Promise < string > {
+  try {
+    const firestore = getFirestore();
+    const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+    const safeRole: Role = role;
+    const token =
+      typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID().replace(/-/g, '')
+        : Math.random().toString(36).slice(2);
 
-      if (!Number.isFinite(expiryMs) || expiryMs < Date.now()) {
-        throw new Error('Invite token is invalid or expired.');
-      }
+    const inviteExpiry = new Date(Date.now() + DEFAULT_INVITE_EXPIRY_HOURS * 60 * 60 * 1000);
 
-      const profileRef = doc(getProfilesCollectionRef(householdId));
-      const profile: FirestoreProfile = {
-        householdId,
-        name: safeName,
-        role,
-        pinHash: '',
-        gradeLevel: role === 'CHILD' ? 'Unknown' : 'Adult',
-        subjects: [],
-        rates: defaultRates(),
-        currentHourlyRate: 0,
-        balanceCents: 0,
-        balance: 0,
-      };
-
-      await setDoc(profileRef, {
-        ...profile,
+    await addDoc(collection(firestore, 'invites'), {
+  householdId: safeHouseholdId,
+    role: safeRole,
+      token,
+      expiresAt: Timestamp.fromDate(inviteExpiry),
         createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
       });
 
-      if (userId && userId.trim().length > 0) {
-        await setDoc(doc(firestore, `users/${userId}/households/${householdId}`), {
-          householdId,
-          role,
-          profileId: profileRef.id,
-          updatedAt: serverTimestamp(),
-        });
-      }
-
-      await deleteDoc(inviteDoc.ref);
-
-      return {
-        id: profileRef.id,
-        familyId: householdId,
-        ...profile,
-      };
+const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+return `${baseUrl}/?join=${token}`;
     } catch (error) {
-      throw normalizeError('Failed to accept invite', error);
-    }
+  throw normalizeError('Failed to generate invite', error);
+}
+  },
+
+  async acceptInvite(token: string, name: string, userId ?: string): Promise < Profile > {
+  try {
+    const firestore = getFirestore();
+    const safeToken = assertNonEmptyString(token, 'token');
+    const safeName = assertNonEmptyString(name, 'name');
+
+    const inviteSnapshot = await getDocs(
+      query(collection(firestore, 'invites'), where('token', '==', safeToken), limit(1)),
+    );
+
+    if(inviteSnapshot.empty) {
+  throw new Error('Invite token is invalid or expired.');
+}
+
+const inviteDoc = inviteSnapshot.docs[0];
+const invite = inviteDoc.data() as Record<string, unknown>;
+
+const householdId = assertNonEmptyString(invite.householdId, 'invite.householdId');
+const role = parseRole(invite.role);
+const expiresAt = invite.expiresAt;
+const expiryMs = expiresAt instanceof Timestamp ? expiresAt.toMillis() : NaN;
+
+if (!Number.isFinite(expiryMs) || expiryMs < Date.now()) {
+  throw new Error('Invite token is invalid or expired.');
+}
+
+const profileRef = doc(getProfilesCollectionRef(householdId));
+const profile: FirestoreProfile = {
+  householdId,
+  name: safeName,
+  role,
+  pinHash: '',
+  gradeLevel: role === 'CHILD' ? 'Unknown' : 'Adult',
+  subjects: [],
+  rates: defaultRates(),
+  currentHourlyRate: 0,
+  balanceCents: 0,
+  balance: 0,
+};
+
+await setDoc(profileRef, {
+  ...profile,
+  createdAt: serverTimestamp(),
+  updatedAt: serverTimestamp(),
+});
+
+if (userId && userId.trim().length > 0) {
+  await setDoc(doc(firestore, `users/${userId}/households/${householdId}`), {
+    householdId,
+    role,
+    profileId: profileRef.id,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+await deleteDoc(inviteDoc.ref);
+
+return {
+  id: profileRef.id,
+  familyId: householdId,
+  ...profile,
+};
+    } catch (error) {
+  throw normalizeError('Failed to accept invite', error);
+}
   },
 
   async getHouseholdActivity(
-    householdId: string,
-    maxItems = DEFAULT_ACTIVITY_LIMIT,
-  ): Promise<Transaction[]> {
-    try {
-      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
-      const safeMaxItems = Number.isFinite(maxItems) && maxItems > 0 ? Math.floor(maxItems) : DEFAULT_ACTIVITY_LIMIT;
+  householdId: string,
+  maxItems = DEFAULT_ACTIVITY_LIMIT,
+): Promise < Transaction[] > {
+  try {
+    const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+    const safeMaxItems = Number.isFinite(maxItems) && maxItems > 0 ? Math.floor(maxItems) : DEFAULT_ACTIVITY_LIMIT;
 
-      const [profilesSnapshot, legacyTransactionsSnapshot] = await Promise.all([
-        getDocs(getProfilesCollectionRef(safeHouseholdId)),
-        getDocs(getTransactionsCollectionRef(safeHouseholdId)),
-      ]);
+    const [profilesSnapshot, legacyTransactionsSnapshot] = await Promise.all([
+      getDocs(getProfilesCollectionRef(safeHouseholdId)),
+      getDocs(getTransactionsCollectionRef(safeHouseholdId)),
+    ]);
 
-      const profileNameById = new Map<string, string>();
-      profilesSnapshot.docs.forEach((profileDoc) => {
-        const profileData = profileDoc.data() as Record<string, unknown>;
-        if (typeof profileData.name === 'string') {
-          profileNameById.set(profileDoc.id, profileData.name);
+    const profileNameById = new Map<string, string>();
+    profilesSnapshot.docs.forEach((profileDoc) => {
+      const profileData = profileDoc.data() as Record<string, unknown>;
+      if (typeof profileData.name === 'string') {
+        profileNameById.set(profileDoc.id, profileData.name);
+      }
+    });
+
+    const profileTransactions = (
+      await Promise.all(
+        profilesSnapshot.docs.map(async (profileDoc) => {
+          const transactionsSnapshot = await getDocs(
+            getProfileTransactionsCollectionRef(safeHouseholdId, profileDoc.id),
+          );
+          return transactionsSnapshot.docs.map((transactionDoc) =>
+            mapTransaction(
+              transactionDoc.id,
+              safeHouseholdId,
+              transactionDoc.data() as Record<string, unknown>,
+            ),
+          );
+        }),
+      )
+    ).flat();
+
+    const legacyTransactions = legacyTransactionsSnapshot.docs.map((transactionDoc) =>
+      mapTransaction(
+        transactionDoc.id,
+        safeHouseholdId,
+        transactionDoc.data() as Record<string, unknown>,
+      ),
+    );
+
+    const history = [...profileTransactions, ...legacyTransactions]
+      .map((transactionDoc) => {
+        if (transactionDoc.profileId) {
+          transactionDoc.profileName = profileNameById.get(transactionDoc.profileId) ?? 'Unknown';
         }
-      });
 
-      const profileTransactions = (
-        await Promise.all(
-          profilesSnapshot.docs.map(async (profileDoc) => {
-            const transactionsSnapshot = await getDocs(
-              getProfileTransactionsCollectionRef(safeHouseholdId, profileDoc.id),
-            );
-            return transactionsSnapshot.docs.map((transactionDoc) =>
-              mapTransaction(
-                transactionDoc.id,
-                safeHouseholdId,
-                transactionDoc.data() as Record<string, unknown>,
-              ),
-            );
-          }),
-        )
-      ).flat();
+        return transactionDoc;
+      })
+      .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime())
+      .slice(0, safeMaxItems);
 
-      const legacyTransactions = legacyTransactionsSnapshot.docs.map((transactionDoc) =>
-        mapTransaction(
-          transactionDoc.id,
-          safeHouseholdId,
-          transactionDoc.data() as Record<string, unknown>,
-        ),
-      );
-
-      const history = [...profileTransactions, ...legacyTransactions]
-        .map((transactionDoc) => {
-          if (transactionDoc.profileId) {
-            transactionDoc.profileName = profileNameById.get(transactionDoc.profileId) ?? 'Unknown';
-          }
-
-          return transactionDoc;
-        })
-        .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime())
-        .slice(0, safeMaxItems);
-
-      return history;
-    } catch (error) {
-      throw normalizeError('Failed to load household activity', error);
-    }
-  },
+    return history;
+  } catch(error) {
+    throw normalizeError('Failed to load household activity', error);
+  }
+},
 };
