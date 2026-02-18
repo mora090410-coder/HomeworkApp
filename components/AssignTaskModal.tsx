@@ -255,9 +255,6 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                   step="5"
                   value={customMinutes}
                   onChange={handleSliderChange}
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Select minutes</span>
-                  <span className="text-xl font-bold text-primary-cardinal">
                   aria-label="Custom baseline minutes"
                 />
               </div>
@@ -289,36 +286,36 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
           </div>
 
           {!selectedCatalogItemId && (
-              <label className="mb-8 flex items-center gap-3 text-sm text-neutral-500 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={saveToCatalog}
-                  onChange={(event) => setSaveToCatalog(event.target.checked)}
-                  className="h-4 w-4 rounded-sm border-neutral-200 text-primary-cardinal focus:ring-primary-gold"
-                  aria-label="Save this one-off task to the household chore catalog"
-                />
-                <span className="group-hover:text-neutral-black transition-colors">Save to household catalog</span>
-              </label>
-            )}
+            <label className="mb-8 flex items-center gap-3 text-sm text-neutral-500 cursor-pointer group">
+              <input
+                type="checkbox"
+                checked={saveToCatalog}
+                onChange={(event) => setSaveToCatalog(event.target.checked)}
+                className="h-4 w-4 rounded-sm border-neutral-200 text-primary-cardinal focus:ring-primary-gold"
+                aria-label="Save this one-off task to the household chore catalog"
+              />
+              <span className="group-hover:text-neutral-black transition-colors">Save to household catalog</span>
+            </label>
+          )}
 
-            <div className="pt-4">
-              <button
-                onClick={handleSubmit}
-                disabled={!isValid}
-                className={`w-full py-4 rounded-none font-bold text-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 ${isValid
-                  ? 'bg-primary-cardinal text-white shadow-md hover:shadow-lg hover:-translate-y-0.5'
-                  : 'bg-neutral-200 text-neutral-500 cursor-not-allowed opacity-70'
-                  }`}
-                aria-label="Submit task"
-              >
-                <Check className="w-5 h-5" />
-                {isEditing ? 'Save Changes' : isOpenTask ? 'Create Task' : 'Assign Task'}
-              </button>
-            </div>
+          <div className="pt-4">
+            <button
+              onClick={handleSubmit}
+              disabled={!isValid}
+              className={`w-full py-4 rounded-none font-bold text-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 ${isValid
+                ? 'bg-primary-cardinal text-white shadow-md hover:shadow-lg hover:-translate-y-0.5'
+                : 'bg-neutral-200 text-neutral-500 cursor-not-allowed opacity-70'
+                }`}
+              aria-label="Submit task"
+            >
+              <Check className="w-5 h-5" />
+              {isEditing ? 'Save Changes' : isOpenTask ? 'Create Task' : 'Assign Task'}
+            </button>
           </div>
         </div>
       </div>
-      );
+    </div>
+  );
 };
 
-      export default AssignTaskModal;
+export default AssignTaskModal;
