@@ -179,7 +179,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       <div className="absolute inset-0 bg-neutral-black/60 backdrop-blur-sm transition-opacity duration-300" onClick={onClose} />
       <div className="relative w-full max-w-[580px] bg-white rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-neutral-200">
 
-        <button onClick={onClose} className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-mutedBg text-neutral-500 transition-colors z-50 cursor-pointer">
+        <button onClick={onClose} className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-50 text-neutral-500 transition-colors z-50 cursor-pointer">
           <X className="w-5 h-5" />
         </button>
 
@@ -228,7 +228,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   />
                 </div>
               </div>
-              <div className="rounded-none border border-neutral-200 bg-neutral-mutedBg p-6 space-y-4">
+              <div className="rounded-none border border-neutral-200 bg-neutral-50 p-6 space-y-4">
                 <h4 className="text-sm font-bold text-neutral-black font-heading">Reset PIN</h4>
                 <div className="grid grid-cols-2 gap-3">
                   <Input
@@ -297,7 +297,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   </Select>
                 </div>
               </div>
-              <div className="bg-neutral-mutedBg border border-neutral-200 rounded-none p-6">
+              <div className="bg-neutral-50 border border-neutral-200 rounded-none p-6">
                 <div className="grid grid-cols-3 gap-2">
                   {LETTER_GRADES.map(g => (
                     <div key={g} className="flex justify-between items-center px-3 py-3 bg-white rounded-none border border-neutral-200 shadow-sm">
@@ -311,7 +311,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           )}
           {activeTab === 'data' && (
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-8">
-              <div className="p-5 rounded-none bg-neutral-mutedBg border border-neutral-200">
+              <div className="p-5 rounded-none bg-neutral-50 border border-neutral-200">
                 <h4 className="text-neutral-black font-bold mb-2 flex items-center gap-2 font-heading">
                   <Download className="w-4 h-4 text-primary-cardinal" /> Export Data
                 </h4>
@@ -326,11 +326,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 </Button>
               </div>
 
-              <div className="p-5 rounded-none bg-neutral-mutedBg border border-neutral-lightGray">
+              <div className="p-5 rounded-none bg-neutral-50 border border-neutral-200">
                 <h4 className="text-neutral-black font-bold mb-2 flex items-center gap-2 font-heading">
                   <Upload className="w-4 h-4 text-primary-cardinal" /> Import Data
                 </h4>
-              <div className="p-5 rounded-none bg-neutral-mutedBg border border-neutral-200">
+              <div className="p-5 rounded-none bg-neutral-50 border border-neutral-200">
                 <h4 className="text-neutral-black font-bold mb-2 flex items-center gap-2 font-heading">
                   <Upload className="w-4 h-4 text-primary-cardinal" /> Import Data
                 </h4>

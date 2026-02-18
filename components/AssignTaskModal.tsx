@@ -142,7 +142,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
       <div className="relative w-full max-w-[520px] bg-white rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-neutral-200">
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-mutedBg text-neutral-500 transition-colors z-20"
+          className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-50 text-neutral-500 transition-colors z-20"
           aria-label="Close assign task modal"
         >
           <X className="w-5 h-5" />
@@ -218,7 +218,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                     onClick={() => handleQuickTimeClick(minutes)}
                     className={`py-3.5 rounded-none text-sm font-bold transition-all duration-200 border cursor-pointer ${isSelected
                       ? 'bg-primary-cardinal border-primary-cardinal text-white shadow-sm'
-                      : 'bg-white border-neutral-200 text-neutral-500 hover:bg-neutral-mutedBg hover:text-neutral-black'
+                      : 'bg-white border-neutral-200 text-neutral-500 hover:bg-neutral-50 hover:text-neutral-black'
                       }`}
                     aria-label={`Set baseline time to ${minutes} minutes`}
                   >
@@ -232,7 +232,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
               onClick={handleCustomTimeToggle}
               className={`w-full py-3.5 rounded-none text-sm font-bold transition-all duration-200 border mb-4 cursor-pointer ${isCustomTime
                 ? 'bg-primary-cardinal border-primary-cardinal text-white shadow-sm'
-                : 'bg-white border-neutral-200 text-neutral-500 hover:bg-neutral-mutedBg hover:text-neutral-black'
+                : 'bg-white border-neutral-200 text-neutral-500 hover:bg-neutral-50 hover:text-neutral-black'
                 }`}
               aria-label="Toggle custom baseline time"
             >

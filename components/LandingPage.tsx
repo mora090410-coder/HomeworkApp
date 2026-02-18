@@ -19,7 +19,7 @@ interface FeatureCardProps {
  */
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon: Icon, title, body, delay = '' }) => (
     <div className={`group flex flex-col p-8 card-base hover:border-primary-gold/50 ${delay}`}>
-        <div className="w-12 h-12 flex items-center justify-center rounded-full bg-neutral-mutedBg mb-6 group-hover:bg-primary-cardinal/5 transition-colors duration-300">
+        <div className="w-12 h-12 flex items-center justify-center rounded-full bg-neutral-50 mb-6 group-hover:bg-primary-cardinal/5 transition-colors duration-300">
             <Icon className="w-6 h-6 text-primary-cardinal transition-transform duration-300 group-hover:scale-110" />
         </div>
         <h3 className="text-xl font-bold font-heading text-neutral-black mb-3">{title}</h3>
@@ -74,7 +74,7 @@ const faqs = [
 
 export default function LandingPage() {
     return (
-        <div className="relative min-h-screen w-full overflow-hidden bg-neutral-mutedBg font-sans text-neutral-black selection:bg-primary-gold/30">
+        <div className="relative min-h-screen w-full overflow-hidden bg-neutral-50 font-sans text-neutral-black selection:bg-primary-gold/30">
 
             {/* ── Sticky Header ── */}
             <header className="sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-neutral-200">
@@ -191,7 +191,7 @@ export default function LandingPage() {
                         <h2 className="text-3xl sm:text-4xl font-bold font-heading text-neutral-black mb-4">See How Incentives</h2>
                         <p className="text-2xl font-medium text-primary-cardinal mb-14">Change Behavior</p>
                         <div className="flex flex-col gap-4">
-                            <div className="flex items-center justify-between rounded-none bg-neutral-mutedBg p-8 border border-primary-gold/30 relative overflow-hidden">
+                            <div className="flex items-center justify-between rounded-none bg-neutral-50 p-8 border border-primary-gold/30 relative overflow-hidden">
                                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary-gold" />
                                 <span className="text-xl font-bold text-neutral-black">GPA 3.8</span>
                                 <div className="h-px flex-1 bg-neutral-200 mx-6"></div>
@@ -237,7 +237,7 @@ export default function LandingPage() {
                             </div>
 
                             {/* Founders Plan */}
-                            <div className="p-10 rounded-none card-base text-left bg-neutral-mutedBg">
+                            <div className="p-10 rounded-none card-base text-left bg-neutral-50">
                                 <h3 className="text-2xl font-bold font-heading text-neutral-black mb-2">Founders Plan</h3>
                                 <p className="text-primary-cardinal text-xs font-bold uppercase tracking-wider mb-4">Limited to First 100 Families</p>
                                 <div className="flex items-baseline gap-1 mb-2">
@@ -283,7 +283,7 @@ export default function LandingPage() {
                         <h2 className="text-3xl sm:text-4xl font-bold font-heading text-neutral-black mb-12 text-center">Common Questions</h2>
                         <div className="space-y-2">
                             {faqs.map((faq) => (
-                                <div key={faq.q} className="py-6 px-8 rounded-none card-base bg-white hover:bg-neutral-mutedBg transition-colors">
+                                <div key={faq.q} className="py-6 px-8 rounded-none card-base bg-white hover:bg-neutral-50 transition-colors">
                                     <h3 className="text-lg font-bold font-heading text-neutral-black mb-2">{faq.q}</h3>
                                     <p className="text-base leading-relaxed text-neutral-darkGray">{faq.a}</p>
                                 </div>

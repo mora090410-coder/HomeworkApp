@@ -76,7 +76,7 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({ isOpen, onClose, 
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-mutedBg text-neutral-500 transition-colors z-20"
+          className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-50 text-neutral-500 transition-colors z-20"
         >
           <X className="w-5 h-5" />
         </button>
@@ -91,7 +91,7 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({ isOpen, onClose, 
           </div>
 
           {/* Live Rate Display */}
-          <div className="mb-8 p-6 rounded-none bg-neutral-mutedBg border border-neutral-200 text-center relative overflow-hidden group transition-all duration-300">
+          <div className="mb-8 p-6 rounded-none bg-neutral-50 border border-neutral-200 text-center relative overflow-hidden group transition-all duration-300">
             <div className="relative z-10">
               <p className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Current Hourly Rate</p>
               <div className="text-5xl leading-none font-heading font-bold text-primary-cardinal drop-shadow-sm transition-all duration-300">

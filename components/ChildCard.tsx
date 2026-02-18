@@ -51,7 +51,7 @@ interface ChildCardProps {
 }
 
 const SectionHeader: React.FC<{ icon: React.ReactNode; title: string; count: number; colorClass: string }> = ({ icon, title, count, colorClass }) => (
-  <div className={`flex items-center justify-between px-3 py-2 mt-4 mb-2 rounded-none bg-neutral-mutedBg border border-neutral-lightGray ${colorClass}`}>
+  <div className={`flex items-center justify-between px-3 py-2 mt-4 mb-2 rounded-none bg-neutral-50 border border-neutral-lightGray ${colorClass}`}>
     <div className="flex items-center gap-2">
       <span className="w-4 h-4 flex items-center justify-center">{icon}</span>
       <span className="text-[0.75rem] font-bold uppercase tracking-[0.06em] font-sans">{title}</span>
@@ -193,7 +193,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 bg-neutral-mutedBg border border-neutral-lightGray px-3 py-1.5 rounded-none">
+            <div className="flex items-center gap-1.5 bg-neutral-50 border border-neutral-lightGray px-3 py-1.5 rounded-none">
               <div className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold">$</div>
               <span className="text-sm font-semibold text-neutral-black">{formatCurrency(hourlyRate)}/hr</span>
             </div>
@@ -354,7 +354,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
                 colorClass="text-neutral-darkGray"
               />
               {inProgress.map(task => (
-                <div key={task.id} className="bg-neutral-mutedBg border border-neutral-lightGray rounded-none p-5 mb-2 hover:bg-neutral-lightGray/10 transition-colors group/task relative overflow-visible">
+                <div key={task.id} className="bg-neutral-50 border border-neutral-lightGray rounded-none p-5 mb-2 hover:bg-neutral-lightGray/10 transition-colors group/task relative overflow-visible">
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-3">
                       <span className="text-xl text-neutral-darkGray">{getTaskIcon(task.name)}</span>
@@ -395,7 +395,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
           )}
 
           {!child.customTasks?.length && (
-            <div className="py-8 text-center text-neutral-darkGray text-sm bg-neutral-mutedBg rounded-none border border-neutral-lightGray border-dashed">No tasks assigned</div>
+            <div className="py-8 text-center text-neutral-darkGray text-sm bg-neutral-50 rounded-none border border-neutral-lightGray border-dashed">No tasks assigned</div>
           )}
         </div>
       )}

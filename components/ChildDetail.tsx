@@ -156,7 +156,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
   const EmptyState = () => (
     <div className="bg-white border border-neutral-200 rounded-none p-12 text-center flex flex-col items-center">
-      <div className="w-20 h-20 bg-neutral-mutedBg rounded-full flex items-center justify-center mb-6">
+      <div className="w-20 h-20 bg-neutral-50 rounded-full flex items-center justify-center mb-6">
         <Target className="w-10 h-10 text-primary-cardinal" />
       </div>
       <h3 className="text-xl font-bold font-heading text-neutral-black mb-2">Ready to Earn?</h3>
@@ -228,7 +228,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
               <span className="text-5xl font-bold text-neutral-black tracking-tighter font-heading">{formatCurrency(hourlyRate)}</span>
               <span className="text-xl text-neutral-darkGray font-medium font-sans">/hr</span>
             </div>
-            <div className="mt-6 border border-neutral-200 bg-neutral-mutedBg p-4 rounded-none">
+            <div className="mt-6 border border-neutral-200 bg-neutral-50 p-4 rounded-none">
               <p className="text-xs font-bold uppercase tracking-widest text-neutral-darkGray mb-1 font-sans">Current Balance</p>
               <div className="flex items-center gap-2">
                 <span
@@ -403,7 +403,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {waitingApproval.map(task => (
-                <div key={task.id} className="bg-neutral-mutedBg border border-neutral-200 rounded-none p-6">
+                <div key={task.id} className="bg-neutral-50 border border-neutral-200 rounded-none p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{getTaskIcon(task.name)}</span>

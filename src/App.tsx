@@ -1032,7 +1032,7 @@ function DashboardPage() {
     }
 
     return (
-      <div className="min-h-screen bg-neutral-mutedBg text-neutral-black relative pb-12 font-sans">
+      <div className="min-h-screen bg-neutral-50 text-neutral-black relative pb-12 font-sans">
         <div className="relative z-10 max-w-[1200px] mx-auto p-6 md:p-8">
           <header className="flex justify-between items-center mb-10">
             <div className="flex items-center gap-3">

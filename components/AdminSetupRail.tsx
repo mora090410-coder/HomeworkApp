@@ -38,7 +38,7 @@ export default function AdminSetupRail({ completedSteps, onStartAddChild }: Admi
                       ? 'border-primary-success/30 bg-primary-success/5'
                       : isCurrent
                         ? 'border-primary-gold ring-1 ring-primary-gold bg-white shadow-sm'
-                        : 'border-neutral-200 bg-neutral-mutedBg'
+                        : 'border-neutral-200 bg-neutral-50'
                     }
                   `}
                 >
@@ -69,7 +69,7 @@ export default function AdminSetupRail({ completedSteps, onStartAddChild }: Admi
           </div>
         </div>
 
-        <aside className="border border-neutral-lightGray bg-neutral-mutedBg p-6 self-start rounded-none">
+        <aside className="border border-neutral-lightGray bg-neutral-50 p-6 self-start rounded-none">
           <p className="text-xs font-bold uppercase tracking-wider text-neutral-darkGray mb-4 font-sans">What Unlocks Next</p>
           <ul className="space-y-3">
             {[

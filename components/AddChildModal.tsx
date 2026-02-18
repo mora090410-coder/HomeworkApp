@@ -124,7 +124,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
               </div>
             ))}
           </div>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-neutral-mutedBg text-neutral-500 transition-colors cursor-pointer">
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-neutral-50 text-neutral-500 transition-colors cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -137,7 +137,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
                 <p className="text-neutral-500">Let's start with the basics</p>
               </div>
               <div className="flex flex-col items-center mb-8">
-                <div className={`w-[80px] h-[80px] rounded-full flex items-center justify-center text-3xl font-bold font-heading transition-all duration-300 ${name.trim() ? 'bg-primary-cardinal text-white shadow-md' : 'bg-neutral-mutedBg text-neutral-400 border border-neutral-200'
+                <div className={`w-[80px] h-[80px] rounded-full flex items-center justify-center text-3xl font-bold font-heading transition-all duration-300 ${name.trim() ? 'bg-primary-cardinal text-white shadow-md' : 'bg-neutral-50 text-neutral-400 border border-neutral-200'
                   }`}>
                   {name.trim() ? name.trim().charAt(0).toUpperCase() : '?'}
                 </div>
@@ -163,7 +163,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
                 <h2 className="text-3xl font-bold font-heading text-neutral-black mb-2">Enter Current Grades</h2>
                 <p className="text-neutral-500">Grades determine the hourly earning rate</p>
               </div>
-              <div className="mb-8 p-6 rounded-none bg-neutral-mutedBg border border-neutral-200 text-center relative overflow-hidden group">
+              <div className="mb-8 p-6 rounded-none bg-neutral-50 border border-neutral-200 text-center relative overflow-hidden group">
                 <div className="relative z-10">
                   <p className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Current Hourly Rate</p>
                   <div className="text-5xl leading-none font-bold font-heading text-primary-cardinal drop-shadow-sm">
@@ -201,7 +201,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
                 <Check className="w-10 h-10 text-white" strokeWidth={3} />
               </div>
               <h2 className="text-3xl font-bold font-heading text-neutral-black mb-2">{name}'s Profile Ready!</h2>
-              <div className="mb-8 p-6 rounded-none bg-neutral-mutedBg border border-neutral-200">
+              <div className="mb-8 p-6 rounded-none bg-neutral-50 border border-neutral-200">
                 <p className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Hourly Rate</p>
                 <div className="text-5xl leading-none font-bold font-heading text-primary-cardinal">
                   {formatCurrency(totalHourlyRate)}
@@ -214,7 +214,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
             </div>
           )}
         </div>
-        <div className="relative z-10 px-8 py-6 border-t border-neutral-200 bg-neutral-mutedBg">
+        <div className="relative z-10 px-8 py-6 border-t border-neutral-200 bg-neutral-50">
           <div className="flex gap-4">
             {step > 1 && (<button onClick={handleBack} className="flex-1 py-4 rounded-none font-bold text-neutral-500 bg-white border border-neutral-200 hover:bg-neutral-100 transition-all cursor-pointer uppercase tracking-wider text-sm">Back</button>)}
             {step < 3 ? (

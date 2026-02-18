@@ -35,7 +35,7 @@ const SyncModal: React.FC<SyncModalProps> = ({ isOpen, onClose, exportData }) =>
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-mutedBg text-neutral-500 transition-colors z-20"
+          className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-50 text-neutral-500 transition-colors z-20"
         >
           <X className="w-5 h-5" />
         </button>
@@ -58,7 +58,7 @@ const SyncModal: React.FC<SyncModalProps> = ({ isOpen, onClose, exportData }) =>
           </div>
 
           <div className="w-full space-y-4">
-            <div className="flex items-start gap-4 p-4 bg-neutral-mutedBg border border-neutral-200 rounded-none">
+            <div className="flex items-start gap-4 p-4 bg-neutral-50 border border-neutral-200 rounded-none">
               <div className="w-10 h-10 rounded-full bg-primary-gold/20 flex items-center justify-center shrink-0 border border-primary-gold/30">
                 <Smartphone className="w-5 h-5 text-primary-cardinal" />
               </div>
@@ -68,7 +68,7 @@ const SyncModal: React.FC<SyncModalProps> = ({ isOpen, onClose, exportData }) =>
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 bg-neutral-mutedBg border border-neutral-200 rounded-none">
+            <div className="flex items-start gap-4 p-4 bg-neutral-50 border border-neutral-200 rounded-none">
               <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20">
                 <Share2 className="w-5 h-5 text-blue-600" />
               </div>

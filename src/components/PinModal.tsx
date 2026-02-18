@@ -183,7 +183,7 @@ export default function PinModal({
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-mutedBg text-neutral-darkGray transition-colors z-20"
+          className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-100 text-neutral-darkGray transition-colors z-20"
         >
           <X className="w-5 h-5" />
         </button>
@@ -226,7 +226,7 @@ export default function PinModal({
                 type="button"
                 onClick={() => handleDigit(String(digit))}
                 disabled={isLoading}
-                className="aspect-square rounded-full text-2xl font-medium text-neutral-black hover:bg-neutral-mutedBg active:bg-neutral-200 transition-all focus:outline-none focus:ring-2 focus:ring-primary-cardinal/20 disabled:opacity-50"
+                className="aspect-square rounded-full text-2xl font-medium text-neutral-black hover:bg-neutral-100 active:bg-neutral-200 transition-all focus:outline-none focus:ring-2 focus:ring-primary-cardinal/20 disabled:opacity-50"
                 aria-label={`Enter digit ${digit}`}
               >
                 {digit}
@@ -241,7 +241,7 @@ export default function PinModal({
               type="button"
               onClick={() => handleDigit('0')}
               disabled={isLoading}
-              className="aspect-square rounded-full text-2xl font-medium text-neutral-black hover:bg-neutral-mutedBg active:bg-neutral-200 transition-all focus:outline-none focus:ring-2 focus:ring-primary-cardinal/20 disabled:opacity-50"
+              className="aspect-square rounded-full text-2xl font-medium text-neutral-black hover:bg-neutral-100 active:bg-neutral-200 transition-all focus:outline-none focus:ring-2 focus:ring-primary-cardinal/20 disabled:opacity-50"
               aria-label="Enter digit 0"
             >
               0
@@ -251,7 +251,7 @@ export default function PinModal({
               type="button"
               onClick={handleDelete}
               disabled={isLoading}
-              className="aspect-square rounded-full flex items-center justify-center text-neutral-darkGray hover:text-neutral-black hover:bg-neutral-mutedBg active:bg-neutral-200 transition-all disabled:opacity-50"
+              className="aspect-square rounded-full flex items-center justify-center text-neutral-darkGray hover:text-neutral-black hover:bg-neutral-100 active:bg-neutral-200 transition-all disabled:opacity-50"
               aria-label="Delete last digit"
             >
               <Delete className="w-7 h-7" strokeWidth={1.5} />
