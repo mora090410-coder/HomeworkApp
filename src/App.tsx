@@ -800,14 +800,32 @@ function DashboardPage() {
     setIsAddChildModalOpen(false);
   };
 
-  const handleSaveGrades = (childId: string, updatedSubjects: Subject[], currentHourlyRate: number) => {
+  const handleSaveGrades = async (childId: string, updatedSubjects: Subject[], currentHourlyRate: number) => {
     updateChildMutation.mutate({
       id: childId,
       updates: {
         subjects: updatedSubjects,
-        currentHourlyRate
-      }
+        currentHourlyRate,
+      },
     });
+
+    if (householdId) {
+      // Force persistence of global grade configs to ensure Payscale table is populated
+      const configsToSave =
+        gradeConfigs.length > 0
+          ? gradeConfigs
+          : Object.entries(DEFAULT_RATES).map(([grade, value]) => ({
+            grade: grade as Grade,
+            valueCents: dollarsToCents(value),
+          }));
+
+      try {
+        await householdService.saveGradeConfigs(householdId, configsToSave);
+      } catch (error) {
+        console.error('Failed to force-save grade configs:', error);
+      }
+    }
+
     setIsUpdateGradesModalOpen(false);
     setChildForGrades(null);
   };
