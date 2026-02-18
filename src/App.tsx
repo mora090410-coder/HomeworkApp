@@ -29,11 +29,12 @@ import AdminSetupRail from '@/components/AdminSetupRail';
 import ProfileSelectionScreen from '@/components/ProfileSelectionScreen';
 import LandingPage from '@/components/LandingPage';
 import PinModal from '@/components/PinModal';
+import UpdateGradesModal from '@/components/UpdateGradesModal';
 import ErrorBoundary from './components/ErrorBoundary';
 import { auth, db, isFirebaseConfigured } from '@/services/firebase';
 import { householdService } from '@/services/householdService';
 import { notificationService } from '@/services/notificationService';
-import { Child, Grade, GradeConfig, Profile, ProfileSetupStatus, Task } from '@/types';
+import { Child, Grade, GradeConfig, Profile, ProfileSetupStatus, Subject, Task } from '@/types';
 import {
   buildRateMapFromGradeConfigs,
   calculateHourlyRate,
@@ -144,6 +145,7 @@ const mapFirestoreProfile = (
       source.rates && typeof source.rates === 'object'
         ? (source.rates as Profile['rates'])
         : defaultRates(),
+    currentHourlyRate: typeof source.currentHourlyRate === 'number' ? source.currentHourlyRate : 0,
     balanceCents,
     balance: centsToDollars(balanceCents),
     setupStatus: parseProfileSetupStatus(source.setupStatus),
@@ -515,6 +517,8 @@ function DashboardPage() {
   const [profileSetupLink, setProfileSetupLink] = useState<string | null>(null);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [createProfileError, setCreateProfileError] = useState<string | null>(null);
+  const [isUpdateGradesModalOpen, setIsUpdateGradesModalOpen] = useState(false);
+  const [childForGrades, setChildForGrades] = useState<Child | null>(null);
 
   const effectiveRateMap = useMemo(() => {
     return buildRateMapFromGradeConfigs(gradeConfigs, DEFAULT_RATES);
@@ -785,17 +789,16 @@ function DashboardPage() {
     setIsAddChildModalOpen(false);
   };
 
-  const handleUpdateGrade = (childId: string, subjectId: string, newGrade: Grade) => {
-    const child = childrenWithRateMap.find((candidate) => candidate.id === childId);
-    if (!child) {
-      return;
-    }
-
-    const updatedSubjects = child.subjects.map((subject) => {
-      return subject.id === subjectId ? { ...subject, grade: newGrade } : subject;
+  const handleSaveGrades = (childId: string, updatedSubjects: Subject[], currentHourlyRate: number) => {
+    updateChildMutation.mutate({
+      id: childId,
+      updates: {
+        subjects: updatedSubjects,
+        currentHourlyRate
+      }
     });
-
-    updateChildMutation.mutate({ id: childId, updates: { subjects: updatedSubjects } });
+    setIsUpdateGradesModalOpen(false);
+    setChildForGrades(null);
   };
 
   const handleSaveTask = (payload: AssignTaskPayload) => {
@@ -893,6 +896,7 @@ function DashboardPage() {
     gradeLevel: child.gradeLevel,
     subjects: child.subjects,
     rates: child.rates,
+    currentHourlyRate: child.currentHourlyRate || 0,
     balance: child.balance,
     balanceCents: child.balanceCents,
     setupStatus: child.setupStatus,
@@ -1052,7 +1056,10 @@ function DashboardPage() {
             isParent={false}
             standardTasks={COMMON_TASKS}
             availableTasks={openTasks}
-            onUpdateGrade={handleUpdateGrade}
+            onUpdateGrades={(candidate) => {
+              setChildForGrades(candidate);
+              setIsUpdateGradesModalOpen(true);
+            }}
             onSubmitTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_APPROVAL', childId })}
             onApproveTask={() => undefined}
             onPayTask={handlePayTask}
@@ -1139,7 +1146,10 @@ function DashboardPage() {
                       child={child}
                       siblings={childrenWithRateMap.filter((candidate) => candidate.id !== child.id)}
                       onEditSettings={(candidate) => setChildToEdit(candidate)}
-                      onUpdateGrades={(candidate) => setChildToEdit(candidate)}
+                      onUpdateGrades={(candidate) => {
+                        setChildForGrades(candidate);
+                        setIsUpdateGradesModalOpen(true);
+                      }}
                       onInviteChild={(candidate) => {
                         void handleGenerateProfileSetupLink(toProfileFromChild(candidate));
                       }}
@@ -1165,6 +1175,15 @@ function DashboardPage() {
         )}
 
         <AddChildModal isOpen={isAddChildModalOpen} onClose={() => setIsAddChildModalOpen(false)} onAdd={handleCreateChild} />
+        <UpdateGradesModal
+          isOpen={isUpdateGradesModalOpen}
+          onClose={() => {
+            setIsUpdateGradesModalOpen(false);
+            setChildForGrades(null);
+          }}
+          child={childForGrades}
+          onSave={handleSaveGrades}
+        />
         <SettingsModal
           isOpen={!!childToEdit}
           onClose={() => setChildToEdit(null)}
@@ -1189,6 +1208,7 @@ function DashboardPage() {
               gradeLevel: child.gradeLevel,
               subjects: child.subjects,
               rates: child.rates,
+              currentHourlyRate: child.currentHourlyRate || 0,
               balance: child.balance,
               balanceCents: child.balanceCents,
             });

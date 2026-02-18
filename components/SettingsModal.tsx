@@ -44,7 +44,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   onImportAll,
   onResetAll
 }) => {
-  const [activeTab, setActiveTab] = useState<'profile' | 'subjects' | 'payscale' | 'data'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'payscale' | 'data'>('profile');
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [gradeLevel, setGradeLevel] = useState('');
@@ -132,7 +132,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
       name: name.trim() || child.name,
       loginUsername: username.trim() || undefined,
       gradeLevel: gradeLevel || child.gradeLevel,
-      subjects: subjects.map(s => ({ ...s, name: s.name.trim() || 'Untitled' })),
       rates: calculatedRates as Record<Grade, number>
     };
     onSave(child.id, updates);
@@ -186,7 +185,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         <div className="relative z-20 border-b border-neutral-200 pt-10 px-10 pb-0 shrink-0 bg-white">
           <h2 className="text-3xl font-bold font-heading text-neutral-black mb-6">Parent Settings</h2>
           <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-            {['profile', 'subjects', 'payscale', 'data'].map(t => (
+            {['profile', 'payscale', 'data'].map(t => (
               <button
                 key={t}
                 onClick={() => setActiveTab(t as any)}
@@ -222,7 +221,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   <Input
                     type="text"
                     value={username}
-                    onClick={() => setIsEditing(true)}
                     className="p-1 text-neutral-400 hover:text-primary-cardinal hover:bg-neutral-200/50 rounded"
                     aria-label="Username"
                   />
@@ -266,21 +264,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   </p>
                 )}
               </div>
-            </div>
-          )}
-          {activeTab === 'subjects' && (
-            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="space-y-3 mb-6">
-                {subjects.map(s => (
-                  <div key={s.id} className="flex items-center gap-3 px-4 py-3.5 rounded-none bg-white border border-neutral-200 hover:border-primary-gold/50 transition-colors">
-                    <Input type="text" value={s.name} onChange={(e) => handleSubjectNameChange(s.id, e.target.value)} className="flex-1 bg-transparent border-none outline-none text-neutral-black placeholder-neutral-400 font-medium h-auto p-0 focus:ring-0" placeholder="Subject Name" />
-                    <button onClick={() => handleRemoveSubject(s.id)} disabled={subjects.length <= 1} className="w-7 h-7 flex items-center justify-center rounded-sm text-neutral-400 hover:text-semantic-destructive cursor-pointer transition-colors"><X className="w-4 h-4" /></button>
-                  </div>
-                ))}
-              </div>
-              <Button onClick={handleAddSubject} variant="secondary" className="w-full border-dashed" leftIcon={<Plus className="w-4 h-4" />}>
-                Add Subject
-              </Button>
             </div>
           )}
           {activeTab === 'payscale' && (

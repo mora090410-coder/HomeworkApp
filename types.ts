@@ -109,6 +109,7 @@ export interface Profile {
   gradeLevel: string;
   subjects: Subject[];
   rates: Record<Grade, number>;
+  currentHourlyRate: number;
   balance: number;
   balanceCents?: number;
   setupStatus?: ProfileSetupStatus;
@@ -131,6 +132,7 @@ export interface Child {
   history: Transaction[];
   customTasks: Task[];
   rates: Record<Grade, number>;
+  currentHourlyRate: number;
   role: Role;
   setupStatus?: ProfileSetupStatus;
   inviteLastSentAt?: string | null;

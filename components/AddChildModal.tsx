@@ -17,6 +17,7 @@ export interface NewChildData {
   name: string;
   gradeLevel: string;
   subjects: { name: string; grade: Grade }[];
+  currentHourlyRate: number;
 }
 
 interface AddChildModalProps {
@@ -102,7 +103,8 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
     onAdd({
       name: name.trim(),
       gradeLevel,
-      subjects: subjects.map(({ name, grade }) => ({ name: name || 'Untitled Subject', grade }))
+      subjects: subjects.map(({ name, grade }) => ({ name: name || 'Untitled Subject', grade })),
+      currentHourlyRate: totalHourlyRate
     });
     onClose();
   };

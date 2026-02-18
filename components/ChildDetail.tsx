@@ -31,7 +31,7 @@ interface ChildDetailProps {
   isParent: boolean;
   standardTasks?: StandardTask[];
   availableTasks?: Task[];
-  onUpdateGrade: (childId: string, subjectId: string, newGrade: Grade) => void;
+  onUpdateGrades: (child: Child) => void;
   onSubmitTask: (childId: string, task: Task) => void;
   onApproveTask: (childId: string, task: Task) => void;
   onRejectTask: (childId: string, task: Task) => void;
@@ -42,9 +42,16 @@ interface ChildDetailProps {
 
 const ChildDetail: React.FC<ChildDetailProps> = ({
   child,
+  isParent,
+  standardTasks = [],
   availableTasks = [],
+  onUpdateGrades,
   onSubmitTask,
+  onApproveTask,
+  onRejectTask,
+  onPayTask,
   onClaimTask,
+  onDeleteTask,
 }) => {
   const [taskToComplete, setTaskToComplete] = useState<Task | null>(null);
   const [subCollectionTasks, setSubCollectionTasks] = useState<Task[]>([]);
@@ -314,7 +321,11 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {child.subjects.map(subject => (
-            <div key={subject.id} className="bg-white border border-neutral-200 rounded-none p-6 text-center hover:shadow-md transition-all group">
+            <div
+              key={subject.id}
+              className="bg-white border border-neutral-200 rounded-none p-6 text-center hover:shadow-md transition-all group cursor-pointer"
+              onClick={() => onUpdateGrades(child)}
+            >
               <p className="text-xs font-bold text-neutral-darkGray uppercase tracking-widest mb-3 truncate font-sans">{subject.name}</p>
               <div className={`text-4xl font-bold ${getGradeColor(subject.grade)} font-heading`}>
                 {subject.grade}

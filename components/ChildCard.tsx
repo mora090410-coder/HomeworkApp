@@ -92,7 +92,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
     return () => unsubscribe();
   }, [child.householdId, child.id]);
 
-  const hourlyRate = calculateHourlyRate(child.subjects, child.rates);
+  const hourlyRate = child.currentHourlyRate ?? calculateHourlyRate(child.subjects, child.rates);
   const hourlyRateCents = dollarsToCents(hourlyRate);
   const setupStatus = child.setupStatus ?? 'PROFILE_CREATED';
   const setupLabel =

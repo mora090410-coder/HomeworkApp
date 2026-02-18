@@ -430,6 +430,7 @@ export const createProfileWritePayload = (input: {
   gradeLevel?: string;
   subjects?: Subject[];
   rates?: Record<Grade, number>;
+  currentHourlyRate?: number;
   pinHash?: string;
 }): FirestoreProfile => ({
   householdId: input.householdId,
@@ -440,6 +441,7 @@ export const createProfileWritePayload = (input: {
   gradeLevel: input.gradeLevel ?? 'Unknown',
   subjects: input.subjects ?? [],
   rates: input.rates ?? defaultRates(),
+  currentHourlyRate: input.currentHourlyRate ?? 0,
   balanceCents: 0,
   balance: 0,
   setupStatus: 'PROFILE_CREATED',
@@ -464,6 +466,7 @@ const mapProfile = (profileId: string, householdId: string, source: Record<strin
     gradeLevel: typeof source.gradeLevel === 'string' ? source.gradeLevel : 'Unknown',
     subjects: parseSubjects(source.subjects),
     rates: parseRates(source.rates),
+    currentHourlyRate: typeof source.currentHourlyRate === 'number' ? source.currentHourlyRate : 0,
     balanceCents,
     balance: centsToDollars(balanceCents),
     setupStatus: parseProfileSetupStatus(source.setupStatus),
@@ -490,6 +493,7 @@ const mapSetupProfileFromCallable = (
     gradeLevel: 'Unknown',
     subjects: [],
     rates: defaultRates(),
+    currentHourlyRate: 0,
     balanceCents: 0,
     balance: 0,
     setupStatus: 'INVITE_SENT',
@@ -824,6 +828,7 @@ export const householdService = {
         gradeLevel: 'Adult',
         subjects: [],
         rates: defaultRates(),
+        currentHourlyRate: 0,
         balanceCents: 0,
         balance: 0,
       };
@@ -1060,6 +1065,7 @@ export const householdService = {
         gradeLevel,
         subjects,
         rates,
+        currentHourlyRate: typeof child.currentHourlyRate === 'number' ? child.currentHourlyRate : 0,
       });
 
       await setDoc(childRef, {
@@ -1369,6 +1375,9 @@ export const householdService = {
       }
       if (updates.rates && typeof updates.rates === 'object') {
         updatePayload.rates = parseRates(updates.rates);
+      }
+      if (typeof updates.currentHourlyRate === 'number') {
+        updatePayload.currentHourlyRate = updates.currentHourlyRate;
       }
       if (typeof updates.loginUsername === 'string') {
         const normalizedUsername = normalizeChildUsername(updates.loginUsername);
@@ -1973,6 +1982,7 @@ export const householdService = {
         gradeLevel: role === 'CHILD' ? 'Unknown' : 'Adult',
         subjects: [],
         rates: defaultRates(),
+        currentHourlyRate: 0,
         balanceCents: 0,
         balance: 0,
       };
