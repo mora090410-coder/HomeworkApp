@@ -222,13 +222,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                   <Input
                     type="text"
                     value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="px-4 py-3.5 text-base placeholder-neutral-lightGray"
+                    onClick={() => setIsEditing(true)}
+                    className="p-1 text-neutral-400 hover:text-primary-cardinal hover:bg-neutral-200/50 rounded"
                     aria-label="Username"
                   />
                 </div>
               </div>
-              <div className="rounded-none border border-neutral-lightGray bg-neutral-mutedBg p-6 space-y-4">
+              <div className="rounded-none border border-neutral-200 bg-neutral-mutedBg p-6 space-y-4">
                 <h4 className="text-sm font-bold text-neutral-black font-heading">Reset PIN</h4>
                 <div className="grid grid-cols-2 gap-3">
                   <Input

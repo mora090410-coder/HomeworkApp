@@ -503,7 +503,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
       {taskToComplete && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-neutral-black/50 backdrop-blur-sm" onClick={() => setTaskToComplete(null)} />
-          <div className="relative w-full max-w-sm bg-white rounded-none border border-neutral-lightGray p-8 text-center animate-in zoom-in-95 duration-200 shadow-xl">
+          <div className="relative w-full max-w-sm bg-white rounded-none border border-neutral-200 p-8 text-center animate-in zoom-in-95 duration-200 shadow-xl">
             <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto text-emerald-700 mb-4">
               <Check className="w-8 h-8" />
             </div>

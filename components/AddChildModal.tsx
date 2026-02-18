@@ -207,8 +207,8 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
                   {formatCurrency(totalHourlyRate)}
                 </div>
               </div>
-              <div className="bg-white rounded-none border border-neutral-lightGray overflow-hidden text-sm">
-                <div className="flex justify-between px-4 py-3 border-b border-neutral-lightGray"><span className="text-neutral-darkGray">Profile Security</span><span className="text-neutral-black font-bold">Child sets PIN via invite</span></div>
+              <div className="flex items-center gap-3 p-3 border border-neutral-200 bg-neutral-50/50 rounded-sm">
+                <div className="h-10 w-10 shrink-0 flex items-center justify-center rounded-full bg-primary-cardinal/10 text-primary-cardinal"><span className="text-neutral-darkGray">Profile Security</span><span className="text-neutral-black font-bold">Child sets PIN via invite</span></div>
                 <div className="flex justify-between px-4 py-3 border-b border-neutral-lightGray"><span className="text-neutral-darkGray">Grade Level</span><span className="text-neutral-black font-bold">{gradeLevel}</span></div>
               </div>
             </div>

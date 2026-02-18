@@ -281,7 +281,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                   const val = parseFloat(e.target.value);
                   setTaskValueCents(Number.isNaN(val) ? undefined : Math.round(val * 100));
                 }}
-                className="w-full pl-7 pr-4 py-3.5 rounded-none border border-neutral-lightGray bg-white text-neutral-black placeholder-neutral-lightGray focus:border-primary-gold focus:ring-2 focus:ring-primary-gold/10 transition-all font-sans outline-none"
+                className="w-full pl-7 pr-4 py-3.5 rounded-none border border-neutral-200 bg-white text-neutral-black placeholder-neutral-200 focus:border-primary-gold focus:ring-2 focus:ring-primary-gold/10 transition-all font-sans outline-none"
               />
             </div>
           </div>

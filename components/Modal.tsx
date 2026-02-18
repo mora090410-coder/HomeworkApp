@@ -30,12 +30,12 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
       />
 
       {/* Modal Content */}
-      <div className="relative w-full max-w-lg bg-white border border-neutral-lightGray rounded-none shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 md:slide-in-from-bottom-5 duration-200">
-        <div className="p-6 md:p-8 border-b border-neutral-lightGray flex items-center justify-between bg-white">
-          <h3 className="text-2xl font-bold font-heading text-neutral-black">{title}</h3>
+      <div className="relative w-full max-w-lg bg-white border border-neutral-200 rounded-none shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 md:slide-in-from-bottom-5 duration-200">
+        <div className="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
+          <h2 className="text-xl font-bold font-heading text-neutral-900">{title}</h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-neutral-mutedBg text-neutral-darkGray transition-colors"
+            className="rounded-full p-2 hover:bg-neutral-100 text-neutral-500 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>

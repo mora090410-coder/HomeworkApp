@@ -124,7 +124,7 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="0.00"
-                    className="pl-9 pr-4 py-3.5 text-lg font-bold placeholder-neutral-lightGray"
+                    className="pl-9 pr-4 py-3.5 text-lg font-bold placeholder-neutral-200"
                   />
                 </div>
               </div>

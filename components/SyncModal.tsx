@@ -90,6 +90,11 @@ const SyncModal: React.FC<SyncModalProps> = ({ isOpen, onClose, exportData }) =>
             </Button>
           </div>
 
+          <div className="flex items-center justify-between p-3 bg-neutral-50 border border-neutral-200 rounded-sm">
+            <span className="text-sm font-medium text-neutral-700">Bank Account</span>
+            <span className="text-xs text-neutral-500 uppercase tracking-wide font-bold">Connected</span>
+          </div>
+
           <div className="mt-6 flex items-center gap-2 text-neutral-darkGray">
             <Info className="w-4 h-4" />
             <span className="text-xs font-medium italic">QR Code contains your family configuration</span>

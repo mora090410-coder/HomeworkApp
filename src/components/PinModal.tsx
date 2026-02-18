@@ -209,8 +209,8 @@ export default function PinModal({
                 className={`
                   w-4 h-4 rounded-full transition-all duration-300 transform
                   ${i < pin.length
-                    ? 'bg-primary-cardinal scale-110'
-                    : 'bg-neutral-lightGray'
+                    ? 'border-primary-cardinal bg-primary-cardinal text-white'
+                    : 'border-neutral-200 bg-neutral-50'
                   }
                   ${errorMessage ? 'bg-semantic-error animate-shake' : ''}
                 `}

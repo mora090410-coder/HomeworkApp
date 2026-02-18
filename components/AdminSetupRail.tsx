@@ -38,7 +38,7 @@ export default function AdminSetupRail({ completedSteps, onStartAddChild }: Admi
                       ? 'border-primary-success/30 bg-primary-success/5'
                       : isCurrent
                         ? 'border-primary-gold ring-1 ring-primary-gold bg-white shadow-sm'
-                        : 'border-neutral-lightGray bg-neutral-mutedBg'
+                        : 'border-neutral-200 bg-neutral-mutedBg'
                     }
                   `}
                 >

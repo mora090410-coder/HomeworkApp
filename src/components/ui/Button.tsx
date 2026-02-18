@@ -31,11 +31,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             primary:
                 'bg-primary-cardinal hover:bg-[#7A0000] text-white shadow-sm',
             secondary:
-                'bg-white text-primary-cardinal border border-neutral-lightGray hover:bg-neutral-lightGray/10',
+                'bg-white text-primary-cardinal border border-neutral-200 hover:bg-neutral-200/10',
             outline:
                 'bg-transparent border border-primary-cardinal text-primary-cardinal hover:bg-primary-cardinal/5',
             ghost:
-                'bg-transparent text-neutral-darkGray hover:text-primary-cardinal hover:bg-neutral-lightGray/10',
+                'bg-transparent text-neutral-700 hover:text-primary-cardinal hover:bg-neutral-200/10',
             destructive:
                 'bg-white text-semantic-destructive border border-semantic-destructive hover:bg-semantic-destructive/5',
         };

@@ -105,7 +105,7 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({ isOpen, onClose, 
             {subjects.map((subject) => (
               <div
                 key={subject.id}
-                className="flex items-center justify-between bg-white border border-neutral-lightGray p-4 rounded-none transition-colors group hover:border-primary-gold/50"
+                className="flex items-center justify-between bg-white border border-neutral-200 p-4 rounded-none transition-colors group hover:border-primary-gold/50"
               >
                 <span className="text-base font-medium text-neutral-black">{subject.name}</span>
 
