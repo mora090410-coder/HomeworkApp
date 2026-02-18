@@ -120,3 +120,4 @@ supabase/config.toml
 
 # Local git worktrees
 .worktrees/
+.firebase/
