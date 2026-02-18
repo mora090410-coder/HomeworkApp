@@ -1,4 +1,13 @@
-import { colors } from './src/skillmaster/colors.js';
+import twColors from 'tailwindcss/colors';
+
+const colors = {
+    primary: {
+        cardinal: '#f43f5e', // rose-500
+        cardinalHover: '#e11d48', // rose-600
+        gold: '#f1b04e', // amber-400 equivalent
+    },
+    neutral: twColors.slate,
+};
 
 /**
  * Tailwind Configuration
