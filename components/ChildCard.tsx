@@ -144,7 +144,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
     (sum, task) => sum + getTaskValueCents(task),
     0,
   );
-  const paidAmount = child.history
+  const paidAmount = (child.history || [])
     .filter(tx => tx.type === 'EARNING')
     .reduce((sum, tx) => sum + getTransactionAmountCents(tx), 0);
   const earnedAmount = centsToDollars(earnedAmountCents);
