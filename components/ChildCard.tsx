@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Child, Task } from '@/types';
 import { db } from '@/services/firebase';
@@ -80,25 +79,51 @@ const ChildCard: React.FC<ChildCardProps> = ({
   const [activeSubmenuId, setActiveSubmenuId] = useState<string | null>(null);
   const [subCollectionTasks, setSubCollectionTasks] = useState<Task[]>([]);
 
+  // 1. Robust Task Listener
   useEffect(() => {
-    if (!child.householdId || !child.id) return;
+    if (!child.householdId || !child.id) {
+      console.warn('ChildCard: Missing householdId or childId', { householdId: child.householdId, childId: child.id });
+      return;
+    }
 
-    const q = query(collection(db, `households/${child.householdId}/profiles/${child.id}/tasks`));
+    // Explicitly construct the path for clarity and safety
+    const tasksPath = `households/${child.householdId}/profiles/${child.id}/tasks`;
+    const q = query(collection(db, tasksPath));
+
+    console.log(`ChildCard: Subscribing to tasks at ${tasksPath}`);
+
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const mapped = snapshot.docs.map(doc => mapTask(doc.id, child.householdId, doc.data()));
+      console.log(`ChildCard: Snapshot received for ${child.name} (${child.id}). Docs: ${snapshot.docs.length}`);
+      const mapped = snapshot.docs.map(doc => mapTask(doc.id, child.householdId!, doc.data()));
       setSubCollectionTasks(mapped);
+    }, (error) => {
+      console.error("ChildCard: Task subscription error:", error);
     });
 
     return () => unsubscribe();
-  }, [child.householdId, child.id]);
+  }, [child.householdId, child.id, child.name]);
 
-  // Use the persisted currentHourlyRate as the source of truth (set by the wizard
-  // and Update Grades modal). Only recalculate from subjects/rates when the field
-  // is genuinely absent (e.g., legacy profiles created before the field was added).
-  const hourlyRate =
-    typeof child.currentHourlyRate === 'number'
-      ? child.currentHourlyRate
-      : calculateHourlyRate(child.subjects, child.rates);
+  // CRITICAL: Render visible error if configuration is invalid
+  if (!child.householdId) {
+    return (
+      <Card className="p-8 border-semantic-destructive/50 bg-semantic-destructive/5">
+        <div className="flex items-center gap-3 text-semantic-destructive">
+          <AlertTriangle className="w-6 h-6" />
+          <div>
+            <h3 className="font-bold">Profile Configuration Error</h3>
+            <p className="text-sm">Missing Household ID for {child.name}. Please check database.</p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  // 2. Fix 'Zero Rate' Fallback Logic
+  // Use currentHourlyRate if it exists AND is greater than 0. Otherwise recalculate.
+  const hourlyRate = (child.currentHourlyRate && child.currentHourlyRate > 0)
+    ? child.currentHourlyRate
+    : calculateHourlyRate(child.subjects, child.rates);
+
   const hourlyRateCents = dollarsToCents(hourlyRate);
   const setupStatus = child.setupStatus ?? 'PROFILE_CREATED';
   const setupLabel =
@@ -127,15 +152,17 @@ const ChildCard: React.FC<ChildCardProps> = ({
     return formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate));
   };
 
-  // TASK GROUPING LOGIC
-  // Merge tasks from props (root collection) and sub-collection
-  // Deduplicate by ID (prefer sub-collection if simple ID match, though unlikely with UUIDs)
-  const allTasks = [...(child.customTasks || []), ...subCollectionTasks].reduce((acc, task) => {
-    if (!acc.some(t => t.id === task.id)) {
-      acc.push(task);
-    }
-    return acc;
-  }, [] as Task[]);
+  // 3. Task Merging Safety
+  // Use a Map to deduplicate by ID. Sub-collection (live) tasks take precedence over customTasks props.
+  const taskMap = new Map<string, Task>();
+
+  // First add potential static/prop tasks
+  (child.customTasks || []).forEach(t => taskMap.set(t.id, t));
+
+  // Then overwrite with live sub-collection tasks (the source of truth)
+  subCollectionTasks.forEach(t => taskMap.set(t.id, t));
+
+  const allTasks = Array.from(taskMap.values());
 
   const awaitingApproval = allTasks.filter(t => t.status === 'PENDING_APPROVAL');
   const readyToPay = allTasks.filter(t => t.status === 'PENDING_PAYMENT');
@@ -157,6 +184,8 @@ const ChildCard: React.FC<ChildCardProps> = ({
   const pendingAmount = centsToDollars(pendingAmountCents);
   const paidAmountDollars = centsToDollars(paidAmount);
 
+  // Close menus on outside click
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     const handleGlobalClick = () => {
       setActiveMenuId(null);
@@ -258,7 +287,12 @@ const ChildCard: React.FC<ChildCardProps> = ({
           </Button>
         </div>
 
-        <div className="mt-6 pt-4 border-t border-neutral-lightGray flex justify-center">
+        <div className="mt-6 pt-4 border-t border-neutral-lightGray flex justify-center items-center gap-4 relative">
+          {/* 4. Visual Debugging (Temporary) */}
+          <span className="absolute left-0 text-[0.6rem] text-neutral-300 font-mono">
+            ID: {child.id.slice(0, 4)} | Rate: ${hourlyRate}
+          </span>
+
           <Button
             variant="ghost"
             onClick={() => setIsExpanded(!isExpanded)}
