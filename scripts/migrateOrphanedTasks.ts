@@ -11,19 +11,15 @@
  * the target sub-collection it is skipped, so it is safe to run more than once.
  *
  * Usage (from the project root):
- *   npx ts-node --esm scripts/migrateOrphanedTasks.ts
+ *   GOOGLE_APPLICATION_CREDENTIALS="/path/to/key.json" \
+ *     /Users/amm13/.npm/_npx/1bf7c3c15bf47d04/node_modules/.bin/ts-node \
+ *     --esm scripts/migrateOrphanedTasks.ts
  *
- * Environment variables required (same as the app):
- *   VITE_FIREBASE_API_KEY, VITE_FIREBASE_AUTH_DOMAIN, VITE_FIREBASE_PROJECT_ID,
- *   VITE_FIREBASE_STORAGE_BUCKET, VITE_FIREBASE_MESSAGING_SENDER_ID,
- *   VITE_FIREBASE_APP_ID
- *
- * The script uses the Firebase Admin SDK so it bypasses Firestore security rules
- * and does NOT require the user to be authenticated.
+ * The script uses the Firebase Admin SDK so it bypasses Firestore security rules.
  */
 
-import * as admin from 'firebase-admin';
-import { getFirestore, DocumentData, QueryDocumentSnapshot } from 'firebase-admin/firestore';
+import { cert, initializeApp } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
 
 // ---------------------------------------------------------------------------
 // Firebase Admin initialisation
@@ -44,12 +40,9 @@ function requireEnv(key: string): string {
     return value;
 }
 
-// Initialise using Application Default Credentials when running locally with
-// `gcloud auth application-default login`, or via a service-account key file
-// exported as GOOGLE_APPLICATION_CREDENTIALS.
-admin.initializeApp({
-    projectId: requireEnv('VITE_FIREBASE_PROJECT_ID'),
-});
+const credPath = requireEnv('GOOGLE_APPLICATION_CREDENTIALS');
+
+initializeApp({ credential: cert(credPath) });
 
 const db = getFirestore();
 
@@ -87,7 +80,7 @@ async function migrateHousehold(
     let skipped = 0;
     let errors = 0;
 
-    for (const taskDoc of snapshot.docs as QueryDocumentSnapshot<DocumentData>[]) {
+    for (const taskDoc of snapshot.docs) {
         const data = taskDoc.data() as FirestoreTaskDoc;
         const assigneeId = data.assigneeId;
 
