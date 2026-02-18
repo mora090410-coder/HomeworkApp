@@ -12,6 +12,7 @@ const makeChild = (setupStatus: Child['setupStatus']): Child => ({
   subjects: [{ id: 's1', name: 'Math', grade: Grade.A }],
   balance: 0,
   balanceCents: 0,
+  currentHourlyRate: 4.75,
   history: [],
   customTasks: [],
   rates: {

@@ -465,7 +465,8 @@ function DashboardPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loadingTasks, setLoadingTasks] = useState(true);
 
-  // Real-time listener for tasks
+  // Composite real-time listener: merges root tasks (Open/Draft) with each
+  // child's sub-collection tasks (Assigned/Pending/etc.) into a single state array.
   React.useEffect(() => {
     if (!householdId || !db) {
       setTasks([]);
@@ -474,21 +475,86 @@ function DashboardPage() {
     }
 
     setLoadingTasks(true);
-    const tasksQuery = query(collection(db, `households/${householdId}/tasks`));
 
-    const unsubscribe = onSnapshot(tasksQuery, (snapshot) => {
-      const mappedTasks = snapshot.docs.map(doc =>
-        mapTask(doc.id, householdId, doc.data() as Record<string, unknown>)
+    // Keyed snapshot store: 'root' + each childId → Task[]
+    const tasksBySource = new Map<string, Task[]>();
+    const unsubscribers: Array<() => void> = [];
+
+    /** Merge all sources, deduplicate by id, and update state. */
+    const mergeAndCommit = () => {
+      const merged: Task[] = [];
+      const seen = new Set<string>();
+      for (const sourceTasks of tasksBySource.values()) {
+        for (const task of sourceTasks) {
+          if (!seen.has(task.id)) {
+            seen.add(task.id);
+            merged.push(task);
+          }
+        }
+      }
+      setTasks(merged);
+    };
+
+    // Track how many listeners have yet to fire their first snapshot.
+    let pendingFirstSnapshots =
+      1 + familyAuth.profiles.filter((p) => p.role === 'CHILD').length;
+
+    const onFirstSnapshot = () => {
+      pendingFirstSnapshots -= 1;
+      if (pendingFirstSnapshots <= 0) {
+        setLoadingTasks(false);
+      }
+    };
+
+    // 1. Root tasks collection (Open / Draft tasks)
+    const rootUnsub = onSnapshot(
+      collection(db, `households/${householdId}/tasks`),
+      (snapshot) => {
+        tasksBySource.set(
+          'root',
+          snapshot.docs.map((d) =>
+            mapTask(d.id, householdId, d.data() as Record<string, unknown>),
+          ),
+        );
+        onFirstSnapshot();
+        mergeAndCommit();
+      },
+      (error) => {
+        console.error('Failed to subscribe to root tasks:', error);
+        onFirstSnapshot();
+      },
+    );
+    unsubscribers.push(rootUnsub);
+
+    // 2. Per-child sub-collection tasks (Assigned / Pending / etc.)
+    const childProfiles = familyAuth.profiles.filter((p) => p.role === 'CHILD');
+    for (const child of childProfiles) {
+      const childUnsub = onSnapshot(
+        collection(db, `households/${householdId}/profiles/${child.id}/tasks`),
+        (snapshot) => {
+          tasksBySource.set(
+            child.id,
+            snapshot.docs.map((d) =>
+              mapTask(d.id, householdId, d.data() as Record<string, unknown>),
+            ),
+          );
+          onFirstSnapshot();
+          mergeAndCommit();
+        },
+        (error) => {
+          console.error(`Failed to subscribe to tasks for child ${child.id}:`, error);
+          onFirstSnapshot();
+        },
       );
-      setTasks(mappedTasks);
-      setLoadingTasks(false);
-    }, (error) => {
-      console.error("Failed to subscribe to tasks:", error);
-      setLoadingTasks(false);
-    });
+      unsubscribers.push(childUnsub);
+    }
 
-    return () => unsubscribe();
-  }, [householdId]);
+    return () => {
+      for (const unsub of unsubscribers) {
+        unsub();
+      }
+    };
+  }, [householdId, familyAuth.profiles]);
 
   const { data: gradeConfigs = [] } = useQuery<GradeConfig[]>({
     queryKey: ['gradeConfigs', householdId],

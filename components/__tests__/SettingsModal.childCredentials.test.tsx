@@ -12,6 +12,7 @@ const childFixture: Child = {
   subjects: [{ id: 'sub-1', name: 'Math', grade: Grade.B }],
   balance: 0,
   balanceCents: 0,
+  currentHourlyRate: 4,
   history: [],
   customTasks: [],
   rates: {

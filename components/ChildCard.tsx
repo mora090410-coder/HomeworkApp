@@ -92,7 +92,13 @@ const ChildCard: React.FC<ChildCardProps> = ({
     return () => unsubscribe();
   }, [child.householdId, child.id]);
 
-  const hourlyRate = child.currentHourlyRate ?? calculateHourlyRate(child.subjects, child.rates);
+  // Use the persisted currentHourlyRate as the source of truth (set by the wizard
+  // and Update Grades modal). Only recalculate from subjects/rates when the field
+  // is genuinely absent (e.g., legacy profiles created before the field was added).
+  const hourlyRate =
+    typeof child.currentHourlyRate === 'number'
+      ? child.currentHourlyRate
+      : calculateHourlyRate(child.subjects, child.rates);
   const hourlyRateCents = dollarsToCents(hourlyRate);
   const setupStatus = child.setupStatus ?? 'PROFILE_CREATED';
   const setupLabel =
