@@ -330,10 +330,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 <h4 className="text-neutral-black font-bold mb-2 flex items-center gap-2 font-heading">
                   <Upload className="w-4 h-4 text-primary-cardinal" /> Import Data
                 </h4>
-              <div className="p-5 rounded-none bg-neutral-50 border border-neutral-200">
-                <h4 className="text-neutral-black font-bold mb-2 flex items-center gap-2 font-heading">
-                  <Upload className="w-4 h-4 text-primary-cardinal" /> Import Data
-                </h4>
                 <Button
                   onClick={handleImport}
                   disabled={!importText.trim()}
@@ -379,23 +375,23 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         {showDeleteConfirm && (
-            <div className="absolute inset-0 z-[110] bg-white flex flex-col items-center justify-center p-10 text-center animate-in fade-in duration-200">
-              <div className="w-20 h-20 rounded-full bg-semantic-destructive/10 flex items-center justify-center mb-6 text-semantic-destructive"><AlertTriangle className="w-10 h-10" /></div>
-              <h3 className="text-2xl font-bold font-heading text-neutral-black mb-2">Delete Profile?</h3>
-              <p className="text-neutral-500 mb-8">This action is permanent.</p>
-              <div className="flex gap-4 w-full">
-                <Button onClick={() => setShowDeleteConfirm(false)} variant="secondary" className="flex-1 h-14">
-                  Cancel
-                </Button>
-                <Button onClick={() => { if (child) { onDelete(child.id); onClose(); } }} variant="destructive" className="flex-1 h-14">
-                  Yes, Delete
-                </Button>
-              </div>
+          <div className="absolute inset-0 z-[110] bg-white flex flex-col items-center justify-center p-10 text-center animate-in fade-in duration-200">
+            <div className="w-20 h-20 rounded-full bg-semantic-destructive/10 flex items-center justify-center mb-6 text-semantic-destructive"><AlertTriangle className="w-10 h-10" /></div>
+            <h3 className="text-2xl font-bold font-heading text-neutral-black mb-2">Delete Profile?</h3>
+            <p className="text-neutral-500 mb-8">This action is permanent.</p>
+            <div className="flex gap-4 w-full">
+              <Button onClick={() => setShowDeleteConfirm(false)} variant="secondary" className="flex-1 h-14">
+                Cancel
+              </Button>
+              <Button onClick={() => { if (child) { onDelete(child.id); onClose(); } }} variant="destructive" className="flex-1 h-14">
+                Yes, Delete
+              </Button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-      );
+    </div>
+  );
 };
 
-      export default SettingsModal;
+export default SettingsModal;
