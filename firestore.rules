@@ -73,7 +73,14 @@ service cloud.firestore {
         allow read: if isMember(householdId);
 
         // Admins can create / update / delete any profile.
-        allow create, update, delete: if isAdmin(householdId);
+        allow create, delete: if isAdmin(householdId);
+        
+        // Admins and the profile owner (child) can update profiles (e.g., goals).
+        allow update: if isAdmin(householdId) || (
+          isAuthed() && 
+          request.auth.token.role == 'CHILD' && 
+          request.auth.token.profileId == profileId
+        );
 
         // ── households/{householdId}/profiles/{profileId}/tasks/{taskId} ──────
 
@@ -87,14 +94,21 @@ service cloud.firestore {
           // The profile owner (child) can update their own task
           // (e.g. submit for approval) but cannot create or delete.
           allow update: if isAuthed() &&
-            get(/databases/$(database)/documents/households/$(householdId)/profiles/$(profileId)).data.userId == request.auth.uid;
+            request.auth.token.role == 'CHILD' && 
+            request.auth.token.profileId == profileId;
         }
 
         // ── households/{householdId}/profiles/{profileId}/transactions/{txId} ─
 
         match /transactions/{txId} {
           allow read: if isMember(householdId);
-          allow create, update, delete: if isAdmin(householdId);
+          allow create: if isAdmin(householdId) || (
+            isAuthed() && 
+            request.auth.token.role == 'CHILD' && 
+            request.auth.token.profileId == profileId &&
+            (request.resource.data.type == 'WITHDRAWAL_REQUEST' || request.resource.data.type == 'GOAL_ALLOCATION')
+          );
+          allow update, delete: if isAdmin(householdId);
         }
       }
 

@@ -118,6 +118,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
             setWithdrawMemo('');
         } catch (error) {
             console.error(error);
+            alert(error instanceof Error ? error.message : 'An error occurred');
         } finally {
             setIsProcessing(false);
         }
@@ -134,6 +135,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
             setTransferAmount('');
         } catch (error) {
             console.error(error);
+            alert(error instanceof Error ? error.message : 'An error occurred');
         } finally {
             setIsProcessing(false);
         }
@@ -151,6 +153,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
             setNewGoalTarget('');
         } catch (error) {
             console.error(error);
+            alert(error instanceof Error ? error.message : 'An error occurred');
         } finally {
             setIsProcessing(false);
         }
@@ -163,6 +166,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
             // Confetti effect would go here
         } catch (error) {
             console.error(error);
+            alert(error instanceof Error ? error.message : 'An error occurred');
         } finally {
             setIsProcessing(false);
         }
@@ -275,8 +279,24 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                     </div>
 
                     {goals.length === 0 ? (
-                        <div className="bg-neutral-50/50 border border-neutral-100 border-dashed rounded-2xl p-8 text-center">
-                            <p className="text-sm text-neutral-400 italic">No goals set yet. Save for something special!</p>
+                        <div className="bg-neutral-50/50 border border-neutral-200 border-dashed rounded-3xl p-10 text-center relative overflow-hidden group">
+                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                            <div className="relative z-10 flex flex-col items-center">
+                                <div className="w-16 h-16 bg-white rounded-2xl shadow-sm border border-neutral-100 flex items-center justify-center mb-4 transform group-hover:-translate-y-1 transition-transform">
+                                    <Sparkles className="w-8 h-8 text-indigo-400" />
+                                </div>
+                                <h4 className="text-xl font-bold text-neutral-900 mb-2 font-heading">Start a New Goal</h4>
+                                <p className="text-sm text-neutral-500 max-w-sm mb-8 leading-relaxed">
+                                    What are you working toward? A new game? A softball bat? Start your first goal here.
+                                </p>
+                                <Button
+                                    onClick={() => setShowAddGoalModal(true)}
+                                    className="bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-4 px-8 rounded-2xl shadow-xl shadow-neutral-900/10 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                                >
+                                    <Plus className="w-5 h-5" />
+                                    Create First Goal
+                                </Button>
+                            </div>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -289,16 +309,13 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                         <div className="flex justify-between items-start mb-4">
                                             <div>
                                                 <h4 className="font-bold text-neutral-900">{goal.name}</h4>
-                                                <p className="text-xs font-bold text-neutral-400 uppercase tracking-wider mt-0.5">
-                                                    {formatCurrency(centsToDollars(goal.currentAmountCents))} of {formatCurrency(centsToDollars(goal.targetAmountCents))}
-                                                </p>
                                             </div>
                                             <div className="text-right">
                                                 <span className="text-xl font-mono font-bold text-neutral-900">{Math.floor(progress)}%</span>
                                             </div>
                                         </div>
 
-                                        <div className="w-full h-4 bg-neutral-100 rounded-full mb-6 overflow-hidden border border-neutral-50 shadow-inner">
+                                        <div className="w-full h-4 bg-neutral-100 rounded-full mb-2 overflow-hidden border border-neutral-50 shadow-inner">
                                             <div
                                                 className="h-full rounded-full transition-all duration-1000 ease-out relative shadow-[0_0_10px_rgba(0,0,0,0.1)]"
                                                 style={{
@@ -310,6 +327,9 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                                 <div className="absolute inset-0 bg-white/20 animate-pulse" />
                                             </div>
                                         </div>
+                                        <p className="text-xs font-bold text-neutral-500 text-center mb-6">
+                                            {formatCurrency(centsToDollars(goal.currentAmountCents))} of {formatCurrency(centsToDollars(goal.targetAmountCents))} saved. Only {formatCurrency(centsToDollars(goal.targetAmountCents - goal.currentAmountCents))} to go!
+                                        </p>
 
                                         <div className="flex gap-2 relative z-10">
                                             {isComplete ? (
@@ -539,9 +559,18 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                         step="0.01"
                                         value={transferAmount}
                                         onChange={(e) => setTransferAmount(e.target.value)}
-                                        className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-5 py-4 font-mono text-xl focus:ring-2 focus:ring-neutral-900 focus:outline-none"
+                                        className={`w-full bg-neutral-50 border rounded-xl px-5 py-4 font-mono text-xl focus:ring-2 focus:outline-none ${parseFloat(transferAmount) > spendableBalance
+                                                ? 'border-red-300 focus:ring-red-500 text-red-900'
+                                                : 'border-neutral-200 focus:ring-neutral-900'
+                                            }`}
                                         placeholder="0.00"
                                     />
+                                    {transferAmount && parseFloat(transferAmount) > spendableBalance && (
+                                        <p className="text-sm text-red-500 font-medium mt-2 flex items-center gap-1">
+                                            <AlertCircle className="w-4 h-4" />
+                                            You only have {formatCurrency(spendableBalance)} available to save right now.
+                                        </p>
+                                    )}
                                 </div>
 
                                 <Button
@@ -575,7 +604,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                         value={newGoalName}
                                         onChange={(e) => setNewGoalName(e.target.value)}
                                         className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-5 py-4 text-base focus:ring-2 focus:ring-neutral-900 focus:outline-none"
-                                        placeholder="LEGO Set, New Bike, iPad..."
+                                        placeholder="e.g., New Bat"
                                     />
                                 </div>
 
@@ -588,7 +617,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                         value={newGoalTarget}
                                         onChange={(e) => setNewGoalTarget(e.target.value)}
                                         className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-5 py-4 font-mono text-xl focus:ring-2 focus:ring-neutral-900 focus:outline-none"
-                                        placeholder="0.00"
+                                        placeholder="e.g., 150"
                                     />
                                 </div>
 

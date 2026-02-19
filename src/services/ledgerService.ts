@@ -105,6 +105,7 @@ const applyLedgerMutation = async (params: {
   householdId: string;
   profileId: string;
   amountCentsDelta: number;
+  transactionAmountCents?: number;
   memo: string;
   type: 'EARNING' | 'ADVANCE' | 'ADJUSTMENT' | 'WITHDRAWAL_REQUEST' | 'GOAL_ALLOCATION';
   status?: 'PENDING' | 'PAID' | 'REJECTED';
@@ -199,7 +200,7 @@ const applyLedgerMutation = async (params: {
       buildTransactionPayload({
         householdId: safeHouseholdId,
         profileId: safeProfileId,
-        amountCents: safeAmountCents,
+        amountCents: params.transactionAmountCents !== undefined ? params.transactionAmountCents : safeAmountCents,
         memo: safeMemo,
         type: params.type,
         status: params.status,
@@ -286,6 +287,7 @@ export const ledgerService = {
       profileId: input.profileId,
       memo: input.memo,
       amountCentsDelta: 0, // Lien logic: balance doesn't change yet
+      transactionAmountCents: safeAmountCents,
       type: 'WITHDRAWAL_REQUEST',
     });
   },
