@@ -13,6 +13,7 @@ import {
   setDoc,
   updateDoc,
   where,
+  writeBatch,
 } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import {
@@ -1296,6 +1297,60 @@ export const householdService = {
       };
     } catch (error) {
       throw normalizeError('Failed to create task', error);
+    }
+  },
+
+  /**
+   * Assigns an existing open (root-level) task to a child profile.
+   *
+   * This performs an atomic batch write that:
+   * 1. Creates the task in the child's profile sub-collection with status ASSIGNED.
+   * 2. Deletes the original document from the root household tasks collection.
+   *
+   * This prevents the "ghost open task" bug where assigning via createTask() left
+   * the original document in place because only a copy was written.
+   */
+  async assignExistingTask(
+    householdId: string,
+    profileId: string,
+    task: Task,
+  ): Promise<void> {
+    try {
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+      const safeTaskId = assertNonEmptyString(task.id, 'task.id');
+
+      const firestore = getFirestore();
+      const batch = writeBatch(firestore);
+
+      // Destination: profile sub-collection
+      const destinationRef = doc(
+        firestore,
+        `households/${safeHouseholdId}/profiles/${safeProfileId}/tasks/${safeTaskId}`,
+      );
+      batch.set(destinationRef, {
+        householdId: safeHouseholdId,
+        name: task.name,
+        baselineMinutes: Number.isFinite(task.baselineMinutes) ? task.baselineMinutes : 0,
+        status: 'ASSIGNED',
+        assigneeId: safeProfileId,
+        catalogItemId: typeof task.catalogItemId === 'string' ? task.catalogItemId : null,
+        rejectionComment: typeof task.rejectionComment === 'string' ? task.rejectionComment : null,
+        valueCents: typeof task.valueCents === 'number' ? task.valueCents : null,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+
+      // Source: root household tasks collection — delete the original
+      const sourceRef = doc(
+        firestore,
+        `households/${safeHouseholdId}/tasks/${safeTaskId}`,
+      );
+      batch.delete(sourceRef);
+
+      await batch.commit();
+    } catch (error) {
+      throw normalizeError('Failed to assign existing task', error);
     }
   },
 

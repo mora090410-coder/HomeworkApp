@@ -843,7 +843,10 @@ function DashboardPage() {
     const baselineMinutes = catalogItem?.baselineMinutes ?? payload.minutes;
 
     const task: Task = {
-      id: crypto.randomUUID(),
+      // Reuse the existing task ID when editing so we overwrite the original
+      // document rather than creating a duplicate. Only generate a new UUID
+      // when this is a brand-new task creation.
+      id: editingTask?.task.id ?? crypto.randomUUID(),
       householdId,
       name,
       baselineMinutes,
@@ -1248,13 +1251,16 @@ function DashboardPage() {
                           }}
                           onDelete={(id) => statusTaskMutation.mutate({ taskId: id, status: 'DELETED' })}
                           onAssign={(taskId, childId) => {
+                            if (!householdId) return;
                             const taskToAssign = openTasks.find(t => t.id === taskId);
                             if (taskToAssign) {
-                              assignTaskMutation.mutate({
-                                childId,
-                                task: { ...taskToAssign, status: 'ASSIGNED' },
-                                options: { saveToCatalog: false, catalogItemId: null }
-                              });
+                              householdService
+                                .assignExistingTask(householdId, childId, taskToAssign)
+                                .then(() => {
+                                  queryClient.invalidateQueries({ queryKey: ['children'] });
+                                  queryClient.invalidateQueries({ queryKey: ['openTasks'] });
+                                })
+                                .catch((err: unknown) => console.error('[onAssign] Failed to assign existing task:', err));
                             }
                           }}
                         />
