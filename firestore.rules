@@ -106,7 +106,7 @@ service cloud.firestore {
             isAuthed() && 
             request.auth.token.role == 'CHILD' && 
             request.auth.token.profileId == profileId &&
-            (request.resource.data.type == 'WITHDRAWAL_REQUEST' || request.resource.data.type == 'GOAL_ALLOCATION')
+            (request.resource.data.type == 'WITHDRAWAL_REQUEST' || request.resource.data.type == 'GOAL_ALLOCATION' || request.resource.data.type == 'ADJUSTMENT')
           );
           allow update, delete: if isAdmin(householdId);
         }
