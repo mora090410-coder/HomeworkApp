@@ -49,6 +49,7 @@ interface ChildDetailProps {
   onEditSettings: (child: Child) => void;
   onSubmitTask: (childId: string, task: Task) => void;
   onApproveTask: (childId: string, task: Task) => Promise<void>; // Keeps original prop signature, but we might bypass in some cases
+  onApproveAndDeposit: (childId: string, task: Task, amountCents: number) => Promise<void>;
   onRejectTask: (childId: string, task: Task) => void;
   onPayTask: (childId: string, task: Task) => Promise<void>;
   onClaimTask: (childId: string, taskId: string) => void;
@@ -65,6 +66,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
   onEditSettings,
   onSubmitTask,
   onApproveTask,
+  onApproveAndDeposit,
   onRejectTask,
   onPayTask,
   onClaimTask,
@@ -122,24 +124,10 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
   const handleApproveAndDeposit = async (task: Task) => {
     const amountCents = getTaskValueCents(task);
     try {
-      // 1. Approve (Atomic Step 1)
-      await onApproveTask(child.id, task);
-
-      // 2. Deposit (Atomic Step 2)
-      // We wait for the approval to confirm before attempting payment.
-      await ledgerService.recordTaskPayment({
-        firestore: db,
-        householdId: child.householdId!,
-        profileId: child.id,
-        taskId: task.id,
-        amountCents: amountCents,
-        memo: `Completed: ${task.name}`
-      });
+      await onApproveAndDeposit(child.id, task, amountCents);
     } catch (err) {
       console.error("Failed to approve and deposit", err);
-      // If approval succeeded but payment failed, the task is now APPROVED but not PAID.
-      // This is a valid state, but we should let the user know.
-      alert("Task approved, but payment failed. Please try 'Record Cash Payment' or check the ledger.");
+      alert("Approve & Deposit failed. Please check the ledger or try again.");
     }
   };
 

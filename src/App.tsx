@@ -806,6 +806,33 @@ function DashboardPage() {
     },
   });
 
+  const approveAndDepositMutation = useMutation({
+    mutationFn: async (vars: { childId: string; task: Task; amountCents: number }) => {
+      if (!householdId) {
+        throw new Error('No household selected.');
+      }
+
+      const child = childrenWithRateMap.find(c => c.id === vars.childId);
+      const childName = child?.name || 'Child';
+      const balanceBefore = child?.balance || 0;
+      const newBalance = balanceBefore + centsToDollars(vars.amountCents);
+
+      console.log(`Depositing ${formatCurrency(centsToDollars(vars.amountCents))} to ${childName}. New Balance: ${formatCurrency(newBalance)}`);
+
+      return householdService.addEarning(
+        vars.childId,
+        vars.task.id,
+        vars.amountCents,
+        `Completed: ${vars.task.name}`,
+        householdId,
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['children'] });
+      queryClient.invalidateQueries({ queryKey: ['openTasks'] });
+    },
+  });
+
   const addAdvanceMutation = useMutation({
     mutationFn: (vars: { childId: string; amountCents: number; memo: string; category: string }) => {
       if (!householdId) {
@@ -1117,6 +1144,7 @@ function DashboardPage() {
             onEditSettings={() => undefined}
             onSubmitTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_APPROVAL', childId })}
             onApproveTask={(childId, task) => statusTaskMutation.mutateAsync({ taskId: task.id, status: 'PENDING_PAYMENT', childId })}
+            onApproveAndDeposit={(childId, task, amountCents) => approveAndDepositMutation.mutateAsync({ childId, task, amountCents })}
             onPayTask={handlePayTask}
             onRejectTask={() => undefined}
             onClaimTask={(childId, taskId) => claimTaskMutation.mutate({ childId, taskId })}
@@ -1244,6 +1272,7 @@ function DashboardPage() {
                     onEditSettings={(candidate) => setChildToEdit(candidate)}
                     onSubmitTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_APPROVAL', childId })}
                     onApproveTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_PAYMENT', childId })}
+                    onApproveAndDeposit={(childId, task, amountCents) => approveAndDepositMutation.mutateAsync({ childId, task, amountCents })}
                     onPayTask={handlePayTask}
                     onRejectTask={handleRejectTask}
                     onClaimTask={(childId, taskId) => claimTaskMutation.mutate({ childId, taskId })}
