@@ -125,40 +125,23 @@ const applyLedgerMutation = async (params: {
       `households/${safeHouseholdId}/profiles/${safeProfileId}`,
     );
     const transactionRef = doc(collection(profileRef, 'transactions'));
-    const profileSnapshot = await transaction.get(profileRef);
 
+    // 1. ALL READS FIRST
+    const profileSnapshot = await transaction.get(profileRef);
     if (!profileSnapshot.exists()) {
       throw new Error('Profile not found.');
     }
 
-    const profileData = profileSnapshot.data() as Record<string, unknown>;
-    const currentBalanceCents = readBalanceCents(profileData);
-    nextBalanceCents = currentBalanceCents + safeAmountCents;
-    generatedTransactionId = transactionRef.id;
-
-    transaction.update(profileRef, applyBalanceUpdate(nextBalanceCents));
-    transaction.set(
-      transactionRef,
-      buildTransactionPayload({
-        householdId: safeHouseholdId,
-        profileId: safeProfileId,
-        amountCents: safeAmountCents,
-        memo: safeMemo,
-        type: params.type,
-        category: params.category,
-        taskId: params.taskId,
-        nextBalanceCents,
-      }),
-    );
+    let taskRefToUpdate = null;
+    let taskDataToLog = null;
 
     if (params.lockTaskAsPaid && params.taskId) {
-      // Check profile sub-collection first (assigned tasks), then root (open tasks).
       const profileTaskRef = doc(
         params.firestore,
         `households/${safeHouseholdId}/profiles/${safeProfileId}/tasks/${params.taskId}`,
       );
-      let taskRef = profileTaskRef;
       let taskSnapshot = await transaction.get(profileTaskRef);
+      let taskRef = profileTaskRef;
 
       if (!taskSnapshot.exists()) {
         const rootTaskRef = doc(
@@ -182,7 +165,33 @@ const applyLedgerMutation = async (params: {
         throw new Error('Task is already paid.');
       }
 
-      transaction.update(taskRef, {
+      taskRefToUpdate = taskRef;
+      taskDataToLog = taskData;
+    }
+
+    // 2. NOW ALL WRITES
+    const profileData = profileSnapshot.data() as Record<string, unknown>;
+    const currentBalanceCents = readBalanceCents(profileData);
+    nextBalanceCents = currentBalanceCents + safeAmountCents;
+    generatedTransactionId = transactionRef.id;
+
+    transaction.update(profileRef, applyBalanceUpdate(nextBalanceCents));
+    transaction.set(
+      transactionRef,
+      buildTransactionPayload({
+        householdId: safeHouseholdId,
+        profileId: safeProfileId,
+        amountCents: safeAmountCents,
+        memo: safeMemo,
+        type: params.type,
+        category: params.category,
+        taskId: params.taskId,
+        nextBalanceCents,
+      }),
+    );
+
+    if (taskRefToUpdate) {
+      transaction.update(taskRefToUpdate, {
         status: 'PAID',
         updatedAt: serverTimestamp(),
         paidAt: serverTimestamp(),

@@ -245,8 +245,8 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
                     <Button
                       onClick={() => handleApproveAndDeposit(task)}
-                      variant="secondary"
-                      className="flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white border-transparent text-xs gap-2"
+                      variant="primary"
+                      className="flex-[2] !bg-emerald-600 border-emerald-600 hover:!bg-emerald-700 text-white text-xs gap-2"
                     >
                       <ThumbsUp className="w-3 h-3" /> Approve & Deposit
                     </Button>
