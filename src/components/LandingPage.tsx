@@ -13,7 +13,7 @@ import { Link } from 'react-router-dom';
 const PillarCard: React.FC<{ title: string; body: string; delay?: string }> = ({ title, body, delay = '' }) => (
     <div className={`flex flex-col p-10 glass-card border-0 text-center items-center justify-center transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl ${delay}`}>
         <h3 className="text-2xl font-bold font-heading text-obsidian dark:text-white mb-4">{title}</h3>
-        <p className="text-lg leading-relaxed text-neutral-text dark:text-neutral-400">{body}</p>
+        <p className="text-lg leading-relaxed text-obsidian dark:text-white">{body}</p>
     </div>
 );
 
@@ -46,7 +46,7 @@ export default function LandingPage() {
             {/* ── Minimal Header ── */}
             <header className="absolute top-0 w-full z-50">
                 <div className="max-w-[1240px] mx-auto px-6 sm:px-10 h-24 flex items-center justify-end">
-                    <Link to="/login" className="text-sm font-bold text-catalyst-blue hover:opacity-80 transition-colors">
+                    <Link to="/login" className="text-sm font-bold text-catalyst-blue dark:text-white hover:opacity-80 transition-colors">
                         Sign In
                     </Link>
                 </div>
@@ -84,7 +84,7 @@ export default function LandingPage() {
                             <Link to="/signup" className="tactile-button h-16 px-12 text-xl flex items-center justify-center gap-3 hover:scale-105 transform transition-all duration-300">
                                 Get Started
                             </Link>
-                            <Link to="/login" className="text-catalyst-blue font-semibold hover:opacity-80 transition-colors border-none bg-transparent">
+                            <Link to="/login" className="text-catalyst-blue dark:text-white font-semibold hover:opacity-80 transition-colors border-none bg-transparent">
                                 Sign In
                             </Link>
                         </div>

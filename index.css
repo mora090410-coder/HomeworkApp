@@ -115,7 +115,7 @@ body {
     }
 
     .glass-card {
-        @apply backdrop-blur-md rounded-3xl bg-white/80 border border-white/20 shadow-sm dark:bg-white/5 dark:border-white/10 dark:shadow-2xl;
+        @apply backdrop-blur-xl rounded-3xl bg-white/70 border border-black/5 shadow-xl dark:bg-white/10 dark:border-white/20 dark:shadow-[0_20px_50px_rgba(0, 0, 0, 0.5)];
     }
 
     .tactile-button {
