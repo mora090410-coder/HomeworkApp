@@ -23,6 +23,7 @@ import AssignTaskModal, { AssignTaskPayload } from '@/components/AssignTaskModal
 import CatalogManagerModal from '@/components/CatalogManagerModal';
 import ChildCard from '@/components/ChildCard';
 import ChildDetail from '@/components/ChildDetail';
+import ChildDashboard from '@/components/ChildDashboard';
 import FamilyActivityFeed from '@/components/FamilyActivityFeed';
 import SettingsModal from '@/components/SettingsModal';
 import AuthScreen from '@/components/AuthScreen';
@@ -1123,40 +1124,13 @@ function DashboardPage() {
     }
 
     return (
-      <div className="min-h-screen bg-neutral-50 text-neutral-black relative pb-12 font-sans">
-        <div className="relative z-10 max-w-[1200px] mx-auto p-6 md:p-8">
-          <header className="flex justify-between items-center mb-10">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl font-bold font-heading track-tight text-primary-cardinal">HomeWork</span>
-              <span className="px-2 py-0.5 rounded-none bg-white border border-neutral-200 text-[11px] font-bold tracking-wider text-neutral-darkGray uppercase">Child</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" onClick={() => { void familyAuth.signOutUser(); }} className="text-neutral-darkGray hover:text-neutral-black">
-                <LogOut className="w-5 h-5" />
-              </Button>
-            </div>
-          </header>
-
-          <ChildDetail
-            child={activeChild}
-            isParent={false}
-            standardTasks={COMMON_TASKS}
-            availableTasks={openTasks}
-            onUpdateGrades={(candidate) => {
-              setChildForGrades(candidate);
-              setIsUpdateGradesModalOpen(true);
-            }}
-            onInviteChild={() => undefined}
-            onEditSettings={() => undefined}
-            onSubmitTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_APPROVAL', childId })}
-            onApproveTask={(childId, task) => statusTaskMutation.mutateAsync({ taskId: task.id, status: 'PENDING_PAYMENT', childId })}
-            onApproveAndDeposit={(childId, task, amountCents) => approveAndDepositMutation.mutateAsync({ childId, task, amountCents })}
-            onPayTask={handlePayTask}
-            onRejectTask={() => undefined}
-            onClaimTask={(childId, taskId) => claimTaskMutation.mutate({ childId, taskId })}
-          />
-        </div>
-      </div>
+      <ChildDashboard
+        child={activeChild}
+        availableTasks={openTasks}
+        onSubmitTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_APPROVAL', childId })}
+        onClaimTask={(childId, taskId) => claimTaskMutation.mutate({ childId, taskId })}
+        onSignOut={() => { void familyAuth.signOutUser(); }}
+      />
     );
   }
 
