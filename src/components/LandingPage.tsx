@@ -62,38 +62,18 @@ export default function LandingPage() {
                         {/* House-Graph Logo */}
                         <div className="mb-16 flex justify-center w-full relative">
                             {/* Glow layer */}
-                            <div className="absolute inset-0 scale-[0.6] blur-[40px] opacity-70 bg-gradient-to-tr from-blue-500 to-amber-500 rounded-full" />
-                            
-                            {/* Logo SVG matching the "House-Graph" approved concept */}
-                            <svg 
-                                viewBox="0 0 120 120"
-                                className="w-32 h-32 sm:w-40 sm:h-40 relative z-10 luminary-glow drop-shadow-2xl"
-                                fill="none"
-                                stroke="url(#momentum-gradient)"
-                                strokeWidth="8"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <defs>
-                                    <linearGradient id="momentum-gradient" x1="0%" y1="100%" x2="100%" y2="0%">
-                                        <stop offset="0%" stopColor="#3B82F6" />
-                                        <stop offset="100%" stopColor="#F59E0B" />
-                                    </linearGradient>
-                                </defs>
-                                {/* House Left Roof */}
-                                <path d="M 10 55 L 50 15 L 75 40" />
-                                {/* House Walls */}
-                                <path d="M 20 45 L 20 90 A 10 10 0 0 0 30 100 L 90 100 A 10 10 0 0 0 100 90 L 100 60" />
-                                {/* The Graph/Arrow roofline */}
-                                <path d="M 50 65 L 75 40 L 105 10" strokeWidth="8" />
-                                <path d="M 105 40 L 105 10 L 75 10" strokeWidth="8" />
-                                {/* Inside Graph Bars */}
-                                <path d="M 35 100 L 35 65 M 60 100 L 60 45 M 85 100 L 85 25" strokeWidth="12" />
-                            </svg>
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[240px] h-[120px] sm:w-[320px] sm:h-[160px] blur-[70px] opacity-75 bg-gradient-to-tr from-blue-500 to-amber-500 rounded-full pointer-events-none" />
+
+                            {/* Logo Image */}
+                            <img
+                                src="/images/logoexample.png"
+                                alt="HomeWork Logo"
+                                className="w-32 h-32 sm:w-40 sm:h-40 relative z-10 drop-shadow-2xl rounded-[32px]"
+                            />
                         </div>
 
                         {/* H1 */}
-                        <h1 className="text-7xl font-bold text-obsidian tracking-tight mb-8 leading-[1.1]" style={{ fontFamily: 'SF Pro Display, -apple-system, sans-serif' }}>
+                        <h1 className="text-7xl font-bold text-obsidian tracking-tight mb-8 leading-[1.1] font-['SF_Pro_Display',-apple-system,sans-serif]">
                             The Family Economy.<br />
                             Redefined.
                         </h1>
