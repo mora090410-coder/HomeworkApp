@@ -90,8 +90,8 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
             {getTaskIcon(task.name)}
           </span>
           <div>
-            <h3 className="text-lg font-sans font-bold text-neutral-900 leading-tight">{task.name}</h3>
-            <p className="text-[9px] font-black text-neutral-400 uppercase tracking-[0.2em] mt-1.5 flex items-center gap-1.5 font-mono">
+            <h3 className="text-lg font-sans font-bold text-content-primary leading-tight">{task.name}</h3>
+            <p className="text-[9px] font-black text-content-subtle uppercase tracking-[0.2em] mt-1.5 flex items-center gap-1.5 font-mono">
               <Clock className="w-3 h-3 opacity-40" />
               {task.baselineMinutes} MIN BASELINE
             </p>
@@ -106,7 +106,7 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
               setIsMenuOpen(!isMenuOpen);
               setShowAssignSubmenu(false);
             }}
-            className="w-8 h-8 p-0 text-neutral-darkGray hover:text-neutral-black border border-neutral-100 rounded-full flex items-center justify-center"
+            className="w-8 h-8 p-0 text-content-muted hover:text-content-primary border border-stroke-base rounded-full flex items-center justify-center"
           >
             <MoreVertical className="w-4 h-4" />
           </Button>
@@ -118,7 +118,7 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
                   <button
                     type="button"
                     onClick={toggleAssignSubmenu}
-                    className={`w-full text-left px-3 py-2.5 rounded-none text-sm font-medium flex items-center justify-between gap-2 transition-colors cursor-pointer ${showAssignSubmenu ? 'bg-neutral-lightGray/10 text-neutral-black' : 'text-neutral-darkGray hover:bg-neutral-lightGray/10 hover:text-neutral-black'}`}
+                    className={`w-full text-left px-3 py-2.5 rounded-none text-sm font-medium flex items-center justify-between gap-2 transition-colors cursor-pointer ${showAssignSubmenu ? 'bg-neutral-lightGray/10 text-content-primary' : 'text-content-muted hover:bg-neutral-lightGray/10 hover:text-content-primary'}`}
                   >
                     <div className="flex items-center gap-2">
                       <UserPlus className="w-4 h-4" />
@@ -136,12 +136,12 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
                           key={child.id}
                           type="button"
                           onClick={(e) => handleAssignClick(e, child.id)}
-                          className="w-full text-left px-4 py-3 text-sm font-medium text-neutral-darkGray hover:bg-neutral-lightGray/10 hover:text-neutral-black truncate cursor-pointer"
+                          className="w-full text-left px-4 py-3 text-sm font-medium text-content-muted hover:bg-neutral-lightGray/10 hover:text-content-primary truncate cursor-pointer"
                         >
                           {child.name}
                         </button>
                       )) : (
-                        <div className="px-4 py-3 text-xs text-neutral-darkGray italic">No children found</div>
+                        <div className="px-4 py-3 text-xs text-content-muted italic">No children found</div>
                       )}
                     </div>
                   )}
@@ -150,13 +150,13 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
                 <button
                   type="button"
                   onClick={handleEditClick}
-                  className="w-full text-left px-3 py-2.5 rounded-none text-sm font-medium text-neutral-darkGray hover:bg-neutral-lightGray/10 hover:text-neutral-black flex items-center gap-2 cursor-pointer"
+                  className="w-full text-left px-3 py-2.5 rounded-none text-sm font-medium text-content-muted hover:bg-neutral-lightGray/10 hover:text-content-primary flex items-center gap-2 cursor-pointer"
                 >
                   <Edit2 className="w-4 h-4" />
                   Edit Baseline
                 </button>
 
-                <div className="h-px bg-neutral-100 my-1" />
+                <div className="h-px bg-surface-2 my-1" />
 
                 <button
                   type="button"
@@ -173,13 +173,13 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
       </div>
 
       <div className="flex items-center justify-between mt-auto pt-4">
-        <div className="flex items-center gap-1.5 text-neutral-darkGray">
+        <div className="flex items-center gap-1.5 text-content-muted">
           <Clock className="w-3.5 h-3.5" />
           <span className="text-[0.875rem] font-medium font-sans">{task.baselineMinutes} min baseline</span>
         </div>
 
         <div className="flex flex-col items-end">
-          <span className="text-[9px] font-black text-neutral-400 uppercase tracking-[0.2em] mb-1.5">Value</span>
+          <span className="text-[9px] font-black text-content-subtle uppercase tracking-[0.2em] mb-1.5">Value</span>
           <div className="luminary-glow inline-block text-lg font-sans font-bold" data-text={task.valueCents ? (task.valueCents / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}>
             <span className="text-[10px] opacity-40 mr-0.5">$</span>
             {task.valueCents ? (task.valueCents / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}

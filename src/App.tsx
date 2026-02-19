@@ -1025,11 +1025,11 @@ function DashboardPage() {
 
   if (!isFirebaseConfigured) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-neutral-900 p-6 transition-colors duration-300">
-        <div className="max-w-lg w-full bg-white p-8 rounded-none border border-neutral-200 text-center shadow-xl">
+      <div className="min-h-screen bg-surface-app flex items-center justify-center text-content-primary p-6 transition-colors duration-300">
+        <div className="max-w-lg w-full bg-white p-8 rounded-none border border-stroke-base text-center shadow-xl">
           <h2 className="text-2xl font-bold mb-4">Firebase Setup Required</h2>
           <p className="text-neutral-600 mb-2">Phase 2 requires Firebase Auth and Firestore configuration.</p>
-          <p className="text-neutral-500 text-sm">Add `VITE_FIREBASE_*` keys in `.env` and restart the app.</p>
+          <p className="text-content-subtle text-sm">Add `VITE_FIREBASE_*` keys in `.env` and restart the app.</p>
         </div>
       </div>
     );
@@ -1052,7 +1052,7 @@ function DashboardPage() {
 
   if (familyAuth.isInitializing) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-neutral-900">
+      <div className="min-h-screen bg-surface-app flex items-center justify-center text-content-primary">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
       </div>
     );
@@ -1111,7 +1111,7 @@ function DashboardPage() {
 
   if (isLoading || !familyAuth.activeProfile) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-neutral-900">
+      <div className="min-h-screen bg-surface-app flex items-center justify-center text-content-primary">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
       </div>
     );
@@ -1124,7 +1124,7 @@ function DashboardPage() {
 
     if (!activeChild) {
       return (
-        <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-neutral-900">
+        <div className="min-h-screen bg-surface-app flex items-center justify-center text-content-primary">
           <div className="text-center">
             <p className="text-lg mb-4">Child profile data is still loading.</p>
             <button type="button" onClick={familyAuth.clearActiveProfileSelection} className="px-4 py-2 rounded-none bg-primary-600 text-white shadow-sm hover:bg-primary-700 transition-colors">Back to Profile Picker</button>
@@ -1146,7 +1146,7 @@ function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 text-neutral-900 relative pb-12 font-sans overflow-hidden">
+    <div className="min-h-screen bg-surface-app text-content-primary relative pb-12 font-sans overflow-hidden">
       {/* 1. Atmospheric Background Gradient (Ive Lens) */}
       <div
         className="absolute top-0 left-0 w-full h-[500px] pointer-events-none opacity-40"
@@ -1159,14 +1159,14 @@ function DashboardPage() {
       <div className="relative z-10 max-w-[1400px] mx-auto p-6 md:p-8">
         <header className="sticky top-0 z-50 flex justify-between items-center py-4 px-6 md:px-8 -mx-6 md:-mx-8 mb-10 bg-white/80 backdrop-blur-md shadow-sm border-b border-white/50">
           <div className="flex items-center gap-6">
-            <span className="text-2xl font-bold font-heading tracking-tight text-neutral-900">HomeWork</span>
+            <span className="text-2xl font-bold font-heading tracking-tight text-content-primary">HomeWork</span>
             <div className="hidden md:flex flex-col relative group">
               {/* Glassmorphism Container for Net Worth */}
               <div className="absolute inset-0 bg-white/40 backdrop-blur-md rounded-2xl -m-3 border border-white/50 shadow-sm transition-all duration-300 group-hover:shadow-md" />
 
               <div className="relative">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 mb-1 block">Household Net Worth</span>
-                <span className="text-2xl font-mono font-bold tracking-tighter text-neutral-900">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-content-subtle mb-1 block">Household Net Worth</span>
+                <span className="text-2xl font-mono font-bold tracking-tighter text-content-primary">
                   <span className="text-lg opacity-30 mr-0.5">$</span>
                   {centsToDollars(totalHouseholdNetWorth).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
@@ -1179,7 +1179,7 @@ function DashboardPage() {
               <Button
                 variant="outline"
                 onClick={() => setViewingChildId(null)}
-                className="gap-2 border-neutral-200 hover:bg-neutral-100"
+                className="gap-2 border-stroke-base hover:bg-surface-2"
               >
                 <ArrowRight className="w-4 h-4 rotate-180" /> Back to Dashboard
               </Button>
@@ -1197,41 +1197,41 @@ function DashboardPage() {
               {isActionMenuOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setIsActionMenuOpen(false)} />
-                  <div className="absolute right-0 mt-3 w-56 bg-white border border-neutral-200 shadow-2xl z-50 py-2 animate-in fade-in zoom-in-95 duration-200">
+                  <div className="absolute right-0 mt-3 w-56 bg-white border border-stroke-base shadow-2xl z-50 py-2 animate-in fade-in zoom-in-95 duration-200">
                     <button
                       onClick={() => { setIsActionMenuOpen(false); setIsAddChildModalOpen(true); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-neutral-700 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-content-primary hover:bg-surface-app hover:text-blue-500 transition-colors"
                     >
-                      <UserPlus className="w-4 h-4 text-primary-cardinal" />
+                      <UserPlus className="w-4 h-4 text-blue-500" />
                       Add Child
                     </button>
                     <button
                       onClick={() => { setIsActionMenuOpen(false); setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-neutral-700 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-content-primary hover:bg-surface-app hover:text-blue-500 transition-colors"
                     >
-                      <Calendar className="w-4 h-4 text-primary-cardinal" />
+                      <Calendar className="w-4 h-4 text-blue-500" />
                       Create Open Task
                     </button>
                     <button
                       onClick={() => { setIsActionMenuOpen(false); if (hasChildren) { setSelectedChildId(childrenWithRateMap[0].id); setIsAdvanceModalOpen(true); } }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-neutral-700 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-content-primary hover:bg-surface-app hover:text-blue-500 transition-colors"
                     >
-                      <DollarSign className="w-4 h-4 text-primary-cardinal" />
+                      <DollarSign className="w-4 h-4 text-blue-500" />
                       Add Advance
                     </button>
-                    <div className="h-px bg-neutral-100 my-1" />
+                    <div className="h-px bg-surface-2 my-1" />
                     <button
                       onClick={() => { setIsActionMenuOpen(false); setIsCatalogManagerOpen(true); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-neutral-700 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-content-primary hover:bg-surface-app hover:text-blue-500 transition-colors"
                     >
-                      <Briefcase className="w-4 h-4 text-primary-cardinal" />
+                      <Briefcase className="w-4 h-4 text-blue-500" />
                       Manage Chore Catalog
                     </button>
                     <button
                       onClick={() => { setIsActionMenuOpen(false); handleGenerateInvite(); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-neutral-700 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-content-primary hover:bg-surface-app hover:text-blue-500 transition-colors"
                     >
-                      <Share2 className="w-4 h-4 text-primary-cardinal" />
+                      <Share2 className="w-4 h-4 text-blue-500" />
                       Invite Device
                     </button>
                   </div>
@@ -1239,14 +1239,14 @@ function DashboardPage() {
               )}
             </div>
 
-            <Button variant="ghost" onClick={() => { void familyAuth.signOutUser(); }} className="text-neutral-500 hover:text-neutral-900 border border-neutral-200 rounded-full w-10 h-10 p-0 flex items-center justify-center">
+            <Button variant="ghost" onClick={() => { void familyAuth.signOutUser(); }} className="text-content-subtle hover:text-content-primary border border-stroke-base rounded-full w-10 h-10 p-0 flex items-center justify-center">
               <LogOut className="w-4 h-4" />
             </Button>
           </div>
         </header>
 
-        <div className="md:hidden mb-8 bg-white border border-neutral-200 p-4 flex justify-between items-center">
-          <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">Household Net Worth</span>
+        <div className="md:hidden mb-8 bg-white border border-stroke-base p-4 flex justify-between items-center">
+          <span className="text-xs font-bold uppercase tracking-wider text-content-subtle">Household Net Worth</span>
           <span className="text-lg font-bold text-emerald-700">{formatCurrency(centsToDollars(totalHouseholdNetWorth))}</span>
         </div>
 
@@ -1322,13 +1322,13 @@ function DashboardPage() {
                         onUndoApproval={(childId, taskId) => statusTaskMutation.mutate({ taskId, status: 'PENDING_APPROVAL', childId })}
                       />
                     ))}
-                    <div className="flex min-h-[200px] items-center justify-center rounded-none border-2 border-dashed border-neutral-200 bg-neutral-50/50 p-6 hover:border-neutral-300 hover:bg-neutral-100 transition-colors cursor-pointer group" onClick={() => setIsAddChildModalOpen(true)}>
+                    <div className="flex min-h-[200px] items-center justify-center rounded-none border-2 border-dashed border-stroke-base bg-surface-app/50 p-6 hover:border-stroke-base hover:bg-surface-2 transition-colors cursor-pointer group" onClick={() => setIsAddChildModalOpen(true)}>
                       <div className="text-center group-hover:scale-105 transition-transform duration-200">
                         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-neutral-200 group-hover:ring-primary-200">
-                          <Plus className="h-6 w-6 text-neutral-400 group-hover:text-primary-600" />
+                          <Plus className="h-6 w-6 text-content-subtle group-hover:text-primary-600" />
                         </div>
-                        <h3 className="text-sm font-bold text-neutral-900">Add Child Profile</h3>
-                        <p className="mt-1 text-xs text-neutral-500">Track chores & allowance</p>
+                        <h3 className="text-sm font-bold text-content-primary">Add Child Profile</h3>
+                        <p className="mt-1 text-xs text-content-subtle">Track chores & allowance</p>
                       </div>
                     </div>
                   </div>
@@ -1338,20 +1338,20 @@ function DashboardPage() {
                   {/* Open Tasks Column */}
                   <div className="relative">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-bold font-heading text-neutral-900 flex items-center gap-2">
+                      <h3 className="text-lg font-bold font-heading text-content-primary flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full bg-semantic-success animate-pulse"></span>
                         Bounty Board
                       </h3>
-                      <span className="px-2 py-0.5 bg-neutral-100 text-neutral-600 text-xs font-bold rounded-none border border-neutral-200">
+                      <span className="px-2 py-0.5 bg-surface-2 text-neutral-600 text-xs font-bold rounded-none border border-stroke-base">
                         {openTasks.length} Active
                       </span>
                     </div>
 
                     <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-neutral-200 scrollbar-track-transparent">
                       {!loadingTasks && openTasks.length === 0 ? (
-                        <div className="p-8 bg-white border border-neutral-200 border-dashed rounded-none text-center">
-                          <p className="text-neutral-900 font-bold mb-1">No open bounties</p>
-                          <p className="text-neutral-500 text-sm mb-4">Create tasks that any child can claim.</p>
+                        <div className="p-8 bg-white border border-stroke-base border-dashed rounded-none text-center">
+                          <p className="text-content-primary font-bold mb-1">No open bounties</p>
+                          <p className="text-content-subtle text-sm mb-4">Create tasks that any child can claim.</p>
                           <Button variant="secondary" size="sm" onClick={() => { setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }} className="w-full">
                             <Plus className="w-4 h-4 mr-2" />
                             Create Bounty
@@ -1472,8 +1472,8 @@ function DashboardPage() {
             title="Reject Task"
           >
             <div className="space-y-6">
-              <p className="text-sm text-neutral-500 font-sans">
-                Select a reason for rejecting <span className="font-bold text-neutral-900">{taskToReject.task.name}</span>:
+              <p className="text-sm text-content-subtle font-sans">
+                Select a reason for rejecting <span className="font-bold text-content-primary">{taskToReject.task.name}</span>:
               </p>
 
               <div className="flex flex-wrap gap-2">
@@ -1488,8 +1488,8 @@ function DashboardPage() {
                       setRejectionComment(newComment);
                     }}
                     className={`px-4 py-2 text-xs font-bold uppercase tracking-widest border transition-all ${rejectionComment.includes(tag)
-                      ? 'bg-primary-cardinal text-white border-primary-cardinal shadow-md'
-                      : 'bg-white text-neutral-500 border-neutral-200 hover:border-primary-cardinal hover:text-primary-cardinal'
+                      ? 'bg-brand text-white border-blue-500 shadow-md'
+                      : 'bg-white text-content-subtle border-stroke-base hover:border-blue-500 hover:text-blue-500'
                       }`}
                   >
                     {tag}
@@ -1498,12 +1498,12 @@ function DashboardPage() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Additional Context</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-content-subtle">Additional Context</span>
                 <textarea
                   value={rejectionComment}
                   onChange={(e) => setRejectionComment(e.target.value)}
                   placeholder="Optional notes..."
-                  className="w-full min-h-[80px] p-4 bg-neutral-50 border border-neutral-100 rounded-none text-sm font-sans focus:border-primary-cardinal outline-none transition-colors resize-none"
+                  className="w-full min-h-[80px] p-4 bg-surface-app border border-stroke-base rounded-none text-sm font-sans focus:border-blue-500 outline-none transition-colors resize-none"
                 />
               </div>
 
@@ -1525,7 +1525,7 @@ function DashboardPage() {
                 </Button>
                 <Button
                   variant="ghost"
-                  className="flex-1 border border-neutral-200"
+                  className="flex-1 border border-stroke-base"
                   onClick={() => setTaskToReject(null)}
                 >
                   Cancel
@@ -1538,9 +1538,9 @@ function DashboardPage() {
         {isInviteModalOpen && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsInviteModalOpen(false)} />
-            <div className="relative w-full max-w-[560px] bg-white rounded-none border border-neutral-200 p-8 text-left shadow-xl animate-in zoom-in-95 duration-200">
-              <h3 className="text-xl font-bold mb-2 text-neutral-900">Invite Child Device</h3>
-              <p className="text-neutral-500 mb-5 text-sm">Choose a child profile to generate a unique setup URL.</p>
+            <div className="relative w-full max-w-[560px] bg-white rounded-none border border-stroke-base p-8 text-left shadow-xl animate-in zoom-in-95 duration-200">
+              <h3 className="text-xl font-bold mb-2 text-content-primary">Invite Child Device</h3>
+              <p className="text-content-subtle mb-5 text-sm">Choose a child profile to generate a unique setup URL.</p>
               <div className="space-y-2 max-h-[320px] overflow-auto pr-1 custom-scrollbar">
                 {childrenWithRateMap.map((child) => (
                   <button
@@ -1550,14 +1550,14 @@ function DashboardPage() {
                       void handleGenerateProfileSetupLink(toProfileFromChild(child));
                       setIsInviteModalOpen(false);
                     }}
-                    className="w-full rounded-none border border-neutral-200 bg-neutral-50 px-4 py-3 text-left hover:bg-white hover:border-primary-500 hover:shadow-md transition-all group"
+                    className="w-full rounded-none border border-stroke-base bg-surface-app px-4 py-3 text-left hover:bg-white hover:border-primary-500 hover:shadow-md transition-all group"
                   >
-                    <div className="text-sm font-semibold text-neutral-900 group-hover:text-primary-600">{child.name}</div>
-                    <div className="text-xs text-neutral-500">{child.gradeLevel}</div>
+                    <div className="text-sm font-semibold text-content-primary group-hover:text-primary-600">{child.name}</div>
+                    <div className="text-xs text-content-subtle">{child.gradeLevel}</div>
                   </button>
                 ))}
               </div>
-              <button type="button" onClick={() => setIsInviteModalOpen(false)} className="mt-5 w-full py-3 bg-neutral-100 rounded-none font-bold text-neutral-700 hover:bg-neutral-200 transition-colors">Close</button>
+              <button type="button" onClick={() => setIsInviteModalOpen(false)} className="mt-5 w-full py-3 bg-surface-2 rounded-none font-bold text-content-primary hover:bg-surface-2 transition-colors">Close</button>
             </div>
           </div>
         )}
@@ -1565,14 +1565,14 @@ function DashboardPage() {
         {profileSetupLink && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setProfileSetupLink(null)} />
-            <div className="relative w-full max-w-[560px] bg-white rounded-none border border-neutral-200 p-10 text-center shadow-xl animate-in zoom-in-95 duration-200">
-              <h3 className="text-xl font-bold mb-4 text-neutral-900">Profile Setup Link</h3>
-              <p className="text-neutral-500 mb-6 text-sm">Send this one-time link so the child can set their own PIN and avatar.</p>
-              <div className="flex items-center gap-2 bg-neutral-50 p-3 rounded-none mb-6 border border-neutral-200">
+            <div className="relative w-full max-w-[560px] bg-white rounded-none border border-stroke-base p-10 text-center shadow-xl animate-in zoom-in-95 duration-200">
+              <h3 className="text-xl font-bold mb-4 text-content-primary">Profile Setup Link</h3>
+              <p className="text-content-subtle mb-6 text-sm">Send this one-time link so the child can set their own PIN and avatar.</p>
+              <div className="flex items-center gap-2 bg-surface-app p-3 rounded-none mb-6 border border-stroke-base">
                 <code className="text-xs text-primary-600 flex-1 truncate font-mono">{profileSetupLink}</code>
-                <button type="button" onClick={() => { void navigator.clipboard.writeText(profileSetupLink); }} className="text-xs font-bold bg-white border border-neutral-200 px-3 py-1.5 rounded-none hover:bg-neutral-50 text-neutral-700 transition-colors shadow-sm">COPY</button>
+                <button type="button" onClick={() => { void navigator.clipboard.writeText(profileSetupLink); }} className="text-xs font-bold bg-white border border-stroke-base px-3 py-1.5 rounded-none hover:bg-surface-app text-content-primary transition-colors shadow-sm">COPY</button>
               </div>
-              <button type="button" onClick={() => setProfileSetupLink(null)} className="w-full py-3 bg-neutral-100 rounded-none font-bold text-neutral-700 hover:bg-neutral-200 transition-colors">Close</button>
+              <button type="button" onClick={() => setProfileSetupLink(null)} className="w-full py-3 bg-surface-2 rounded-none font-bold text-content-primary hover:bg-surface-2 transition-colors">Close</button>
             </div>
           </div>
         )}
@@ -1687,10 +1687,10 @@ function SetupProfileRoute() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-6 transition-colors duration-300">
-      <div className="w-full max-w-md rounded-none border border-neutral-200 bg-white p-6 shadow-xl relative overflow-hidden">
+    <div className="min-h-screen bg-surface-app flex items-center justify-center p-6 transition-colors duration-300">
+      <div className="w-full max-w-md rounded-none border border-stroke-base bg-white p-6 shadow-xl relative overflow-hidden">
         {/* Decorative background element */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
         {isLoading ? (
           <div className="flex items-center justify-center py-16 relative z-10">
@@ -1701,18 +1701,18 @@ function SetupProfileRoute() {
             <div className="w-16 h-16 rounded-none bg-emerald-100 flex items-center justify-center mx-auto mb-4 text-emerald-600">
               <Check className="w-8 h-8" />
             </div>
-            <h1 className="text-2xl font-bold text-neutral-900 font-heading">Setup Complete</h1>
-            <p className="mt-3 text-sm text-neutral-500">Your profile is ready. Use Child Sign In with your username and PIN on any device.</p>
+            <h1 className="text-2xl font-bold text-content-primary font-heading">Setup Complete</h1>
+            <p className="mt-3 text-sm text-content-subtle">Your profile is ready. Use Child Sign In with your username and PIN on any device.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
             <div className="text-center mb-6">
-              <h1 className="text-2xl font-bold text-neutral-900 font-heading">Set Up {profileName}</h1>
-              <p className="mt-2 text-sm text-neutral-500">Choose a username, avatar color, and create your 4-digit PIN.</p>
+              <h1 className="text-2xl font-bold text-content-primary font-heading">Set Up {profileName}</h1>
+              <p className="mt-2 text-sm text-content-subtle">Choose a username, avatar color, and create your 4-digit PIN.</p>
             </div>
 
             <div>
-              <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-neutral-500">Avatar Color</span>
+              <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-content-subtle">Avatar Color</span>
               <div className="flex gap-3 flex-wrap justify-center">
                 {colorOptions.map((color) => (
                   <button
@@ -1728,21 +1728,21 @@ function SetupProfileRoute() {
             </div>
 
             <div>
-              <label htmlFor="setup-username" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-neutral-500">Username</label>
+              <label htmlFor="setup-username" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-content-subtle">Username</label>
               <Input
                 id="setup-username"
                 type="text"
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
                 maxLength={24}
-                className="w-full px-4 py-3 rounded-none border border-neutral-200 bg-white text-neutral-black placeholder-neutral-400 focus:border-primary-gold focus:ring-2 focus:ring-primary-gold/10 transition-all font-sans"
+                className="w-full px-4 py-3 rounded-none border border-stroke-base bg-white text-content-primary placeholder-neutral-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/10 transition-all font-sans"
                 placeholder="emma_01"
                 aria-label="Setup Username"
               />
             </div>
 
             <div>
-              <label htmlFor="setup-pin" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-neutral-500">4-digit PIN</label>
+              <label htmlFor="setup-pin" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-content-subtle">4-digit PIN</label>
               <Input
                 id="setup-pin"
                 type="password"
@@ -1750,14 +1750,14 @@ function SetupProfileRoute() {
                 onChange={(event) => setPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
                 inputMode="numeric"
                 maxLength={4}
-                className="w-full px-4 py-3 rounded-none border border-neutral-200 bg-white text-neutral-black placeholder-neutral-400 focus:border-primary-gold focus:ring-2 focus:ring-primary-gold/10 transition-all font-mono tracking-widest text-center text-lg hidden-cursor"
+                className="w-full px-4 py-3 rounded-none border border-stroke-base bg-white text-content-primary placeholder-neutral-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/10 transition-all font-mono tracking-widest text-center text-lg hidden-cursor"
                 placeholder="0000"
                 aria-label="Setup PIN"
               />
             </div>
 
             <div>
-              <label htmlFor="setup-pin-confirm" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-neutral-500">Confirm PIN</label>
+              <label htmlFor="setup-pin-confirm" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-content-subtle">Confirm PIN</label>
               <Input
                 id="setup-pin-confirm"
                 type="password"
@@ -1765,7 +1765,7 @@ function SetupProfileRoute() {
                 onChange={(event) => setConfirmPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
                 inputMode="numeric"
                 maxLength={4}
-                className="w-full px-4 py-3 rounded-none border border-neutral-200 bg-white text-neutral-black placeholder-neutral-400 focus:border-primary-gold focus:ring-2 focus:ring-primary-gold/10 transition-all font-mono tracking-widest text-center text-lg hidden-cursor"
+                className="w-full px-4 py-3 rounded-none border border-stroke-base bg-white text-content-primary placeholder-neutral-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/10 transition-all font-mono tracking-widest text-center text-lg hidden-cursor"
                 placeholder="0000"
                 aria-label="Confirm setup PIN"
               />
@@ -1826,7 +1826,7 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
 
   if (!isResolved) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-neutral-900">
+      <div className="min-h-screen bg-surface-app flex items-center justify-center text-content-primary">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
       </div>
     );
@@ -1860,7 +1860,7 @@ function UnknownRouteHandler() {
 
   if (!isResolved) {
     return (
-      <div className="min-h-screen bg-neutral-50 flex items-center justify-center text-neutral-900">
+      <div className="min-h-screen bg-surface-app flex items-center justify-center text-content-primary">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
       </div>
     );

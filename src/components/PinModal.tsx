@@ -130,14 +130,14 @@ const PinModal: React.FC<PinModalProps> = ({
                 aria-modal="true"
             >
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-neutral-100 bg-neutral-50/50">
+                <div className="flex items-center justify-between p-4 border-b border-stroke-base bg-surface-app/50">
                     <div className="flex items-center gap-2 text-neutral-800">
-                        <Lock className="w-4 h-4 text-neutral-500" />
+                        <Lock className="w-4 h-4 text-content-subtle" />
                         <h2 className="font-bold text-sm uppercase tracking-wide">{title}</h2>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-1 rounded-full hover:bg-neutral-100 text-neutral-400 hover:text-neutral-600 transition-colors"
+                        className="p-1 rounded-full hover:bg-surface-2 text-content-subtle hover:text-neutral-600 transition-colors"
                         aria-label="Close"
                     >
                         <X className="w-5 h-5" />
@@ -147,10 +147,10 @@ const PinModal: React.FC<PinModalProps> = ({
                 {/* Body */}
                 <div className="p-8 flex flex-col items-center gap-8">
                     <div className="flex flex-col items-center gap-2">
-                        <div className="w-12 h-12 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-400 mb-2">
+                        <div className="w-12 h-12 rounded-full bg-surface-2 flex items-center justify-center text-content-subtle mb-2">
                             <GripHorizontal className="w-6 h-6" />
                         </div>
-                        <p className="text-neutral-500 text-sm text-center">
+                        <p className="text-content-subtle text-sm text-center">
                             Please enter your 4-digit security PIN to continue.
                         </p>
                     </div>
@@ -168,10 +168,10 @@ const PinModal: React.FC<PinModalProps> = ({
                                 onChange={(e) => handlePinChange(index, e.target.value)}
                                 onKeyDown={(e) => handleKeyDown(index, e)}
                                 aria-label={`Digit ${index + 1}`}
-                                className={`w-12 h-16 text-center text-2xl font-bold bg-neutral-50 border-2 rounded-lg transition-all outline-none focus:bg-white
+                                className={`w-12 h-16 text-center text-2xl font-bold bg-surface-app border-2 rounded-lg transition-all outline-none focus:bg-white
                     ${error
                                         ? 'border-red-300 text-red-600 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
-                                        : 'border-neutral-200 text-neutral-900 focus:border-neutral-900 focus:ring-4 focus:ring-neutral-900/5'
+                                        : 'border-stroke-base text-content-primary focus:border-neutral-900 focus:ring-4 focus:ring-neutral-900/5'
                                     }`}
                             />
                         ))}
@@ -185,8 +185,8 @@ const PinModal: React.FC<PinModalProps> = ({
                 </div>
 
                 {/* Footer */}
-                <div className="p-4 bg-neutral-50 border-t border-neutral-100 text-center">
-                    <p className="text-xs text-neutral-400">Forgot PIN? Reset it in Settings.</p>
+                <div className="p-4 bg-surface-app border-t border-stroke-base text-center">
+                    <p className="text-xs text-content-subtle">Forgot PIN? Reset it in Settings.</p>
                 </div>
             </div>
         </div>

@@ -14,12 +14,12 @@ export default function AdminSetupRail({ completedSteps, onStartAddChild }: Admi
     <section className="bg-white border border-neutral-lightGray p-6 md:p-8 relative overflow-hidden group rounded-none shadow-sm">
 
       {/* Background decoration - subtle brand accent */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-primary-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
       <div className="grid gap-8 lg:grid-cols-[2fr_1fr] relative z-10">
         <div>
-          <h2 className="text-2xl font-bold font-heading text-neutral-900 tracking-tight">Set up your first child in under 2 minutes</h2>
-          <p className="mt-2 text-[0.9375rem] text-neutral-500 leading-relaxed max-w-lg font-sans">
+          <h2 className="text-2xl font-bold font-heading text-content-primary tracking-tight">Set up your first child in under 2 minutes</h2>
+          <p className="mt-2 text-[0.9375rem] text-content-subtle leading-relaxed max-w-lg font-sans">
             Build your Family Economy foundation with a guided 3-step setup to unlock task tracking and financial management.
           </p>
 
@@ -37,18 +37,18 @@ export default function AdminSetupRail({ completedSteps, onStartAddChild }: Admi
                     ${isComplete
                       ? 'border-primary-success/30 bg-primary-success/5'
                       : isCurrent
-                        ? 'border-primary-gold ring-1 ring-primary-gold bg-white shadow-sm'
-                        : 'border-neutral-200 bg-neutral-50'
+                        ? 'border-amber-500 ring-1 ring-amber-500 bg-white shadow-sm'
+                        : 'border-stroke-base bg-surface-app'
                     }
                   `}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <p className={`text-[0.6875rem] font-bold uppercase tracking-wider font-sans ${isComplete ? 'text-primary-success' : isCurrent ? 'text-primary-cardinal' : 'text-neutral-darkGray'}`}>
+                    <p className={`text-[0.6875rem] font-bold uppercase tracking-wider font-sans ${isComplete ? 'text-primary-success' : isCurrent ? 'text-blue-500' : 'text-content-muted'}`}>
                       Step {stepNumber}
                     </p>
                     {isComplete && <Check className="w-3.5 h-3.5 text-primary-success" />}
                   </div>
-                  <p className={`text-sm font-semibold font-sans ${isComplete || isCurrent ? 'text-neutral-black' : 'text-neutral-darkGray'}`}>
+                  <p className={`text-sm font-semibold font-sans ${isComplete || isCurrent ? 'text-content-primary' : 'text-content-muted'}`}>
                     {stepLabel}
                   </p>
                 </div>
@@ -69,8 +69,8 @@ export default function AdminSetupRail({ completedSteps, onStartAddChild }: Admi
           </div>
         </div>
 
-        <aside className="border border-neutral-lightGray bg-neutral-50 p-6 self-start rounded-none">
-          <p className="text-xs font-bold uppercase tracking-wider text-neutral-darkGray mb-4 font-sans">What Unlocks Next</p>
+        <aside className="border border-neutral-lightGray bg-surface-app p-6 self-start rounded-none">
+          <p className="text-xs font-bold uppercase tracking-wider text-content-muted mb-4 font-sans">What Unlocks Next</p>
           <ul className="space-y-3">
             {[
               "Centralized ledger visibility",
@@ -78,7 +78,7 @@ export default function AdminSetupRail({ completedSteps, onStartAddChild }: Admi
               "Task assignment and approvals"
             ].map((item, i) => (
               <li key={i} className="flex items-start gap-3 text-[0.8125rem] text-neutral-600 font-medium font-sans">
-                <div className="w-1.5 h-1.5 rounded-full bg-primary-cardinal mt-1.5 shrink-0" />
+                <div className="w-1.5 h-1.5 rounded-full bg-brand mt-1.5 shrink-0" />
                 {item}
               </li>
             ))}

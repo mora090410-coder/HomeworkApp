@@ -96,34 +96,34 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
 
             <div className="fixed inset-0 flex items-center justify-center p-4">
-                <Dialog.Panel className="w-full max-w-md bg-white rounded-none border border-neutral-200 shadow-xl overflow-hidden p-6 animate-in zoom-in-95 duration-200">
+                <Dialog.Panel className="w-full max-w-md bg-white rounded-none border border-stroke-base shadow-xl overflow-hidden p-6 animate-in zoom-in-95 duration-200">
                     <div className="flex justify-between items-start mb-4">
-                        <Dialog.Title className="text-xl font-bold font-heading text-neutral-black">
+                        <Dialog.Title className="text-xl font-bold font-heading text-content-primary">
                             {title}
                         </Dialog.Title>
-                        <button onClick={onClose} className="text-neutral-400 hover:text-neutral-500">
+                        <button onClick={onClose} className="text-content-subtle hover:text-content-subtle">
                             <X className="w-5 h-5" />
                         </button>
                     </div>
 
-                    <p className="text-sm text-neutral-darkGray mb-6 font-sans">
+                    <p className="text-sm text-content-muted mb-6 font-sans">
                         {description}
                     </p>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-darkGray mb-1">
+                            <label className="block text-xs font-bold uppercase tracking-wider text-content-muted mb-1">
                                 Amount
                             </label>
                             <div className="relative">
-                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">$</span>
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-content-subtle">$</span>
                                 <input
                                     type="number"
                                     step="0.01"
                                     min="0.01"
                                     value={amountStr}
                                     onChange={(e) => setAmountStr(e.target.value)}
-                                    className="w-full pl-7 pr-3 py-2 border border-neutral-200 focus:border-primary-gold focus:ring-1 focus:ring-primary-gold outline-none transition-all font-sans"
+                                    className="w-full pl-7 pr-3 py-2 border border-stroke-base focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all font-sans"
                                     placeholder="0.00"
                                     autoFocus
                                 />
@@ -131,14 +131,14 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                         </div>
 
                         <div>
-                            <label className="block text-xs font-bold uppercase tracking-wider text-neutral-darkGray mb-1">
+                            <label className="block text-xs font-bold uppercase tracking-wider text-content-muted mb-1">
                                 Memo {isAdvance && <span className="text-red-500">*</span>}
                             </label>
                             <input
                                 type="text"
                                 value={memo}
                                 onChange={(e) => setMemo(e.target.value)}
-                                className="w-full px-3 py-2 border border-neutral-200 focus:border-primary-gold focus:ring-1 focus:ring-primary-gold outline-none transition-all font-sans"
+                                className="w-full px-3 py-2 border border-stroke-base focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all font-sans"
                                 placeholder={isAdvance ? "e.g. Movie Ticket" : "Optional note"}
                             />
                         </div>

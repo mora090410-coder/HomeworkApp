@@ -18,7 +18,7 @@ const ProfileSelectionScreen: React.FC<ProfileSelectionScreenProps> = ({
     onSignOut
 }) => {
     return (
-        <div className="min-h-screen bg-neutral-50 flex flex-col items-center justify-center p-4 animate-in fade-in duration-500">
+        <div className="min-h-screen bg-surface-app flex flex-col items-center justify-center p-4 animate-in fade-in duration-500">
             <div className="w-full max-w-4xl flex flex-col items-center gap-12">
 
                 {/* Header */}
@@ -26,15 +26,15 @@ const ProfileSelectionScreen: React.FC<ProfileSelectionScreenProps> = ({
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-neutral-900 text-white shadow-xl mb-4">
                         <span className="font-heading font-black text-3xl tracking-tighter">HW</span>
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-heading font-black text-neutral-900 tracking-tight">
+                    <h1 className="text-4xl md:text-5xl font-heading font-black text-content-primary tracking-tight">
                         Who's working?
                     </h1>
-                    <p className="text-neutral-500 text-lg font-medium">Select your profile to continue</p>
+                    <p className="text-content-subtle text-lg font-medium">Select your profile to continue</p>
                 </div>
 
                 {isLoading ? (
                     <div className="flex justify-center py-12">
-                        <div className="w-8 h-8 border-4 border-neutral-200 border-t-neutral-900 rounded-full animate-spin"></div>
+                        <div className="w-8 h-8 border-4 border-stroke-base border-t-neutral-900 rounded-full animate-spin"></div>
                     </div>
                 ) : (
                     /* Grid */
@@ -66,7 +66,7 @@ const ProfileSelectionScreen: React.FC<ProfileSelectionScreenProps> = ({
                                             </div>
                                         )}
                                     </div>
-                                    <span className="text-xl font-bold text-neutral-700 group-hover:text-neutral-900">{name}</span>
+                                    <span className="text-xl font-bold text-content-primary group-hover:text-content-primary">{name}</span>
                                 </button>
                             );
                         })}
@@ -77,10 +77,10 @@ const ProfileSelectionScreen: React.FC<ProfileSelectionScreenProps> = ({
                                 onClick={onManageProfiles}
                                 className="group flex flex-col items-center gap-4 transition-transform hover:scale-105 focus:outline-none opacity-60 hover:opacity-100"
                             >
-                                <div className="w-32 h-32 rounded-3xl bg-neutral-100 border-2 border-dashed border-neutral-300 flex items-center justify-center text-neutral-400 group-hover:border-neutral-400 group-hover:text-neutral-600 transition-colors">
+                                <div className="w-32 h-32 rounded-3xl bg-surface-2 border-2 border-dashed border-stroke-base flex items-center justify-center text-content-subtle group-hover:border-neutral-400 group-hover:text-neutral-600 transition-colors">
                                     <Plus className="w-10 h-10" />
                                 </div>
-                                <span className="text-xl font-bold text-neutral-500 group-hover:text-neutral-700">Add Profile</span>
+                                <span className="text-xl font-bold text-content-subtle group-hover:text-content-primary">Add Profile</span>
                             </button>
                         )}
                     </div>
@@ -90,7 +90,7 @@ const ProfileSelectionScreen: React.FC<ProfileSelectionScreenProps> = ({
                 <div className="mt-12">
                     <button
                         onClick={onSignOut}
-                        className="flex items-center gap-2 text-neutral-400 hover:text-neutral-600 font-bold uppercase tracking-wider text-xs transition-colors px-6 py-3 rounded-full hover:bg-neutral-100"
+                        className="flex items-center gap-2 text-content-subtle hover:text-neutral-600 font-bold uppercase tracking-wider text-xs transition-colors px-6 py-3 rounded-full hover:bg-surface-2"
                     >
                         <LogOut className="w-4 h-4" />
                         Sign Out of Household

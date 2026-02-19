@@ -100,18 +100,18 @@ const CatalogManagerModal: React.FC<CatalogManagerModalProps> = ({
                 onClick={onClose}
             />
 
-            <div className="relative w-full max-w-[600px] bg-white rounded-none shadow-2xl flex flex-col max-h-[85vh] border border-neutral-200 animate-in zoom-in-95 duration-300">
+            <div className="relative w-full max-w-[600px] bg-white rounded-none shadow-2xl flex flex-col max-h-[85vh] border border-stroke-base animate-in zoom-in-95 duration-300">
                 {/* Header */}
-                <div className="flex items-center justify-between px-8 py-6 border-b border-neutral-200 shrink-0">
+                <div className="flex items-center justify-between px-8 py-6 border-b border-stroke-base shrink-0">
                     <div>
-                        <h2 className="text-2xl font-bold font-heading text-neutral-black">Chore Catalog</h2>
-                        <p className="text-sm text-neutral-500 mt-0.5">
+                        <h2 className="text-2xl font-bold font-heading text-content-primary">Chore Catalog</h2>
+                        <p className="text-sm text-content-subtle mt-0.5">
                             {items.length} {items.length === 1 ? 'item' : 'items'} — click the pencil to edit
                         </p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-full hover:bg-neutral-100 text-neutral-500 transition-colors"
+                        className="p-2 rounded-full hover:bg-surface-2 text-content-subtle transition-colors"
                         aria-label="Close catalog manager"
                     >
                         <X className="w-5 h-5" />
@@ -121,7 +121,7 @@ const CatalogManagerModal: React.FC<CatalogManagerModalProps> = ({
                 {/* List */}
                 <div className="overflow-y-auto flex-1 divide-y divide-neutral-100">
                     {items.length === 0 ? (
-                        <div className="py-16 text-center text-neutral-400 text-sm">
+                        <div className="py-16 text-center text-content-subtle text-sm">
                             No catalog items yet. Save a task to the catalog when assigning.
                         </div>
                     ) : (
@@ -135,7 +135,7 @@ const CatalogManagerModal: React.FC<CatalogManagerModalProps> = ({
                                         className="flex items-center gap-3 px-8 py-4 bg-red-50 animate-in fade-in duration-150"
                                     >
                                         <AlertTriangle className="w-4 h-4 text-semantic-destructive shrink-0" />
-                                        <span className="text-sm font-medium text-neutral-black flex-1">
+                                        <span className="text-sm font-medium text-content-primary flex-1">
                                             Delete <strong>{item.name}</strong>? This cannot be undone.
                                         </span>
                                         <Button
@@ -160,13 +160,13 @@ const CatalogManagerModal: React.FC<CatalogManagerModalProps> = ({
                                 return (
                                     <div
                                         key={item.id}
-                                        className="flex items-center gap-3 px-8 py-3 bg-neutral-50 animate-in fade-in duration-150"
+                                        className="flex items-center gap-3 px-8 py-3 bg-surface-app animate-in fade-in duration-150"
                                     >
                                         <input
                                             type="text"
                                             value={row.name}
                                             onChange={(e) => setRow(item.id, { name: e.target.value })}
-                                            className="flex-1 px-3 py-2 border border-primary-gold/70 rounded-none text-sm font-medium text-neutral-black bg-white outline-none focus:ring-2 focus:ring-primary-gold/20"
+                                            className="flex-1 px-3 py-2 border border-amber-500/70 rounded-none text-sm font-medium text-content-primary bg-white outline-none focus:ring-2 focus:ring-amber-500/20"
                                             autoFocus
                                             aria-label="Edit catalog item name"
                                             onKeyDown={(e) => { if (e.key === 'Enter') handleSave(item); if (e.key === 'Escape') handleCancelEdit(item); }}
@@ -178,10 +178,10 @@ const CatalogManagerModal: React.FC<CatalogManagerModalProps> = ({
                                                 max="240"
                                                 value={row.baselineMinutes}
                                                 onChange={(e) => setRow(item.id, { baselineMinutes: Number.parseInt(e.target.value, 10) || 0 })}
-                                                className="w-16 px-2 py-2 border border-primary-gold/70 rounded-none text-sm text-center text-neutral-black bg-white outline-none focus:ring-2 focus:ring-primary-gold/20"
+                                                className="w-16 px-2 py-2 border border-amber-500/70 rounded-none text-sm text-center text-content-primary bg-white outline-none focus:ring-2 focus:ring-amber-500/20"
                                                 aria-label="Edit baseline minutes"
                                             />
-                                            <span className="text-xs text-neutral-500 ml-1">min</span>
+                                            <span className="text-xs text-content-subtle ml-1">min</span>
                                         </div>
                                         <Button
                                             variant="primary"
@@ -207,26 +207,26 @@ const CatalogManagerModal: React.FC<CatalogManagerModalProps> = ({
                             return (
                                 <div
                                     key={item.id}
-                                    className="flex items-center gap-3 px-8 py-3.5 hover:bg-neutral-50 transition-colors group"
+                                    className="flex items-center gap-3 px-8 py-3.5 hover:bg-surface-app transition-colors group"
                                 >
                                     <div className="flex-1 min-w-0">
-                                        <span className="text-sm font-semibold text-neutral-black truncate block">
+                                        <span className="text-sm font-semibold text-content-primary truncate block">
                                             {item.name}
                                         </span>
                                     </div>
-                                    <span className="text-xs font-medium text-neutral-500 shrink-0 bg-neutral-100 px-2 py-0.5 rounded-none">
+                                    <span className="text-xs font-medium text-content-subtle shrink-0 bg-surface-2 px-2 py-0.5 rounded-none">
                                         {item.baselineMinutes} min
                                     </span>
                                     <button
                                         onClick={() => handleEdit(item)}
-                                        className="p-1.5 rounded-none text-neutral-400 hover:text-primary-cardinal hover:bg-neutral-100 transition-colors opacity-0 group-hover:opacity-100"
+                                        className="p-1.5 rounded-none text-content-subtle hover:text-blue-500 hover:bg-surface-2 transition-colors opacity-0 group-hover:opacity-100"
                                         aria-label={`Edit ${item.name}`}
                                     >
                                         <Pencil className="w-4 h-4" />
                                     </button>
                                     <button
                                         onClick={() => handleDeleteRequest(item.id)}
-                                        className="p-1.5 rounded-none text-neutral-400 hover:text-semantic-destructive hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
+                                        className="p-1.5 rounded-none text-content-subtle hover:text-semantic-destructive hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
                                         aria-label={`Delete ${item.name}`}
                                     >
                                         <Trash2 className="w-4 h-4" />
@@ -238,7 +238,7 @@ const CatalogManagerModal: React.FC<CatalogManagerModalProps> = ({
                 </div>
 
                 {/* Footer */}
-                <div className="px-8 py-4 border-t border-neutral-200 shrink-0">
+                <div className="px-8 py-4 border-t border-stroke-base shrink-0">
                     <Button variant="secondary" onClick={onClose} className="w-full">
                         Done
                     </Button>

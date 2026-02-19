@@ -14,8 +14,8 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
 
         const variantClasses =
             variant === 'default'
-                ? `bg-white border border-neutral-200 shadow-sm`
-                : `bg-neutral-50 border border-neutral-200`;
+                ? `bg-white border border-stroke-base shadow-sm`
+                : `bg-surface-app border border-stroke-base`;
 
         return (
             <div

@@ -74,12 +74,12 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-[520px] bg-white rounded-none shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300 border border-neutral-200">
+      <div className="relative w-full max-w-[520px] bg-white rounded-none shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300 border border-stroke-base">
 
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 rounded-full hover:bg-neutral-50 text-neutral-500 transition-colors z-20"
+          className="absolute top-6 right-6 p-2 rounded-full hover:bg-surface-app text-content-subtle transition-colors z-20"
         >
           <X className="w-5 h-5" />
         </button>
@@ -88,10 +88,10 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
 
           {/* Header */}
           <div className="mb-8 text-center md:text-left">
-            <h2 className="text-3xl font-bold font-heading text-neutral-black mb-2 leading-tight">
+            <h2 className="text-3xl font-bold font-heading text-content-primary mb-2 leading-tight">
               Record Advance
             </h2>
-            <p className="text-base text-neutral-500">
+            <p className="text-base text-content-subtle">
               Track upfront spending or debts
             </p>
           </div>
@@ -100,7 +100,7 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
 
             {/* Child Selection */}
             <div>
-              <label className="block text-sm font-bold text-neutral-500 uppercase tracking-wider mb-3 ml-1">Child Account</label>
+              <label className="block text-sm font-bold text-content-subtle uppercase tracking-wider mb-3 ml-1">Child Account</label>
               <Select
                 value={childId}
                 onChange={(e) => setChildId(e.target.value)}
@@ -115,9 +115,9 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
             {/* Amount & Category */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-bold text-neutral-500 uppercase tracking-wider mb-3 ml-1">Amount</label>
+                <label className="block text-sm font-bold text-content-subtle uppercase tracking-wider mb-3 ml-1">Amount</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 font-bold text-lg">$</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-content-subtle font-bold text-lg">$</span>
                   <Input
                     type="number"
                     step="0.01"
@@ -130,7 +130,7 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-neutral-500 uppercase tracking-wider mb-3 ml-1">Category</label>
+                <label className="block text-sm font-bold text-content-subtle uppercase tracking-wider mb-3 ml-1">Category</label>
                 <Select
                   value={category}
                   onChange={(e) => setCategory(e.target.value as AdvanceCategory)}
@@ -145,7 +145,7 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
 
             {/* Memo */}
             <div>
-              <label className="block text-sm font-bold text-neutral-500 uppercase tracking-wider mb-3 ml-1">Memo</label>
+              <label className="block text-sm font-bold text-content-subtle uppercase tracking-wider mb-3 ml-1">Memo</label>
               <Input
                 type="text"
                 value={memo}
