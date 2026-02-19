@@ -57,34 +57,34 @@ export default function LandingPage() {
                 <main className="flex flex-col items-center text-center">
 
                     {/* ═══════════════ HERO ═══════════════ */}
-                    <div className="flex flex-col items-center max-w-[900px] w-full px-4 animate-fade-in-up">
+                    <div className="flex flex-col items-center max-w-[900px] w-full px-4 animate-fade-in-up space-y-16 py-12">
 
                         {/* Logo Image Container with Glow */}
-                        <div className="relative mb-12 flex justify-center luminary-glow">
+                        <div className="relative flex justify-center luminary-glow">
                             <img
                                 src="/images/homework-icon-transparent.png"
                                 alt="HomeWork Icon"
-                                className="w-48 h-48 md:w-56 md:h-56 relative z-10 drop-shadow-2xl"
+                                className="w-64 h-64 md:w-80 md:h-80 relative z-10 drop-shadow-2xl"
                             />
                         </div>
 
                         {/* H1 */}
-                        <h1 className="text-6xl md:text-8xl font-extrabold text-brand tracking-tighter mb-8 leading-[1.1] font-['SF_Pro_Display',-apple-system,sans-serif]">
+                        <h1 className="text-7xl font-bold text-obsidian tracking-tighter leading-[1.1] font-['SF_Pro_Display',-apple-system,sans-serif]">
                             The Family Economy.<br />
                             Redefined.
                         </h1>
 
                         {/* Subtitle */}
-                        <p className="text-xl md:text-2xl leading-relaxed text-[#6B7280] max-w-[760px] font-light">
+                        <p className="text-xl text-neutral-text leading-loose max-w-[760px] font-light">
                             HomeWork is the definitive system for teaching children the value of time and the weight of a dollar. It transforms daily responsibilities into personal capital, providing the structure every modern home requires.
                         </p>
 
                         {/* CTA Buttons */}
-                        <div className="flex flex-col items-center gap-6 w-full justify-center mt-12">
-                            <Link to="/signup" className="tactile-button h-16 px-12 text-xl flex items-center justify-center gap-3 hover:shadow-amber-500/20 hover:-translate-y-1 transform transition-all duration-300">
+                        <div className="flex flex-col items-center gap-8 w-full justify-center">
+                            <Link to="/signup" className="tactile-button h-16 px-12 text-xl flex items-center justify-center gap-3 hover:scale-105 transform transition-all duration-300">
                                 Get Started
                             </Link>
-                            <Link to="/login" className="text-catalyst-blue hover:underline font-medium">
+                            <Link to="/login" className="text-catalyst-blue font-semibold hover:opacity-80 transition-colors border-none bg-transparent">
                                 Sign In
                             </Link>
                         </div>
