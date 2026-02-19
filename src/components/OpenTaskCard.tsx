@@ -75,11 +75,11 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
   }, [task.createdAt]);
 
   return (
-    <div className={`flex flex-col p-6 bg-white border ${isBounty ? 'border-amber-200 ring-2 ring-amber-100 ring-opacity-50' : 'border-neutral-200'} shadow-sm relative overflow-visible transition-all hover:shadow-md`}>
+    <div className={`flex flex-col p-6 bg-white/40 backdrop-blur-xl border-white/50 shadow-sm relative overflow-visible transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 ${isBounty ? 'ring-2 ring-amber-100/50' : ''}`}>
       {isBounty && (
         <div className="absolute top-0 right-0 z-10">
-          <div className="bg-amber-100 text-amber-800 text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1 shadow-sm border-l border-b border-amber-200">
-            High Priority Bounty
+          <div className="bg-amber-100/80 backdrop-blur-md text-amber-900 text-[8px] font-black uppercase tracking-[0.3em] px-4 py-1.5 shadow-sm border-l border-b border-amber-200/50 rounded-bl-xl">
+            Priority Bounty
           </div>
         </div>
       )}
@@ -91,8 +91,9 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
           </span>
           <div>
             <h3 className="text-lg font-heading font-bold text-neutral-900 leading-tight">{task.name}</h3>
-            <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mt-0.5">
-              {task.baselineMinutes} min baseline
+            <p className="text-[9px] font-black text-neutral-400 uppercase tracking-[0.2em] mt-1.5 flex items-center gap-1.5 font-mono">
+              <Clock className="w-3 h-3 opacity-40" />
+              {task.baselineMinutes} MIN BASELINE
             </p>
           </div>
         </div>
@@ -178,9 +179,10 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
         </div>
 
         <div className="flex flex-col items-end">
-          <span className="text-[0.625rem] font-bold text-neutral-400 uppercase tracking-widest mb-0.5">BOUNTY</span>
-          <span className={`px-3 py-1 rounded-none text-sm font-black uppercase tracking-widest ${isBounty ? 'bg-amber-100 text-amber-800' : 'bg-emerald-700 text-white shadow-sm'}`}>
-            {task.valueCents ? formatCurrency(centsToDollars(task.valueCents)) : 'Available'}
+          <span className="text-[9px] font-black text-neutral-400 uppercase tracking-[0.2em] mb-1.5">Value</span>
+          <span className={`px-4 py-2 rounded-xl text-sm font-mono font-bold tracking-tighter shadow-sm ${isBounty ? 'bg-amber-100/50 text-amber-900 border border-amber-200/50' : 'bg-neutral-900 text-white'}`}>
+            <span className="text-[10px] opacity-40 mr-0.5">$</span>
+            {task.valueCents ? (task.valueCents / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
           </span>
         </div>
       </div>

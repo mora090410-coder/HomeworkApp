@@ -1135,14 +1135,31 @@ function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50 text-neutral-900 relative pb-12 font-sans">
+    <div className="min-h-screen bg-white text-neutral-900 relative pb-12 font-sans overflow-hidden">
+      {/* 1. Atmospheric Background Gradient (Ive Lens) */}
+      <div
+        className="absolute top-0 left-0 w-full h-[500px] pointer-events-none opacity-40"
+        style={{
+          background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #ffffff 100%)'
+        }}
+      />
+      <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full blur-[120px] opacity-[0.03] pointer-events-none bg-primary-600" />
+
       <div className="relative z-10 max-w-[1400px] mx-auto p-6 md:p-8">
         <header className="flex justify-between items-center mb-10">
           <div className="flex items-center gap-6">
             <span className="text-2xl font-bold font-heading track-tight text-primary-cardinal">HomeWork</span>
-            <div className="hidden md:flex flex-col">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-0.5">Household Net Worth</span>
-              <span className="text-xl font-bold font-heading text-emerald-700">{formatCurrency(centsToDollars(totalHouseholdNetWorth))}</span>
+            <div className="hidden md:flex flex-col relative group">
+              {/* Glassmorphism Container for Net Worth */}
+              <div className="absolute inset-0 bg-white/40 backdrop-blur-md rounded-2xl -m-3 border border-white/50 shadow-sm transition-all duration-300 group-hover:shadow-md" />
+
+              <div className="relative">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 mb-1 block">Household Net Worth</span>
+                <span className="text-2xl font-mono font-bold tracking-tighter text-neutral-900">
+                  <span className="text-lg opacity-30 mr-0.5">$</span>
+                  {centsToDollars(totalHouseholdNetWorth).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-4">

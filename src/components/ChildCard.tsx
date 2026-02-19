@@ -124,10 +124,10 @@ const ChildCard: React.FC<ChildCardProps> = ({
   return (
     <div className="flex flex-col gap-3 font-sans w-full">
       <Card
-        className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:bg-neutral-50 cursor-pointer bg-white border-neutral-200"
+        className="group relative overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 bg-white/40 backdrop-blur-xl border-white/50 shadow-sm"
         noPadding
         style={{
-          borderTop: `6px solid ${child.avatarColor || '#E2E8F0'}`,
+          borderTop: `4px solid ${child.avatarColor || '#E2E8F0'}`,
         }}
         onClick={() => onClick?.(child)}
       >
@@ -136,7 +136,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
             <div className="flex items-center gap-4">
               {/* AVATAR */}
               <div
-                className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold text-white shadow-inner"
+                className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold text-white shadow-xl ring-4 ring-white/50"
                 style={{ backgroundColor: child.avatarColor || '#94A3B8' }}
               >
                 {child.name.charAt(0)}
@@ -144,17 +144,18 @@ const ChildCard: React.FC<ChildCardProps> = ({
 
               {/* NAME & META */}
               <div>
-                <h2 className="text-xl font-heading font-black text-neutral-900 tracking-tight leading-none mb-1.5">{child.name}</h2>
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+                <h2 className="text-xl font-heading font-black text-neutral-900 tracking-tight leading-none mb-2 capitalize">{child.name}</h2>
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-neutral-400">
                     <span>{child.gradeLevel}</span>
                     <span className="w-0.5 h-0.5 rounded-full bg-neutral-300" />
                     <span className={setupStatus === 'SETUP_COMPLETE' ? 'text-emerald-600' : 'text-primary-cardinal'}>
                       {setupLabel}
                     </span>
                   </div>
-                  <div className="text-xs font-bold text-neutral-500">
-                    Rate: {formatCurrency(hourlyRate)}/hr
+                  <div className="text-[11px] font-mono font-bold text-neutral-500 flex items-center gap-1">
+                    <span className="opacity-40 whitespace-nowrap">RATE:</span>
+                    <span>{formatCurrency(hourlyRate)}/hr</span>
                   </div>
                 </div>
               </div>
@@ -162,21 +163,23 @@ const ChildCard: React.FC<ChildCardProps> = ({
 
             {/* BANK BALANCE */}
             <div className="text-right">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 block mb-0.5">Bank Balance</span>
-              <span className={`text-2xl font-heading font-black tracking-tight ${balanceColorClass}`}>
-                {formatCurrency(currentBalance)}
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-neutral-400 block mb-1">Bank Balance</span>
+              <span className={`text-2xl font-mono font-bold tracking-tighter ${balanceColorClass}`}>
+                <span className="text-sm opacity-30 mr-0.5">$</span>
+                {Math.abs(currentBalance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {isNegativeBalance && <span className="ml-1 opacity-50">-</span>}
               </span>
             </div>
           </div>
 
           {/* REVIEW BADGE (Conditional) */}
           {awaitingApproval.length > 0 && (
-            <div className="mb-6 flex items-center gap-3 px-4 py-3 bg-primary-cardinal/5 border border-primary-cardinal/10 rounded-sm animate-in fade-in slide-in-from-top-1">
-              <div className="relative flex h-3 w-3">
+            <div className="mb-6 flex items-center gap-3 px-4 py-3 bg-white/60 backdrop-blur-md border border-primary-cardinal/10 rounded-xl shadow-sm animate-in fade-in slide-in-from-top-1">
+              <div className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-cardinal opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-primary-cardinal"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary-cardinal"></span>
               </div>
-              <span className="text-sm font-bold text-primary-cardinal">
+              <span className="text-xs font-black uppercase tracking-[0.1em] text-primary-cardinal">
                 {awaitingApproval.length} {awaitingApproval.length === 1 ? 'Task' : 'Tasks'} to Review
               </span>
             </div>
@@ -202,7 +205,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
                 e.stopPropagation();
                 onAssignTask(child);
               }}
-              className="flex-1 h-10 shadow-sm text-xs uppercase tracking-wider font-bold rounded-sm bg-neutral-900 text-white hover:bg-neutral-800"
+              className="flex-1 h-12 shadow-md text-[10px] font-black uppercase tracking-[0.2em] rounded-xl bg-neutral-900 text-white hover:bg-neutral-800 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               <Plus className="w-4 h-4 mr-2" />
               Assign Task
