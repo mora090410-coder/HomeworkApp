@@ -12,8 +12,8 @@ import { Link } from 'react-router-dom';
  */
 const PillarCard: React.FC<{ title: string; body: string; delay?: string }> = ({ title, body, delay = '' }) => (
     <div className={`flex flex-col p-10 glass-card border-0 text-center items-center justify-center transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl ${delay}`}>
-        <h3 className="text-2xl font-bold font-heading text-obsidian mb-4">{title}</h3>
-        <p className="text-lg leading-relaxed text-neutral-text">{body}</p>
+        <h3 className="text-2xl font-bold font-heading text-brand mb-4">{title}</h3>
+        <p className="text-lg leading-relaxed text-brand-text">{body}</p>
     </div>
 );
 
@@ -42,7 +42,7 @@ const pillarCards = [
 
 export default function LandingPage() {
     return (
-        <div className="relative min-h-screen w-full overflow-hidden bg-white font-sans text-obsidian selection:bg-amber-500/30">
+        <div className="relative min-h-screen w-full overflow-hidden bg-white font-sans text-brand selection:bg-amber-500/30">
             {/* ── Minimal Header ── */}
             <header className="absolute top-0 w-full z-50">
                 <div className="max-w-[1240px] mx-auto px-6 sm:px-10 h-24 flex items-center justify-end">
@@ -59,27 +59,14 @@ export default function LandingPage() {
                     {/* ═══════════════ HERO ═══════════════ */}
                     <div className="flex flex-col items-center max-w-[900px] mt-24 mb-16 px-4 animate-fade-in-up">
 
-                        {/* House-Graph Logo */}
-                        <div className="mb-16 flex justify-center w-full relative">
-                            {/* Glow layer */}
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[240px] h-[120px] sm:w-[320px] sm:h-[160px] blur-[70px] opacity-75 bg-gradient-to-tr from-blue-500 to-amber-500 rounded-full pointer-events-none" />
-
-                            {/* Logo Image */}
-                            <img
-                                src="/images/logoexample.png"
-                                alt="HomeWork Logo"
-                                className="w-32 h-32 sm:w-40 sm:h-40 relative z-10 drop-shadow-2xl rounded-[32px]"
-                            />
-                        </div>
-
                         {/* H1 */}
-                        <h1 className="text-7xl font-bold text-obsidian tracking-tight mb-8 leading-[1.1] font-['SF_Pro_Display',-apple-system,sans-serif]">
+                        <h1 className="text-7xl font-bold text-brand tracking-tight mb-8 leading-[1.1] font-['SF_Pro_Display',-apple-system,sans-serif]">
                             The Family Economy.<br />
                             Redefined.
                         </h1>
 
                         {/* Subtitle */}
-                        <p className="text-2xl leading-relaxed text-neutral-text max-w-[760px] mb-16 font-medium">
+                        <p className="text-2xl leading-relaxed text-brand-text max-w-[760px] mb-16 font-medium">
                             HomeWork is the definitive system for teaching children the value of time and the weight of a dollar. It transforms daily responsibilities into personal capital, providing the structure every modern home requires.
                         </p>
 
