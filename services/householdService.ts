@@ -1279,7 +1279,7 @@ export const householdService = {
   async createTask(
     householdId: string,
     task: Task,
-    options?: { saveToCatalog?: boolean; catalogItemId?: string | null },
+    options?: { saveToCatalog?: boolean; catalogItemId?: string | null; isRecurring?: boolean },
   ): Promise<Task> {
     try {
       const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
@@ -1312,6 +1312,8 @@ export const householdService = {
               ? task.catalogItemId
               : null,
         valueCents: typeof task.valueCents === 'number' ? task.valueCents : null,
+        isRecurring: task.isRecurring || false,
+        multiplier: typeof task.multiplier === 'number' ? task.multiplier : 1.0,
       };
 
       await setDoc(taskRef, {
@@ -1334,6 +1336,7 @@ export const householdService = {
             householdId: safeHouseholdId,
             name: safeTaskName,
             baselineMinutes: firestoreTask.baselineMinutes,
+            isRecurring: options?.isRecurring || false,
             updatedAt: serverTimestamp(),
             createdAt: serverTimestamp(),
           },

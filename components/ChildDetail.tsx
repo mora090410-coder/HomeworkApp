@@ -250,6 +250,31 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                   </span>
                 )}
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full mt-4 text-xs font-bold border-neutral-200 hover:bg-neutral-50"
+                onClick={() => {
+                  const amountStr = prompt("How much do you need? (e.g. 5.00)");
+                  if (!amountStr) return;
+                  const amount = parseFloat(amountStr);
+                  if (!amount || isNaN(amount) || amount <= 0) return;
+
+                  const withdrawalTask: Task = {
+                    id: '',
+                    householdId: child.householdId,
+                    name: 'Withdrawal Request',
+                    baselineMinutes: 0,
+                    status: 'PENDING_WITHDRAWAL',
+                    assigneeId: child.id,
+                    valueCents: -Math.round(amount * 100),
+                    createdAt: new Date().toISOString()
+                  };
+                  onSubmitTask(child.id, withdrawalTask);
+                }}
+              >
+                Request Funds
+              </Button>
             </div>
           </div>
 
@@ -352,8 +377,13 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                       <span className="text-2xl">{getTaskIcon(task.name)}</span>
                       <h5 className="text-xl font-bold font-heading text-neutral-black">{task.name}</h5>
                     </div>
-                    <span className="text-2xl font-bold text-primary-cardinal font-heading">
+                    <span className="text-2xl font-bold text-primary-cardinal font-heading flex flex-col items-end">
                       {getTaskDisplayValue(task)}
+                      {(task.multiplier || 1) > 1 && (
+                        <span className="text-[10px] bg-primary-gold text-white px-1.5 py-0.5 rounded-none uppercase tracking-widest font-black animate-pulse">
+                          {(task.multiplier || 1)}x Boost
+                        </span>
+                      )}
                     </span>
                   </div>
                   <p className="text-sm text-neutral-darkGray mb-6 font-medium font-sans">
@@ -387,8 +417,13 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                       <span className="text-2xl">{getTaskIcon(task.name)}</span>
                       <h5 className="text-xl font-bold font-heading text-neutral-black">{task.name}</h5>
                     </div>
-                    <span className="text-2xl font-bold text-primary-cardinal font-heading">
+                    <span className="text-2xl font-bold text-primary-cardinal font-heading flex flex-col items-end">
                       {getTaskDisplayValue(task)}
+                      {(task.multiplier || 1) > 1 && (
+                        <span className="text-[10px] bg-primary-gold text-white px-1.5 py-0.5 rounded-none uppercase tracking-widest font-black animate-pulse">
+                          {(task.multiplier || 1)}x Boost
+                        </span>
+                      )}
                     </span>
                   </div>
                   <p className="text-sm text-neutral-darkGray mb-6 font-sans">Baseline: {task.baselineMinutes} mins</p>
@@ -511,36 +546,38 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
       </div>
 
       {/* Completion Confirmation Modal */}
-      {taskToComplete && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-neutral-black/50 backdrop-blur-sm" onClick={() => setTaskToComplete(null)} />
-          <div className="relative w-full max-w-sm bg-white rounded-none border border-neutral-200 p-8 text-center animate-in zoom-in-95 duration-200 shadow-xl">
-            <div className="mx-auto w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center text-neutral-400 mb-3">
-              <Check className="w-6 h-6" />
-            </div>
-            <h3 className="text-xl font-bold font-heading text-neutral-black mb-2">{taskToComplete.name}</h3>
-            <p className="text-neutral-darkGray mb-6 text-sm font-sans">
-              Submit for parent approval to earn <span className="text-emerald-700 font-bold">{getTaskDisplayValue(taskToComplete)}</span>.
-            </p>
-            <div className="flex gap-3">
-              <Button
-                onClick={() => setTaskToComplete(null)}
-                variant="ghost"
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleConfirmCompletion}
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm border-none"
-              >
-                Complete
-              </Button>
+      {
+        taskToComplete && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-neutral-black/50 backdrop-blur-sm" onClick={() => setTaskToComplete(null)} />
+            <div className="relative w-full max-w-sm bg-white rounded-none border border-neutral-200 p-8 text-center animate-in zoom-in-95 duration-200 shadow-xl">
+              <div className="mx-auto w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center text-neutral-400 mb-3">
+                <Check className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold font-heading text-neutral-black mb-2">{taskToComplete.name}</h3>
+              <p className="text-neutral-darkGray mb-6 text-sm font-sans">
+                Submit for parent approval to earn <span className="text-emerald-700 font-bold">{getTaskDisplayValue(taskToComplete)}</span>.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  onClick={() => setTaskToComplete(null)}
+                  variant="ghost"
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleConfirmCompletion}
+                  className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm border-none"
+                >
+                  Complete
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 };
 

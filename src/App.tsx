@@ -520,6 +520,14 @@ function DashboardPage() {
     return () => unsubscribe();
   }, [householdId]);
 
+  // Family Bank: Spawn daily recurring tasks
+  React.useEffect(() => {
+    if (householdId && familyAuth.profiles.length > 0) {
+      const children = familyAuth.profiles.filter(p => p.role === 'CHILD') as Child[];
+      householdService.spawnDailyRecurringTasks(householdId, children).catch(err => console.error("Failed to spawn recurring tasks", err));
+    }
+  }, [householdId, familyAuth.profiles]);
+
   const { data: gradeConfigs = [] } = useQuery<GradeConfig[]>({
     queryKey: ['gradeConfigs', householdId],
     queryFn: () => (householdId ? householdService.getGradeConfigs(householdId) : Promise.resolve([])),

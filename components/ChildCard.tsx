@@ -12,6 +12,7 @@ import {
   getTaskIcon,
   getTransactionAmountCents,
   mapTask,
+  parseTaskStatus,
 } from '@/utils';
 import {
   Settings,
@@ -28,7 +29,8 @@ import {
   DollarSign,
   Check,
   X,
-  RotateCcw
+  RotateCcw,
+  Coins
 } from 'lucide-react';
 import { Button } from '@/src/components/ui/Button';
 import { Card } from '@/src/components/ui/Card';
@@ -166,10 +168,17 @@ const ChildCard: React.FC<ChildCardProps> = ({
   const allTasks = Array.from(taskMap.values()).filter(t => t.status !== 'DELETED');
 
   const awaitingApproval = allTasks.filter(t => t.status === 'PENDING_APPROVAL');
+  const withdrawalRequests = allTasks.filter(t => t.status === 'PENDING_WITHDRAWAL');
   const readyToPay = allTasks.filter(t => t.status === 'PENDING_PAYMENT');
   const inProgress = allTasks.filter(t => t.status === 'ASSIGNED' || !t.status);
 
   // STATS CALCULATIONS
+  const canEarnTodayCents = [...inProgress].reduce(
+    (sum, t) => sum + getTaskValueCents(t),
+    0,
+  );
+  const canEarnToday = centsToDollars(canEarnTodayCents);
+
   const earnedAmountCents = readyToPay.reduce(
     (sum, task) => sum + getTaskValueCents(task),
     0,
@@ -208,8 +217,8 @@ const ChildCard: React.FC<ChildCardProps> = ({
       if (readyToPay.length > 0) return `Show Tasks — ${readyToPay.length} Ready to Pay 💰`;
       return `Show Tasks (${allTasks.length})`;
     }
-    if (awaitingApproval.length > 0 || readyToPay.length > 0) {
-      const urgentCount = awaitingApproval.length + readyToPay.length;
+    if (awaitingApproval.length > 0 || readyToPay.length > 0 || withdrawalRequests.length > 0) {
+      const urgentCount = awaitingApproval.length + readyToPay.length + withdrawalRequests.length;
       return `Hide Tasks (${urgentCount} need attention)`;
     }
     return `Hide Tasks (${allTasks.length})`;
@@ -245,51 +254,54 @@ const ChildCard: React.FC<ChildCardProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="flex flex-col items-end px-3 py-1 bg-neutral-50 border border-neutral-100">
-              <span className="text-[8px] font-bold uppercase tracking-widest text-neutral-400">Rate</span>
+          <div className="flex flex-col items-end gap-1">
+            <div className="flex items-center gap-2 px-3 py-1 bg-neutral-50 border border-neutral-100 rounded-none">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Market Rate</span>
               <span className="text-sm font-bold text-neutral-900">{formatCurrency(hourlyRate)}/hr</span>
             </div>
-
-            <div className="relative">
-              <Button
-                variant="ghost"
-                className="w-10 h-10 p-0 rounded-full border border-neutral-100 text-neutral-400 hover:text-primary-cardinal hover:bg-neutral-50 transition-all"
-                onClick={(e) => { e.stopPropagation(); setActiveMenuId(activeMenuId === 'profile-actions' ? null : 'profile-actions'); }}
-              >
-                <MoreHorizontal className="w-5 h-5" />
-              </Button>
-
-              {activeMenuId === 'profile-actions' && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setActiveMenuId(null)} />
-                  <div className="absolute right-0 mt-2 w-48 bg-white border border-neutral-200 shadow-2xl z-50 py-2 animate-in fade-in zoom-in-95 duration-200">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setActiveMenuId(null); onUpdateGrades(child); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-neutral-600 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
-                    >
-                      <Briefcase className="w-3.5 h-3.5" />
-                      Payscale / Grades
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setActiveMenuId(null); onInviteChild(child); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-neutral-600 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
-                    >
-                      <UserPlus className="w-3.5 h-3.5" />
-                      {setupStatus === 'SETUP_COMPLETE' ? 'Reinvite' : 'Invite'}
-                    </button>
-                    <div className="h-px bg-neutral-100 my-1" />
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setActiveMenuId(null); onEditSettings(child); }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-neutral-600 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
-                    >
-                      <Settings className="w-3.5 h-3.5" />
-                      Profile Settings
-                    </button>
-                  </div>
-                </>
-              )}
+            <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-none">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-blue-700">Can Earn</span>
+              <span className="text-sm font-bold text-blue-700">{formatCurrency(canEarnToday)}</span>
             </div>
+          </div>
+          <div className="relative">
+            <Button
+              variant="ghost"
+              className="w-10 h-10 p-0 rounded-full border border-neutral-100 text-neutral-400 hover:text-primary-cardinal hover:bg-neutral-50 transition-all"
+              onClick={(e) => { e.stopPropagation(); setActiveMenuId(activeMenuId === 'profile-actions' ? null : 'profile-actions'); }}
+            >
+              <MoreHorizontal className="w-5 h-5" />
+            </Button>
+
+            {activeMenuId === 'profile-actions' && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setActiveMenuId(null)} />
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-neutral-200 shadow-2xl z-50 py-2 animate-in fade-in zoom-in-95 duration-200">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setActiveMenuId(null); onUpdateGrades(child); }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-neutral-600 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
+                  >
+                    <Briefcase className="w-3.5 h-3.5" />
+                    Payscale / Grades
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setActiveMenuId(null); onInviteChild(child); }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-neutral-600 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    {setupStatus === 'SETUP_COMPLETE' ? 'Reinvite' : 'Invite'}
+                  </button>
+                  <div className="h-px bg-neutral-100 my-1" />
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setActiveMenuId(null); onEditSettings(child); }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-neutral-600 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
+                  >
+                    <Settings className="w-3.5 h-3.5" />
+                    Profile Settings
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -340,6 +352,36 @@ const ChildCard: React.FC<ChildCardProps> = ({
 
       {isExpanded && (
         <div className="flex flex-col gap-1 animate-in slide-in-from-top-2 fade-in duration-300 origin-top pb-4">
+
+          {/* WITHDRAWAL REQUESTS SECTION */}
+          {withdrawalRequests.length > 0 && (
+            <>
+              <SectionHeader
+                icon={<Coins className="w-3.5 h-3.5" />}
+                title="Withdrawal Requests"
+                count={withdrawalRequests.length}
+                colorClass="text-purple-600"
+              />
+              {withdrawalRequests.map(task => (
+                <div key={task.id} className="bg-purple-50 border border-purple-100 rounded-none p-5 mb-2 relative overflow-visible shadow-sm">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl text-neutral-darkGray">{getTaskIcon(task.name)}</span>
+                      <span className="text-[1.0625rem] font-bold text-neutral-black">{task.name}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4">
+                    <span className="px-2 py-0.5 rounded-none bg-purple-100 text-purple-700 text-[0.625rem] font-black uppercase tracking-widest animate-pulse">Requesting Funds</span>
+                    <span className="text-xl font-bold text-neutral-900">{formatCurrency(centsToDollars(Math.abs(task.valueCents || 0)))}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button onClick={() => onApproveTask(child.id, task)} variant="primary" className="w-full bg-purple-600 hover:bg-purple-700 border-none"><Check className="w-4 h-4 mr-2" /> Approve</Button>
+                    <Button onClick={() => onRejectTask(child.id, task)} variant="destructive" className="w-full"><X className="w-4 h-4 mr-2" /> Deny</Button>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
 
           {/* AWAITING APPROVAL SECTION */}
           {awaitingApproval.length > 0 && (

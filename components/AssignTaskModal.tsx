@@ -10,6 +10,7 @@ export interface AssignTaskPayload {
   catalogItemId?: string;
   saveToCatalog?: boolean;
   valueCents?: number;
+  multiplier?: number;
 }
 
 interface AssignTaskModalProps {
@@ -41,6 +42,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
   const [customMinutes, setCustomMinutes] = useState(30);
   const [selectedCatalogItemId, setSelectedCatalogItemId] = React.useState<string | undefined>(undefined);
   const [saveToCatalog, setSaveToCatalog] = useState(false);
+  const [multiplier, setMultiplier] = useState(1.0);
 
   useEffect(() => {
     if (isOpen) {
@@ -61,6 +63,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
       }
       setSelectedCatalogItemId('');
       setSaveToCatalog(false);
+      setMultiplier(1.0);
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -121,6 +124,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
       catalogItemId: selectedCatalogItemId || undefined,
       saveToCatalog: Boolean(saveToCatalog && !selectedCatalogItemId),
       valueCents: taskValueCents,
+      multiplier,
     });
     onClose();
   };
@@ -282,6 +286,33 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                 }}
                 className="w-full pl-7 pr-4 py-3.5 rounded-none border border-neutral-200 bg-white text-neutral-black placeholder-neutral-200 focus:border-primary-gold focus:ring-2 focus:ring-primary-gold/10 transition-all font-sans outline-none"
               />
+            </div>
+          </div>
+
+          <div className="mb-8">
+            <label className="block text-sm font-bold text-neutral-500 uppercase tracking-wider mb-3">Multiplier (Boost)</label>
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                onClick={() => setMultiplier(1.0)}
+                className={`flex-1 py-3.5 rounded-none text-sm font-bold transition-all duration-200 border cursor-pointer ${multiplier === 1.0 ? 'bg-neutral-800 text-white border-neutral-800' : 'bg-white border-neutral-200 text-neutral-500 hover:bg-neutral-50'}`}
+              >
+                1x
+              </button>
+              <button
+                type="button"
+                onClick={() => setMultiplier(1.5)}
+                className={`flex-1 py-3.5 rounded-none text-sm font-bold transition-all duration-200 border cursor-pointer ${multiplier === 1.5 ? 'bg-primary-gold text-white border-primary-gold' : 'bg-white border-neutral-200 text-neutral-500 hover:bg-neutral-50'}`}
+              >
+                1.5x 🔥
+              </button>
+              <button
+                type="button"
+                onClick={() => setMultiplier(2.0)}
+                className={`flex-1 py-3.5 rounded-none text-sm font-bold transition-all duration-200 border cursor-pointer ${multiplier === 2.0 ? 'bg-primary-cardinal text-white border-primary-cardinal' : 'bg-white border-neutral-200 text-neutral-500 hover:bg-neutral-50'}`}
+              >
+                2x 🚀
+              </button>
             </div>
           </div>
 

@@ -21,6 +21,7 @@ export type TaskStatus =
   | 'ASSIGNED'
   | 'PENDING_APPROVAL'
   | 'PENDING_PAYMENT'
+  | 'PENDING_WITHDRAWAL'
   | 'PAID'
   | 'DELETED';
 
@@ -60,6 +61,8 @@ export interface Task {
   catalogItemId?: string | null;
   valueCents?: number;
   createdAt?: string;
+  isRecurring?: boolean;
+  multiplier?: number; // 1.0 default
 }
 
 export interface ChoreCatalogItem {
@@ -68,6 +71,7 @@ export interface ChoreCatalogItem {
   familyId?: string;
   name: string;
   baselineMinutes: number;
+  isRecurring?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -123,6 +127,7 @@ export interface Child {
   householdId: string;
   familyId?: string;
   name: string;
+  avatarColor?: string;
   pin?: string;
   loginUsername?: string;
   loginUsernameCanonical?: string;
