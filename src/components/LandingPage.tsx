@@ -18,12 +18,12 @@ interface FeatureCardProps {
  * Premium feature card (clean white, light border, brand accent on hover).
  */
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon: Icon, title, body, delay = '' }) => (
-    <div className={`group flex flex-col p-8 card-base hover:border-amber-500/50 ${delay}`}>
+    <div className={`group flex flex-col p-8 glass-card border border-photon-white/20 hover:border-amber-500/50 ${delay}`}>
         <div className="w-12 h-12 flex items-center justify-center rounded-full bg-surface-app mb-6 group-hover:bg-brand/5 transition-colors duration-300">
             <Icon className="w-6 h-6 text-blue-500 transition-transform duration-300 group-hover:scale-110" />
         </div>
-        <h3 className="text-xl font-bold font-heading text-content-primary mb-3">{title}</h3>
-        <p className="text-base leading-relaxed text-content-muted">{body}</p>
+        <h3 className="text-xl font-bold font-heading text-obsidian mb-3">{title}</h3>
+        <p className="text-base leading-relaxed text-neutral-text">{body}</p>
     </div>
 );
 
@@ -74,26 +74,26 @@ const faqs = [
 
 export default function LandingPage() {
     return (
-        <div className="relative min-h-screen w-full overflow-hidden bg-surface-app font-sans text-content-primary selection:bg-amber-500/30">
+        <div className="relative min-h-screen w-full overflow-hidden bg-surface-app font-sans text-obsidian selection:bg-amber-500/30">
 
             {/* ── Sticky Header ── */}
             <header className="sticky top-0 z-50 w-full bg-surface-base/90 backdrop-blur-md border-b border-stroke-base">
                 <div className="max-w-[1240px] mx-auto px-6 sm:px-10 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 flex items-center justify-center rounded-none bg-brand text-white shadow-sm">
+                        <div className="w-10 h-10 flex items-center justify-center  bg-brand text-white shadow-sm">
                             <span className="text-lg font-bold font-heading">HW</span>
                         </div>
-                        <span className="text-xl font-bold font-heading tracking-tight text-content-primary">
+                        <span className="text-xl font-bold font-heading tracking-tight text-obsidian">
                             HomeWork
                         </span>
                     </div>
 
                     <div className="flex items-center gap-5">
                         <ThemeSwitch />
-                        <Link to="/login" className="text-sm font-semibold text-content-muted hover:text-blue-500 transition-colors">
-                            Log In
+                        <Link to="/login" className="text-sm font-bold text-catalyst-blue hover:opacity-80 transition-colors">
+                            Sign In
                         </Link>
-                        <Link to="/signup" className="btn-primary rounded-none text-sm">
+                        <Link to="/signup" className="tactile-button text-sm">
                             Sign Up
                         </Link>
                     </div>
@@ -110,19 +110,19 @@ export default function LandingPage() {
                         {/* Badge */}
                         <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-surface-base border border-stroke-base shadow-sm mb-8">
                             <Activity className="w-4 h-4 text-amber-500" />
-                            <span className="text-xs font-bold tracking-widest text-content-muted uppercase">
+                            <span className="text-xs font-bold tracking-widest text-neutral-text uppercase">
                                 Family Performance System
                             </span>
                         </div>
 
                         {/* H1 */}
-                        <h1 className="text-5xl sm:text-7xl font-bold font-heading text-content-primary tracking-tight mb-8">
+                        <h1 className="text-5xl sm:text-7xl font-bold font-heading text-obsidian tracking-tight mb-8">
                             Tie Grades to Income.<br />
                             <span className="text-blue-500">End the Arguments.</span>
                         </h1>
 
                         {/* Subtitle */}
-                        <p className="text-xl leading-relaxed text-content-muted max-w-[680px] mb-12">
+                        <p className="text-xl leading-relaxed text-neutral-text max-w-[680px] mb-16">
                             Give your kids a real-world system where grades raise their hourly rate, chores earn income, and accountability is built in.
                         </p>
 
@@ -140,37 +140,37 @@ export default function LandingPage() {
                         {/* CTA Buttons */}
                         <div className="flex flex-col items-center gap-6 w-full justify-center">
                             <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center">
-                                <Link to="/signup" className="btn-primary h-14 px-10 rounded-none text-lg flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform transition-all">
+                                <Link to="/signup" className="tactile-button h-14 px-10 text-lg flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform transition-all">
                                     Start Free 14-Day Trial
                                     <ArrowRight className="w-5 h-5" />
                                 </Link>
-                                <Link to="/login" className="btn-secondary h-14 px-10 rounded-none text-lg flex items-center justify-center">
-                                    I Already Have an Account
+                                <Link to="/login" className="text-catalyst-blue font-bold text-lg flex items-center justify-center hover:opacity-80 transition-opacity">
+                                    Sign In
                                 </Link>
                             </div>
-                            <p className="text-sm text-content-muted font-medium">No banking. No debit cards. You control the payout.</p>
+                            <p className="text-sm text-neutral-text font-medium">No banking. No debit cards. You control the payout.</p>
                         </div>
                     </div>
 
                     {/* ═══════════════ PROBLEM SECTION ═══════════════ */}
                     <section className="w-full mb-32">
                         <div className="text-center mb-16">
-                            <h2 className="text-3xl sm:text-4xl font-bold font-heading text-content-primary mb-4">The Problem Isn&apos;t Chores.</h2>
+                            <h2 className="text-3xl sm:text-4xl font-bold font-heading text-obsidian mb-4">The Problem Isn&apos;t Chores.</h2>
                             <p className="text-2xl font-medium text-blue-500">It&apos;s Accountability.</p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             {problemCards.map((card, idx) => (
-                                <div key={idx} className="flex flex-col p-8 card-base text-left border-l-4 border-l-blue-500">
-                                    <div className="w-10 h-10 flex items-center justify-center rounded-none bg-brand/10 mb-5">
+                                <div key={idx} className="flex flex-col p-8 glass-card border border-photon-white/20 text-left border-l-4 border-l-blue-500">
+                                    <div className="w-10 h-10 flex items-center justify-center  bg-brand/10 mb-5">
                                         <card.icon className="w-5 h-5 text-blue-500" />
                                     </div>
-                                    <h3 className="text-xl font-bold font-heading text-content-primary mb-3">{card.title}</h3>
-                                    <p className="text-base leading-relaxed text-content-muted">{card.body}</p>
+                                    <h3 className="text-xl font-bold font-heading text-obsidian mb-3">{card.title}</h3>
+                                    <p className="text-base leading-relaxed text-neutral-text">{card.body}</p>
                                 </div>
                             ))}
                         </div>
-                        <p className="text-lg font-bold text-content-primary mt-12 bg-surface-base inline-block px-6 py-2 rounded-full border border-stroke-base shadow-sm">
+                        <p className="text-lg font-bold text-obsidian mt-12 bg-surface-base inline-block px-6 py-2 rounded-full border border-stroke-base shadow-sm">
                             HomeWork fixes the incentive structure.
                         </p>
                     </section>
@@ -187,80 +187,80 @@ export default function LandingPage() {
                     </section>
 
                     {/* ═══════════════ VALUE EXAMPLE ═══════════════ */}
-                    <section className="w-full mb-32 max-w-[800px] bg-surface-base rounded-none border border-stroke-base p-12 shadow-sm">
-                        <h2 className="text-3xl sm:text-4xl font-bold font-heading text-content-primary mb-4">See How Incentives</h2>
+                    <section className="w-full mb-32 max-w-[800px] bg-surface-base  border border-stroke-base p-12 shadow-sm">
+                        <h2 className="text-3xl sm:text-4xl font-bold font-heading text-obsidian mb-4">See How Incentives</h2>
                         <p className="text-2xl font-medium text-blue-500 mb-14">Change Behavior</p>
                         <div className="flex flex-col gap-4">
-                            <div className="flex items-center justify-between rounded-none bg-surface-app p-8 border border-amber-500/30 relative overflow-hidden">
+                            <div className="flex items-center justify-between  bg-surface-app p-8 border border-amber-500/30 relative overflow-hidden">
                                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-amber-500" />
-                                <span className="text-xl font-bold text-content-primary">GPA 3.8</span>
+                                <span className="text-xl font-bold text-obsidian">GPA 3.8</span>
                                 <div className="h-px flex-1 bg-surface-2 mx-6"></div>
                                 <span className="text-3xl font-bold text-blue-500">$12/hour</span>
                             </div>
-                            <div className="flex items-center justify-between rounded-none bg-surface-base p-8 border border-stroke-base opacity-60 grayscale">
-                                <span className="text-xl font-bold text-content-primary">GPA 2.5</span>
+                            <div className="flex items-center justify-between  bg-surface-base p-8 border border-stroke-base opacity-60 grayscale">
+                                <span className="text-xl font-bold text-obsidian">GPA 2.5</span>
                                 <div className="h-px flex-1 bg-surface-2 mx-6"></div>
-                                <span className="text-3xl font-bold text-content-muted">$7/hour</span>
+                                <span className="text-3xl font-bold text-neutral-text">$7/hour</span>
                             </div>
-                            <p className="text-content-muted mt-6 font-medium italic">When effort affects earnings, motivation changes.</p>
+                            <p className="text-neutral-text mt-6 font-medium italic">When effort affects earnings, motivation changes.</p>
                         </div>
                     </section>
 
                     {/* ═══════════════ PRICING ═══════════════ */}
                     <section className="w-full mb-32">
-                        <h2 className="text-3xl sm:text-4xl font-bold font-heading text-content-primary mb-4">Simple. Transparent.</h2>
+                        <h2 className="text-3xl sm:text-4xl font-bold font-heading text-obsidian mb-4">Simple. Transparent.</h2>
                         <p className="text-2xl font-medium text-blue-500 mb-14">Powerful.</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-[900px] mx-auto">
 
                             {/* Pro Plan */}
-                            <div className="relative p-10 rounded-none card-base text-left border-amber-500 border-2 shadow-lg bg-surface-base">
-                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-amber-500 px-6 py-1.5 text-xs font-bold uppercase tracking-wider text-content-primary shadow-sm">
+                            <div className="relative p-10  card-base text-left border-amber-500 border-2 shadow-lg bg-surface-base">
+                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-amber-500 px-6 py-1.5 text-xs font-bold uppercase tracking-wider text-obsidian shadow-sm">
                                     Most Popular
                                 </div>
                                 <div className="relative z-10">
-                                    <h3 className="text-2xl font-bold font-heading text-content-primary mb-4">HomeWork Pro</h3>
+                                    <h3 className="text-2xl font-bold font-heading text-obsidian mb-4">HomeWork Pro</h3>
                                     <div className="flex items-baseline gap-1 mb-2">
-                                        <span className="text-5xl font-bold text-content-primary">$17</span>
-                                        <span className="text-content-muted font-medium">/ month</span>
+                                        <span className="text-5xl font-bold text-obsidian">$17</span>
+                                        <span className="text-neutral-text font-medium">/ month</span>
                                     </div>
-                                    <p className="text-sm text-content-muted mb-8">or $149 / year (Save $55)</p>
+                                    <p className="text-sm text-neutral-text mb-8">or $149 / year (Save $55)</p>
                                     <ul className="space-y-4 mb-10">
                                         {['Unlimited children', 'Grade-based hourly engine', 'Earnings dashboard', 'Weekly planning system', 'Two-parent access'].map((f) => (
-                                            <li key={f} className="flex items-center gap-3 text-sm text-content-muted">
+                                            <li key={f} className="flex items-center gap-3 text-sm text-neutral-text">
                                                 <CheckCircle2 className="w-5 h-5 text-primary-success flex-shrink-0" />
                                                 {f}
                                             </li>
                                         ))}
                                     </ul>
-                                    <Link to="/signup" className="btn-primary block w-full h-14 rounded-none text-lg font-bold text-center leading-[56px] shadow-md hover:shadow-lg">Start Free Trial</Link>
+                                    <Link to="/signup" className="tactile-button block w-full h-14 text-lg font-bold text-center leading-[56px] shadow-md hover:shadow-lg">Start Free Trial</Link>
                                 </div>
                             </div>
 
                             {/* Founders Plan */}
-                            <div className="p-10 rounded-none card-base text-left bg-surface-app">
-                                <h3 className="text-2xl font-bold font-heading text-content-primary mb-2">Founders Plan</h3>
+                            <div className="p-10  card-base text-left bg-surface-app">
+                                <h3 className="text-2xl font-bold font-heading text-obsidian mb-2">Founders Plan</h3>
                                 <p className="text-blue-500 text-xs font-bold uppercase tracking-wider mb-4">Limited to First 100 Families</p>
                                 <div className="flex items-baseline gap-1 mb-2">
-                                    <span className="text-5xl font-bold text-content-primary">$129</span>
-                                    <span className="text-content-muted font-medium">/ year</span>
+                                    <span className="text-5xl font-bold text-obsidian">$129</span>
+                                    <span className="text-neutral-text font-medium">/ year</span>
                                 </div >
-                                <p className="text-sm text-content-muted mb-8">Locked-in pricing for life.</p>
+                                <p className="text-sm text-neutral-text mb-8">Locked-in pricing for life.</p>
                                 <ul className="space-y-4 mb-10">
                                     {['Unlimited children', 'Grade-based hourly engine', 'Earnings dashboard', 'Weekly planning system', 'Two-parent access'].map((f) => (
-                                        <li key={f} className="flex items-center gap-3 text-sm text-content-muted">
+                                        <li key={f} className="flex items-center gap-3 text-sm text-neutral-text">
                                             <CheckCircle2 className="w-5 h-5 text-neutral-200 flex-shrink-0" />
                                             {f}
                                         </li>
                                     ))}
                                 </ul>
-                                <Link to="/signup" className="btn-secondary block w-full h-14 rounded-none text-lg font-bold text-center leading-[56px]">Claim Founder Spot</Link>
+                                <Link to="/signup" className="btn-secondary block w-full h-14 rounded-full text-lg font-bold text-center leading-[56px]">Claim Founder Spot</Link>
                             </div>
                         </div>
                     </section>
 
                     {/* ═══════════════ VALUE ANCHOR ═══════════════ */}
-                    <section className="w-full mb-32 p-12 rounded-none card-base bg-surface-base">
-                        <h2 className="text-2xl font-bold font-heading text-content-primary mb-10">Less Than One Tutoring Session Per Month</h2>
+                    <section className="w-full mb-32 p-12  card-base bg-surface-base">
+                        <h2 className="text-2xl font-bold font-heading text-obsidian mb-10">Less Than One Tutoring Session Per Month</h2>
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                             {[
                                 { label: 'Travel Sports', value: '$300+/mo' },
@@ -268,11 +268,11 @@ export default function LandingPage() {
                                 { label: 'Video Games', value: '$60' },
                                 { label: 'HomeWork', value: '$17/mo', active: true }
                             ].map((item) => (
-                                <div key={item.label} className={`p-6 rounded-none border transition-all duration-300 ${item.active
+                                <div key={item.label} className={`p-6  border transition-all duration-300 ${item.active
                                     ? 'border-amber-500 bg-amber-500/5 shadow-sm ring-1 ring-amber-500/20'
                                     : 'border-stroke-base bg-surface-base hover:border-neutral-darkGray'}`}>
-                                    <div className="text-xs font-bold text-content-muted uppercase tracking-widest mb-2">{item.label}</div>
-                                    <div className={`text-xl font-bold ${item.active ? 'text-blue-500' : 'text-content-primary'}`}>{item.value}</div>
+                                    <div className="text-xs font-bold text-neutral-text uppercase tracking-widest mb-2">{item.label}</div>
+                                    <div className={`text-xl font-bold ${item.active ? 'text-blue-500' : 'text-obsidian'}`}>{item.value}</div>
                                 </div>
                             ))}
                         </div>
@@ -280,29 +280,29 @@ export default function LandingPage() {
 
                     {/* ═══════════════ FAQS ═══════════════ */}
                     <section className="max-w-[700px] w-full mb-32 text-left">
-                        <h2 className="text-3xl sm:text-4xl font-bold font-heading text-content-primary mb-12 text-center">Common Questions</h2>
+                        <h2 className="text-3xl sm:text-4xl font-bold font-heading text-obsidian mb-12 text-center">Common Questions</h2>
                         <div className="space-y-2">
                             {faqs.map((faq) => (
-                                <div key={faq.q} className="py-6 px-8 rounded-none card-base bg-surface-base hover:bg-surface-app transition-colors">
-                                    <h3 className="text-lg font-bold font-heading text-content-primary mb-2">{faq.q}</h3>
-                                    <p className="text-base leading-relaxed text-content-muted">{faq.a}</p>
+                                <div key={faq.q} className="py-6 px-8  card-base bg-surface-base hover:bg-surface-app transition-colors">
+                                    <h3 className="text-lg font-bold font-heading text-obsidian mb-2">{faq.q}</h3>
+                                    <p className="text-base leading-relaxed text-neutral-text">{faq.a}</p>
                                 </div>
                             ))}
                         </div>
                     </section>
 
                     {/* ═══════════════ FINAL CTA ═══════════════ */}
-                    <section className="w-full mb-32 py-20 rounded-none bg-surface-base border border-stroke-base shadow-lg relative overflow-hidden">
+                    <section className="w-full mb-32 py-20  bg-surface-base border border-stroke-base shadow-lg relative overflow-hidden">
                         <div className="absolute inset-x-0 bottom-0 h-2 bg-gradient-to-r from-blue-500 to-amber-500" />
                         <div className="relative z-10 px-6">
-                            <h2 className="text-4xl sm:text-5xl font-bold font-heading text-content-primary mb-4 leading-tight">Start Building Accountability</h2>
+                            <h2 className="text-4xl sm:text-5xl font-bold font-heading text-obsidian mb-4 leading-tight">Start Building Accountability</h2>
                             <p className="text-4xl sm:text-5xl font-bold font-heading text-blue-500 mb-10 leading-tight">This Week.</p>
                             <div className="flex flex-col items-center gap-6">
-                                <Link to="/signup" className="btn-primary h-16 px-12 rounded-none text-lg font-bold flex items-center justify-center gap-3 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform transition-all">
+                                <Link to="/signup" className="tactile-button h-16 px-12 text-lg font-bold flex items-center justify-center gap-3 shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform transition-all">
                                     Start 14-Day Trial
                                     <ArrowRight className="w-6 h-6" />
                                 </Link>
-                                <p className="text-content-muted font-medium">Cancel anytime.</p>
+                                <p className="text-neutral-text font-medium">Cancel anytime.</p>
                             </div>
                         </div>
                     </section>
@@ -310,12 +310,12 @@ export default function LandingPage() {
 
                 {/* ── Footer ── */}
                 <footer className="mt-auto pt-10 pb-6 border-t border-stroke-base flex flex-col sm:flex-row justify-between items-center gap-6">
-                    <div className="text-sm font-medium text-content-muted">
-                        <span className="text-content-primary font-bold">HomeWork.</span> Built for high-trust family systems.
+                    <div className="text-sm font-medium text-neutral-text">
+                        <span className="text-obsidian font-bold">HomeWork.</span> Built for high-trust family systems.
                     </div>
                     <div className="flex items-center gap-8 text-sm font-bold">
-                        <Link to="/login" className="text-content-muted hover:text-blue-500 transition-colors">Log In</Link>
-                        <Link to="/signup" className="text-content-muted hover:text-blue-500 transition-colors">Sign Up</Link>
+                        <Link to="/login" className="text-neutral-text hover:text-blue-500 transition-colors">Log In</Link>
+                        <Link to="/signup" className="text-neutral-text hover:text-blue-500 transition-colors">Sign Up</Link>
                     </div>
                 </footer>
             </div>
