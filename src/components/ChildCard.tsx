@@ -124,11 +124,12 @@ const ChildCard: React.FC<ChildCardProps> = ({
   return (
     <div className="flex flex-col gap-3 font-sans w-full">
       <Card
-        className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl bg-white border-neutral-200"
+        className="group relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:bg-neutral-50 cursor-pointer bg-white border-neutral-200"
         noPadding
         style={{
           borderTop: `6px solid ${child.avatarColor || '#E2E8F0'}`,
         }}
+        onClick={() => onClick?.(child)}
       >
         <div className="p-6">
           <div className="flex justify-between items-start mb-6">
@@ -185,7 +186,10 @@ const ChildCard: React.FC<ChildCardProps> = ({
           <div className="flex items-center gap-3 pt-2">
             <Button
               variant="outline"
-              onClick={() => onEditSettings(child)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEditSettings(child);
+              }}
               className="h-10 w-10 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-50 border-neutral-200 rounded-sm p-0 flex items-center justify-center"
               title="Profile Settings"
             >
@@ -194,7 +198,10 @@ const ChildCard: React.FC<ChildCardProps> = ({
 
             <Button
               variant="primary"
-              onClick={() => onAssignTask(child)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onAssignTask(child);
+              }}
               className="flex-1 h-10 shadow-sm text-xs uppercase tracking-wider font-bold rounded-sm bg-neutral-900 text-white hover:bg-neutral-800"
             >
               <Plus className="w-4 h-4 mr-2" />

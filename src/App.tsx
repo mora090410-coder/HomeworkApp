@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { signOut, User, onAuthStateChanged } from 'firebase/auth';
 import { collection, collectionGroup, onSnapshot, query, where } from 'firebase/firestore';
-import { Briefcase, Calendar, Check, DollarSign, Loader2, LogOut, Plus, Share2, UserPlus, Users } from 'lucide-react';
+import { ArrowRight, Briefcase, Calendar, Check, DollarSign, Loader2, LogOut, Plus, Share2, UserPlus, Users } from 'lucide-react';
 import { Button } from './components/ui/Button';
 import { Input } from './components/ui/Input';
 import {
@@ -1025,7 +1025,6 @@ function DashboardPage() {
         <ProfileSelectionScreen
           profiles={familyAuth.profiles}
           isLoading={familyAuth.isProfilesLoading}
-          selectedProfileId={activeProfile?.id ?? null}
           onSelectProfile={familyAuth.selectProfile}
           canAddProfile={familyAuth.canManageProfiles}
           isAdminUser={familyAuth.canManageProfiles}
@@ -1114,6 +1113,8 @@ function DashboardPage() {
               setChildForGrades(candidate);
               setIsUpdateGradesModalOpen(true);
             }}
+            onInviteChild={() => undefined}
+            onEditSettings={() => undefined}
             onSubmitTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_APPROVAL', childId })}
             onApproveTask={() => undefined}
             onPayTask={handlePayTask}
