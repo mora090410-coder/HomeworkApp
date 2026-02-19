@@ -2408,7 +2408,7 @@ export const householdService = {
           targetAmountCents: normalizedTargetCents,
           currentAmountCents: 0,
           status: 'ACTIVE',
-          createdAt: serverTimestamp(),
+          createdAt: new Date().toISOString(),
         };
 
         transaction.update(profileRef, {
