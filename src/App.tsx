@@ -47,8 +47,8 @@ import {
   formatCurrency,
   mapTask,
 } from '@/utils';
-import { isValidChildUsername, normalizeChildUsername } from '@/src/features/auth/childCredentials';
-import { shouldBypassPinVerification } from '@/src/features/auth/sessionGate';
+import { isValidChildUsername, normalizeChildUsername } from '@/features/auth/childCredentials';
+import { shouldBypassPinVerification } from '@/features/auth/sessionGate';
 
 type FamilyAuthStage = 'UNAUTHENTICATED' | 'HOUSEHOLD_LOADED' | 'PROFILE_SELECTED' | 'AUTHORIZED';
 

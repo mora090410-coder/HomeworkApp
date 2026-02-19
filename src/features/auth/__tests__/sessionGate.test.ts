@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { shouldBypassPinVerification } from '@/src/features/auth/sessionGate';
+import { shouldBypassPinVerification } from '@/features/auth/sessionGate';
 
 describe('session gate', () => {
   it('bypasses pin verification for persisted child login session', () => {

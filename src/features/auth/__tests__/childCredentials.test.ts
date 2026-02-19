@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isValidChildUsername, normalizeChildUsername } from '@/src/features/auth/childCredentials';
+import { isValidChildUsername, normalizeChildUsername } from '@/features/auth/childCredentials';
 
 describe('child credential helpers', () => {
   it('normalizes username casing and whitespace', () => {

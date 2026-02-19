@@ -32,8 +32,8 @@ import {
   RotateCcw,
   Coins
 } from 'lucide-react';
-import { Button } from '@/src/components/ui/Button';
-import { Card } from '@/src/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 
 interface ChildCardProps {
   child: Child;
