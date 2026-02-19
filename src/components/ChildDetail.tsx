@@ -123,11 +123,18 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
   // Actions
   const handleApproveAndDeposit = async (task: Task) => {
     const amountCents = getTaskValueCents(task);
+
+    if (amountCents <= 0) {
+      alert(`This task has a value of $0.00. Please set a rate or bonus before approving.`);
+      return;
+    }
+
     try {
       await onApproveAndDeposit(child.id, task, amountCents);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to approve and deposit", err);
-      alert("Approve & Deposit failed. Please check the ledger or try again.");
+      const message = err?.message || "Please check the ledger or try again.";
+      alert(`Approve & Deposit failed: ${message}`);
     }
   };
 
@@ -238,7 +245,8 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
                     <Button
                       onClick={() => handleApproveAndDeposit(task)}
-                      className="flex-[2] bg-emerald-600 hover:bg-emerald-700 border-transparent text-xs gap-2"
+                      variant="secondary"
+                      className="flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white border-transparent text-xs gap-2"
                     >
                       <ThumbsUp className="w-3 h-3" /> Approve & Deposit
                     </Button>

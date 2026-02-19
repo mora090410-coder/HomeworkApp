@@ -808,24 +808,30 @@ function DashboardPage() {
 
   const approveAndDepositMutation = useMutation({
     mutationFn: async (vars: { childId: string; task: Task; amountCents: number }) => {
-      if (!householdId) {
-        throw new Error('No household selected.');
+      try {
+        if (!householdId) {
+          throw new Error('No household selected.');
+        }
+
+        const child = childrenWithRateMap.find(c => c.id === vars.childId);
+        const childName = child?.name || 'Child';
+        const balanceBefore = child?.balance || 0;
+        const newBalance = balanceBefore + centsToDollars(vars.amountCents);
+
+        console.log(`[APPROVE & DEPOSIT] TaskId: ${vars.task.id}, Amount: ${vars.amountCents}c, Child: ${childName}`);
+        console.log(`[APPROVE & DEPOSIT] Balance Before: ${formatCurrency(balanceBefore)}, After: ${formatCurrency(newBalance)}`);
+
+        return await householdService.addEarning(
+          vars.childId,
+          vars.task.id,
+          vars.amountCents,
+          `Completed: ${vars.task.name}`,
+          householdId,
+        );
+      } catch (err: any) {
+        console.error("[APPROVE & DEPOSIT ERROR]", err);
+        throw err;
       }
-
-      const child = childrenWithRateMap.find(c => c.id === vars.childId);
-      const childName = child?.name || 'Child';
-      const balanceBefore = child?.balance || 0;
-      const newBalance = balanceBefore + centsToDollars(vars.amountCents);
-
-      console.log(`Depositing ${formatCurrency(centsToDollars(vars.amountCents))} to ${childName}. New Balance: ${formatCurrency(newBalance)}`);
-
-      return householdService.addEarning(
-        vars.childId,
-        vars.task.id,
-        vars.amountCents,
-        `Completed: ${vars.task.name}`,
-        householdId,
-      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['children'] });
