@@ -12,6 +12,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.0",
     "@tanstack/react-query": "^5.90.20",
     "firebase": "^12.9.0",
     "firebase-admin": "^13.6.1",
