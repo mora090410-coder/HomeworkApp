@@ -124,6 +124,7 @@ const PinModal: React.FC<PinModalProps> = ({
                     <button
                         onClick={onClose}
                         className="p-1 rounded-full hover:bg-neutral-100 text-neutral-400 hover:text-neutral-600 transition-colors"
+                        aria-label="Close"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -152,6 +153,7 @@ const PinModal: React.FC<PinModalProps> = ({
                                 value={digit}
                                 onChange={(e) => handlePinChange(index, e.target.value)}
                                 onKeyDown={(e) => handleKeyDown(index, e)}
+                                aria-label={`Digit ${index + 1}`}
                                 className={`w-12 h-16 text-center text-2xl font-bold bg-neutral-50 border-2 rounded-lg transition-all outline-none focus:bg-white
                     ${error
                                         ? 'border-red-300 text-red-600 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
