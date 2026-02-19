@@ -165,7 +165,7 @@ const mapFirestoreProfile = (
   };
 };
 
-function useFamilyAuth(): FamilyAuthState {
+export function useFamilyAuth(): FamilyAuthState {
   const [stage, setStage] = useState<FamilyAuthStage>('UNAUTHENTICATED');
   const [user, setUser] = useState<User | null>(null);
   const [householdId, setHouseholdId] = useState<string | null>(null);
