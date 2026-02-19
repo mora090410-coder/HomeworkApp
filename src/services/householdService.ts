@@ -2421,6 +2421,99 @@ export const householdService = {
     }
   },
 
+  async updateSavingsGoal(profileId: string, goalId: string, name: string, targetAmountCents: number, householdId: string): Promise<void> {
+    try {
+      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+      const safeGoalId = assertNonEmptyString(goalId, 'goalId');
+      const safeName = assertNonEmptyString(name, 'name');
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+      const normalizedTargetCents = Math.round(targetAmountCents);
+
+      if (normalizedTargetCents <= 0) {
+        throw new Error('targetAmountCents must be a positive integer.');
+      }
+
+      const firestore = getFirestore();
+      const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);
+
+      await runTransaction(firestore, async (transaction) => {
+        const profileSnap = await transaction.get(profileRef);
+        if (!profileSnap.exists()) throw new Error('Profile not found.');
+
+        const data = profileSnap.data() as Record<string, unknown>;
+        const goals = (data.goals as any[]) || [];
+        const goalIndex = goals.findIndex((g: any) => g.id === safeGoalId);
+        if (goalIndex === -1) throw new Error('Goal not found.');
+
+        if (normalizedTargetCents < goals[goalIndex].currentAmountCents) {
+          throw new Error('Target amount cannot be less than the currently saved amount.');
+        }
+
+        const updatedGoals = [...goals];
+        updatedGoals[goalIndex] = {
+          ...updatedGoals[goalIndex],
+          name: safeName,
+          targetAmountCents: normalizedTargetCents,
+        };
+
+        transaction.update(profileRef, {
+          goals: updatedGoals,
+          updatedAt: serverTimestamp(),
+        });
+      });
+    } catch (error) {
+      throw normalizeError('Failed to update savings goal', error);
+    }
+  },
+
+  async deleteSavingsGoal(profileId: string, goalId: string, householdId: string): Promise<void> {
+    try {
+      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+      const safeGoalId = assertNonEmptyString(goalId, 'goalId');
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+
+      const firestore = getFirestore();
+      const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);
+
+      await runTransaction(firestore, async (transaction) => {
+        const profileSnap = await transaction.get(profileRef);
+        if (!profileSnap.exists()) throw new Error('Profile not found.');
+
+        const data = profileSnap.data() as Record<string, unknown>;
+        const goals = (data.goals as any[]) || [];
+        const goalIndex = goals.findIndex((g: any) => g.id === safeGoalId);
+        if (goalIndex === -1) throw new Error('Goal not found.');
+
+        const goal = goals[goalIndex];
+        const updatedGoals = goals.filter((g: any) => g.id !== safeGoalId);
+        const updates: Record<string, any> = {
+          goals: updatedGoals,
+          updatedAt: serverTimestamp(),
+        };
+
+        if (goal.currentAmountCents > 0) {
+          const newBalanceCents = (data.balanceCents as number || 0) + goal.currentAmountCents;
+          updates.balanceCents = newBalanceCents;
+          updates.balance = centsToDollars(newBalanceCents);
+
+          const transferRef = doc(collection(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}/transactions`));
+          transaction.set(transferRef, {
+            date: serverTimestamp(),
+            amountCents: goal.currentAmountCents,
+            amount: centsToDollars(goal.currentAmountCents),
+            memo: `Refund from deleted goal: ${goal.name}`,
+            type: 'ADJUSTMENT'
+          });
+        }
+
+        transaction.update(profileRef, updates);
+      });
+    } catch (error) {
+      throw normalizeError('Failed to delete savings goal', error);
+    }
+  },
+
+
   async claimGoal(profileId: string, goalId: string, householdId: string): Promise<void> {
     try {
       const safeProfileId = assertNonEmptyString(profileId, 'profileId');

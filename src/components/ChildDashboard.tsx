@@ -24,7 +24,9 @@ import {
     PiggyBank,
     CreditCard,
     Plus,
-    History
+    History,
+    Edit2,
+    Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { householdService } from '@/services/householdService';
@@ -51,6 +53,9 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
     const [showWithdrawModal, setShowWithdrawModal] = useState(false);
     const [showTransferModal, setShowTransferModal] = useState<string | null>(null);
     const [showAddGoalModal, setShowAddGoalModal] = useState(false);
+    const [showEditGoalModal, setShowEditGoalModal] = useState<SavingsGoal | null>(null);
+    const [editGoalName, setEditGoalName] = useState('');
+    const [editGoalTarget, setEditGoalTarget] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
 
@@ -157,6 +162,48 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
         } finally {
             setIsProcessing(false);
         }
+    };
+
+    const handleEditGoal = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!showEditGoalModal) return;
+        const targetCents = dollarsToCents(parseFloat(editGoalTarget));
+
+        setIsProcessing(true);
+        try {
+            await householdService.updateSavingsGoal(child.id, showEditGoalModal.id, editGoalName, targetCents, householdId);
+            setShowEditGoalModal(null);
+        } catch (error) {
+            console.error(error);
+            alert(error instanceof Error ? error.message : 'An error occurred');
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const handleDeleteGoal = async () => {
+        if (!showEditGoalModal) return;
+
+        if (!window.confirm("Are you sure you want to delete this goal? Any saved funds will be returned to your spendable balance.")) {
+            return;
+        }
+
+        setIsProcessing(true);
+        try {
+            await householdService.deleteSavingsGoal(child.id, showEditGoalModal.id, householdId);
+            setShowEditGoalModal(null);
+        } catch (error) {
+            console.error(error);
+            alert(error instanceof Error ? error.message : 'An error occurred');
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const openEditGoalModal = (goal: SavingsGoal) => {
+        setEditGoalName(goal.name);
+        setEditGoalTarget(centsToDollars(goal.targetAmountCents).toString());
+        setShowEditGoalModal(goal);
     };
 
     const handleClaimGoal = async (goalId: string) => {
@@ -307,8 +354,15 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                 return (
                                     <div key={goal.id} className="bg-white border border-neutral-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
                                         <div className="flex justify-between items-start mb-4">
-                                            <div>
+                                            <div className="flex items-center gap-2">
                                                 <h4 className="font-bold text-neutral-900">{goal.name}</h4>
+                                                <button
+                                                    onClick={() => openEditGoalModal(goal)}
+                                                    className="p-1 text-neutral-400 hover:text-neutral-900 transition-colors opacity-0 group-hover:opacity-100"
+                                                    title="Edit Goal"
+                                                >
+                                                    <Edit2 className="w-3.5 h-3.5" />
+                                                </button>
                                             </div>
                                             <div className="text-right">
                                                 <span className="text-xl font-mono font-bold text-neutral-900">{Math.floor(progress)}%</span>
@@ -560,8 +614,8 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                         value={transferAmount}
                                         onChange={(e) => setTransferAmount(e.target.value)}
                                         className={`w-full bg-neutral-50 border rounded-xl px-5 py-4 font-mono text-xl focus:ring-2 focus:outline-none ${parseFloat(transferAmount) > spendableBalance
-                                                ? 'border-red-300 focus:ring-red-500 text-red-900'
-                                                : 'border-neutral-200 focus:ring-neutral-900'
+                                            ? 'border-red-300 focus:ring-red-500 text-red-900'
+                                            : 'border-neutral-200 focus:ring-neutral-900'
                                             }`}
                                         placeholder="0.00"
                                     />
@@ -628,6 +682,65 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                 >
                                     {isProcessing ? 'Creating...' : 'Establish Savings Goal'}
                                 </Button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showEditGoalModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-neutral-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+                        <div className="p-8">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-2xl font-bold font-heading">Edit Savings Goal</h3>
+                                <button onClick={() => setShowEditGoalModal(null)} className="text-neutral-400 hover:text-neutral-900 p-2">&times;</button>
+                            </div>
+
+                            <form onSubmit={handleEditGoal} className="space-y-6">
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2">Goal Name</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={editGoalName}
+                                        onChange={(e) => setEditGoalName(e.target.value)}
+                                        className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-5 py-4 text-base focus:ring-2 focus:ring-neutral-900 focus:outline-none"
+                                        placeholder="e.g., New Bat"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2">Target Amount ($)</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        required
+                                        value={editGoalTarget}
+                                        onChange={(e) => setEditGoalTarget(e.target.value)}
+                                        className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-5 py-4 font-mono text-xl focus:ring-2 focus:ring-neutral-900 focus:outline-none"
+                                        placeholder="e.g., 150"
+                                    />
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <Button
+                                        type="button"
+                                        onClick={handleDeleteGoal}
+                                        disabled={isProcessing}
+                                        className="bg-red-50 hover:bg-red-100 text-red-600 font-bold py-4 rounded-2xl shadow-none active:scale-[0.98] transition-all flex items-center justify-center px-4"
+                                        title="Delete Goal"
+                                    >
+                                        <Trash2 className="w-5 h-5" />
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        disabled={isProcessing || !editGoalName || !editGoalTarget}
+                                        className="flex-1 bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-4 rounded-2xl shadow-xl shadow-neutral-900/20 active:scale-[0.98] transition-all"
+                                    >
+                                        {isProcessing ? 'Saving...' : 'Save Changes'}
+                                    </Button>
+                                </div>
                             </form>
                         </div>
                     </div>
