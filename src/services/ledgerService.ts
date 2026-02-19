@@ -67,9 +67,11 @@ const buildTransactionPayload = (params: {
   profileId: string;
   amountCents: number;
   memo: string;
-  type: 'EARNING' | 'ADVANCE' | 'ADJUSTMENT';
+  type: 'EARNING' | 'ADVANCE' | 'ADJUSTMENT' | 'WITHDRAWAL_REQUEST' | 'GOAL_ALLOCATION';
+  status?: 'PENDING' | 'PAID' | 'REJECTED';
   category?: AdvanceCategory;
   taskId?: string;
+  goalId?: string;
   nextBalanceCents: number;
 }) => {
   return {
@@ -79,8 +81,10 @@ const buildTransactionPayload = (params: {
     amount: centsToDollars(params.amountCents),
     memo: params.memo,
     type: params.type,
+    status: params.status || (params.type === 'WITHDRAWAL_REQUEST' ? 'PENDING' : 'PAID'),
     category: params.category ?? null,
     taskId: params.taskId ?? null,
+    goalId: params.goalId ?? null,
     balanceAfterCents: params.nextBalanceCents,
     balanceAfter: centsToDollars(params.nextBalanceCents),
     date: serverTimestamp(),
@@ -102,9 +106,11 @@ const applyLedgerMutation = async (params: {
   profileId: string;
   amountCentsDelta: number;
   memo: string;
-  type: 'EARNING' | 'ADVANCE' | 'ADJUSTMENT';
+  type: 'EARNING' | 'ADVANCE' | 'ADJUSTMENT' | 'WITHDRAWAL_REQUEST' | 'GOAL_ALLOCATION';
+  status?: 'PENDING' | 'PAID' | 'REJECTED';
   category?: AdvanceCategory;
   taskId?: string;
+  goalId?: string;
   lockTaskAsPaid?: boolean;
 }): Promise<LedgerMutationResult> => {
   const safeHouseholdId = assertNonEmptyString(params.householdId, 'householdId');
@@ -112,7 +118,7 @@ const applyLedgerMutation = async (params: {
   const safeMemo = assertNonEmptyString(params.memo, 'memo');
   const safeAmountCents = assertIntegerCents(params.amountCentsDelta, 'amountCentsDelta');
 
-  if (safeAmountCents === 0) {
+  if (safeAmountCents === 0 && params.type !== 'WITHDRAWAL_REQUEST') {
     throw new Error('amountCentsDelta cannot be zero.');
   }
 
@@ -173,6 +179,18 @@ const applyLedgerMutation = async (params: {
     const profileData = profileSnapshot.data() as Record<string, unknown>;
     const currentBalanceCents = readBalanceCents(profileData);
     nextBalanceCents = currentBalanceCents + safeAmountCents;
+
+    // Special case for goal allocation: we need to update the goal object in the profile
+    if (params.type === 'GOAL_ALLOCATION' && params.goalId) {
+      const goals = (profileData.goals as any[]) || [];
+      const goalIndex = goals.findIndex((g) => g.id === params.goalId);
+      if (goalIndex === -1) {
+        throw new Error('Goal not found.');
+      }
+      goals[goalIndex].currentAmountCents = (goals[goalIndex].currentAmountCents || 0) + Math.abs(safeAmountCents);
+      transaction.update(profileRef, { goals });
+    }
+
     generatedTransactionId = transactionRef.id;
 
     transaction.update(profileRef, applyBalanceUpdate(nextBalanceCents));
@@ -184,8 +202,10 @@ const applyLedgerMutation = async (params: {
         amountCents: safeAmountCents,
         memo: safeMemo,
         type: params.type,
+        status: params.status,
         category: params.category,
         taskId: params.taskId,
+        goalId: params.goalId,
         nextBalanceCents,
       }),
     );
@@ -253,4 +273,75 @@ export const ledgerService = {
       type: 'ADJUSTMENT',
     });
   },
+
+  async recordWithdrawalRequest(input: LedgerBaseInput & { amountCents: number }): Promise<LedgerMutationResult> {
+    const safeAmountCents = assertIntegerCents(input.amountCents, 'amountCents');
+    if (safeAmountCents <= 0) {
+      throw new Error('amountCents must be a positive integer.');
+    }
+
+    return applyLedgerMutation({
+      firestore: input.firestore,
+      householdId: input.householdId,
+      profileId: input.profileId,
+      memo: input.memo,
+      amountCentsDelta: 0, // Lien logic: balance doesn't change yet
+      type: 'WITHDRAWAL_REQUEST',
+    });
+  },
+
+  async recordGoalAllocation(input: LedgerBaseInput & { amountCents: number, goalId: string }): Promise<LedgerMutationResult> {
+    const safeAmountCents = assertIntegerCents(input.amountCents, 'amountCents');
+    if (safeAmountCents <= 0) {
+      throw new Error('amountCents must be a positive integer.');
+    }
+
+    return applyLedgerMutation({
+      firestore: input.firestore,
+      householdId: input.householdId,
+      profileId: input.profileId,
+      memo: input.memo,
+      amountCentsDelta: safeAmountCents * -1,
+      type: 'GOAL_ALLOCATION',
+      goalId: input.goalId,
+    });
+  },
+
+  async finalizeWithdrawal(input: LedgerBaseInput & { transactionId: string, amountCents: number }): Promise<LedgerMutationResult> {
+    const safeAmountCents = assertIntegerCents(input.amountCents, 'amountCents');
+    const safeTransactionId = assertNonEmptyString(input.transactionId, 'transactionId');
+
+    let nextBalanceCents = 0;
+
+    await runTransaction(input.firestore, async (transaction) => {
+      const profileRef = doc(input.firestore, `households/${input.householdId}/profiles/${input.profileId}`);
+      const transactionRef = doc(profileRef, 'transactions', safeTransactionId);
+
+      const [profileSnap, transSnap] = await Promise.all([
+        transaction.get(profileRef),
+        transaction.get(transactionRef)
+      ]);
+
+      if (!profileSnap.exists()) throw new Error('Profile not found.');
+      if (!transSnap.exists()) throw new Error('Transaction not found.');
+
+      const profileData = profileSnap.data() as Record<string, unknown>;
+      const currentBalanceCents = readBalanceCents(profileData);
+      nextBalanceCents = currentBalanceCents - safeAmountCents;
+
+      transaction.update(profileRef, applyBalanceUpdate(nextBalanceCents));
+      transaction.update(transactionRef, {
+        status: 'PAID',
+        balanceAfterCents: nextBalanceCents,
+        balanceAfter: centsToDollars(nextBalanceCents),
+        updatedAt: serverTimestamp(),
+        paidAt: serverTimestamp(),
+      });
+    });
+
+    return {
+      transactionId: safeTransactionId,
+      nextBalanceCents,
+    };
+  }
 };

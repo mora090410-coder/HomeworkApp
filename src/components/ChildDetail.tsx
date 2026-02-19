@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Child, StandardTask, Task } from '@/types';
+import { Child, StandardTask, Task, Transaction } from '@/types';
 import { db } from '@/services/firebase';
-import { collection, onSnapshot, query, doc } from 'firebase/firestore';
+import { collection, onSnapshot, query, doc, orderBy, limit } from 'firebase/firestore';
 import {
   calculateHourlyRate,
   calculateTaskValue,
@@ -12,6 +12,7 @@ import {
   getTaskIcon,
   getTransactionAmountCents,
   mapTask,
+  mapTransaction,
 } from '@/utils';
 import { DEFAULT_RATES } from '@/constants';
 import {
@@ -31,7 +32,11 @@ import {
   Banknote,
   History,
   TrendingUp,
-  CreditCard
+  CreditCard,
+  CheckCircle2,
+  Clock,
+  ArrowUpRight,
+  ArrowDownLeft,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Popover } from '@headlessui/react';
@@ -73,8 +78,10 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 }) => {
   const [taskToComplete, setTaskToComplete] = useState<Task | null>(null);
   const [subCollectionTasks, setSubCollectionTasks] = useState<Task[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [transactionModalOpen, setTransactionModalOpen] = useState(false);
   const [transactionType, setTransactionType] = useState<'ADVANCE' | 'PAYOUT'>('ADVANCE');
+  const [isProcessingPayout, setIsProcessingPayout] = useState<string | null>(null);
 
   // Real-time listener for tasks in sub-collection
   useEffect(() => {
@@ -87,6 +94,21 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
     return () => unsubscribe();
   }, [child.householdId, child.id]);
 
+  // Real-time listener for transactions
+  useEffect(() => {
+    if (!child.householdId || !child.id) return;
+    const q = query(
+      collection(db, `households/${child.householdId}/profiles/${child.id}/transactions`),
+      orderBy('date', 'desc'),
+      limit(50)
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const mapped = snapshot.docs.map(doc => mapTransaction(doc.id, child.householdId!, doc.data() as Record<string, unknown>));
+      setTransactions(mapped);
+    });
+    return () => unsubscribe();
+  }, [child.householdId, child.id]);
+
   // Derived Values
   const hourlyRate = calculateHourlyRate(child.subjects, child.rates || DEFAULT_RATES);
   const hourlyRateCents = dollarsToCents(hourlyRate);
@@ -95,9 +117,10 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
   const hasDebt = balanceCents < 0;
 
   // Recent Transactions (History)
-  const recentTransactions = [...(child.history || [])]
+  const recentTransactions = transactions.length > 0 ? transactions : (child.history || []);
+  const sortedTransactions = [...recentTransactions]
     .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime())
-    .slice(0, 12);
+    .slice(0, 15);
 
   // Helper: Calculate Value
   const getTaskValueCents = (task: Task) => {
@@ -120,6 +143,9 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
   const pendingApprovalTasks = allCustomTasks.filter(t => t.status === 'PENDING_APPROVAL');
   const inProgressTasks = allCustomTasks.filter(t => t.status === 'ASSIGNED'); // Working on (Hustle)
 
+  // Pending Withdrawal Requests (Lien System)
+  const pendingWithdrawalRequests = transactions.filter(tx => tx.type === 'WITHDRAWAL_REQUEST' && tx.status === 'PENDING');
+
   // Actions
   const handleApproveAndDeposit = async (task: Task) => {
     const amountCents = getTaskValueCents(task);
@@ -135,6 +161,24 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
       console.error("Failed to approve and deposit", err);
       const message = err?.message || "Please check the ledger or try again.";
       alert(`Approve & Deposit failed: ${message}`);
+    }
+  };
+
+  const handleConfirmPayout = async (tx: Transaction) => {
+    if (!child.householdId) return;
+    setIsProcessingPayout(tx.id);
+    try {
+      await householdService.confirmWithdrawalPayout(
+        child.id,
+        tx.id,
+        tx.amountCents || dollarsToCents(tx.amount),
+        child.householdId
+      );
+    } catch (err: any) {
+      console.error("Failed to confirm payout", err);
+      alert(`Failed to confirm payout: ${err.message}`);
+    } finally {
+      setIsProcessingPayout(null);
     }
   };
 
@@ -198,11 +242,52 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
         </div>
       </section>
 
-      {/* 2. The 'Audit Queue' (Tasks Awaiting Approval) */}
+      {/* 2. Pending Cash Requests (Lien System) */}
+      {isParent && pendingWithdrawalRequests.length > 0 && (
+        <section className="animate-in slide-in-from-right duration-500">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-8 bg-amber-100 flex items-center justify-center rounded-none font-bold text-amber-600">
+              <Banknote className="w-4 h-4" />
+            </div>
+            <h3 className="text-xl font-bold font-heading text-neutral-black">Pending Cash Requests</h3>
+            <span className="bg-amber-100 text-amber-700 px-2 py-0.5 text-xs font-bold rounded-full">{pendingWithdrawalRequests.length}</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {pendingWithdrawalRequests.map(tx => (
+              <div key={tx.id} className="bg-white border border-l-4 border-l-amber-500 border-y-neutral-200 border-r-neutral-200 p-6 flex flex-col justify-between shadow-sm">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h4 className="text-lg font-bold font-heading text-neutral-black">{tx.memo || 'Cash Withdrawal'}</h4>
+                    <p className="text-sm text-neutral-400 font-sans flex items-center gap-1">
+                      <Clock className="w-3 h-3" /> {new Date(tx.date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="text-2xl font-bold text-neutral-black font-heading">
+                    {formatCurrency(centsToDollars(tx.amountCents || dollarsToCents(tx.amount)))}
+                  </div>
+                </div>
+
+                <Button
+                  onClick={() => handleConfirmPayout(tx)}
+                  variant="primary"
+                  isLoading={isProcessingPayout === tx.id}
+                  className="w-full !bg-amber-500 border-amber-500 hover:!bg-amber-600 text-white font-bold gap-2"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  Confirm Payout & Update Ledger
+                </Button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 3. The 'Audit Queue' (Tasks Awaiting Approval) */}
       {(pendingApprovalTasks.length > 0) && (
         <section>
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-8 h-8 bg-amber-100 flex items-center justify-center rounded-none">
+            <div className="w-8 h-8 bg-amber-50 flex items-center justify-center rounded-none border border-amber-200">
               <Hourglass className="w-4 h-4 text-amber-600" />
             </div>
             <h3 className="text-xl font-bold font-heading text-neutral-black">Audit Queue</h3>
@@ -211,7 +296,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {pendingApprovalTasks.map(task => (
-              <div key={task.id} className="bg-white border border-l-4 border-l-amber-400 border-y-neutral-200 border-r-neutral-200 p-6 shadow-sm flex flex-col justify-between">
+              <div key={task.id} className="bg-white border border-neutral-200 p-6 shadow-sm flex flex-col justify-between hover:border-amber-400 transition-colors">
                 <div>
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="text-lg font-bold font-heading text-neutral-black">{task.name}</h4>
@@ -259,7 +344,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
         </section>
       )}
 
-      {/* 3. The 'Payable' Section (Ready for Payout) */}
+      {/* 4. The 'Payable' Section (Ready for Payout) */}
       {isParent && (
         <section className="bg-neutral-900 text-white p-8 rounded-none border border-neutral-900 overflow-hidden relative">
           <div className="absolute top-0 right-0 p-32 bg-white/5 rounded-full blur-3xl" />
@@ -283,7 +368,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
         </section>
       )}
 
-      {/* 4. The 'Hustle' View (In-Progress Tasks) */}
+      {/* 5. The 'Hustle' View (In-Progress Tasks) */}
       <section>
         <div className="flex items-center gap-3 mb-6">
           <div className="w-8 h-8 bg-blue-100 flex items-center justify-center rounded-none">
@@ -303,7 +388,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
               const isBoosted = (task.bonusCents || 0) > 0 || (task.multiplier || 1) > 1;
 
               return (
-                <div key={task.id} className="bg-white border border-neutral-200 p-6 flex flex-col justify-between group relative overflow-hidden">
+                <div key={task.id} className="bg-white border border-neutral-200 p-6 flex flex-col justify-between group relative overflow-hidden active:scale-[0.98] transition-all">
                   {isBoosted && <div className="absolute top-0 right-0 w-16 h-16 bg-primary-gold/10 rounded-bl-full" />}
 
                   <div>
@@ -356,7 +441,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
         )}
       </section>
 
-      {/* 5. The Family Bank Statement (History) */}
+      {/* 6. The Family Bank Statement (History) */}
       <section>
         <div className="flex items-center gap-3 mb-6">
           <div className="w-8 h-8 bg-neutral-100 flex items-center justify-center rounded-none">
@@ -366,24 +451,42 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
         </div>
 
         <div className="border border-neutral-200 bg-white rounded-none overflow-hidden">
-          {recentTransactions.length === 0 && (
+          {sortedTransactions.length === 0 && (
             <div className="p-8 text-center text-neutral-darkGray text-sm">No recent transactions.</div>
           )}
           <div className="divide-y divide-neutral-100">
-            {recentTransactions.map(tx => {
+            {sortedTransactions.map(tx => {
               const amountCents = getTransactionAmountCents(tx);
               const amount = centsToDollars(Math.abs(amountCents));
-              const isPositive = tx.type === 'EARNING' || tx.type === 'ADJUSTMENT' && (tx.amountCents || 0) > 0;
-              const isWithdrawal = tx.type === 'ADVANCE' || (tx.type === 'ADJUSTMENT' && (tx.amountCents || 0) < 0);
+
+              let isPositive = amountCents > 0;
+              let statusLabel = '';
+              let Icon = isPositive ? ArrowUpRight : ArrowDownLeft;
+              let iconColor = isPositive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
+
+              if (tx.type === 'WITHDRAWAL_REQUEST') {
+                isPositive = false;
+                Icon = Banknote;
+                iconColor = tx.status === 'PENDING' ? 'bg-amber-100 text-amber-700' : 'bg-neutral-100 text-neutral-400';
+                statusLabel = tx.status === 'PENDING' ? '(Pending Payout)' : '(Paid)';
+              } else if (tx.type === 'GOAL_ALLOCATION') {
+                isPositive = false;
+                Icon = Target;
+                iconColor = 'bg-blue-100 text-blue-700';
+                statusLabel = '(Savings Goal)';
+              }
 
               return (
                 <div key={tx.id} className="p-4 flex items-center justify-between hover:bg-neutral-50 transition-colors">
                   <div className="flex items-center gap-4">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${isPositive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
-                      {isPositive ? '+' : '-'}
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${iconColor}`}>
+                      <Icon className="w-5 h-5" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-neutral-black font-sans">{tx.memo || (isPositive ? 'Deposit' : 'Withdrawal')}</p>
+                      <p className="text-sm font-bold text-neutral-black font-sans">
+                        {tx.memo || (isPositive ? 'Deposit' : 'Withdrawal')}
+                        {statusLabel && <span className="ml-2 text-[10px] font-normal opacity-70 uppercase tracking-tighter">{statusLabel}</span>}
+                      </p>
                       <p className="text-xs text-neutral-400">{new Date(tx.date).toLocaleDateString()} • {new Date(tx.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
                   </div>

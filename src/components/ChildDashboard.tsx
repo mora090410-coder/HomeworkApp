@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { Child, Task } from '@/types';
+import { Child, Task, Transaction, SavingsGoal } from '@/types';
 import {
     centsToDollars,
     formatCurrency,
     getTaskIcon,
     calculateTaskValue,
-    calculateHourlyRate
+    calculateHourlyRate,
+    dollarsToCents
 } from '@/utils';
 import {
     LogOut,
@@ -16,13 +17,20 @@ import {
     Sparkles,
     TrendingUp,
     Briefcase,
-    AlertCircle
+    AlertCircle,
+    PiggyBank,
+    CreditCard,
+    Plus,
+    History
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { householdService } from '@/services/householdService';
 
 interface ChildDashboardProps {
     child: Child;
     availableTasks: Task[];
+    transactions: Transaction[];
+    householdId: string;
     onSubmitTask: (childId: string, task: Task) => void;
     onClaimTask: (childId: string, taskId: string) => void;
     onSignOut: () => void;
@@ -31,33 +39,116 @@ interface ChildDashboardProps {
 const ChildDashboard: React.FC<ChildDashboardProps> = ({
     child,
     availableTasks,
+    transactions,
+    householdId,
     onSubmitTask,
     onClaimTask,
     onSignOut,
 }) => {
     const [claimingTaskId, setClaimingTaskId] = useState<string | null>(null);
     const [justClaimed, setJustClaimed] = useState<string | null>(null);
+    const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+    const [showTransferModal, setShowTransferModal] = useState<string | null>(null);
+    const [showAddGoalModal, setShowAddGoalModal] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    // Form states
+    const [withdrawAmount, setWithdrawAmount] = useState('');
+    const [withdrawMemo, setWithdrawMemo] = useState('');
+    const [transferAmount, setTransferAmount] = useState('');
+    const [newGoalName, setNewGoalName] = useState('');
+    const [newGoalTarget, setNewGoalTarget] = useState('');
 
     // Derived Values
     const hourlyRate = useMemo(() => calculateHourlyRate(child.subjects, child.rates), [child.subjects, child.rates]);
     const balance = useMemo(() => centsToDollars(child.balanceCents || 0), [child.balanceCents]);
 
+    const pendingWithdrawalCents = useMemo(() => {
+        return transactions
+            .filter(t => t.type === 'WITHDRAWAL_REQUEST' && t.status === 'PENDING')
+            .reduce((sum, t) => sum + (t.amountCents || 0), 0);
+    }, [transactions]);
+
+    const spendableBalanceCents = (child.balanceCents || 0) - pendingWithdrawalCents;
+    const spendableBalance = centsToDollars(spendableBalanceCents);
+
     // Filter Tasks
     const openBounties = useMemo(() => availableTasks.filter((t: Task) => t.status === 'OPEN'), [availableTasks]);
     const myHustle = useMemo(() => (child.customTasks || []).filter((t: Task) => t.status === 'ASSIGNED' || t.status === 'PENDING_APPROVAL'), [child.customTasks]);
 
+    const goals = useMemo(() => child.goals || [], [child.goals]);
+
     const handleClaim = (taskId: string) => {
         setClaimingTaskId(taskId);
-
-        // Optimistic UI interaction
         setTimeout(() => {
             setClaimingTaskId(null);
             setJustClaimed(taskId);
             onClaimTask(child.id, taskId);
-
-            // Reset success state after a moment
             setTimeout(() => setJustClaimed(null), 2000);
-        }, 600); // Brief delay to feel the "Transaction"
+        }, 600);
+    };
+
+    const handleRequestWithdrawal = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const amountCents = dollarsToCents(parseFloat(withdrawAmount));
+        if (amountCents > spendableBalanceCents) return;
+
+        setIsProcessing(true);
+        try {
+            await householdService.requestWithdrawal(child.id, amountCents, withdrawMemo || 'Cash Withdrawal', householdId);
+            setShowWithdrawModal(false);
+            setWithdrawAmount('');
+            setWithdrawMemo('');
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const handleTransferToGoal = async (goalId: string) => {
+        const amountCents = dollarsToCents(parseFloat(transferAmount));
+        if (amountCents > spendableBalanceCents) return;
+
+        setIsProcessing(true);
+        try {
+            await householdService.transferToGoal(child.id, goalId, amountCents, householdId);
+            setShowTransferModal(null);
+            setTransferAmount('');
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const handleAddGoal = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const targetCents = dollarsToCents(parseFloat(newGoalTarget));
+
+        setIsProcessing(true);
+        try {
+            await householdService.addSavingsGoal(child.id, newGoalName, targetCents, householdId);
+            setShowAddGoalModal(false);
+            setNewGoalName('');
+            setNewGoalTarget('');
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const handleClaimGoal = async (goalId: string) => {
+        setIsProcessing(true);
+        try {
+            await householdService.claimGoal(child.id, goalId, householdId);
+            // Confetti effect would go here
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     const getTaskDisplayValue = (task: Task) => {
@@ -76,7 +167,6 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                     background: `linear-gradient(135deg, ${avatarColor}1a 0%, #ffffff 50%, #ffffff 100%)`
                 }}
             >
-                {/* Abstract decorative elements for "Ive" atmosphere */}
                 <div
                     className="absolute top-[-10%] right-[-5%] w-64 h-64 rounded-full blur-3xl opacity-20 animate-pulse"
                     style={{ backgroundColor: avatarColor }}
@@ -97,18 +187,25 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                             </div>
                             <span className="text-xl font-bold tracking-tight font-heading">Vault</span>
                         </div>
-                        <button
-                            onClick={onSignOut}
-                            className="p-2 text-neutral-400 hover:text-neutral-900 transition-colors"
-                            title="Sign Out"
-                        >
-                            <LogOut className="w-5 h-5" />
-                        </button>
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => setShowWithdrawModal(true)}
+                                className="flex items-center gap-2 px-4 py-2 bg-white/50 backdrop-blur-sm border border-neutral-200 rounded-full text-sm font-bold text-neutral-700 hover:bg-white transition-all shadow-sm"
+                            >
+                                <CreditCard className="w-4 h-4" /> Cash Out
+                            </button>
+                            <button
+                                onClick={onSignOut}
+                                className="p-2 text-neutral-400 hover:text-neutral-900 transition-colors"
+                                title="Sign Out"
+                            >
+                                <LogOut className="w-5 h-5" />
+                            </button>
+                        </div>
                     </header>
 
                     <div className="text-center">
                         <div className="inline-block relative group">
-                            {/* Glassmorphism Container */}
                             <div className="absolute inset-0 bg-white/40 backdrop-blur-md rounded-3xl -m-6 border border-white/50 shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]" />
 
                             <div className="relative">
@@ -117,6 +214,19 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                     <span className="text-4xl md:text-5xl opacity-30 -mt-4">$</span>
                                     {balance.toFixed(2)}
                                 </h1>
+                                {pendingWithdrawalCents > 0 && (
+                                    <div className="mt-4 flex flex-col items-center animate-in fade-in slide-in-from-top-2 duration-700">
+                                        <div className="flex items-center gap-2 text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-100 shadow-sm">
+                                            <TrendingUp className="w-3.5 h-3.5" />
+                                            <span className="text-[10px] font-bold uppercase tracking-widest">
+                                                Lien: -{formatCurrency(centsToDollars(pendingWithdrawalCents))}
+                                            </span>
+                                        </div>
+                                        <p className="text-xs font-bold text-neutral-500 mt-2 uppercase tracking-wide">
+                                            Spendable: <span className="text-neutral-900 font-mono">{formatCurrency(spendableBalance)}</span>
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -132,6 +242,82 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
             </section>
 
             <main className="max-w-4xl mx-auto px-6 -mt-12 pb-24 space-y-16">
+                {/* Savings Goals Section */}
+                <section>
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-lg font-bold font-heading flex items-center gap-2 text-neutral-800">
+                            <PiggyBank className="w-5 h-5 text-pink-500" />
+                            Savings Goals
+                        </h3>
+                        <Button
+                            onClick={() => setShowAddGoalModal(true)}
+                            className="bg-neutral-50 hover:bg-neutral-100 text-neutral-600 border border-neutral-200 rounded-full px-4 py-1.5 text-xs font-bold h-auto shadow-none"
+                        >
+                            <Plus className="w-3.5 h-3.5 mr-1" /> New Goal
+                        </Button>
+                    </div>
+
+                    {goals.length === 0 ? (
+                        <div className="bg-neutral-50/50 border border-neutral-100 border-dashed rounded-2xl p-8 text-center">
+                            <p className="text-sm text-neutral-400 italic">No goals set yet. Save for something special!</p>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {goals.filter(g => g.status === 'ACTIVE').map(goal => {
+                                const progress = Math.min(100, (goal.currentAmountCents / goal.targetAmountCents) * 100);
+                                const isComplete = progress >= 100;
+
+                                return (
+                                    <div key={goal.id} className="bg-white border border-neutral-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div>
+                                                <h4 className="font-bold text-neutral-900">{goal.name}</h4>
+                                                <p className="text-xs font-bold text-neutral-400 uppercase tracking-wider mt-0.5">
+                                                    {formatCurrency(centsToDollars(goal.currentAmountCents))} of {formatCurrency(centsToDollars(goal.targetAmountCents))}
+                                                </p>
+                                            </div>
+                                            <div className="text-right">
+                                                <span className="text-xl font-mono font-bold text-neutral-900">{Math.floor(progress)}%</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="w-full h-4 bg-neutral-100 rounded-full mb-6 overflow-hidden border border-neutral-50 shadow-inner">
+                                            <div
+                                                className="h-full rounded-full transition-all duration-1000 ease-out relative shadow-[0_0_10px_rgba(0,0,0,0.1)]"
+                                                style={{
+                                                    width: `${progress}%`,
+                                                    backgroundColor: avatarColor,
+                                                    boxShadow: `0 0 15px ${avatarColor}40`
+                                                }}
+                                            >
+                                                <div className="absolute inset-0 bg-white/20 animate-pulse" />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex gap-2 relative z-10">
+                                            {isComplete ? (
+                                                <Button
+                                                    onClick={() => handleClaimGoal(goal.id)}
+                                                    className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 rounded-xl border-none shadow-lg shadow-emerald-500/20"
+                                                >
+                                                    Claim Goal! 🎁
+                                                </Button>
+                                            ) : (
+                                                <Button
+                                                    onClick={() => setShowTransferModal(goal.id)}
+                                                    className="flex-1 bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-2 rounded-xl border-none"
+                                                >
+                                                    Transfer Funds
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </section>
+
                 {/* 2. Available Bounties (Market) */}
                 <section>
                     <div className="flex items-center justify-between mb-6">
@@ -175,8 +361,8 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                             onClick={() => handleClaim(task.id)}
                                             disabled={claimingTaskId === task.id || justClaimed === task.id}
                                             className={`w-full py-6 rounded-xl font-bold transition-all duration-300 transform border-none shadow-none ${justClaimed === task.id
-                                                    ? 'bg-emerald-500 text-white translate-y-0 scale-100'
-                                                    : 'bg-neutral-900 text-white hover:bg-neutral-800 hover:scale-[1.02] active:scale-[0.98]'
+                                                ? 'bg-emerald-500 text-white translate-y-0 scale-100'
+                                                : 'bg-neutral-900 text-white hover:bg-neutral-800 hover:scale-[1.02] active:scale-[0.98]'
                                                 }`}
                                         >
                                             {claimingTaskId === task.id ? (
@@ -197,7 +383,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                 {/* 3. My Hustle (Work in Progress) */}
                 <section>
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-bold font-heading flex items-center gap-2 text-primary-600">
+                        <h3 className="text-lg font-bold font-heading flex items-center gap-2 text-blue-600">
                             <Briefcase className="w-5 h-5" />
                             Current Hustle
                         </h3>
@@ -260,6 +446,147 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                     )}
                 </section>
             </main>
+
+            {/* Modals */}
+            {showWithdrawModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-neutral-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+                        <div className="p-8">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-2xl font-bold font-heading">Request Payout</h3>
+                                <button onClick={() => setShowWithdrawModal(false)} className="text-neutral-400 hover:text-neutral-900 p-2">&times;</button>
+                            </div>
+
+                            <form onSubmit={handleRequestWithdrawal} className="space-y-6">
+                                <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-100">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Available to Withdraw</p>
+                                    <p className="text-2xl font-mono font-bold text-neutral-900">{formatCurrency(spendableBalance)}</p>
+                                </div>
+
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2">Amount ($)</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        required
+                                        value={withdrawAmount}
+                                        onChange={(e) => setWithdrawAmount(e.target.value)}
+                                        className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-5 py-4 font-mono text-xl focus:ring-2 focus:ring-neutral-900 focus:outline-none"
+                                        placeholder="0.00"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2">What is it for?</label>
+                                    <input
+                                        type="text"
+                                        value={withdrawMemo}
+                                        onChange={(e) => setWithdrawMemo(e.target.value)}
+                                        className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-5 py-4 text-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none"
+                                        placeholder="Toys, robux, snacks..."
+                                    />
+                                </div>
+
+                                <Button
+                                    type="submit"
+                                    disabled={isProcessing || !withdrawAmount || dollarsToCents(parseFloat(withdrawAmount)) > spendableBalanceCents}
+                                    className="w-full bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-4 rounded-2xl shadow-xl shadow-neutral-900/20 active:scale-[0.98] transition-all"
+                                >
+                                    {isProcessing ? 'Processing...' : 'Send Request to Parent'}
+                                </Button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showTransferModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-neutral-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+                        <div className="p-8">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-2xl font-bold font-heading">Allocate Capital</h3>
+                                <button onClick={() => setShowTransferModal(null)} className="text-neutral-400 hover:text-neutral-900 p-2">&times;</button>
+                            </div>
+
+                            <div className="p-4 bg-neutral-50 rounded-2xl border border-neutral-100 mb-6">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">Available to Transfer</p>
+                                <p className="text-2xl font-mono font-bold text-neutral-900">{formatCurrency(spendableBalance)}</p>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2">Amount ($)</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        value={transferAmount}
+                                        onChange={(e) => setTransferAmount(e.target.value)}
+                                        className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-5 py-4 font-mono text-xl focus:ring-2 focus:ring-neutral-900 focus:outline-none"
+                                        placeholder="0.00"
+                                    />
+                                </div>
+
+                                <Button
+                                    onClick={() => handleTransferToGoal(showTransferModal)}
+                                    disabled={isProcessing || !transferAmount || dollarsToCents(parseFloat(transferAmount)) > spendableBalanceCents}
+                                    className="w-full bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-4 rounded-2xl shadow-xl shadow-neutral-900/20"
+                                >
+                                    {isProcessing ? 'Processing...' : 'Securely Allocate to Goal'}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showAddGoalModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-neutral-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+                        <div className="p-8">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-2xl font-bold font-heading">New Savings Goal</h3>
+                                <button onClick={() => setShowAddGoalModal(false)} className="text-neutral-400 hover:text-neutral-900 p-2">&times;</button>
+                            </div>
+
+                            <form onSubmit={handleAddGoal} className="space-y-6">
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2">Goal Name</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={newGoalName}
+                                        onChange={(e) => setNewGoalName(e.target.value)}
+                                        className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-5 py-4 text-base focus:ring-2 focus:ring-neutral-900 focus:outline-none"
+                                        placeholder="LEGO Set, New Bike, iPad..."
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-2">Target Amount ($)</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        required
+                                        value={newGoalTarget}
+                                        onChange={(e) => setNewGoalTarget(e.target.value)}
+                                        className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-5 py-4 font-mono text-xl focus:ring-2 focus:ring-neutral-900 focus:outline-none"
+                                        placeholder="0.00"
+                                    />
+                                </div>
+
+                                <Button
+                                    type="submit"
+                                    disabled={isProcessing || !newGoalName || !newGoalTarget}
+                                    className="w-full bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-4 rounded-2xl shadow-xl shadow-neutral-900/20"
+                                >
+                                    {isProcessing ? 'Creating...' : 'Establish Savings Goal'}
+                                </Button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

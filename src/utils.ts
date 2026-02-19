@@ -156,6 +156,56 @@ export const parseTaskStatus = (value: unknown): TaskStatus => {
   return 'OPEN';
 };
 
+const toIsoString = (value: unknown): string => {
+  if (value && typeof value === 'object' && 'toDate' in value) {
+    return (value as { toDate: () => Date }).toDate().toISOString();
+  }
+  if (typeof value === 'string' && value.length > 0) {
+    return value;
+  }
+  return new Date().toISOString();
+};
+
+export const mapTransaction = (
+  transactionId: string,
+  householdId: string,
+  source: Record<string, unknown>,
+): Transaction => {
+  return {
+    id: transactionId,
+    householdId,
+    familyId: householdId,
+    profileId: typeof source.profileId === 'string' ? source.profileId : undefined,
+    profileName: typeof source.profileName === 'string' ? source.profileName : undefined,
+    date: toIsoString(source.date),
+    amountCents:
+      typeof source.amountCents === 'number' && Number.isFinite(source.amountCents)
+        ? Math.round(source.amountCents)
+        : undefined,
+    amount:
+      typeof source.amount === 'number' && Number.isFinite(source.amount)
+        ? source.amount
+        : centsToDollars(
+          typeof source.amountCents === 'number' && Number.isFinite(source.amountCents)
+            ? Math.round(source.amountCents)
+            : 0,
+        ),
+    memo: typeof source.memo === 'string' ? source.memo : '',
+    type: source.type as Transaction['type'],
+    status: source.status as any,
+    category: source.category as any,
+    taskId: typeof source.taskId === 'string' ? source.taskId : undefined,
+    balanceAfterCents:
+      typeof source.balanceAfterCents === 'number' && Number.isFinite(source.balanceAfterCents)
+        ? Math.round(source.balanceAfterCents)
+        : undefined,
+    balanceAfter:
+      typeof source.balanceAfter === 'number' && Number.isFinite(source.balanceAfter)
+        ? source.balanceAfter
+        : undefined,
+  };
+};
+
 export const mapTask = (taskId: string, householdId: string, source: Record<string, unknown>): Task => {
   return {
     id: taskId,

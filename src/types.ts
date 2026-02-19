@@ -23,6 +23,7 @@ export type TaskStatus =
   | 'PENDING_PAYMENT'
   | 'PENDING_WITHDRAWAL'
   | 'PAID'
+  | 'REJECTED'
   | 'DELETED';
 
 export interface GradeConfig {
@@ -95,13 +96,23 @@ export interface Transaction {
   amount: number;
   amountCents?: number;
   memo: string;
-  type: 'EARNING' | 'ADVANCE' | 'ADJUSTMENT';
+  type: 'EARNING' | 'ADVANCE' | 'ADJUSTMENT' | 'WITHDRAWAL_REQUEST' | 'GOAL_ALLOCATION';
+  status?: 'PENDING' | 'PAID' | 'REJECTED';
   category?: AdvanceCategory;
   profileId?: string;
   profileName?: string;
   taskId?: string;
   balanceAfter?: number;
   balanceAfterCents?: number;
+}
+
+export interface SavingsGoal {
+  id: string;
+  name: string;
+  targetAmountCents: number;
+  currentAmountCents: number;
+  status: 'ACTIVE' | 'CLAIMED';
+  createdAt?: string;
 }
 
 export interface Profile {
@@ -120,6 +131,7 @@ export interface Profile {
   currentHourlyRate: number;
   balance: number;
   balanceCents?: number;
+  goals?: SavingsGoal[];
   setupStatus?: ProfileSetupStatus;
   inviteLastSentAt?: string | null;
   setupCompletedAt?: string | null;
@@ -139,6 +151,7 @@ export interface Child {
   balance: number;
   balanceCents?: number;
   history?: Transaction[];
+  goals?: SavingsGoal[];
   customTasks: Task[];
   rates: Record<Grade, number>;
   currentHourlyRate: number;

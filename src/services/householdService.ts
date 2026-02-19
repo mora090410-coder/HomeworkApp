@@ -472,6 +472,16 @@ const mapProfile = (profileId: string, householdId: string, source: Record<strin
     // balance is always a derived view, even for negative values (advances).
     balanceCents,
     balance: centsToDollars(balanceCents),
+    goals: Array.isArray(source.goals)
+      ? source.goals.map((goal: any) => ({
+        id: goal.id,
+        name: goal.name,
+        targetAmountCents: goal.targetAmountCents,
+        currentAmountCents: goal.currentAmountCents,
+        status: goal.status,
+        createdAt: toNullableIsoString(goal.createdAt),
+      }))
+      : [],
     setupStatus: parseProfileSetupStatus(source.setupStatus),
     inviteLastSentAt: toNullableIsoString(source.inviteLastSentAt),
     setupCompletedAt: toNullableIsoString(source.setupCompletedAt),
@@ -2297,16 +2307,15 @@ export const householdService = {
             const multiplier = item.multiplier || 1.0;
 
             const taskData = {
-              id: newTaskRef.id,
-              householdId: householdId,
+              householdId,
               name: item.name,
-              baselineMinutes: item.baselineMinutes || 0,
-              valueCents: item.valueCents || 0,
               status: 'ASSIGNED',
               assigneeId: child.id,
               catalogItemId: item.id,
               isRecurring: true,
               multiplier: multiplier,
+              baselineMinutes: item.baselineMinutes || 0,
+              valueCents: Math.round((item.valueCents || 0) * multiplier),
               createdAt: serverTimestamp(),
               updatedAt: serverTimestamp(),
             };
@@ -2319,60 +2328,202 @@ export const householdService = {
 
       if (batchCount > 0) {
         await batch.commit();
-        console.log(`Spawned ${batchCount} recurring tasks.`);
+      }
+    } catch (error) {
+      throw normalizeError('Failed to spawn daily recurring tasks', error);
+    }
+  },
+
+  async requestWithdrawal(profileId: string, amountCents: number, memo: string, householdId: string): Promise<void> {
+    try {
+      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+      const safeMemo = assertNonEmptyString(memo, 'memo');
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+      const normalizedAmountCents = Math.round(amountCents);
+
+      if (normalizedAmountCents <= 0) {
+        throw new Error('amountCents must be a positive integer.');
       }
 
+      await ledgerService.recordWithdrawalRequest({
+        firestore: getFirestore(),
+        householdId: safeHouseholdId,
+        profileId: safeProfileId,
+        memo: safeMemo,
+        amountCents: normalizedAmountCents,
+      });
     } catch (error) {
-      console.error('Failed to spawn recurring tasks:', error);
-      // Don't throw, just log. We don't want to crash the dashboard if this fails.
+      throw normalizeError('Failed to request withdrawal', error);
+    }
+  },
+
+  async transferToGoal(profileId: string, goalId: string, amountCents: number, householdId: string): Promise<void> {
+    try {
+      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+      const safeGoalId = assertNonEmptyString(goalId, 'goalId');
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+      const normalizedAmountCents = Math.round(amountCents);
+
+      if (normalizedAmountCents <= 0) {
+        throw new Error('amountCents must be a positive integer.');
+      }
+
+      await ledgerService.recordGoalAllocation({
+        firestore: getFirestore(),
+        householdId: safeHouseholdId,
+        profileId: safeProfileId,
+        goalId: safeGoalId,
+        amountCents: normalizedAmountCents,
+        memo: `Transfer to Goal`,
+      });
+    } catch (error) {
+      throw normalizeError('Failed to transfer to goal', error);
+    }
+  },
+
+  async addSavingsGoal(profileId: string, name: string, targetAmountCents: number, householdId: string): Promise<void> {
+    try {
+      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+      const safeName = assertNonEmptyString(name, 'name');
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+      const normalizedTargetCents = Math.round(targetAmountCents);
+
+      if (normalizedTargetCents <= 0) {
+        throw new Error('targetAmountCents must be a positive integer.');
+      }
+
+      const firestore = getFirestore();
+      const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);
+
+      await runTransaction(firestore, async (transaction) => {
+        const profileSnap = await transaction.get(profileRef);
+        if (!profileSnap.exists()) throw new Error('Profile not found.');
+
+        const data = profileSnap.data() as Record<string, unknown>;
+        const goals = (data.goals as any[]) || [];
+
+        const newGoal = {
+          id: crypto.randomUUID(),
+          name: safeName,
+          targetAmountCents: normalizedTargetCents,
+          currentAmountCents: 0,
+          status: 'ACTIVE',
+          createdAt: serverTimestamp(),
+        };
+
+        transaction.update(profileRef, {
+          goals: [...goals, newGoal],
+          updatedAt: serverTimestamp(),
+        });
+      });
+    } catch (error) {
+      throw normalizeError('Failed to add savings goal', error);
+    }
+  },
+
+  async claimGoal(profileId: string, goalId: string, householdId: string): Promise<void> {
+    try {
+      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+      const safeGoalId = assertNonEmptyString(goalId, 'goalId');
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+
+      const firestore = getFirestore();
+      const profileRef = doc(firestore, `households/${safeHouseholdId}/profiles/${safeProfileId}`);
+
+      await runTransaction(firestore, async (transaction) => {
+        const profileSnap = await transaction.get(profileRef);
+        if (!profileSnap.exists()) throw new Error('Profile not found.');
+
+        const data = profileSnap.data() as Record<string, unknown>;
+        const goals = (data.goals as any[]) || [];
+        const goalIndex = goals.findIndex((g: any) => g.id === safeGoalId);
+        if (goalIndex === -1) throw new Error('Goal not found.');
+
+        goals[goalIndex].status = 'CLAIMED';
+        goals[goalIndex].claimedAt = serverTimestamp();
+
+        transaction.update(profileRef, {
+          goals,
+          updatedAt: serverTimestamp(),
+        });
+      });
+    } catch (error) {
+      throw normalizeError('Failed to claim goal', error);
+    }
+  },
+
+  async confirmWithdrawalPayout(profileId: string, transactionId: string, amountCents: number, householdId: string): Promise<void> {
+    try {
+      const safeProfileId = assertNonEmptyString(profileId, 'profileId');
+      const safeTransactionId = assertNonEmptyString(transactionId, 'transactionId');
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+
+      await ledgerService.finalizeWithdrawal({
+        firestore: getFirestore(),
+        householdId: safeHouseholdId,
+        profileId: safeProfileId,
+        transactionId: safeTransactionId,
+        amountCents,
+        memo: 'Withdrawal Payout Confirmed',
+      });
+    } catch (error) {
+      throw normalizeError('Failed to confirm payout', error);
     }
   },
 
   async rejectTask(householdId: string, taskId: string, rejectionComment: string, assigneeId: string): Promise<void> {
-    const firestore = getFirestore();
-    const safeTaskId = assertNonEmptyString(taskId, 'taskId');
-    const safeComment = assertNonEmptyString(rejectionComment, 'rejectionComment');
-    const safeAssigneeId = assertNonEmptyString(assigneeId, 'assigneeId');
+    try {
+      const firestore = getFirestore();
+      const safeTaskId = assertNonEmptyString(taskId, 'taskId');
+      const safeComment = assertNonEmptyString(rejectionComment, 'rejectionComment');
+      const safeAssigneeId = assertNonEmptyString(assigneeId, 'assigneeId');
 
-    const result = await resolveTaskLocationById(safeTaskId, householdId, safeAssigneeId);
-    if (!result) {
-      throw new Error('Task not found');
+      const result = await resolveTaskLocationById(safeTaskId, householdId, safeAssigneeId);
+      if (!result) {
+        throw new Error('Task not found');
+      }
+
+      const taskRef = doc(firestore, `households/${result.householdId}/profiles/${result.profileId}/tasks/${result.taskId}`);
+      await updateDoc(taskRef, {
+        status: 'ASSIGNED',
+        rejectionComment: safeComment,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (error) {
+      throw normalizeError('Failed to reject task', error);
     }
-
-    const taskRef = doc(firestore, `households/${result.householdId}/profiles/${result.profileId}/tasks/${result.taskId}`);
-    await updateDoc(taskRef, {
-      status: 'ASSIGNED',
-      rejectionComment: safeComment,
-      updatedAt: serverTimestamp(),
-    });
   },
 
   async boostTask(householdId: string, taskId: string, bonusCentsDelta: number, assigneeId: string): Promise<void> {
-    const firestore = getFirestore();
-    const safeTaskId = assertNonEmptyString(taskId, 'taskId');
-    const safeAssigneeId = assertNonEmptyString(assigneeId, 'assigneeId');
+    try {
+      const firestore = getFirestore();
+      const safeTaskId = assertNonEmptyString(taskId, 'taskId');
+      const safeAssigneeId = assertNonEmptyString(assigneeId, 'assigneeId');
 
-    const result = await resolveTaskLocationById(safeTaskId, householdId, safeAssigneeId);
-    if (!result) {
-      throw new Error('Task not found');
-    }
+      const result = await resolveTaskLocationById(safeTaskId, householdId, safeAssigneeId);
+      if (!result) {
+        throw new Error('Task not found');
+      }
 
-    const taskRef = doc(firestore, `households/${result.householdId}/profiles/${result.profileId}/tasks/${result.taskId}`);
+      const taskRef = doc(firestore, `households/${result.householdId}/profiles/${result.profileId}/tasks/${result.taskId}`);
 
-    await runTransaction(firestore, async (transaction) => {
-      const docSnap = await transaction.get(taskRef);
-      if (!docSnap.exists()) throw new Error("Task does not exist");
+      await runTransaction(firestore, async (transaction) => {
+        const docSnap = await transaction.get(taskRef);
+        if (!docSnap.exists()) throw new Error("Task does not exist");
 
-      const data = docSnap.data();
-      const currentBonus = typeof data.bonusCents === 'number' ? data.bonusCents : 0;
-      const newBonus = currentBonus + bonusCentsDelta;
+        const data = docSnap.data();
+        const currentBonus = typeof data.bonusCents === 'number' ? data.bonusCents : 0;
+        const newBonus = currentBonus + bonusCentsDelta;
 
-      transaction.update(taskRef, {
-        bonusCents: newBonus,
-        updatedAt: serverTimestamp()
+        transaction.update(taskRef, {
+          bonusCents: newBonus,
+          updatedAt: serverTimestamp()
+        });
       });
-    });
-  },
+    } catch (error) {
+      throw normalizeError('Failed to boost task', error);
+    }
+  }
 };
 
 export const verifyProfilePin = async (
