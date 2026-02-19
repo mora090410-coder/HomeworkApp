@@ -9,7 +9,7 @@
 body {
     margin: 0;
     font-family: 'Inter', sans-serif;
-    background-color: var(--bg-app);
+    @apply bg-photon-white dark:bg-obsidian;
     color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -110,13 +110,12 @@ body {
         pointer-events: none;
     }
 
-    .glass-card {
-        @apply backdrop-blur-md rounded-xl shadow-soft-ambient;
-        background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5));
+    .dark .luminary-glow:not([data-text])::after {
+        opacity: 0.8;
     }
 
-    .dark .glass-card {
-        background: linear-gradient(to bottom right, rgba(17, 24, 39, 0.8), rgba(17, 24, 39, 0.5));
+    .glass-card {
+        @apply backdrop-blur-md rounded-3xl bg-white/80 border border-white/20 shadow-sm dark:bg-white/5 dark:border-white/10 dark:shadow-2xl;
     }
 
     .tactile-button {

@@ -12,8 +12,8 @@ import { Link } from 'react-router-dom';
  */
 const PillarCard: React.FC<{ title: string; body: string; delay?: string }> = ({ title, body, delay = '' }) => (
     <div className={`flex flex-col p-10 glass-card border-0 text-center items-center justify-center transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl ${delay}`}>
-        <h3 className="text-2xl font-bold font-heading text-brand mb-4">{title}</h3>
-        <p className="text-lg leading-relaxed text-brand-text">{body}</p>
+        <h3 className="text-2xl font-bold font-heading text-obsidian dark:text-white mb-4">{title}</h3>
+        <p className="text-lg leading-relaxed text-neutral-text dark:text-neutral-400">{body}</p>
     </div>
 );
 
@@ -42,7 +42,7 @@ const pillarCards = [
 
 export default function LandingPage() {
     return (
-        <div className="relative min-h-screen w-full overflow-hidden bg-white font-sans text-brand selection:bg-amber-500/30">
+        <div className="relative min-h-screen w-full overflow-hidden bg-photon-white dark:bg-obsidian font-sans text-brand selection:bg-amber-500/30">
             {/* ── Minimal Header ── */}
             <header className="absolute top-0 w-full z-50">
                 <div className="max-w-[1240px] mx-auto px-6 sm:px-10 h-24 flex items-center justify-end">
@@ -69,13 +69,13 @@ export default function LandingPage() {
                         </div>
 
                         {/* H1 */}
-                        <h1 className="text-7xl font-bold text-obsidian tracking-tighter leading-[1.1] font-['SF_Pro_Display',-apple-system,sans-serif]">
+                        <h1 className="text-7xl font-bold text-obsidian dark:text-white tracking-tighter leading-[1.1] font-['SF_Pro_Display',-apple-system,sans-serif]">
                             The Family Economy.<br />
                             Redefined.
                         </h1>
 
                         {/* Subtitle */}
-                        <p className="text-xl text-neutral-text leading-loose max-w-[760px] font-light">
+                        <p className="text-xl text-neutral-text dark:text-neutral-400 leading-loose max-w-[760px] font-light">
                             HomeWork is the definitive system for teaching children the value of time and the weight of a dollar. It transforms daily responsibilities into personal capital, providing the structure every modern home requires.
                         </p>
 
