@@ -20,8 +20,10 @@ service cloud.firestore {
     // True when the signed-in user is a member of the given household.
     // Membership is stored at: users/{uid}/households/{householdId}
     function isMember(householdId) {
-      return isAuthed() &&
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)/households/$(householdId));
+      return isAuthed() && (
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)/households/$(householdId)) ||
+        (request.auth.token.role == 'CHILD' && request.auth.token.householdId == householdId)
+      );
     }
 
     // True when the signed-in user has the ADMIN role in the given household.
