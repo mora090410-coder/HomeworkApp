@@ -4,10 +4,11 @@
  */
 
 export const colors = {
-  primary: {
-    cardinal:      '#990000',
-    cardinalHover: '#7A0000',
-    gold:          '#FFCC00',
+  brand: {
+    photonWhite: '#FFFFFF',
+    vaporGrey: '#F3F4F6',
+    obsidian: '#111827',
+    neutralText: '#6B7280',
   },
   neutral: {
     // Tailwind slate scale — keeps neutral-50 … neutral-950 working
@@ -22,15 +23,13 @@ export const colors = {
   '800': '#1e293b',
   '900': '#0f172a',
   '950': '#020617',
-    // Brand-named tokens
-    black:    '#000000',
-    white:    '#FFFFFF',
-    lightGray:'#E5E7EB',
-    darkGray: '#404040',
-    mutedBg:  '#F7F7F7',
   },
   semantic: {
-    success:     '#10B981',
+    success: '#10B981',
     destructive: '#EF4444',
+  },
+  gradients: {
+    momentumStart: '#3B82F6',
+    momentumEnd: '#F97316',
   },
 };

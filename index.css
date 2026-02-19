@@ -50,8 +50,7 @@ body {
 
     /* --- Standard Card (Clean White) --- */
     .card-base {
-        @apply bg-surface-base border border-stroke-base shadow-sm transition-shadow duration-200;
-        /* No border radius per brand guidelines? design-tokens.json says 0px. */
+        @apply bg-surface-base border border-stroke-base shadow-sm transition-shadow duration-200 rounded-card;
     }
 
     .card-hover {
@@ -60,16 +59,51 @@ body {
 
     /* --- Primary Button --- */
     .btn-primary {
-        @apply bg-primary text-white font-semibold px-6 py-2 transition-colors duration-200;
-        /* Hover: Darker Cardinal */
-        @apply hover:bg-primary-hover;
-        /* Focus ring */
-        @apply focus:ring-secondary;
+        @apply bg-brand text-brand-white font-semibold px-6 py-2 transition-colors duration-200;
+        @apply hover:bg-brand focus:ring-brand;
     }
 
     /* --- Secondary Button --- */
     .btn-secondary {
-        @apply bg-white text-primary border border-neutral-200 px-6 py-2 transition-colors duration-200;
+        @apply bg-brand-white text-brand border border-neutral-200 px-6 py-2 transition-colors duration-200;
         @apply hover:bg-neutral-100;
+    }
+
+    /* --- New HomeWork Aesthetic (Phase 1) --- */
+    
+    .luminary-glow {
+        position: relative;
+        background-image: linear-gradient(to right, var(--momentum-start), var(--momentum-end));
+        -webkit-background-clip: text;
+        color: transparent;
+        display: inline-block;
+    }
+    
+    .luminary-glow::after {
+        content: attr(data-text);
+        position: absolute;
+        left: 0;
+        top: 0;
+        background-image: linear-gradient(to right, var(--momentum-start), var(--momentum-end));
+        -webkit-background-clip: text;
+        color: transparent;
+        filter: blur(12px);
+        opacity: 0.6;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .glass-card {
+        @apply backdrop-blur-md rounded-xl shadow-soft-ambient;
+        background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.5));
+    }
+
+    .dark .glass-card {
+        background: linear-gradient(to bottom right, rgba(17, 24, 39, 0.8), rgba(17, 24, 39, 0.5));
+    }
+
+    .tactile-button {
+        @apply rounded-full bg-momentum-gradient text-white font-semibold transition-transform duration-200 active:scale-95 px-6 py-2;
+        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.4);
     }
 }

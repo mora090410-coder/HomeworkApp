@@ -4,51 +4,34 @@
     "description": "Core design tokens for HomeWork brand."
   },
   "colors": {
-    "primary": {
-      "cardinal": "#990000",
-      "gold": "#FFCC00",
-      "cardinal_hover": "#7A0000"
-    },
-    "neutral": {
-      "black": "#000000",
-      "white": "#FFFFFF",
-      "light_gray": "#E5E7EB",
-      "dark_gray": "#404040",
-      "muted_bg": "#F7F7F7"
+    "brand": {
+      "photon_white": "#FFFFFF",
+      "vapor_grey": "#F3F4F6",
+      "obsidian": "#111827",
+      "neutral_text": "#6B7280"
     },
     "semantic": {
       "success": "#10B981",
       "destructive": "#EF4444"
     },
-    "tertiary": [
-      "#F2C6A7",
-      "#F26178",
-      "#2B5597",
-      "#908C13",
-      "#FDE021",
-      "#DAE343",
-      "#FF9015",
-      "#E43D30"
-    ],
     "gradients": {
-      "primary": "linear-gradient(to right, #990000, #FFCC00)"
+      "momentum_start": "#3B82F6",
+      "momentum_end": "#F97316"
     }
   },
   "typography": {
-    "font_family_headings": [
-      "Libre Baskerville",
-      "Georgia",
-      "serif"
-    ],
-    "font_family_body": [
-      "Inter",
-      "system-ui",
+    "font_family_sans": [
+      "-apple-system",
+      "BlinkMacSystemFont",
+      "SF Pro",
+      "Helvetica Neue",
       "sans-serif"
     ],
     "weights": {
       "regular": 400,
       "medium": 500,
-      "bold": 700
+      "bold": 700,
+      "heavy": 800
     },
     "scale": {
       "h1": {
@@ -86,8 +69,10 @@
     }
   },
   "ui": {
-    "border_radius": "0px",
+    "border_radius_card": "12px",
     "border_width_card": "1px",
-    "focus_ring_color": "#FFCC00"
+    "shadows": {
+      "soft_ambient": "0 20px 40px -10px rgba(0,0,0,0.1)"
+    }
   }
 }

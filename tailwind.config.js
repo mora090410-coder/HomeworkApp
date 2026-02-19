@@ -23,14 +23,12 @@ export default {
     theme: {
         extend: {
             colors: {
-                primary: {
-                    DEFAULT: colors.primary.cardinal,
-                    hover: colors.primary.cardinalHover,
-                    ...colors.primary,
-                },
-                secondary: {
-                    DEFAULT: colors.primary.gold,
-                    gold: colors.primary.gold,
+                brand: {
+                    DEFAULT: colors.brand.obsidian,
+                    white: colors.brand.photonWhite,
+                    grey: colors.brand.vaporGrey,
+                    text: colors.brand.neutralText,
+                    ...colors.brand,
                 },
                 neutral: colors.neutral,
                 semantic: colors.semantic,
@@ -53,20 +51,20 @@ export default {
                 }
             },
             borderRadius: {
-                'card': '0px', // Brand identity says 0px radius or clean cards? "clean cards"
-                // Checking design-tokens.json: "border_radius": "0px"
+                'card': '12px',
             },
             fontFamily: {
-                sans: ['Inter', 'system-ui', 'sans-serif'],
-                heading: ['"Libre Baskerville"', 'Georgia', 'serif'],
+                sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro"', '"Helvetica Neue"', 'sans-serif'],
+                heading: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro"', '"Helvetica Neue"', 'sans-serif'],
             },
             backgroundImage: {
-                'primary-gradient': `linear-gradient(to right, ${colors.primary.cardinal}, ${colors.primary.gold})`,
+                'momentum-gradient': `linear-gradient(to right, var(--momentum-start), var(--momentum-end))`,
             },
             boxShadow: {
                 'sm': 'var(--shadow-sm)',
                 'md': 'var(--shadow-md)',
                 'lg': 'var(--shadow-lg)',
+                'soft-ambient': 'var(--shadow-soft-ambient)',
             },
         },
     },
