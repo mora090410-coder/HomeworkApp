@@ -20,6 +20,7 @@ import { appConfig } from '@/services/config';
 import AddAdvanceModal from '@/components/AddAdvanceModal';
 import AddChildModal, { NewChildData } from '@/components/AddChildModal';
 import AssignTaskModal, { AssignTaskPayload } from '@/components/AssignTaskModal';
+import CatalogManagerModal from '@/components/CatalogManagerModal';
 import ChildCard from '@/components/ChildCard';
 import ChildDetail from '@/components/ChildDetail';
 import FamilyActivityFeed from '@/components/FamilyActivityFeed';
@@ -539,6 +540,7 @@ function DashboardPage() {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [createProfileError, setCreateProfileError] = useState<string | null>(null);
   const [isUpdateGradesModalOpen, setIsUpdateGradesModalOpen] = useState(false);
+  const [isCatalogManagerOpen, setIsCatalogManagerOpen] = useState(false);
   const [childForGrades, setChildForGrades] = useState<Child | null>(null);
 
   const effectiveRateMap = useMemo(() => {
@@ -696,28 +698,23 @@ function DashboardPage() {
     onError: (error) => console.error('[createOpenTaskMutation] Failed to create open task:', error),
   });
 
-  const saveDraftTaskMutation = useMutation({
-    mutationFn: (vars: { task: Task; options?: { saveToCatalog?: boolean; catalogItemId?: string | null } }) => {
-      if (!householdId) {
-        return Promise.reject(new Error('No household selected.'));
-      }
+  const updateCatalogItemMutation = useMutation({
+    mutationFn: (vars: { itemId: string; name: string; baselineMinutes: number }) => {
+      if (!householdId) return Promise.reject(new Error('No household ID'));
+      return householdService.updateChoreCatalogItem(householdId, vars.itemId, {
+        name: vars.name,
+        baselineMinutes: vars.baselineMinutes,
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['choreCatalog'] }),
+  });
 
-      return householdService.createTask(
-        householdId,
-        {
-          ...vars.task,
-          householdId,
-          status: 'DRAFT',
-          assigneeId: vars.task.assigneeId ?? null,
-        },
-        vars.options,
-      );
+  const deleteCatalogItemMutation = useMutation({
+    mutationFn: (itemId: string) => {
+      if (!householdId) return Promise.reject(new Error('No household ID'));
+      return householdService.deleteChoreCatalogItem(householdId, itemId);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['children'] });
-      queryClient.invalidateQueries({ queryKey: ['choreCatalog'] });
-    },
-    onError: (error) => console.error('[saveDraftTaskMutation] Failed to save draft task:', error),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['choreCatalog'] }),
   });
 
   const statusTaskMutation = useMutation({
@@ -866,11 +863,6 @@ function DashboardPage() {
       assignTaskMutation.mutate({
         childId: selectedChildId,
         task: { ...task, status: 'ASSIGNED' },
-        options: mutationOptions,
-      });
-    } else {
-      saveDraftTaskMutation.mutate({
-        task: { ...task, status: 'DRAFT', assigneeId: null },
         options: mutationOptions,
       });
     }
@@ -1127,9 +1119,9 @@ function DashboardPage() {
             <Calendar className="w-[18px] h-[18px]" />
             <span className="hidden sm:inline">Add Open Task</span>
           </Button>
-          <Button variant="outline" onClick={() => { setIsOpenTaskMode(false); setSelectedChildId(''); setIsAddTaskModalOpen(true); }} disabled={!hasChildren} className="gap-2">
-            <Calendar className="w-[18px] h-[18px]" />
-            <span className="hidden sm:inline">Create Draft</span>
+          <Button variant="outline" onClick={() => setIsCatalogManagerOpen(true)} className="gap-2">
+            <Plus className="w-[18px] h-[18px]" />
+            <span className="hidden sm:inline">Manage Catalog</span>
           </Button>
           <Button variant="outline" onClick={() => { if (hasChildren) { setSelectedChildId(childrenWithRateMap[0].id); setIsAdvanceModalOpen(true); } }} disabled={!hasChildren} className="gap-2">
             <Plus className="w-[18px] h-[18px]" />
@@ -1338,6 +1330,13 @@ function DashboardPage() {
           catalogItems={choreCatalog}
           initialTask={editingTask ? { name: editingTask.task.name, minutes: editingTask.task.baselineMinutes } : undefined}
           onAssign={handleSaveTask}
+        />
+        <CatalogManagerModal
+          isOpen={isCatalogManagerOpen}
+          onClose={() => setIsCatalogManagerOpen(false)}
+          items={choreCatalog}
+          onUpdate={(itemId, name, baselineMinutes) => updateCatalogItemMutation.mutate({ itemId, name, baselineMinutes })}
+          onDelete={(itemId) => deleteCatalogItemMutation.mutate(itemId)}
         />
         <AddAdvanceModal
           isOpen={isAdvanceModalOpen}

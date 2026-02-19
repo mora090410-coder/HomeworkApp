@@ -1024,6 +1024,57 @@ export const householdService = {
     }
   },
 
+  /**
+   * Updates a chore catalog item's name and/or baseline minutes.
+   *
+   * @param householdId - The household that owns the catalog.
+   * @param itemId - The Firestore document ID of the catalog item.
+   * @param updates - Partial updates: name and/or baselineMinutes.
+   */
+  async updateChoreCatalogItem(
+    householdId: string,
+    itemId: string,
+    updates: { name?: string; baselineMinutes?: number },
+  ): Promise<void> {
+    try {
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+      const safeItemId = assertNonEmptyString(itemId, 'itemId');
+      const firestore = getFirestore();
+      const itemRef = doc(firestore, `households/${safeHouseholdId}/chore_catalog/${safeItemId}`);
+
+      const payload: Record<string, unknown> = { updatedAt: serverTimestamp() };
+
+      if (typeof updates.name === 'string' && updates.name.trim().length > 0) {
+        payload.name = updates.name.trim();
+      }
+      if (typeof updates.baselineMinutes === 'number' && Number.isFinite(updates.baselineMinutes)) {
+        payload.baselineMinutes = Math.max(0, Math.round(updates.baselineMinutes));
+      }
+
+      await updateDoc(itemRef, payload);
+    } catch (error) {
+      throw normalizeError('Failed to update catalog item', error);
+    }
+  },
+
+  /**
+   * Permanently removes a chore catalog item from Firestore.
+   *
+   * @param householdId - The household that owns the catalog.
+   * @param itemId - The Firestore document ID of the catalog item to delete.
+   */
+  async deleteChoreCatalogItem(householdId: string, itemId: string): Promise<void> {
+    try {
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
+      const safeItemId = assertNonEmptyString(itemId, 'itemId');
+      const firestore = getFirestore();
+      const itemRef = doc(firestore, `households/${safeHouseholdId}/chore_catalog/${safeItemId}`);
+      await deleteDoc(itemRef);
+    } catch (error) {
+      throw normalizeError('Failed to delete catalog item', error);
+    }
+  },
+
   async getGradeConfigs(householdId: string): Promise<GradeConfig[]> {
     try {
       const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
