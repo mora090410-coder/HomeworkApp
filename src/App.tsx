@@ -32,6 +32,7 @@ import LandingPage from '@/components/LandingPage';
 import PinModal from '@/components/PinModal';
 import OpenTaskCard from '@/components/OpenTaskCard';
 import UpdateGradesModal from '@/components/UpdateGradesModal';
+import Modal from '@/components/Modal';
 import ErrorBoundary from './components/ErrorBoundary';
 import { auth, db, isFirebaseConfigured } from '@/services/firebase';
 import { householdService } from '@/services/householdService';
@@ -552,9 +553,6 @@ function DashboardPage() {
   const [childForGrades, setChildForGrades] = useState<Child | null>(null);
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
 
-  const totalHouseholdNetWorth = useMemo(() => {
-    return childrenWithRateMap.reduce((sum, child) => sum + (child.balanceCents || 0), 0);
-  }, [childrenWithRateMap]);
 
   const effectiveRateMap = useMemo(() => {
     return buildRateMapFromGradeConfigs(gradeConfigs, DEFAULT_RATES);
@@ -586,6 +584,10 @@ function DashboardPage() {
       };
     });
   }, [familyAuth.profiles, effectiveRateMap, tasks]);
+
+  const totalHouseholdNetWorth = useMemo(() => {
+    return childrenWithRateMap.reduce((sum, child) => sum + (child.balanceCents || 0), 0);
+  }, [childrenWithRateMap]);
 
   const hasChildren = childrenWithRateMap.length > 0;
   // Use isProfilesLoading instead of loadingChildren since we use familyAuth.profiles
@@ -884,19 +886,23 @@ function DashboardPage() {
   };
 
   const handlePayTask = (childId: string, task: Task) => {
-    const child = childrenWithRateMap.find((candidate) => candidate.id === childId);
-    if (!child) {
-      return;
-    }
+    const child = childrenWithRateMap.find((c) => c.id === childId);
+    if (!child) return;
 
     const rate = calculateHourlyRate(child.subjects, child.rates);
     const earningsCents = calculateTaskValueCents(task.baselineMinutes, dollarsToCents(rate));
+
     payTaskMutation.mutate({
       childId,
       taskId: task.id,
       amountCents: earningsCents,
       memo: `Completed: ${task.name}`,
     });
+  };
+
+  const handleRejectTask = (childId: string, task: Task) => {
+    setTaskToReject({ childId, task });
+    setRejectionComment('');
   };
 
   const handleGenerateInvite = async () => {
