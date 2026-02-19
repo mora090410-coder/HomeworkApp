@@ -489,6 +489,7 @@ function DashboardPage() {
       const allTasks = snapshot.docs.map((d) =>
         mapTask(d.id, householdId, d.data() as Record<string, unknown>)
       );
+      console.log('Fetched Tasks:', allTasks);
       setTasks(allTasks);
       setLoadingTasks(false);
       setTaskStreamError(null);
