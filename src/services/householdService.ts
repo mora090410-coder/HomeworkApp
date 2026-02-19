@@ -2327,6 +2327,52 @@ export const householdService = {
       // Don't throw, just log. We don't want to crash the dashboard if this fails.
     }
   },
+
+  async rejectTask(householdId: string, taskId: string, rejectionComment: string, assigneeId: string): Promise<void> {
+    const firestore = getFirestore();
+    const safeTaskId = assertNonEmptyString(taskId, 'taskId');
+    const safeComment = assertNonEmptyString(rejectionComment, 'rejectionComment');
+    const safeAssigneeId = assertNonEmptyString(assigneeId, 'assigneeId');
+
+    const result = await resolveTaskLocationById(safeTaskId, householdId, safeAssigneeId);
+    if (!result) {
+      throw new Error('Task not found');
+    }
+
+    const taskRef = doc(firestore, `households/${result.householdId}/profiles/${result.profileId}/tasks/${result.taskId}`);
+    await updateDoc(taskRef, {
+      status: 'ASSIGNED',
+      rejectionComment: safeComment,
+      updatedAt: serverTimestamp(),
+    });
+  },
+
+  async boostTask(householdId: string, taskId: string, bonusCentsDelta: number, assigneeId: string): Promise<void> {
+    const firestore = getFirestore();
+    const safeTaskId = assertNonEmptyString(taskId, 'taskId');
+    const safeAssigneeId = assertNonEmptyString(assigneeId, 'assigneeId');
+
+    const result = await resolveTaskLocationById(safeTaskId, householdId, safeAssigneeId);
+    if (!result) {
+      throw new Error('Task not found');
+    }
+
+    const taskRef = doc(firestore, `households/${result.householdId}/profiles/${result.profileId}/tasks/${result.taskId}`);
+
+    await runTransaction(firestore, async (transaction) => {
+      const docSnap = await transaction.get(taskRef);
+      if (!docSnap.exists()) throw new Error("Task does not exist");
+
+      const data = docSnap.data();
+      const currentBonus = typeof data.bonusCents === 'number' ? data.bonusCents : 0;
+      const newBonus = currentBonus + bonusCentsDelta;
+
+      transaction.update(taskRef, {
+        bonusCents: newBonus,
+        updatedAt: serverTimestamp()
+      });
+    });
+  },
 };
 
 export const verifyProfilePin = async (

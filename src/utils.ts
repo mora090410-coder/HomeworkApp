@@ -87,17 +87,17 @@ export const calculateHourlyRate = (
   return centsToDollars(calculateHourlyRateCents(subjects, rates));
 };
 
-export const calculateTaskValueCents = (minutes: number, hourlyRateCents: number, multiplier: number = 1.0): number => {
+export const calculateTaskValueCents = (minutes: number, hourlyRateCents: number, multiplier: number = 1.0, bonusCents: number = 0): number => {
   if (!Number.isFinite(minutes) || minutes <= 0 || !Number.isFinite(hourlyRateCents) || hourlyRateCents <= 0) {
-    return 0;
+    return bonusCents || 0;
   }
 
   const baseValue = (normalizeCents(hourlyRateCents) * minutes) / 60;
-  return Math.round(baseValue * (Number.isFinite(multiplier) ? multiplier : 1.0));
+  return Math.round(baseValue * (Number.isFinite(multiplier) ? multiplier : 1.0)) + (bonusCents || 0);
 };
 
-export const calculateTaskValue = (minutes: number, hourlyRate: number, multiplier: number = 1.0): number => {
-  const cents = calculateTaskValueCents(minutes, dollarsToCents(hourlyRate), multiplier);
+export const calculateTaskValue = (minutes: number, hourlyRate: number, multiplier: number = 1.0, bonusCents: number = 0): number => {
+  const cents = calculateTaskValueCents(minutes, dollarsToCents(hourlyRate), multiplier, bonusCents);
   return centsToDollars(cents);
 };
 
@@ -169,6 +169,7 @@ export const mapTask = (taskId: string, householdId: string, source: Record<stri
     catalogItemId: typeof source.catalogItemId === 'string' ? source.catalogItemId : null,
     valueCents: typeof source.valueCents === 'number' ? source.valueCents : undefined,
     multiplier: typeof source.multiplier === 'number' ? source.multiplier : 1.0,
+    bonusCents: typeof source.bonusCents === 'number' ? source.bonusCents : 0,
     createdAt: typeof source.createdAt === 'string'
       ? source.createdAt
       : (source.createdAt && typeof source.createdAt === 'object' && 'toDate' in source.createdAt)

@@ -63,6 +63,7 @@ export interface Task {
   createdAt?: string;
   isRecurring?: boolean;
   multiplier?: number; // 1.0 default
+  bonusCents?: number; // Extra manually added value
 }
 
 export interface ChoreCatalogItem {
