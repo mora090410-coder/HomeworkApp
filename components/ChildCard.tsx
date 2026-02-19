@@ -162,7 +162,8 @@ const ChildCard: React.FC<ChildCardProps> = ({
   // Then overwrite with live sub-collection tasks (the source of truth)
   subCollectionTasks.forEach(t => taskMap.set(t.id, t));
 
-  const allTasks = Array.from(taskMap.values());
+  // Exclude logically-deleted tasks — live snapshot updates count immediately on delete
+  const allTasks = Array.from(taskMap.values()).filter(t => t.status !== 'DELETED');
 
   const awaitingApproval = allTasks.filter(t => t.status === 'PENDING_APPROVAL');
   const readyToPay = allTasks.filter(t => t.status === 'PENDING_PAYMENT');
@@ -287,12 +288,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
           </Button>
         </div>
 
-        <div className="mt-6 pt-4 border-t border-neutral-lightGray flex justify-center items-center gap-4 relative">
-          {/* 4. Visual Debugging (Temporary) */}
-          <span className="absolute left-0 text-[0.6rem] text-neutral-300 font-mono">
-            ID: {child.id.slice(0, 4)} | Rate: ${hourlyRate}
-          </span>
-
+        <div className="mt-6 pt-4 border-t border-neutral-lightGray flex justify-center items-center">
           <Button
             variant="ghost"
             onClick={() => setIsExpanded(!isExpanded)}

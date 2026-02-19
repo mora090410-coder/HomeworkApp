@@ -1194,7 +1194,12 @@ function DashboardPage() {
                         void handleGenerateProfileSetupLink(toProfileFromChild(candidate));
                       }}
                       onAssignTask={(candidate) => { setSelectedChildId(candidate.id); setIsAddTaskModalOpen(true); }}
-                      onDeleteTask={(childId, taskId) => statusTaskMutation.mutate({ taskId, status: 'DELETED', childId })}
+                      onDeleteTask={(childId, taskId) => {
+                        householdService
+                          .deleteTaskById(taskId, childId)
+                          .then(() => queryClient.invalidateQueries({ queryKey: ['children'] }))
+                          .catch((err: unknown) => console.error('[onDeleteTask] Failed to delete task:', err));
+                      }}
                       onEditTask={(task) => { setEditingTask({ childId: child.id, task }); setIsAddTaskModalOpen(true); }}
                       onReassignTask={() => undefined}
                       onApproveTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_PAYMENT', childId })}
@@ -1203,7 +1208,7 @@ function DashboardPage() {
                       onUndoApproval={(childId, taskId) => statusTaskMutation.mutate({ taskId, status: 'PENDING_APPROVAL', childId })}
                     />
                   ))}
-                  <div className="flex h-full min-h-[200px] items-center justify-center rounded-none border-2 border-dashed border-neutral-200 bg-neutral-50/50 p-6 hover:border-neutral-300 hover:bg-neutral-100 transition-colors cursor-pointer group" onClick={() => setIsAddChildModalOpen(true)}>
+                  <div className="flex min-h-[200px] items-center justify-center rounded-none border-2 border-dashed border-neutral-200 bg-neutral-50/50 p-6 hover:border-neutral-300 hover:bg-neutral-100 transition-colors cursor-pointer group" onClick={() => setIsAddChildModalOpen(true)}>
                     <div className="text-center group-hover:scale-105 transition-transform duration-200">
                       <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-neutral-200 group-hover:ring-primary-200">
                         <Plus className="h-6 w-6 text-neutral-400 group-hover:text-primary-600" />

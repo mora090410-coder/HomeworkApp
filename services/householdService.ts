@@ -1403,6 +1403,39 @@ export const householdService = {
     }
   },
 
+  /**
+   * Permanently removes a task document from Firestore.
+   *
+   * Resolves the task's storage location (root collection or child sub-collection)
+   * before deleting, ensuring the correct document is removed regardless of where
+   * the task lives in the hierarchy.
+   *
+   * @param taskId - The Firestore document ID of the task to delete.
+   * @param profileId - Optional child profile ID to speed up location resolution.
+   */
+  async deleteTaskById(taskId: string, profileId?: string): Promise<void> {
+    try {
+      const safeTaskId = assertNonEmptyString(taskId, 'taskId');
+      const resolvedTask = await resolveTaskLocationById(safeTaskId, undefined, profileId);
+
+      if (!resolvedTask) {
+        throw new Error('Task not found.');
+      }
+
+      const firestore = getFirestore();
+      const taskRef = resolvedTask.profileId
+        ? doc(
+          firestore,
+          `households/${resolvedTask.householdId}/profiles/${resolvedTask.profileId}/tasks/${resolvedTask.taskId}`,
+        )
+        : doc(firestore, `households/${resolvedTask.householdId}/tasks/${resolvedTask.taskId}`);
+
+      await deleteDoc(taskRef);
+    } catch (error) {
+      throw normalizeError('Failed to delete task', error);
+    }
+  },
+
   async updateChildById(childId: string, updates: Partial<Child>): Promise<void> {
     try {
       const safeChildId = assertNonEmptyString(childId, 'childId');
