@@ -72,6 +72,8 @@ export interface ChoreCatalogItem {
   name: string;
   baselineMinutes: number;
   isRecurring?: boolean;
+  multiplier?: number; // 1.0 default
+  valueCents?: number;
   createdAt?: string;
   updatedAt?: string;
 }

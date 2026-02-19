@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { Child, Grade, StandardTask, Task } from '@/types';
+import { Child, StandardTask, Task } from '@/types';
 import { db } from '@/services/firebase';
 import { collection, onSnapshot, query } from 'firebase/firestore';
 import {
@@ -22,7 +21,10 @@ import {
   Hourglass,
   AlertCircle,
   Lightbulb,
-  Coins
+  Coins,
+  Settings,
+  Briefcase,
+  UserPlus
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
@@ -32,6 +34,8 @@ interface ChildDetailProps {
   standardTasks?: StandardTask[];
   availableTasks?: Task[];
   onUpdateGrades: (child: Child) => void;
+  onInviteChild: (child: Child) => void;
+  onEditSettings: (child: Child) => void;
   onSubmitTask: (childId: string, task: Task) => void;
   onApproveTask: (childId: string, task: Task) => void;
   onRejectTask: (childId: string, task: Task) => void;
@@ -43,14 +47,18 @@ interface ChildDetailProps {
 const ChildDetail: React.FC<ChildDetailProps> = ({
   child,
   isParent,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   standardTasks = [],
   availableTasks = [],
   onUpdateGrades,
+  onInviteChild,
+  onEditSettings,
   onSubmitTask,
   onApproveTask,
   onRejectTask,
   onPayTask,
   onClaimTask,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onDeleteTask,
 }) => {
   const [taskToComplete, setTaskToComplete] = useState<Task | null>(null);
@@ -66,7 +74,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
     const q = query(collection(db, `households/${child.householdId}/profiles/${child.id}/tasks`));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const mapped = snapshot.docs.map(doc => mapTask(doc.id, child.householdId, doc.data()));
+      const mapped = snapshot.docs.map(doc => mapTask(doc.id, child.householdId!, doc.data())); // Adjusted type assertion
       setSubCollectionTasks(mapped);
     });
 
@@ -84,12 +92,12 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
   const getTaskValueCents = (task: Task) => {
     if (task.valueCents !== undefined) return task.valueCents;
-    return calculateTaskValueCents(task.baselineMinutes, hourlyRateCents);
+    return calculateTaskValueCents(task.baselineMinutes, hourlyRateCents, task.multiplier);
   };
 
   const getTaskDisplayValue = (task: Task) => {
     if (task.valueCents !== undefined) return formatCurrency(centsToDollars(task.valueCents));
-    return formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate));
+    return formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate, task.multiplier)); // Corrected argument count
   };
 
   // Merge tasks
@@ -230,7 +238,17 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
         {/* Your Rate Card */}
         <div className="bg-white border border-neutral-200 rounded-none p-8 flex flex-col justify-between group relative overflow-hidden">
           <div>
-            <p className="text-[0.875rem] font-bold text-neutral-darkGray uppercase tracking-widest mb-4 font-sans">Your Rate</p>
+            <div className="flex justify-between items-start mb-4">
+              <p className="text-[0.875rem] font-bold text-neutral-darkGray uppercase tracking-widest font-sans">Your Rate</p>
+              {isParent && (
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="sm" onClick={() => onEditSettings(child)} title="Edit Settings"><Settings className="w-4 h-4" /></Button>
+                  <Button variant="ghost" size="sm" onClick={() => onUpdateGrades(child)} title="Update Grades"><Briefcase className="w-4 h-4" /></Button>
+                  <Button variant="ghost" size="sm" onClick={() => onInviteChild(child)} title="Invite Child"><UserPlus className="w-4 h-4" /></Button>
+                </div>
+              )}
+            </div>
+
             <div className="flex items-baseline gap-2 mb-2">
               <span className="text-5xl font-bold text-neutral-black tracking-tighter font-heading">{formatCurrency(hourlyRate)}</span>
               <span className="text-xl text-neutral-darkGray font-medium font-sans">/hr</span>
@@ -262,7 +280,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
                   const withdrawalTask: Task = {
                     id: '',
-                    householdId: child.householdId,
+                    householdId: child.householdId!,
                     name: 'Withdrawal Request',
                     baselineMinutes: 0,
                     status: 'PENDING_WITHDRAWAL',
@@ -290,53 +308,6 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
         </div>
       </div>
 
-      <section>
-        <div className="mb-6 flex items-end justify-between gap-3">
-          <div>
-            <h3 className="text-xl font-bold font-heading text-neutral-black mb-1">Transaction History</h3>
-            <p className="text-sm text-neutral-darkGray font-sans">Professional ledger of earnings, advances, and adjustments</p>
-          </div>
-        </div>
-
-        <div className="border border-neutral-200 bg-white overflow-hidden rounded-none">
-          {recentTransactions.length === 0 && (
-            <div className="p-8 text-sm text-neutral-darkGray text-center font-sans">No transactions recorded yet.</div>
-          )}
-
-          {recentTransactions.length > 0 && (
-            <div className="divide-y divide-neutral-200">
-              {recentTransactions.map((transaction) => {
-                const amountCents = getTransactionAmountCents(transaction);
-                const amount = centsToDollars(Math.abs(amountCents));
-                const isNegative = amountCents < 0;
-                return (
-                  <div key={transaction.id} className="p-4 md:p-5 flex items-center justify-between gap-4">
-                    <div className="min-w-0">
-                      <p className="text-sm md:text-base text-neutral-black font-semibold truncate font-sans">
-                        {transaction.memo || (transaction.type === 'ADVANCE' ? 'Advance' : 'Task Payment')}
-                      </p>
-                      <p className="text-xs text-neutral-darkGray mt-1 font-sans">{formatLedgerDate(transaction.date)}</p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-[0.625rem] font-bold uppercase tracking-wider text-neutral-darkGray mb-1 font-sans">
-                        {transaction.type}
-                      </p>
-                      <p
-                        className="text-base font-bold font-sans"
-                        style={{ color: isNegative ? '#dc2626' : '#059669' }}
-                      >
-                        {isNegative ? '-' : '+'}
-                        {formatCurrency(amount)}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </section>
-
       {/* Academics Section */}
       <section>
         <div className="mb-6">
@@ -349,7 +320,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
             <div
               key={subject.id}
               className="bg-white border border-neutral-200 rounded-none p-6 text-center hover:shadow-md transition-all group cursor-pointer"
-              onClick={() => onUpdateGrades(child)}
+              onClick={() => isParent && onUpdateGrades(child)}
             >
               <p className="text-xs font-bold text-neutral-darkGray uppercase tracking-widest mb-3 truncate font-sans">{subject.name}</p>
               <div className={`text-4xl font-bold ${getGradeColor(subject.grade)} font-heading`}>
@@ -462,10 +433,17 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-neutral-darkGray font-medium font-sans">
+                  <div className="flex items-center gap-2 text-sm text-neutral-darkGray font-medium font-sans mb-4">
                     <Hourglass className="w-4 h-4" />
                     Waiting for parent review...
                   </div>
+
+                  {isParent && (
+                    <div className="flex gap-2">
+                      <Button onClick={() => onRejectTask(child.id, task)} variant="destructive" className="flex-1 text-xs">Reject</Button>
+                      <Button onClick={() => onApproveTask(child.id, task)} variant="primary" className="flex-1 text-xs bg-emerald-600 hover:bg-emerald-700">Approve</Button>
+                    </div>
+                  )}
                 </div>
               ))}
 
@@ -525,9 +503,14 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-neutral-darkGray font-medium font-sans">
-                    <Coins className="w-4 h-4 text-emerald-600" />
-                    Approved! Ask parent for payment.
+                  <div className="flex items-center justify-between gap-2 text-sm text-neutral-darkGray font-medium font-sans">
+                    <div className="flex items-center gap-2">
+                      <Coins className="w-4 h-4 text-emerald-600" />
+                      Approved! Ask parent for payment.
+                    </div>
+                    {isParent && (
+                      <Button onClick={() => onPayTask(child.id, task)} size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white border-transparent">Mark as Paid</Button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -544,6 +527,69 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
             <EmptyState />
           )}
       </div>
+
+      <section>
+        <div className="mb-6 flex items-end justify-between gap-3">
+          <div>
+            <h3 className="text-xl font-bold font-heading text-neutral-black mb-1">Bank Statement</h3>
+            <p className="text-sm text-neutral-darkGray font-sans">Professional ledger of earnings, advances, and adjustments</p>
+          </div>
+        </div>
+
+        <div className="border border-neutral-200 bg-white overflow-hidden rounded-none">
+          {recentTransactions.length === 0 && (
+            <div className="p-8 text-sm text-neutral-darkGray text-center font-sans">No transactions recorded yet.</div>
+          )}
+
+          {recentTransactions.length > 0 && (
+            <div className="divide-y divide-neutral-200">
+              {recentTransactions.map((transaction) => {
+                const amountCents = getTransactionAmountCents(transaction);
+                const amount = centsToDollars(Math.abs(amountCents));
+
+                const isAdvance = transaction.type === 'ADVANCE';
+                const isPayment = transaction.type === 'EARNING' || transaction.type === 'ADJUSTMENT'; // Treat EARNING/ADJUSTMENT as positive flow
+
+
+                let label = transaction.memo || transaction.type;
+                let colorClass = 'text-neutral-black';
+                let sign = '';
+
+                if (isAdvance) {
+                  label = transaction.memo || 'Withdrawal';
+                  colorClass = 'text-primary-cardinal';
+                  sign = '-';
+                } else if (isPayment) {
+                  label = transaction.memo || 'Deposit';
+                  colorClass = 'text-emerald-700';
+                  sign = '+';
+                }
+
+                return (
+                  <div key={transaction.id} className="p-4 md:p-5 flex items-center justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="text-sm md:text-base text-neutral-black font-semibold truncate font-sans">
+                        {label}
+                      </p>
+                      <p className="text-xs text-neutral-darkGray mt-1 font-sans">{formatLedgerDate(transaction.date)}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-[0.625rem] font-bold uppercase tracking-wider text-neutral-darkGray mb-1 font-sans">
+                        {transaction.type}
+                      </p>
+                      <p
+                        className={`text-base font-bold font-sans ${colorClass}`}
+                      >
+                        {sign}{formatCurrency(amount)}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Completion Confirmation Modal */}
       {

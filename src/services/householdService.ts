@@ -468,6 +468,8 @@ const mapProfile = (profileId: string, householdId: string, source: Record<strin
     subjects: parseSubjects(source.subjects),
     rates: parseRates(source.rates),
     currentHourlyRate: typeof source.currentHourlyRate === 'number' ? source.currentHourlyRate : 0,
+    // standardize: treat balanceCents as the single source of truth for bank balance.
+    // balance is always a derived view, even for negative values (advances).
     balanceCents,
     balance: centsToDollars(balanceCents),
     setupStatus: parseProfileSetupStatus(source.setupStatus),
@@ -1605,6 +1607,8 @@ export const householdService = {
       const firestore = getFirestore();
 
       const normalizedAmountCents = Math.round(amountCents);
+      // We enforce a positive input amount for the advance itself, 
+      // which the ledger service will correctly invert to a negative balance impact.
       if (!Number.isFinite(normalizedAmountCents) || normalizedAmountCents <= 0) {
         throw new Error('amountCents must be a positive integer.');
       }

@@ -560,6 +560,7 @@ function DashboardPage() {
   const [isCatalogManagerOpen, setIsCatalogManagerOpen] = useState(false);
   const [childForGrades, setChildForGrades] = useState<Child | null>(null);
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
+  const [viewingChildId, setViewingChildId] = useState<string | null>(null);
 
 
   const effectiveRateMap = useMemo(() => {
@@ -1136,6 +1137,17 @@ function DashboardPage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            {/* Show Back Button if viewing a child detail */}
+            {viewingChildId && (
+              <Button
+                variant="outline"
+                onClick={() => setViewingChildId(null)}
+                className="gap-2 border-neutral-200 hover:bg-neutral-100"
+              >
+                <ArrowRight className="w-4 h-4 rotate-180" /> Back to Dashboard
+              </Button>
+            )}
+
             <div className="relative">
               <Button
                 variant="primary"
@@ -1210,110 +1222,136 @@ function DashboardPage() {
 
         {hasChildren ? (
           <div className="mb-12">
-
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
-              <div className="xl:col-span-2 space-y-8">
-                {/* Children Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {childrenWithRateMap.map((child) => (
-                    <ChildCard
-                      key={child.id}
-                      child={child}
-                      siblings={childrenWithRateMap.filter((candidate) => candidate.id !== child.id)}
-                      onEditSettings={(candidate) => setChildToEdit(candidate)}
-                      onUpdateGrades={(candidate) => {
-                        setChildForGrades(candidate);
-                        setIsUpdateGradesModalOpen(true);
-                      }}
-                      onInviteChild={(candidate) => {
-                        void handleGenerateProfileSetupLink(toProfileFromChild(candidate));
-                      }}
-                      onAssignTask={(candidate) => { setSelectedChildId(candidate.id); setIsAddTaskModalOpen(true); }}
-                      onDeleteTask={(childId, taskId) => {
-                        householdService
-                          .deleteTaskById(taskId, childId)
-                          .then(() => queryClient.invalidateQueries({ queryKey: ['children'] }))
-                          .catch((err: unknown) => console.error('[onDeleteTask] Failed to delete task:', err));
-                      }}
-                      onEditTask={(task) => { setEditingTask({ childId: child.id, task }); setIsAddTaskModalOpen(true); }}
-                      onReassignTask={() => undefined}
-                      onApproveTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_PAYMENT', childId })}
-                      onRejectTask={handleRejectTask}
-                      onPayTask={handlePayTask}
-                      onUndoApproval={(childId, taskId) => statusTaskMutation.mutate({ taskId, status: 'PENDING_APPROVAL', childId })}
-                    />
-                  ))}
-                  <div className="flex min-h-[200px] items-center justify-center rounded-none border-2 border-dashed border-neutral-200 bg-neutral-50/50 p-6 hover:border-neutral-300 hover:bg-neutral-100 transition-colors cursor-pointer group" onClick={() => setIsAddChildModalOpen(true)}>
-                    <div className="text-center group-hover:scale-105 transition-transform duration-200">
-                      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-neutral-200 group-hover:ring-primary-200">
-                        <Plus className="h-6 w-6 text-neutral-400 group-hover:text-primary-600" />
+            {viewingChildId ? (
+              /* Detail View */
+              (() => {
+                const activeChild = childrenWithRateMap.find(c => c.id === viewingChildId);
+                if (!activeChild) return <div>Child not found</div>;
+                return (
+                  <ChildDetail
+                    child={activeChild}
+                    isParent={true}
+                    standardTasks={COMMON_TASKS}
+                    availableTasks={openTasks}
+                    onUpdateGrades={(candidate) => {
+                      setChildForGrades(candidate);
+                      setIsUpdateGradesModalOpen(true);
+                    }}
+                    onInviteChild={(candidate) => {
+                      void handleGenerateProfileSetupLink(toProfileFromChild(candidate));
+                    }}
+                    onEditSettings={(candidate) => setChildToEdit(candidate)}
+                    onSubmitTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_APPROVAL', childId })}
+                    onApproveTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_PAYMENT', childId })}
+                    onPayTask={handlePayTask}
+                    onRejectTask={handleRejectTask}
+                    onClaimTask={(childId, taskId) => claimTaskMutation.mutate({ childId, taskId })}
+                  />
+                );
+              })()
+            ) : (
+              /* Dashboard View */
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
+                <div className="xl:col-span-2 space-y-8">
+                  {/* Children Grid */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {childrenWithRateMap.map((child) => (
+                      <ChildCard
+                        key={child.id}
+                        child={child}
+                        siblings={childrenWithRateMap.filter((candidate) => candidate.id !== child.id)}
+                        onClick={(c) => setViewingChildId(c.id)}
+                        onEditSettings={(candidate) => setChildToEdit(candidate)}
+                        onUpdateGrades={(candidate) => {
+                          setChildForGrades(candidate);
+                          setIsUpdateGradesModalOpen(true);
+                        }}
+                        onInviteChild={(candidate) => {
+                          void handleGenerateProfileSetupLink(toProfileFromChild(candidate));
+                        }}
+                        onAssignTask={(candidate) => { setSelectedChildId(candidate.id); setIsAddTaskModalOpen(true); }}
+                        onDeleteTask={(childId, taskId) => {
+                          householdService
+                            .deleteTaskById(taskId, childId)
+                            .then(() => queryClient.invalidateQueries({ queryKey: ['children'] }))
+                            .catch((err: unknown) => console.error('[onDeleteTask] Failed to delete task:', err));
+                        }}
+                        onEditTask={(task) => { setEditingTask({ childId: child.id, task }); setIsAddTaskModalOpen(true); }}
+                        onReassignTask={() => undefined}
+                        onApproveTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_PAYMENT', childId })}
+                        onRejectTask={handleRejectTask}
+                        onPayTask={handlePayTask}
+                        onUndoApproval={(childId, taskId) => statusTaskMutation.mutate({ taskId, status: 'PENDING_APPROVAL', childId })}
+                      />
+                    ))}
+                    <div className="flex min-h-[200px] items-center justify-center rounded-none border-2 border-dashed border-neutral-200 bg-neutral-50/50 p-6 hover:border-neutral-300 hover:bg-neutral-100 transition-colors cursor-pointer group" onClick={() => setIsAddChildModalOpen(true)}>
+                      <div className="text-center group-hover:scale-105 transition-transform duration-200">
+                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-neutral-200 group-hover:ring-primary-200">
+                          <Plus className="h-6 w-6 text-neutral-400 group-hover:text-primary-600" />
+                        </div>
+                        <h3 className="text-sm font-bold text-neutral-900">Add Child Profile</h3>
+                        <p className="mt-1 text-xs text-neutral-500">Track chores & allowance</p>
                       </div>
-                      <h3 className="text-sm font-bold text-neutral-900">Add Child Profile</h3>
-                      <p className="mt-1 text-xs text-neutral-500">Track chores & allowance</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="xl:col-span-1 space-y-8">
+                  {/* Open Tasks Column */}
+                  <div className="relative">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-bold font-heading text-neutral-900 flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-semantic-success animate-pulse"></span>
+                        Bounty Board
+                      </h3>
+                      <span className="px-2 py-0.5 bg-neutral-100 text-neutral-600 text-xs font-bold rounded-none border border-neutral-200">
+                        {openTasks.length} Active
+                      </span>
+                    </div>
+
+                    <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-neutral-200 scrollbar-track-transparent">
+                      {!loadingTasks && openTasks.length === 0 ? (
+                        <div className="p-8 bg-white border border-neutral-200 border-dashed rounded-none text-center">
+                          <p className="text-neutral-900 font-bold mb-1">No open bounties</p>
+                          <p className="text-neutral-500 text-sm mb-4">Create tasks that any child can claim.</p>
+                          <Button variant="secondary" size="sm" onClick={() => { setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }} className="w-full">
+                            <Plus className="w-4 h-4 mr-2" />
+                            Create Bounty
+                          </Button>
+                        </div>
+                      ) : (
+                        openTasks.map(task => (
+                          <OpenTaskCard
+                            key={task.id}
+                            task={task}
+                            children={childrenWithRateMap}
+                            onEdit={(t) => {
+                              setEditingTask({ childId: '', task: t });
+                              setIsOpenTaskMode(true);
+                              setIsAddTaskModalOpen(true);
+                            }}
+                            onDelete={(id) => statusTaskMutation.mutate({ taskId: id, status: 'DELETED' })}
+                            onAssign={(taskId, childId) => {
+                              if (!householdId) return;
+                              const taskToAssign = openTasks.find(t => t.id === taskId);
+                              if (taskToAssign) {
+                                householdService
+                                  .assignExistingTask(householdId, childId, taskToAssign)
+                                  .then(() => {
+                                    queryClient.invalidateQueries({ queryKey: ['children'] });
+                                    queryClient.invalidateQueries({ queryKey: ['openTasks'] });
+                                  })
+                                  .catch((err: unknown) => console.error('[onAssign] Failed to assign existing task:', err));
+                              }
+                            }}
+                          />
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
-
-              <div className="xl:col-span-1 space-y-8">
-                {/* Open Tasks Column */}
-                <div className="relative">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-bold font-heading text-neutral-900 flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-semantic-success animate-pulse"></span>
-                      Open Tasks
-                    </h3>
-                    <span className="px-2 py-0.5 bg-neutral-100 text-neutral-600 text-xs font-bold rounded-none border border-neutral-200">
-                      {openTasks.length} Live
-                    </span>
-                  </div>
-
-                  <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-neutral-200 scrollbar-track-transparent">
-                    {!loadingTasks && openTasks.length === 0 ? (
-                      <div className="p-8 bg-white border border-neutral-200 border-dashed rounded-none text-center">
-                        <p className="text-neutral-900 font-bold mb-1">No open tasks</p>
-                        <p className="text-neutral-500 text-sm mb-4">Create tasks that any child can claim.</p>
-                        <Button variant="secondary" size="sm" onClick={() => { setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }} className="w-full">
-                          <Plus className="w-4 h-4 mr-2" />
-                          Create Open Task
-                        </Button>
-                      </div>
-                    ) : (
-                      openTasks.map(task => (
-                        <OpenTaskCard
-                          key={task.id}
-                          task={task}
-                          children={childrenWithRateMap}
-                          onEdit={(t) => {
-                            setEditingTask({ childId: '', task: t });
-                            setIsOpenTaskMode(true);
-                            setIsAddTaskModalOpen(true);
-                          }}
-                          onDelete={(id) => statusTaskMutation.mutate({ taskId: id, status: 'DELETED' })}
-                          onAssign={(taskId, childId) => {
-                            if (!householdId) return;
-                            const taskToAssign = openTasks.find(t => t.id === taskId);
-                            if (taskToAssign) {
-                              householdService
-                                .assignExistingTask(householdId, childId, taskToAssign)
-                                .then(() => {
-                                  queryClient.invalidateQueries({ queryKey: ['children'] });
-                                  queryClient.invalidateQueries({ queryKey: ['openTasks'] });
-                                })
-                                .catch((err: unknown) => console.error('[onAssign] Failed to assign existing task:', err));
-                            }
-                          }}
-                        />
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                <div className="h-px bg-neutral-200 w-full my-6"></div>
-
-                <FamilyActivityFeed familyId={householdId!} />
-              </div>
-            </div>
+            )}
           </div>
         ) : (
           <AdminSetupRail completedSteps={0} onStartAddChild={() => setIsAddChildModalOpen(true)} />

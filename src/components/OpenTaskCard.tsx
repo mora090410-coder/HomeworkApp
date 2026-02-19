@@ -177,9 +177,12 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
           <span className="text-[0.875rem] font-medium font-sans">{task.baselineMinutes} min baseline</span>
         </div>
 
-        <span className={`px-2.5 py-1 rounded-none text-[0.75rem] font-black uppercase tracking-widest border ${isBounty ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
-          {task.valueCents ? formatCurrency(centsToDollars(task.valueCents)) : 'Available'}
-        </span>
+        <div className="flex flex-col items-end">
+          <span className="text-[0.625rem] font-bold text-neutral-400 uppercase tracking-widest mb-0.5">BOUNTY</span>
+          <span className={`px-3 py-1 rounded-none text-sm font-black uppercase tracking-widest ${isBounty ? 'bg-amber-100 text-amber-800' : 'bg-emerald-700 text-white shadow-sm'}`}>
+            {task.valueCents ? formatCurrency(centsToDollars(task.valueCents)) : 'Available'}
+          </span>
+        </div>
       </div>
     </div>
   );

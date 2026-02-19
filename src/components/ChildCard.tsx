@@ -4,33 +4,13 @@ import { db } from '@/services/firebase';
 import { collection, onSnapshot, query } from 'firebase/firestore';
 import {
   calculateHourlyRate,
-  calculateTaskValue,
-  calculateTaskValueCents,
-  centsToDollars,
-  dollarsToCents,
   formatCurrency,
-  getTaskIcon,
-  getTransactionAmountCents,
   mapTask,
-  parseTaskStatus,
 } from '@/utils';
 import {
   Settings,
-  ChevronDown,
-  Clock,
-  MoreHorizontal,
   Plus,
-  Edit2,
-  Trash2,
-  UserPlus,
-  Briefcase,
-  ChevronRight,
   AlertTriangle,
-  DollarSign,
-  Check,
-  X,
-  RotateCcw,
-  Coins
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -39,8 +19,8 @@ interface ChildCardProps {
   child: Child;
   siblings?: Child[];
   onEditSettings: (child: Child) => void;
-  onUpdateGrades: (child: Child) => void;
-  onInviteChild: (child: Child) => void;
+  onUpdateGrades: (child: Child) => void; // Legacy prop kept for interface compatibility
+  onInviteChild: (child: Child) => void; // Legacy prop kept for interface compatibility
   onAssignTask: (child: Child) => void;
   onDeleteTask: (childId: string, taskId: string) => void;
   onEditTask: (task: Task) => void;
@@ -49,53 +29,48 @@ interface ChildCardProps {
   onRejectTask: (childId: string, task: Task) => void;
   onPayTask: (childId: string, task: Task) => void;
   onUndoApproval: (childId: string, taskId: string) => void;
+  onClick?: (child: Child) => void; // Added onClick prop
 }
-
-const SectionHeader: React.FC<{ icon: React.ReactNode; title: string; count: number; colorClass: string }> = ({ icon, title, count, colorClass }) => (
-  <div className={`flex items-center justify-between px-3 py-2 mt-4 mb-2 rounded-none bg-neutral-50 border border-neutral-lightGray ${colorClass}`}>
-    <div className="flex items-center gap-2">
-      <span className="w-4 h-4 flex items-center justify-center">{icon}</span>
-      <span className="text-[0.75rem] font-bold uppercase tracking-[0.06em] font-sans">{title}</span>
-    </div>
-    <span className="text-[0.75rem] font-bold opacity-60">({count})</span>
-  </div>
-);
 
 const ChildCard: React.FC<ChildCardProps> = ({
   child,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   siblings = [],
   onEditSettings,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onUpdateGrades,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onInviteChild,
   onAssignTask,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onDeleteTask,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onEditTask,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onReassignTask,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onApproveTask,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onRejectTask,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onPayTask,
-  onUndoApproval
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onUndoApproval,
+  onClick,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
-  const [activeSubmenuId, setActiveSubmenuId] = useState<string | null>(null);
   const [subCollectionTasks, setSubCollectionTasks] = useState<Task[]>([]);
 
-  // 1. Robust Task Listener
+  // 1. Robust Task Listener to calculate stats (Review Badge)
   useEffect(() => {
     if (!child.householdId || !child.id) {
       console.warn('ChildCard: Missing householdId or childId', { householdId: child.householdId, childId: child.id });
       return;
     }
 
-    // Explicitly construct the path for clarity and safety
     const tasksPath = `households/${child.householdId}/profiles/${child.id}/tasks`;
     const q = query(collection(db, tasksPath));
 
-    console.log(`ChildCard: Subscribing to tasks at ${tasksPath}`);
-
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      console.log(`ChildCard: Snapshot received for ${child.name} (${child.id}). Docs: ${snapshot.docs.length}`);
       const mapped = snapshot.docs.map(doc => mapTask(doc.id, child.householdId!, doc.data()));
       setSubCollectionTasks(mapped);
     }, (error) => {
@@ -103,7 +78,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
     });
 
     return () => unsubscribe();
-  }, [child.householdId, child.id, child.name]);
+  }, [child.householdId, child.id]);
 
   // CRITICAL: Render visible error if configuration is invalid
   if (!child.householdId) {
@@ -121,400 +96,113 @@ const ChildCard: React.FC<ChildCardProps> = ({
   }
 
   // 2. Fix 'Zero Rate' Fallback Logic
-  // Use currentHourlyRate if it exists AND is greater than 0. Otherwise recalculate.
   const hourlyRate = (child.currentHourlyRate && child.currentHourlyRate > 0)
     ? child.currentHourlyRate
     : calculateHourlyRate(child.subjects, child.rates);
 
-  const hourlyRateCents = dollarsToCents(hourlyRate);
   const setupStatus = child.setupStatus ?? 'PROFILE_CREATED';
   const setupLabel =
     setupStatus === 'INVITE_SENT'
       ? 'Invite Sent'
       : setupStatus === 'SETUP_COMPLETE'
-        ? 'Ready'
+        ? 'Active'
         : 'Setup Pending';
 
-  // Updated badge classes to use brand colors
-  const setupBadgeClass =
-    setupStatus === 'INVITE_SENT'
-      ? 'bg-neutral-lightGray/20 text-neutral-darkGray border-neutral-lightGray'
-      : setupStatus === 'SETUP_COMPLETE'
-        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-        : 'bg-blue-50 text-blue-700 border-blue-200';
-
-  // Helper to determine task value (flat rate vs hourly)
-  const getTaskValueCents = (task: Task) => {
-    if (task.valueCents !== undefined) return task.valueCents;
-    return calculateTaskValueCents(task.baselineMinutes, hourlyRateCents, task.multiplier);
-  };
-
-  const getTaskDisplayValue = (task: Task) => {
-    if (task.valueCents !== undefined) return formatCurrency(centsToDollars(task.valueCents));
-    return formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate, task.multiplier));
-  };
-
-  // 3. Task Merging Safety
-  // Use a Map to deduplicate by ID. Sub-collection (live) tasks take precedence over customTasks props.
+  // 3. Task Merging for Stats
   const taskMap = new Map<string, Task>();
-
-  // First add potential static/prop tasks
   (child.customTasks || []).forEach(t => taskMap.set(t.id, t));
-
-  // Then overwrite with live sub-collection tasks (the source of truth)
   subCollectionTasks.forEach(t => taskMap.set(t.id, t));
-
-  // Exclude logically-deleted tasks — live snapshot updates count immediately on delete
   const allTasks = Array.from(taskMap.values()).filter(t => t.status !== 'DELETED');
-
   const awaitingApproval = allTasks.filter(t => t.status === 'PENDING_APPROVAL');
-  const withdrawalRequests = allTasks.filter(t => t.status === 'PENDING_WITHDRAWAL');
-  const readyToPay = allTasks.filter(t => t.status === 'PENDING_PAYMENT');
-  const inProgress = allTasks.filter(t => t.status === 'ASSIGNED' || !t.status);
 
-  // STATS CALCULATIONS
-  const canEarnTodayCents = [...inProgress].reduce(
-    (sum, t) => sum + getTaskValueCents(t),
-    0,
-  );
-  const canEarnToday = centsToDollars(canEarnTodayCents);
-
-  const earnedAmountCents = readyToPay.reduce(
-    (sum, task) => sum + getTaskValueCents(task),
-    0,
-  );
-  const pendingAmountCents = [...inProgress, ...awaitingApproval].reduce(
-    (sum, task) => sum + getTaskValueCents(task),
-    0,
-  );
-  const paidAmount = (child.history || [])
-    .filter(tx => tx.type === 'EARNING')
-    .reduce((sum, tx) => sum + getTransactionAmountCents(tx), 0);
-  const earnedAmount = centsToDollars(earnedAmountCents);
-  const pendingAmount = centsToDollars(pendingAmountCents);
-  const paidAmountDollars = centsToDollars(paidAmount);
-
-  // Close menus on outside click
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
-    const handleGlobalClick = () => {
-      setActiveMenuId(null);
-      setActiveSubmenuId(null);
-    };
-    if (activeMenuId) window.addEventListener('click', handleGlobalClick);
-    return () => window.removeEventListener('click', handleGlobalClick);
-  }, [activeMenuId]);
-
-  const toggleMenu = (e: React.MouseEvent, taskId: string) => {
-    e.stopPropagation();
-    setActiveMenuId(activeMenuId === taskId ? null : taskId);
-    setActiveSubmenuId(null);
-  };
-
-  const getToggleLabel = () => {
-    if (!isExpanded) {
-      if (awaitingApproval.length > 0) return `Show Tasks — ${awaitingApproval.length} Need Approval ⚠️`;
-      if (readyToPay.length > 0) return `Show Tasks — ${readyToPay.length} Ready to Pay 💰`;
-      return `Show Tasks (${allTasks.length})`;
-    }
-    if (awaitingApproval.length > 0 || readyToPay.length > 0 || withdrawalRequests.length > 0) {
-      const urgentCount = awaitingApproval.length + readyToPay.length + withdrawalRequests.length;
-      return `Hide Tasks (${urgentCount} need attention)`;
-    }
-    return `Hide Tasks (${allTasks.length})`;
-  };
+  // Bank Balance Logic (Green if positive, Red if negative)
+  // Use balanceCents if reliable, or derived balance
+  const currentBalance = child.balance;
+  const isNegativeBalance = currentBalance < 0;
+  const balanceColorClass = isNegativeBalance ? 'text-primary-cardinal' : 'text-emerald-700';
 
   return (
     <div className="flex flex-col gap-3 font-sans w-full">
       <Card
-        className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl p-8 bg-white border-neutral-200"
+        className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl bg-white border-neutral-200"
         noPadding
         style={{
           borderTop: `6px solid ${child.avatarColor || '#E2E8F0'}`,
-          boxShadow: isExpanded ? `0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 20px -5px ${child.avatarColor}20` : undefined
         }}
       >
-        <div className="flex justify-between items-start mb-8">
-          <div className="flex items-center gap-4">
-            <div
-              className="w-16 h-16 flex items-center justify-center text-2xl font-bold text-white shadow-inner"
-              style={{ backgroundColor: child.avatarColor || '#94A3B8' }}
-            >
-              {child.name.charAt(0)}
-            </div>
-            <div>
-              <h2 className="text-2xl font-heading font-black text-neutral-900 tracking-tight leading-none mb-1">{child.name}</h2>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">{child.gradeLevel}</span>
-                <span className="w-1 h-1 rounded-full bg-neutral-300" />
-                <span className={`text-[10px] font-bold uppercase tracking-widest ${setupStatus === 'SETUP_COMPLETE' ? 'text-emerald-600' : 'text-primary-cardinal'}`}>
-                  {setupLabel}
-                </span>
+        <div className="p-6">
+          <div className="flex justify-between items-start mb-6">
+            <div className="flex items-center gap-4">
+              {/* AVATAR */}
+              <div
+                className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold text-white shadow-inner"
+                style={{ backgroundColor: child.avatarColor || '#94A3B8' }}
+              >
+                {child.name.charAt(0)}
+              </div>
+
+              {/* NAME & META */}
+              <div>
+                <h2 className="text-xl font-heading font-black text-neutral-900 tracking-tight leading-none mb-1.5">{child.name}</h2>
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-neutral-400">
+                    <span>{child.gradeLevel}</span>
+                    <span className="w-0.5 h-0.5 rounded-full bg-neutral-300" />
+                    <span className={setupStatus === 'SETUP_COMPLETE' ? 'text-emerald-600' : 'text-primary-cardinal'}>
+                      {setupLabel}
+                    </span>
+                  </div>
+                  <div className="text-xs font-bold text-neutral-500">
+                    Rate: {formatCurrency(hourlyRate)}/hr
+                  </div>
+                </div>
               </div>
             </div>
+
+            {/* BANK BALANCE */}
+            <div className="text-right">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 block mb-0.5">Bank Balance</span>
+              <span className={`text-2xl font-heading font-black tracking-tight ${balanceColorClass}`}>
+                {formatCurrency(currentBalance)}
+              </span>
+            </div>
           </div>
 
-          <div className="flex flex-col items-end gap-1">
-            <div className="flex items-center gap-2 px-3 py-1 bg-neutral-50 border border-neutral-100 rounded-none">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Market Rate</span>
-              <span className="text-sm font-bold text-neutral-900">{formatCurrency(hourlyRate)}/hr</span>
+          {/* REVIEW BADGE (Conditional) */}
+          {awaitingApproval.length > 0 && (
+            <div className="mb-6 flex items-center gap-3 px-4 py-3 bg-primary-cardinal/5 border border-primary-cardinal/10 rounded-sm animate-in fade-in slide-in-from-top-1">
+              <div className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary-cardinal opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-primary-cardinal"></span>
+              </div>
+              <span className="text-sm font-bold text-primary-cardinal">
+                {awaitingApproval.length} {awaitingApproval.length === 1 ? 'Task' : 'Tasks'} to Review
+              </span>
             </div>
-            <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-none">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-blue-700">Can Earn</span>
-              <span className="text-sm font-bold text-blue-700">{formatCurrency(canEarnToday)}</span>
-            </div>
-          </div>
-          <div className="relative">
+          )}
+
+          {/* ACTIONS ROW */}
+          <div className="flex items-center gap-3 pt-2">
             <Button
-              variant="ghost"
-              className="w-10 h-10 p-0 rounded-full border border-neutral-100 text-neutral-400 hover:text-primary-cardinal hover:bg-neutral-50 transition-all"
-              onClick={(e) => { e.stopPropagation(); setActiveMenuId(activeMenuId === 'profile-actions' ? null : 'profile-actions'); }}
+              variant="outline"
+              onClick={() => onEditSettings(child)}
+              className="h-10 w-10 text-neutral-400 hover:text-neutral-600 hover:bg-neutral-50 border-neutral-200 rounded-sm p-0 flex items-center justify-center"
+              title="Profile Settings"
             >
-              <MoreHorizontal className="w-5 h-5" />
+              <Settings className="w-5 h-5" />
             </Button>
 
-            {activeMenuId === 'profile-actions' && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setActiveMenuId(null)} />
-                <div className="absolute right-0 mt-2 w-48 bg-white border border-neutral-200 shadow-2xl z-50 py-2 animate-in fade-in zoom-in-95 duration-200">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setActiveMenuId(null); onUpdateGrades(child); }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-neutral-600 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
-                  >
-                    <Briefcase className="w-3.5 h-3.5" />
-                    Payscale / Grades
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setActiveMenuId(null); onInviteChild(child); }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-neutral-600 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
-                  >
-                    <UserPlus className="w-3.5 h-3.5" />
-                    {setupStatus === 'SETUP_COMPLETE' ? 'Reinvite' : 'Invite'}
-                  </button>
-                  <div className="h-px bg-neutral-100 my-1" />
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setActiveMenuId(null); onEditSettings(child); }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-neutral-600 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
-                  >
-                    <Settings className="w-3.5 h-3.5" />
-                    Profile Settings
-                  </button>
-                </div>
-              </>
-            )}
+            <Button
+              variant="primary"
+              onClick={() => onAssignTask(child)}
+              className="flex-1 h-10 shadow-sm text-xs uppercase tracking-wider font-bold rounded-sm bg-neutral-900 text-white hover:bg-neutral-800"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Assign Task
+            </Button>
           </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          <div className="flex flex-col gap-1">
-            <span className="text-[0.6875rem] font-bold text-neutral-darkGray uppercase tracking-wider">Earned</span>
-            <span className="text-[1.5rem] font-bold font-heading text-emerald-700 tracking-tight">{formatCurrency(earnedAmount)}</span>
-          </div>
-          <div className="flex flex-col gap-1 border-l border-neutral-lightGray pl-4">
-            <span className="text-[0.6875rem] font-bold text-neutral-darkGray uppercase tracking-wider">Pending</span>
-            <span className="text-[1.5rem] font-bold font-heading text-primary-cardinal tracking-tight">{formatCurrency(pendingAmount)}</span>
-          </div>
-          <div className="flex flex-col gap-1 border-l border-neutral-lightGray pl-4">
-            <span className="text-[0.6875rem] font-bold text-neutral-darkGray uppercase tracking-wider">Paid</span>
-            <span className="text-[1.5rem] font-bold font-heading text-blue-700 tracking-tight">{formatCurrency(paidAmountDollars)}</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col p-4 bg-white border border-neutral-100 shadow-sm">
-            <span className="text-[9px] font-black uppercase tracking-[0.15em] text-neutral-400 mb-2">Available to Pay</span>
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-heading font-black text-emerald-700 tracking-tighter">{formatCurrency(earnedAmount)}</span>
-            </div>
-          </div>
-
-          <Button
-            variant="primary"
-            onClick={() => onAssignTask(child)}
-            className="h-full flex flex-col items-center justify-center gap-2 rounded-none p-4 shadow-sm group/btn"
-          >
-            <Plus className="w-6 h-6 transition-transform group-hover/btn:rotate-90" />
-            <span className="text-[10px] font-black uppercase tracking-widest">Assign Task</span>
-          </Button>
-        </div>
-
-        <div className="mt-6 pt-4 border-t border-neutral-lightGray flex justify-center items-center">
-          <Button
-            variant="ghost"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className={`flex items-center gap-2 text-[0.8125rem] font-bold transition-colors group/toggle ${awaitingApproval.length > 0 ? 'text-primary-cardinal hover:text-primary-cardinalHover' : 'text-neutral-darkGray hover:text-primary-cardinal'}`}
-          >
-            <span>{getToggleLabel()}</span>
-            <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} />
-          </Button>
         </div>
       </Card>
-
-      {isExpanded && (
-        <div className="flex flex-col gap-1 animate-in slide-in-from-top-2 fade-in duration-300 origin-top pb-4">
-
-          {/* WITHDRAWAL REQUESTS SECTION */}
-          {withdrawalRequests.length > 0 && (
-            <>
-              <SectionHeader
-                icon={<Coins className="w-3.5 h-3.5" />}
-                title="Withdrawal Requests"
-                count={withdrawalRequests.length}
-                colorClass="text-purple-600"
-              />
-              {withdrawalRequests.map(task => (
-                <div key={task.id} className="bg-purple-50 border border-purple-100 rounded-none p-5 mb-2 relative overflow-visible shadow-sm">
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl text-neutral-darkGray">{getTaskIcon(task.name)}</span>
-                      <span className="text-[1.0625rem] font-bold text-neutral-black">{task.name}</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4">
-                    <span className="px-2 py-0.5 rounded-none bg-purple-100 text-purple-700 text-[0.625rem] font-black uppercase tracking-widest animate-pulse">Requesting Funds</span>
-                    <span className="text-xl font-bold text-neutral-900">{formatCurrency(centsToDollars(Math.abs(task.valueCents || 0)))}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button onClick={() => onApproveTask(child.id, task)} variant="primary" className="w-full bg-purple-600 hover:bg-purple-700 border-none"><Check className="w-4 h-4 mr-2" /> Approve</Button>
-                    <Button onClick={() => onRejectTask(child.id, task)} variant="destructive" className="w-full"><X className="w-4 h-4 mr-2" /> Deny</Button>
-                  </div>
-                </div>
-              ))}
-            </>
-          )}
-
-          {/* AWAITING APPROVAL SECTION */}
-          {awaitingApproval.length > 0 && (
-            <>
-              <SectionHeader
-                icon={<AlertTriangle className="w-3.5 h-3.5" />}
-                title="Awaiting Your Approval"
-                count={awaitingApproval.length}
-                colorClass="text-primary-cardinal"
-              />
-              {awaitingApproval.map(task => (
-                <div key={task.id} className="bg-white border border-neutral-lightGray rounded-none p-5 mb-2 relative overflow-visible shadow-sm">
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl text-neutral-darkGray">{getTaskIcon(task.name)}</span>
-                      <span className="text-[1.0625rem] font-bold text-neutral-black">{task.name}</span>
-                    </div>
-                    <div className="relative">
-                      <Button variant="ghost" size="sm" onClick={(e) => toggleMenu(e, task.id)} className="w-7 h-7 text-neutral-darkGray hover:text-neutral-black"><MoreHorizontal className="w-4 h-4" /></Button>
-                      {activeMenuId === task.id && (
-                        <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-neutral-lightGray rounded-none shadow-lg z-50 p-1 animate-in fade-in zoom-in-95 duration-200">
-                          <button onClick={(e) => { e.stopPropagation(); onDeleteTask(child.id, task.id); }} className="w-full text-left px-3 py-2.5 rounded-none text-sm font-medium text-semantic-destructive hover:bg-neutral-lightGray/10 flex items-center gap-2 cursor-pointer"><Trash2 className="w-4 h-4" />Delete Task</button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4">
-                    <div className="flex items-center gap-1 text-neutral-darkGray text-xs font-medium"><Clock className="w-3 h-3" /> {task.baselineMinutes} min</div>
-                    <span className="px-2 py-0.5 rounded-none bg-primary-cardinal/10 text-primary-cardinal text-[0.625rem] font-black uppercase tracking-widest animate-pulse">Awaiting Approval</span>
-                    <span className="text-xs font-bold text-primary-cardinal">Will earn: {getTaskDisplayValue(task)}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button onClick={() => onApproveTask(child.id, task)} variant="primary" className="w-full"><Check className="w-4 h-4 mr-2" /> Approve</Button>
-                    <Button onClick={() => onRejectTask(child.id, task)} variant="destructive" className="w-full"><X className="w-4 h-4 mr-2" /> Reject</Button>
-                  </div>
-                </div>
-              ))}
-            </>
-          )}
-
-          {/* READY TO PAY SECTION */}
-          {readyToPay.length > 0 && (
-            <>
-              <SectionHeader
-                icon={<DollarSign className="w-3.5 h-3.5" />}
-                title="Ready to Pay"
-                count={readyToPay.length}
-                colorClass="text-emerald-600"
-              />
-              {readyToPay.map(task => (
-                <div key={task.id} className="bg-white border border-neutral-lightGray rounded-none p-5 mb-2 relative overflow-visible shadow-sm">
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl text-neutral-darkGray">{getTaskIcon(task.name)}</span>
-                      <span className="text-[1.0625rem] font-bold text-neutral-black">{task.name}</span>
-                    </div>
-                    <div className="relative">
-                      <Button variant="ghost" size="sm" onClick={(e) => toggleMenu(e, task.id)} className="w-7 h-7 text-neutral-darkGray hover:text-neutral-black"><MoreHorizontal className="w-4 h-4" /></Button>
-                      {activeMenuId === task.id && (
-                        <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-neutral-lightGray rounded-none shadow-lg z-50 p-1 animate-in fade-in zoom-in-95 duration-200">
-                          <button onClick={(e) => { e.stopPropagation(); onUndoApproval(child.id, task.id); }} className="w-full text-left px-3 py-2.5 rounded-none text-sm font-medium text-blue-600 hover:bg-neutral-lightGray/10 flex items-center gap-2 cursor-pointer"><RotateCcw className="w-4 h-4" />Undo Approval</button>
-                          <div className="h-px bg-neutral-lightGray my-1" />
-                          <button onClick={(e) => { e.stopPropagation(); onDeleteTask(child.id, task.id); }} className="w-full text-left px-3 py-2.5 rounded-none text-sm font-medium text-semantic-destructive hover:bg-neutral-lightGray/10 flex items-center gap-2 cursor-pointer"><Trash2 className="w-4 h-4" />Delete Task</button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-4">
-                    <div className="flex items-center gap-1 text-neutral-darkGray text-xs font-medium"><Clock className="w-3 h-3" /> {task.baselineMinutes} min</div>
-                    <span className="px-2 py-0.5 rounded-none bg-emerald-50 text-emerald-700 text-[0.625rem] font-black uppercase tracking-widest">Approved</span>
-                    <span className="text-xs font-bold text-emerald-600">Earned: {getTaskDisplayValue(task)}</span>
-                  </div>
-                  <Button onClick={() => onPayTask(child.id, task)} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm border border-transparent"><DollarSign className="w-4 h-4 mr-2" /> Mark as Paid</Button>
-                </div>
-              ))}
-            </>
-          )}
-
-          {/* IN PROGRESS SECTION */}
-          {inProgress.length > 0 && (
-            <>
-              <SectionHeader
-                icon={<Clock className="w-3.5 h-3.5" />}
-                title="In Progress"
-                count={inProgress.length}
-                colorClass="text-neutral-darkGray"
-              />
-              {inProgress.map(task => (
-                <div key={task.id} className="bg-neutral-50 border border-neutral-lightGray rounded-none p-5 mb-2 hover:bg-neutral-lightGray/10 transition-colors group/task relative overflow-visible">
-                  <div className="flex justify-between items-start mb-2">
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl text-neutral-darkGray">{getTaskIcon(task.name)}</span>
-                      <span className="text-[1.0625rem] font-medium text-neutral-black">{task.name}</span>
-                    </div>
-                    <div className="relative">
-                      <Button variant="ghost" size="sm" onClick={(e) => toggleMenu(e, task.id)} className="w-7 h-7 text-neutral-darkGray hover:text-neutral-black"><MoreHorizontal className="w-4 h-4" /></Button>
-                      {activeMenuId === task.id && (
-                        <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-neutral-lightGray rounded-none shadow-lg z-50 p-1 animate-in fade-in zoom-in-95 duration-200">
-                          <div className="relative group/reassign">
-                            <button onClick={(e) => { e.stopPropagation(); setActiveSubmenuId(activeSubmenuId === 're' ? null : 're'); }} className="w-full text-left px-3 py-2.5 rounded-none text-sm font-medium text-neutral-black hover:bg-neutral-lightGray/10 flex items-center justify-between cursor-pointer">
-                              <div className="flex items-center gap-2"><UserPlus className="w-4 h-4 text-blue-500" />Reassign to...</div>
-                              <ChevronRight className="w-3.5 h-3.5 opacity-40" />
-                            </button>
-                            {activeSubmenuId === 're' && (
-                              <div className="absolute left-full top-0 w-44 bg-white border border-neutral-lightGray rounded-none shadow-lg ml-1 overflow-hidden">
-                                <button onClick={(e) => { e.stopPropagation(); onReassignTask(task, 'OPEN'); setActiveMenuId(null); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-neutral-darkGray hover:bg-neutral-lightGray/10 hover:text-neutral-black flex items-center gap-2 cursor-pointer"><Briefcase className="w-3 h-3" /> Open Pool</button>
-                                {siblings.map(s => (
-                                  <button key={s.id} onClick={(e) => { e.stopPropagation(); onReassignTask(task, s.id); setActiveMenuId(null); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-neutral-darkGray hover:bg-neutral-lightGray/10 hover:text-neutral-black truncate cursor-pointer">{s.name}</button>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                          <button onClick={(e) => { e.stopPropagation(); onEditTask(task); setActiveMenuId(null); }} className="w-full text-left px-3 py-2.5 rounded-none text-sm font-medium text-neutral-black hover:bg-neutral-lightGray/10 flex items-center gap-2 cursor-pointer"><Edit2 className="w-4 h-4 text-blue-500" />Edit Baseline</button>
-                          <div className="h-px bg-neutral-lightGray my-1" />
-                          <button onClick={(e) => { e.stopPropagation(); onDeleteTask(child.id, task.id); setActiveMenuId(null); }} className="w-full text-left px-3 py-2.5 rounded-none text-sm font-medium text-semantic-destructive hover:bg-neutral-lightGray/10 flex items-center gap-2 cursor-pointer"><Trash2 className="w-4 h-4" />Delete Task</button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 ml-[2.75rem]">
-                    <div className="flex items-center gap-1.5 text-neutral-darkGray text-xs font-medium"><Clock className="w-3.5 h-3.5" /> {task.baselineMinutes} min baseline</div>
-                    <span className="px-2 py-0.5 rounded-none bg-neutral-lightGray/20 text-neutral-darkGray text-[0.625rem] font-black uppercase tracking-widest">Pending</span>
-                  </div>
-                </div>
-              ))}
-            </>
-          )}
-
-          {allTasks.length === 0 && (
-            <div className="py-8 text-center text-neutral-darkGray text-sm bg-neutral-50 rounded-none border border-neutral-lightGray border-dashed">No tasks assigned</div>
-          )}
-        </div>
-      )}
     </div>
   );
 };
