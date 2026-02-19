@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { collection, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { db } from '@/services/firebase';
 import { mapTransaction } from '@/utils';
 import { Child, Task, Transaction, SavingsGoal } from '@/types';
 import {
