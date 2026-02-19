@@ -896,14 +896,14 @@ function DashboardPage() {
     setIsAddTaskModalOpen(false);
   };
 
-  const handlePayTask = (childId: string, task: Task) => {
+  const handlePayTask = async (childId: string, task: Task) => {
     const child = childrenWithRateMap.find((c) => c.id === childId);
     if (!child) return;
 
     const rate = calculateHourlyRate(child.subjects, child.rates);
     const earningsCents = calculateTaskValueCents(task.baselineMinutes, dollarsToCents(rate));
 
-    payTaskMutation.mutate({
+    await payTaskMutation.mutateAsync({
       childId,
       taskId: task.id,
       amountCents: earningsCents,
@@ -1116,7 +1116,7 @@ function DashboardPage() {
             onInviteChild={() => undefined}
             onEditSettings={() => undefined}
             onSubmitTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_APPROVAL', childId })}
-            onApproveTask={() => undefined}
+            onApproveTask={(childId, task) => statusTaskMutation.mutateAsync({ taskId: task.id, status: 'PENDING_PAYMENT', childId })}
             onPayTask={handlePayTask}
             onRejectTask={() => undefined}
             onClaimTask={(childId, taskId) => claimTaskMutation.mutate({ childId, taskId })}
