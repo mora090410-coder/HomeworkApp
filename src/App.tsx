@@ -160,6 +160,16 @@ const mapFirestoreProfile = (
     currentHourlyRate: typeof source.currentHourlyRate === 'number' ? source.currentHourlyRate : 0,
     balanceCents,
     balance: centsToDollars(balanceCents),
+    goals: Array.isArray(source.goals)
+      ? source.goals.map((goal: any) => ({
+        id: goal.id,
+        name: goal.name,
+        targetAmountCents: goal.targetAmountCents,
+        currentAmountCents: goal.currentAmountCents,
+        status: goal.status,
+        createdAt: parseOptionalIsoString(goal.createdAt),
+      }))
+      : [],
     setupStatus: parseProfileSetupStatus(source.setupStatus),
     inviteLastSentAt: parseOptionalIsoString(source.inviteLastSentAt),
     setupCompletedAt: parseOptionalIsoString(source.setupCompletedAt),
