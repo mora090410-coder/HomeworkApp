@@ -61,6 +61,12 @@ export default function LandingPage() {
 
                         {/* H1 */}
                         <h1 className="text-7xl font-bold text-brand tracking-tight mb-8 leading-[1.1] font-['SF_Pro_Display',-apple-system,sans-serif]">
+                            {/* Logo Image */}
+                            <img
+                                src="/images/homework-icon-transparent.png"
+                                alt="HomeWork Icon"
+                                className="w-32 h-32 sm:w-40 sm:h-40 relative z-10 drop-shadow-2xl luminary-glow"
+                            />
                             The Family Economy.<br />
                             Redefined.
                         </h1>

@@ -1159,7 +1159,7 @@ function DashboardPage() {
       <div className="relative z-10 max-w-[1400px] mx-auto p-6 md:p-8">
         <header className="sticky top-0 z-50 flex justify-between items-center py-4 px-6 md:px-8 -mx-6 md:-mx-8 mb-10 bg-white/80 backdrop-blur-md shadow-sm border-b border-white/50">
           <div className="flex items-center gap-6">
-            <span className="text-2xl font-bold font-heading tracking-tight text-content-primary">HomeWork</span>
+            <img src="/images/homework-wordmark.png" alt="HomeWork" className="h-10 w-auto" />
             <div className="hidden md:flex flex-col relative group">
               {/* Glassmorphism Container for Net Worth */}
               <div className="absolute inset-0 bg-white/40 backdrop-blur-md rounded-2xl -m-3 border border-white/50 shadow-sm transition-all duration-300 group-hover:shadow-md" />
