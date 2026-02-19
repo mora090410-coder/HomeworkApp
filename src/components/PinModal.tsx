@@ -27,21 +27,7 @@ const hashPin = async (pin: string): Promise<string> => {
         .join('');
 };
 
-const PinModal: React.FC<PinModalProps> = ({
-    isOpen,
-    onClose,
-    onClose,
-    onAuthorized,
-    title = "Enter Parent PIN",
-    expectedPinHash,
-    householdId,
-    profileId,
-    profileRole,
-    mode,
-    profileName,
-    canAdminBypass,
-    adminMasterPassword,
-    onClose,
+onClose,
     title = "Enter Parent PIN",
     expectedPinHash,
     householdId,
