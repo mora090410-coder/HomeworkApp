@@ -1251,7 +1251,7 @@ export const householdService = {
         name: safeTaskName,
         baselineMinutes: Number.isFinite(task.baselineMinutes) ? task.baselineMinutes : 0,
         status,
-        rejectionComment: task.rejectionComment,
+        rejectionComment: typeof task.rejectionComment === 'string' ? task.rejectionComment : null,
         assigneeId: typeof task.assigneeId === 'string' ? task.assigneeId : null,
         catalogItemId:
           typeof options?.catalogItemId === 'string'
@@ -1259,7 +1259,7 @@ export const householdService = {
             : typeof task.catalogItemId === 'string'
               ? task.catalogItemId
               : null,
-        valueCents: typeof task.valueCents === 'number' ? task.valueCents : undefined,
+        valueCents: typeof task.valueCents === 'number' ? task.valueCents : null,
       };
 
       await setDoc(taskRef, {
