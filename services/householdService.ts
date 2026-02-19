@@ -2236,4 +2236,90 @@ export const householdService = {
       throw normalizeError('Failed to load household activity', error);
     }
   },
+
+  async spawnDailyRecurringTasks(householdId: string, children: Child[]): Promise<void> {
+    try {
+      const catalogRef = collection(db, 'households', householdId, 'choreCatalog');
+      const q = query(catalogRef, where('isRecurring', '==', true));
+      const catalogSnapshot = await getDocs(q);
+
+      if (catalogSnapshot.empty) return;
+
+      const recurringItems = catalogSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as ChoreCatalogItem[];
+
+      const batch = writeBatch(db);
+      let batchCount = 0;
+
+      // Get start of today in local time (or UTC, to ensure consistency)
+      // Using local time for now since it runs client-side on dashboard load
+      const startOfDay = new Date();
+      startOfDay.setHours(0, 0, 0, 0);
+
+      // We need to check if tasks were ALREADY spawned today.
+      // Since this runs on client, we want to be careful not to duplicate.
+      // We will check tasks created >= startOfDay for each child.
+
+      for (const child of children) {
+        if (!child.id) continue;
+
+        // Check tasks created today for this child
+        const childTasksRef = collection(db, 'households', householdId, 'profiles', child.id, 'tasks');
+        // Note: This requires an index on 'createdAt' potentially, or just get recent tasks.
+        // Since child task lists are small, we can just get all open tasks or recent tasks.
+        // Let's query by createdAt to be safe.
+        const tasksQuery = query(
+          childTasksRef,
+          where('createdAt', '>=', Timestamp.fromDate(startOfDay))
+        );
+
+        const tasksSnapshot = await getDocs(tasksQuery);
+        const existingCatalogItemIds = new Set();
+
+        tasksSnapshot.forEach(doc => {
+          const task = doc.data() as Task;
+          if (task.catalogItemId) {
+            existingCatalogItemIds.add(task.catalogItemId);
+          }
+        });
+
+        for (const item of recurringItems) {
+          if (!existingCatalogItemIds.has(item.id)) {
+            // Spawn task
+            const newTaskRef = doc(childTasksRef);
+            const multiplier = item.multiplier || 1.0;
+
+            const taskData = {
+              id: newTaskRef.id,
+              householdId: householdId,
+              name: item.name,
+              baselineMinutes: item.baselineMinutes || 0,
+              valueCents: item.valueCents || 0,
+              status: 'ASSIGNED',
+              assigneeId: child.id,
+              catalogItemId: item.id,
+              isRecurring: true,
+              multiplier: multiplier,
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+            };
+
+            batch.set(newTaskRef, taskData);
+            batchCount++;
+          }
+        }
+      }
+
+      if (batchCount > 0) {
+        await batch.commit();
+        console.log(`Spawned ${batchCount} recurring tasks.`);
+      }
+
+    } catch (error) {
+      console.error('Failed to spawn recurring tasks:', error);
+      // Don't throw, just log. We don't want to crash the dashboard if this fails.
+    }
+  },
 };
