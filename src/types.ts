@@ -135,7 +135,7 @@ export interface Child {
   subjects: Subject[];
   balance: number;
   balanceCents?: number;
-  history: Transaction[];
+  history?: Transaction[];
   customTasks: Task[];
   rates: Record<Grade, number>;
   currentHourlyRate: number;

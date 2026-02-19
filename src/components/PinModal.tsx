@@ -7,6 +7,14 @@ interface PinModalProps {
     onSuccess: () => void;
     title?: string;
     expectedPinHash?: string; // Optional: if provided, validates against this hash
+    householdId?: string | null;
+    profileId?: string | null;
+    profileRole?: string;
+    mode?: 'SETUP' | 'VERIFY';
+    profileName?: string;
+    canAdminBypass?: boolean;
+    adminMasterPassword?: string;
+    onAuthorized?: () => void;
 }
 
 // Simple hash function for client-side PIN validation (matches the one used in householdService)
@@ -23,8 +31,17 @@ const PinModal: React.FC<PinModalProps> = ({
     isOpen,
     onClose,
     onSuccess,
+    onSuccess,
     title = "Enter Parent PIN",
-    expectedPinHash
+    expectedPinHash,
+    householdId,
+    profileId,
+    profileRole,
+    mode,
+    profileName,
+    canAdminBypass,
+    adminMasterPassword,
+    onAuthorized
 }) => {
     const [pin, setPin] = useState(['', '', '', '']);
     const [error, setError] = useState(false);
