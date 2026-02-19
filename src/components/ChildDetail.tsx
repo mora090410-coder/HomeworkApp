@@ -78,7 +78,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
   const balanceCents = typeof child.balanceCents === 'number' ? child.balanceCents : Math.round(child.balance * 100);
   const balance = centsToDollars(balanceCents);
   const hasDebt = balanceCents < 0;
-  const recentTransactions = [...child.history]
+  const recentTransactions = [...(child.history || [])]
     .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime())
     .slice(0, 12);
 
@@ -120,7 +120,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
   startOfWeek.setHours(0, 0, 0, 0);
   startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay()); // Sunday start
 
-  const paidThisWeekCents = child.history
+  const paidThisWeekCents = (child.history || [])
     .filter(tx => tx.type === 'EARNING' && new Date(tx.date) >= startOfWeek)
     .reduce((sum, tx) => sum + getTransactionAmountCents(tx), 0);
   const paidThisWeek = centsToDollars(paidThisWeekCents);

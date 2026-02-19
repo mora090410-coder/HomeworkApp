@@ -588,7 +588,8 @@ function DashboardPage() {
       return {
         ...child,
         rates: ratesToUse,
-        customTasks: childTasks
+        customTasks: childTasks,
+        history: [],
       };
     });
   }, [familyAuth.profiles, effectiveRateMap, tasks]);
