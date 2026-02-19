@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { signOut, User, onAuthStateChanged } from 'firebase/auth';
 import { collection, collectionGroup, onSnapshot, query, where } from 'firebase/firestore';
-import { Calendar, Check, Loader2, LogOut, Plus, Share2, UserPlus, Users } from 'lucide-react';
+import { Briefcase, Calendar, Check, DollarSign, Loader2, LogOut, Plus, Share2, UserPlus, Users } from 'lucide-react';
 import { Button } from './components/ui/Button';
 import { Input } from './components/ui/Input';
 import {
@@ -43,6 +43,7 @@ import {
   calculateTaskValueCents,
   centsToDollars,
   dollarsToCents,
+  formatCurrency,
   mapTask,
 } from '@/utils';
 import { isValidChildUsername, normalizeChildUsername } from '@/src/features/auth/childCredentials';
@@ -56,6 +57,13 @@ interface PersistedSession {
   profileId?: string;
   role?: Profile['role'];
 }
+
+const REJECTION_TAGS = [
+  'Missing Photo',
+  'Not Finished',
+  'Try Again',
+  'See Notes',
+];
 
 interface FamilyAuthState {
   stage: FamilyAuthStage;
@@ -542,6 +550,11 @@ function DashboardPage() {
   const [isUpdateGradesModalOpen, setIsUpdateGradesModalOpen] = useState(false);
   const [isCatalogManagerOpen, setIsCatalogManagerOpen] = useState(false);
   const [childForGrades, setChildForGrades] = useState<Child | null>(null);
+  const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
+
+  const totalHouseholdNetWorth = useMemo(() => {
+    return childrenWithRateMap.reduce((sum, child) => sum + (child.balanceCents || 0), 0);
+  }, [childrenWithRateMap]);
 
   const effectiveRateMap = useMemo(() => {
     return buildRateMapFromGradeConfigs(gradeConfigs, DEFAULT_RATES);
@@ -1099,38 +1112,77 @@ function DashboardPage() {
     <div className="min-h-screen bg-neutral-50 text-neutral-900 relative pb-12 font-sans">
       <div className="relative z-10 max-w-[1400px] mx-auto p-6 md:p-8">
         <header className="flex justify-between items-center mb-10">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-6">
             <span className="text-2xl font-bold font-heading track-tight text-primary-cardinal">HomeWork</span>
-            <span className="px-2 py-0.5 rounded-none bg-white border border-neutral-200 text-[11px] font-bold tracking-wider text-neutral-500 uppercase shadow-sm">Admin</span>
+            <div className="hidden md:flex flex-col">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-0.5">Household Net Worth</span>
+              <span className="text-xl font-bold font-heading text-emerald-700">{formatCurrency(centsToDollars(totalHouseholdNetWorth))}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => { void familyAuth.signOutUser(); }} className="text-neutral-500 hover:text-neutral-900">
-              <LogOut className="w-5 h-5" />
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Button
+                variant="primary"
+                className="rounded-full w-12 h-12 shadow-lg p-0 flex items-center justify-center"
+                onClick={() => setIsActionMenuOpen(!isActionMenuOpen)}
+              >
+                <Plus className={`w-6 h-6 transition-transform duration-300 ${isActionMenuOpen ? 'rotate-45' : ''}`} />
+              </Button>
+
+              {isActionMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsActionMenuOpen(false)} />
+                  <div className="absolute right-0 mt-3 w-56 bg-white border border-neutral-200 shadow-2xl z-50 py-2 animate-in fade-in zoom-in-95 duration-200">
+                    <button
+                      onClick={() => { setIsActionMenuOpen(false); setIsAddChildModalOpen(true); }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-neutral-700 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
+                    >
+                      <UserPlus className="w-4 h-4 text-primary-cardinal" />
+                      Add Child
+                    </button>
+                    <button
+                      onClick={() => { setIsActionMenuOpen(false); setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-neutral-700 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
+                    >
+                      <Calendar className="w-4 h-4 text-primary-cardinal" />
+                      Create Open Task
+                    </button>
+                    <button
+                      onClick={() => { setIsActionMenuOpen(false); if (hasChildren) { setSelectedChildId(childrenWithRateMap[0].id); setIsAdvanceModalOpen(true); } }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-neutral-700 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
+                    >
+                      <DollarSign className="w-4 h-4 text-primary-cardinal" />
+                      Add Advance
+                    </button>
+                    <div className="h-px bg-neutral-100 my-1" />
+                    <button
+                      onClick={() => { setIsActionMenuOpen(false); setIsCatalogManagerOpen(true); }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-neutral-700 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
+                    >
+                      <Briefcase className="w-4 h-4 text-primary-cardinal" />
+                      Manage Chore Catalog
+                    </button>
+                    <button
+                      onClick={() => { setIsActionMenuOpen(false); handleGenerateInvite(); }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-neutral-700 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
+                    >
+                      <Share2 className="w-4 h-4 text-primary-cardinal" />
+                      Invite Device
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <Button variant="ghost" onClick={() => { void familyAuth.signOutUser(); }} className="text-neutral-500 hover:text-neutral-900 border border-neutral-200 rounded-full w-10 h-10 p-0 flex items-center justify-center">
+              <LogOut className="w-4 h-4" />
             </Button>
           </div>
         </header>
 
-        <div className="flex flex-wrap items-center gap-3 mb-8">
-          <Button variant="primary" onClick={() => setIsAddChildModalOpen(true)} className="gap-2 shadow-sm">
-            <UserPlus className="w-[18px] h-[18px]" />
-            <span className="hidden sm:inline">Add Child</span>
-          </Button>
-          <Button variant="outline" onClick={() => { setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }} disabled={!hasChildren} className="gap-2">
-            <Calendar className="w-[18px] h-[18px]" />
-            <span className="hidden sm:inline">Add Open Task</span>
-          </Button>
-          <Button variant="outline" onClick={() => setIsCatalogManagerOpen(true)} className="gap-2">
-            <Plus className="w-[18px] h-[18px]" />
-            <span className="hidden sm:inline">Manage Catalog</span>
-          </Button>
-          <Button variant="outline" onClick={() => { if (hasChildren) { setSelectedChildId(childrenWithRateMap[0].id); setIsAdvanceModalOpen(true); } }} disabled={!hasChildren} className="gap-2">
-            <Plus className="w-[18px] h-[18px]" />
-            <span className="hidden sm:inline">Add Advance</span>
-          </Button>
-          <Button variant="ghost" onClick={handleGenerateInvite} className="gap-2 border-dashed border-neutral-300 text-neutral-500 hover:text-neutral-900">
-            <Share2 className="w-4 h-4" />
-            <span className="text-xs font-bold uppercase tracking-wider">Invite</span>
-          </Button>
+        <div className="md:hidden mb-8 bg-white border border-neutral-200 p-4 flex justify-between items-center">
+          <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">Household Net Worth</span>
+          <span className="text-lg font-bold text-emerald-700">{formatCurrency(centsToDollars(totalHouseholdNetWorth))}</span>
         </div>
 
         {taskStreamError && (
@@ -1142,31 +1194,6 @@ function DashboardPage() {
 
         {hasChildren ? (
           <div className="mb-12">
-            <div className="mb-8 bg-white p-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border border-neutral-200 rounded-none shadow-sm">
-              <div>
-                <h2 className="text-lg font-bold font-heading text-neutral-900 mb-1">Family Command Center</h2>
-                <p className="text-sm text-neutral-500 font-sans">
-                  {pendingSetupCount > 0
-                    ? `${pendingSetupCount} profile${pendingSetupCount === 1 ? '' : 's'} awaiting setup completion.`
-                    : 'All systems operational.'}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                {inviteSentCount > 0 && (
-                  <span className="px-3 py-1 rounded-none bg-neutral-100 text-neutral-600 text-xs font-bold border border-neutral-200">
-                    {inviteSentCount} Invite{inviteSentCount !== 1 ? 's' : ''} Sent
-                  </span>
-                )}
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setIsAddChildModalOpen(true)}
-                >
-                  Add Another Child
-                </Button>
-              </div>
-
-            </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 items-start">
               <div className="xl:col-span-2 space-y-8">
@@ -1195,7 +1222,7 @@ function DashboardPage() {
                       onEditTask={(task) => { setEditingTask({ childId: child.id, task }); setIsAddTaskModalOpen(true); }}
                       onReassignTask={() => undefined}
                       onApproveTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_PAYMENT', childId })}
-                      onRejectTask={(childId, task) => { setTaskToReject({ childId, task }); setRejectionComment(''); }}
+                      onRejectTask={handleRejectTask}
                       onPayTask={handlePayTask}
                       onUndoApproval={(childId, taskId) => statusTaskMutation.mutate({ taskId, status: 'PENDING_APPROVAL', childId })}
                     />
@@ -1347,26 +1374,73 @@ function DashboardPage() {
         />
 
         {taskToReject && (
-          <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setTaskToReject(null)} />
-            <div className="relative w-full max-w-[480px] bg-white rounded-none border border-neutral-200 p-8 shadow-xl animate-in zoom-in-95 duration-200">
-              <h3 className="text-xl font-bold mb-4 text-neutral-900">Reject Task: {taskToReject.task.name}</h3>
-              <textarea value={rejectionComment} onChange={(event) => setRejectionComment(event.target.value)} placeholder="What needs to be fixed?" className="w-full min-h-[120px] p-4 bg-neutral-50 border border-neutral-200 rounded-none mb-6 outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 text-neutral-900 placeholder:text-neutral-400 resize-none font-sans" autoFocus />
-              <div className="flex gap-4">
-                <button type="button" onClick={() => setTaskToReject(null)} className="flex-1 py-3 text-neutral-600 bg-neutral-100 hover:bg-neutral-200 rounded-none transition-colors font-medium">Cancel</button>
-                <button type="button" onClick={() => {
-                  if (!taskToReject || rejectionComment.trim().length === 0) {
-                    return;
-                  }
-                  statusTaskMutation.mutate({ taskId: taskToReject.task.id, status: 'ASSIGNED', comment: rejectionComment, childId: taskToReject.childId });
-                  setTaskToReject(null);
-                  setRejectionComment('');
-                }} disabled={rejectionComment.trim().length === 0} className="flex-1 py-3 bg-red-600 rounded-none font-bold text-white disabled:opacity-50 hover:bg-red-700 transition-colors shadow-sm">
-                  Send Back
-                </button>
+          <Modal
+            isOpen={true}
+            onClose={() => setTaskToReject(null)}
+            title="Reject Task"
+          >
+            <div className="space-y-6">
+              <p className="text-sm text-neutral-500 font-sans">
+                Select a reason for rejecting <span className="font-bold text-neutral-900">{taskToReject.task.name}</span>:
+              </p>
+
+              <div className="flex flex-wrap gap-2">
+                {REJECTION_TAGS.map(tag => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => {
+                      const newComment = rejectionComment.includes(tag)
+                        ? rejectionComment.split(', ').filter(t => t !== tag).join(', ')
+                        : (rejectionComment ? `${rejectionComment}, ${tag}` : tag);
+                      setRejectionComment(newComment);
+                    }}
+                    className={`px-4 py-2 text-xs font-bold uppercase tracking-widest border transition-all ${rejectionComment.includes(tag)
+                      ? 'bg-primary-cardinal text-white border-primary-cardinal shadow-md'
+                      : 'bg-white text-neutral-500 border-neutral-200 hover:border-primary-cardinal hover:text-primary-cardinal'
+                      }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Additional Context</span>
+                <textarea
+                  value={rejectionComment}
+                  onChange={(e) => setRejectionComment(e.target.value)}
+                  placeholder="Optional notes..."
+                  className="w-full min-h-[80px] p-4 bg-neutral-50 border border-neutral-100 rounded-none text-sm font-sans focus:border-primary-cardinal outline-none transition-colors resize-none"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <Button
+                  variant="primary"
+                  className="flex-1"
+                  onClick={() => {
+                    statusTaskMutation.mutate({
+                      childId: taskToReject.childId,
+                      taskId: taskToReject.task.id,
+                      status: 'ASSIGNED',
+                      comment: rejectionComment || 'Task needs more work'
+                    });
+                    setTaskToReject(null);
+                  }}
+                >
+                  Confirm Rejection
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="flex-1 border border-neutral-200"
+                  onClick={() => setTaskToReject(null)}
+                >
+                  Cancel
+                </Button>
               </div>
             </div>
-          </div>
+          </Modal>
         )}
 
         {isInviteModalOpen && (

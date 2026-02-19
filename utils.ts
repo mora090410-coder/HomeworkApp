@@ -167,5 +167,10 @@ export const mapTask = (taskId: string, householdId: string, source: Record<stri
     assigneeId: typeof source.assigneeId === 'string' ? source.assigneeId : null,
     catalogItemId: typeof source.catalogItemId === 'string' ? source.catalogItemId : null,
     valueCents: typeof source.valueCents === 'number' ? source.valueCents : undefined,
+    createdAt: typeof source.createdAt === 'string'
+      ? source.createdAt
+      : (source.createdAt && typeof source.createdAt === 'object' && 'toDate' in source.createdAt)
+        ? (source.createdAt as { toDate: () => Date }).toDate().toISOString()
+        : undefined,
   };
 };

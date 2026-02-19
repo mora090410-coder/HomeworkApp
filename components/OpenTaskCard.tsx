@@ -1,9 +1,7 @@
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Task, Child } from '../types';
 import { Clock, MoreVertical, Trash2, Edit2, UserPlus, ChevronRight } from 'lucide-react';
 import { Button } from '@/src/components/ui/Button';
-import { Card } from '@/src/components/ui/Card';
 import { getTaskIcon, formatCurrency, centsToDollars } from '../utils';
 
 interface OpenTaskCardProps {
@@ -69,28 +67,45 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
     setShowAssignSubmenu(!showAssignSubmenu);
   };
 
+  const isBounty = useMemo(() => {
+    if (!task.createdAt) return false;
+    const created = new Date(task.createdAt).getTime();
+    const now = new Date().getTime();
+    return (now - created) > (24 * 60 * 60 * 1000); // 24 hours
+  }, [task.createdAt]);
+
   return (
-    <Card className="transition-all duration-200 hover:shadow-md group relative overflow-visible p-5" noPadding>
+    <div className={`flex flex-col p-6 bg-white border ${isBounty ? 'border-amber-200 ring-2 ring-amber-100 ring-opacity-50' : 'border-neutral-200'} shadow-sm relative overflow-visible transition-all hover:shadow-md`}>
+      {isBounty && (
+        <div className="absolute top-0 right-0 z-10">
+          <div className="bg-amber-100 text-amber-800 text-[8px] font-black uppercase tracking-[0.2em] px-3 py-1 shadow-sm border-l border-b border-amber-200">
+            High Priority Bounty
+          </div>
+        </div>
+      )}
+
       <div className="flex justify-between items-start mb-4">
-        <div className="flex items-start gap-2.5">
-          <span className="text-[1.25rem] leading-none mt-0.5 text-neutral-darkGray">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl" role="img" aria-label="task icon">
             {getTaskIcon(task.name)}
           </span>
-          <span className="text-[1.0625rem] font-bold text-neutral-black leading-tight font-heading">
-            {task.name}
-          </span>
+          <div>
+            <h3 className="text-lg font-heading font-bold text-neutral-900 leading-tight">{task.name}</h3>
+            <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mt-0.5">
+              {task.baselineMinutes} min baseline
+            </p>
+          </div>
         </div>
 
         <div className="relative" ref={menuRef}>
           <Button
             variant="ghost"
-            size="sm"
             onClick={(e) => {
               e.stopPropagation();
               setIsMenuOpen(!isMenuOpen);
               setShowAssignSubmenu(false);
             }}
-            className="w-8 h-8 p-0 text-neutral-darkGray hover:text-neutral-black"
+            className="w-8 h-8 p-0 text-neutral-darkGray hover:text-neutral-black border border-neutral-100 rounded-full flex items-center justify-center"
           >
             <MoreVertical className="w-4 h-4" />
           </Button>
@@ -102,7 +117,6 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
                   <button
                     type="button"
                     onClick={toggleAssignSubmenu}
-                    onMouseEnter={() => setShowAssignSubmenu(true)}
                     className={`w-full text-left px-3 py-2.5 rounded-none text-sm font-medium flex items-center justify-between gap-2 transition-colors cursor-pointer ${showAssignSubmenu ? 'bg-neutral-lightGray/10 text-neutral-black' : 'text-neutral-darkGray hover:bg-neutral-lightGray/10 hover:text-neutral-black'}`}
                   >
                     <div className="flex items-center gap-2">
@@ -115,7 +129,6 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
                   {showAssignSubmenu && (
                     <div
                       className="absolute left-full top-0 w-44 bg-white border border-neutral-lightGray rounded-none shadow-xl overflow-hidden z-[60] ml-1 animate-in slide-in-from-left-2 duration-200"
-                      onMouseLeave={() => setShowAssignSubmenu(false)}
                     >
                       {children.length > 0 ? children.map(child => (
                         <button
@@ -142,7 +155,7 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
                   Edit Baseline
                 </button>
 
-                <div className="h-px bg-neutral-lightGray my-1" />
+                <div className="h-px bg-neutral-100 my-1" />
 
                 <button
                   type="button"
@@ -158,17 +171,17 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mt-auto pt-4">
         <div className="flex items-center gap-1.5 text-neutral-darkGray">
           <Clock className="w-3.5 h-3.5" />
           <span className="text-[0.875rem] font-medium font-sans">{task.baselineMinutes} min baseline</span>
         </div>
 
-        <span className="px-2.5 py-1 rounded-none bg-blue-50 text-blue-700 text-[0.75rem] font-bold uppercase tracking-wider border border-blue-200">
+        <span className={`px-2.5 py-1 rounded-none text-[0.75rem] font-black uppercase tracking-widest border ${isBounty ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
           {task.valueCents ? formatCurrency(centsToDollars(task.valueCents)) : 'Available'}
         </span>
       </div>
-    </Card>
+    </div>
   );
 };
 

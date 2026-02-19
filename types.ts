@@ -59,6 +59,7 @@ export interface Task {
   assigneeId?: string | null;
   catalogItemId?: string | null;
   valueCents?: number;
+  createdAt?: string;
 }
 
 export interface ChoreCatalogItem {

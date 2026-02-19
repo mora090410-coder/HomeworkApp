@@ -217,30 +217,79 @@ const ChildCard: React.FC<ChildCardProps> = ({
 
   return (
     <div className="flex flex-col gap-3 font-sans w-full">
-      <Card className="group relative overflow-hidden transition-all duration-300 hover:shadow-md p-8" noPadding>
-
+      <Card
+        className="group relative overflow-hidden transition-all duration-300 hover:shadow-xl p-8 bg-white border-neutral-200"
+        noPadding
+        style={{
+          borderTop: `6px solid ${child.avatarColor || '#E2E8F0'}`,
+          boxShadow: isExpanded ? `0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 0 20px -5px ${child.avatarColor}20` : undefined
+        }}
+      >
         <div className="flex justify-between items-start mb-8">
-          <div>
-            <h2 className="text-2xl font-heading font-bold text-neutral-black tracking-tight mb-1">{child.name}</h2>
-            <p className="text-sm text-neutral-darkGray font-medium">{child.gradeLevel}</p>
-            <span className={`mt-3 inline-flex items-center rounded-none border px-2.5 py-1 text-[0.6875rem] font-semibold uppercase tracking-wide ${setupBadgeClass}`}>
-              {setupLabel}
-            </span>
+          <div className="flex items-center gap-4">
+            <div
+              className="w-16 h-16 flex items-center justify-center text-2xl font-bold text-white shadow-inner"
+              style={{ backgroundColor: child.avatarColor || '#94A3B8' }}
+            >
+              {child.name.charAt(0)}
+            </div>
+            <div>
+              <h2 className="text-2xl font-heading font-black text-neutral-900 tracking-tight leading-none mb-1">{child.name}</h2>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">{child.gradeLevel}</span>
+                <span className="w-1 h-1 rounded-full bg-neutral-300" />
+                <span className={`text-[10px] font-bold uppercase tracking-widest ${setupStatus === 'SETUP_COMPLETE' ? 'text-emerald-600' : 'text-primary-cardinal'}`}>
+                  {setupLabel}
+                </span>
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 bg-neutral-50 border border-neutral-lightGray px-3 py-1.5 rounded-none">
-              <div className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-[10px] font-bold">$</div>
-              <span className="text-sm font-semibold text-neutral-black">{formatCurrency(hourlyRate)}/hr</span>
+          <div className="flex items-center gap-2">
+            <div className="flex flex-col items-end px-3 py-1 bg-neutral-50 border border-neutral-100">
+              <span className="text-[8px] font-bold uppercase tracking-widest text-neutral-400">Rate</span>
+              <span className="text-sm font-bold text-neutral-900">{formatCurrency(hourlyRate)}/hr</span>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => { e.stopPropagation(); onEditSettings(child); }}
-              className="rounded-full text-neutral-darkGray hover:text-primary-cardinal"
-            >
-              <Settings className="w-5 h-5" />
-            </Button>
+
+            <div className="relative">
+              <Button
+                variant="ghost"
+                className="w-10 h-10 p-0 rounded-full border border-neutral-100 text-neutral-400 hover:text-primary-cardinal hover:bg-neutral-50 transition-all"
+                onClick={(e) => { e.stopPropagation(); setActiveMenuId(activeMenuId === 'profile-actions' ? null : 'profile-actions'); }}
+              >
+                <MoreHorizontal className="w-5 h-5" />
+              </Button>
+
+              {activeMenuId === 'profile-actions' && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setActiveMenuId(null)} />
+                  <div className="absolute right-0 mt-2 w-48 bg-white border border-neutral-200 shadow-2xl z-50 py-2 animate-in fade-in zoom-in-95 duration-200">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setActiveMenuId(null); onUpdateGrades(child); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-neutral-600 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
+                    >
+                      <Briefcase className="w-3.5 h-3.5" />
+                      Payscale / Grades
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setActiveMenuId(null); onInviteChild(child); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-neutral-600 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
+                    >
+                      <UserPlus className="w-3.5 h-3.5" />
+                      {setupStatus === 'SETUP_COMPLETE' ? 'Reinvite' : 'Invite'}
+                    </button>
+                    <div className="h-px bg-neutral-100 my-1" />
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setActiveMenuId(null); onEditSettings(child); }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-neutral-600 hover:bg-neutral-50 hover:text-primary-cardinal transition-colors"
+                    >
+                      <Settings className="w-3.5 h-3.5" />
+                      Profile Settings
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
@@ -259,32 +308,21 @@ const ChildCard: React.FC<ChildCardProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <Button
-            variant="secondary"
-            onClick={() => onUpdateGrades(child)}
-            className="w-full justify-center group/btn"
-          >
-            <Edit2 className="w-4 h-4 mr-2" />
-            Update Grades
-          </Button>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col p-4 bg-white border border-neutral-100 shadow-sm">
+            <span className="text-[9px] font-black uppercase tracking-[0.15em] text-neutral-400 mb-2">Available to Pay</span>
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-heading font-black text-emerald-700 tracking-tighter">{formatCurrency(earnedAmount)}</span>
+            </div>
+          </div>
 
           <Button
             variant="primary"
             onClick={() => onAssignTask(child)}
-            className="w-full justify-center group/btn"
+            className="h-full flex flex-col items-center justify-center gap-2 rounded-none p-4 shadow-sm group/btn"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Assign Task
-          </Button>
-
-          <Button
-            variant="secondary"
-            onClick={() => onInviteChild(child)}
-            className="w-full justify-center group/btn"
-          >
-            <UserPlus className="w-4 h-4 mr-2" />
-            {setupStatus === 'SETUP_COMPLETE' ? 'Reinvite' : 'Invite'}
+            <Plus className="w-6 h-6 transition-transform group-hover/btn:rotate-90" />
+            <span className="text-[10px] font-black uppercase tracking-widest">Assign Task</span>
           </Button>
         </div>
 
