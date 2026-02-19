@@ -152,8 +152,22 @@ const applyLedgerMutation = async (params: {
     );
 
     if (params.lockTaskAsPaid && params.taskId) {
-      const taskRef = doc(params.firestore, `households/${safeHouseholdId}/tasks/${params.taskId}`);
-      const taskSnapshot = await transaction.get(taskRef);
+      // Check profile sub-collection first (assigned tasks), then root (open tasks).
+      const profileTaskRef = doc(
+        params.firestore,
+        `households/${safeHouseholdId}/profiles/${safeProfileId}/tasks/${params.taskId}`,
+      );
+      let taskRef = profileTaskRef;
+      let taskSnapshot = await transaction.get(profileTaskRef);
+
+      if (!taskSnapshot.exists()) {
+        const rootTaskRef = doc(
+          params.firestore,
+          `households/${safeHouseholdId}/tasks/${params.taskId}`,
+        );
+        taskSnapshot = await transaction.get(rootTaskRef);
+        taskRef = rootTaskRef;
+      }
 
       if (!taskSnapshot.exists()) {
         throw new Error('Task not found.');

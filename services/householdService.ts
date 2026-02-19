@@ -1417,12 +1417,13 @@ export const householdService = {
     taskId: string,
     amountCents: number,
     memo: string,
-    householdId?: string,
+    householdId: string,
   ): Promise<void> {
     try {
       const safeProfileId = assertNonEmptyString(profileId, 'profileId');
       const safeTaskId = assertNonEmptyString(taskId, 'taskId');
       const safeMemo = assertNonEmptyString(memo, 'memo');
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
 
       const firestore = getFirestore();
 
@@ -1431,18 +1432,9 @@ export const householdService = {
         throw new Error('amountCents must be a positive integer.');
       }
 
-      const resolvedProfileHouseholdId =
-        typeof householdId === 'string' && householdId.trim().length > 0
-          ? householdId.trim()
-          : (await resolveProfileLocationById(safeProfileId))?.householdId;
-
-      if (!resolvedProfileHouseholdId) {
-        throw new Error('Profile not found.');
-      }
-
       await ledgerService.recordTaskPayment({
         firestore,
-        householdId: resolvedProfileHouseholdId,
+        householdId: safeHouseholdId,
         profileId: safeProfileId,
         taskId: safeTaskId,
         amountCents: normalizedAmountCents,
@@ -1458,11 +1450,12 @@ export const householdService = {
     amountCents: number,
     memo: string,
     category: string,
-    householdId?: string,
+    householdId: string,
   ): Promise<void> {
     try {
       const safeProfileId = assertNonEmptyString(profileId, 'profileId');
       const safeMemo = assertNonEmptyString(memo, 'memo');
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
 
       const safeCategory = parseAdvanceCategory(category) ?? 'Other';
 
@@ -1473,22 +1466,35 @@ export const householdService = {
         throw new Error('amountCents must be a positive integer.');
       }
 
-      const resolvedProfileHouseholdId =
-        typeof householdId === 'string' && householdId.trim().length > 0
-          ? householdId.trim()
-          : (await resolveProfileLocationById(safeProfileId))?.householdId;
-
-      if (!resolvedProfileHouseholdId) {
-        throw new Error('Profile not found.');
-      }
-
       await ledgerService.recordAdvance({
         firestore,
-        householdId: resolvedProfileHouseholdId,
+        householdId: safeHouseholdId,
         profileId: safeProfileId,
         amountCents: normalizedAmountCents,
         memo: safeMemo,
         category: safeCategory,
+      });
+
+      // Create a PAID task document so the advance appears as a line item
+      // on the child's dashboard card without cluttering the Open list.
+      const advanceTaskCollection = collection(
+        firestore,
+        `households/${safeHouseholdId}/profiles/${safeProfileId}/tasks`,
+      );
+      const advanceTaskRef = doc(advanceTaskCollection);
+      await setDoc(advanceTaskRef, {
+        householdId: safeHouseholdId,
+        name: `Advance: ${safeMemo}`,
+        status: 'PAID',
+        assigneeId: safeProfileId,
+        baselineMinutes: 0,
+        catalogItemId: null,
+        valueCents: normalizedAmountCents * -1,
+        category: safeCategory,
+        type: 'ADVANCE',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        paidAt: serverTimestamp(),
       });
     } catch (error) {
       throw normalizeError('Failed to apply advance', error);
@@ -1499,28 +1505,20 @@ export const householdService = {
     profileId: string,
     amountCents: number,
     memo: string,
-    householdId?: string,
+    householdId: string,
   ): Promise<void> {
     try {
       const safeProfileId = assertNonEmptyString(profileId, 'profileId');
       const safeMemo = assertNonEmptyString(memo, 'memo');
+      const safeHouseholdId = assertNonEmptyString(householdId, 'householdId');
       const normalizedAmountCents = Math.round(amountCents);
       if (!Number.isFinite(normalizedAmountCents) || normalizedAmountCents === 0) {
         throw new Error('amountCents must be a non-zero integer.');
       }
 
-      const resolvedProfileHouseholdId =
-        typeof householdId === 'string' && householdId.trim().length > 0
-          ? householdId.trim()
-          : (await resolveProfileLocationById(safeProfileId))?.householdId;
-
-      if (!resolvedProfileHouseholdId) {
-        throw new Error('Profile not found.');
-      }
-
       await ledgerService.recordManualAdjustment({
         firestore: getFirestore(),
-        householdId: resolvedProfileHouseholdId,
+        householdId: safeHouseholdId,
         profileId: safeProfileId,
         amountCents: normalizedAmountCents,
         memo: safeMemo,
