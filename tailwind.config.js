@@ -23,6 +23,8 @@ export default {
     theme: {
         extend: {
             colors: {
+                'photon-white': colors.brand.photonWhite,
+                'obsidian': colors.brand.obsidian,
                 brand: {
                     DEFAULT: colors.brand.obsidian,
                     white: colors.brand.photonWhite,
