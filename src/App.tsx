@@ -873,6 +873,7 @@ function DashboardPage() {
       status: 'OPEN',
       catalogItemId: catalogItem?.id ?? null,
       valueCents: payload.valueCents,
+      multiplier: payload.multiplier,
     };
 
     const mutationOptions = {

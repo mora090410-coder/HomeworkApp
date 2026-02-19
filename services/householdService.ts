@@ -1391,6 +1391,7 @@ export const householdService = {
         catalogItemId: typeof task.catalogItemId === 'string' ? task.catalogItemId : null,
         rejectionComment: typeof task.rejectionComment === 'string' ? task.rejectionComment : null,
         valueCents: typeof task.valueCents === 'number' ? task.valueCents : null,
+        multiplier: typeof task.multiplier === 'number' ? task.multiplier : 1.0,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });

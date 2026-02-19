@@ -202,12 +202,12 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
         pin: childPin,
       });
 
-      await signInWithCustomToken(auth, childSession.token);
       persistHouseholdSession({
         householdId: childSession.householdId,
         profileId: childSession.profileId,
         role: childSession.role,
       });
+      await signInWithCustomToken(auth, childSession.token);
       onSuccess();
     } catch (error: unknown) {
       let displayMessage = 'Username or PIN is incorrect.';

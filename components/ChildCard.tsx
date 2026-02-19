@@ -146,12 +146,12 @@ const ChildCard: React.FC<ChildCardProps> = ({
   // Helper to determine task value (flat rate vs hourly)
   const getTaskValueCents = (task: Task) => {
     if (task.valueCents !== undefined) return task.valueCents;
-    return calculateTaskValueCents(task.baselineMinutes, hourlyRateCents);
+    return calculateTaskValueCents(task.baselineMinutes, hourlyRateCents, task.multiplier);
   };
 
   const getTaskDisplayValue = (task: Task) => {
     if (task.valueCents !== undefined) return formatCurrency(centsToDollars(task.valueCents));
-    return formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate));
+    return formatCurrency(calculateTaskValue(task.baselineMinutes, hourlyRate, task.multiplier));
   };
 
   // 3. Task Merging Safety
