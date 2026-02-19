@@ -124,7 +124,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
   return (
     <div className="flex flex-col gap-3 font-sans w-full">
       <Card
-        className="group relative overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 bg-white/40 backdrop-blur-xl border-white/50 shadow-sm"
+        className="group relative overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 glass-card"
         noPadding
         style={{
           borderTop: `4px solid ${child.avatarColor || '#E2E8F0'}`,
@@ -144,7 +144,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
 
               {/* NAME & META */}
               <div>
-                <h2 className="text-xl font-heading font-black text-neutral-900 tracking-tight leading-none mb-2 capitalize">{child.name}</h2>
+                <h2 className="text-xl font-sans font-extrabold text-neutral-900 tracking-tight leading-none mb-2 capitalize">{child.name}</h2>
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-neutral-400">
                     <span>{child.gradeLevel}</span>
@@ -164,7 +164,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
             {/* BANK BALANCE */}
             <div className="text-right">
               <span className="text-[9px] font-black uppercase tracking-[0.2em] text-neutral-400 block mb-1">Bank Balance</span>
-              <span className={`text-2xl font-mono font-bold tracking-tighter ${balanceColorClass}`}>
+              <span className={`text-2xl font-sans font-extrabold tracking-tighter ${balanceColorClass}`}>
                 <span className="text-sm opacity-30 mr-0.5">$</span>
                 {Math.abs(currentBalance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 {isNegativeBalance && <span className="ml-1 opacity-50">-</span>}
@@ -205,7 +205,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
                 e.stopPropagation();
                 onAssignTask(child);
               }}
-              className="flex-1 h-12 shadow-md text-[10px] font-black uppercase tracking-[0.2em] rounded-xl bg-neutral-900 text-white hover:bg-neutral-800 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="flex-1 h-12 uppercase tracking-[0.2em] text-[10px] w-full"
             >
               <Plus className="w-4 h-4 mr-2" />
               Assign Task

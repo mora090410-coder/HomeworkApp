@@ -29,13 +29,13 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
         const variants = {
             primary:
-                'bg-primary-cardinal hover:bg-[#7A0000] text-white shadow-sm',
+                'tactile-button',
             secondary:
-                'bg-white text-primary-cardinal border border-neutral-200 hover:bg-neutral-200/10',
+                'bg-transparent text-blue-500 hover:bg-blue-50',
             outline:
-                'bg-transparent border border-primary-cardinal text-primary-cardinal hover:bg-primary-cardinal/5',
+                'bg-transparent border border-neutral-300 text-neutral-700 hover:bg-neutral-50',
             ghost:
-                'bg-transparent text-neutral-700 hover:text-primary-cardinal hover:bg-neutral-200/10',
+                'bg-transparent text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900',
             destructive:
                 'bg-white text-semantic-destructive border border-semantic-destructive hover:bg-semantic-destructive/5',
         };

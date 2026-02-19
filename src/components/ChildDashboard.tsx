@@ -278,7 +278,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
 
                             <div className="relative">
                                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 mb-2">Total Capital</p>
-                                <h1 className="text-7xl md:text-8xl font-mono font-bold tracking-tighter text-neutral-900 flex items-center justify-center gap-1">
+                                <h1 className="text-7xl md:text-8xl font-sans font-extrabold tracking-tighter text-neutral-900 flex items-center justify-center gap-1">
                                     <span className="text-4xl md:text-5xl opacity-30 -mt-4">$</span>
                                     {balance.toFixed(2)}
                                 </h1>
@@ -352,7 +352,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                 const isComplete = progress >= 100;
 
                                 return (
-                                    <div key={goal.id} className="bg-white border border-neutral-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
+                                    <div key={goal.id} className="glass-card mb-4 border border-neutral-100 rounded-2xl p-6 hover:shadow-md transition-all group overflow-hidden relative">
                                         <div className="flex justify-between items-start mb-4">
                                             <div className="flex items-center gap-2">
                                                 <h4 className="font-bold text-neutral-900">{goal.name}</h4>
@@ -431,7 +431,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                             {openBounties.map((task: Task) => (
                                 <div
                                     key={task.id}
-                                    className="group bg-white border border-neutral-100 rounded-2xl p-6 shadow-sm hover:shadow-xl hover:border-neutral-200 transition-all duration-300 relative overflow-hidden"
+                                    className="group glass-card border border-neutral-100 rounded-2xl p-6 hover:shadow-xl hover:border-neutral-200 transition-all duration-300 relative overflow-hidden"
                                 >
                                     <div className="flex justify-between items-start">
                                         <div className="flex-1">
@@ -440,10 +440,13 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                             <p className="text-xs text-neutral-400 font-medium">{task.baselineMinutes}m investment</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-3xl font-mono font-bold text-neutral-900">
+                                            <div
+                                                className="luminary-glow inline-block text-3xl font-mono font-bold"
+                                                data-text={getTaskDisplayValue(task).replace('$', '')}
+                                            >
                                                 {getTaskDisplayValue(task).replace('$', '')}
-                                            </p>
-                                            <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-tighter">Value</p>
+                                            </div>
+                                            <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-tighter mt-1">Value</p>
                                         </div>
                                     </div>
 
@@ -451,9 +454,9 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                         <Button
                                             onClick={() => handleClaim(task.id)}
                                             disabled={claimingTaskId === task.id || justClaimed === task.id}
-                                            className={`w-full py-6 rounded-xl font-bold transition-all duration-300 transform border-none shadow-none ${justClaimed === task.id
+                                            className={`w-full tactile-button shadow-none ${justClaimed === task.id
                                                 ? 'bg-emerald-500 text-white translate-y-0 scale-100'
-                                                : 'bg-neutral-900 text-white hover:bg-neutral-800 hover:scale-[1.02] active:scale-[0.98]'
+                                                : ''
                                                 }`}
                                         >
                                             {claimingTaskId === task.id ? (
@@ -494,7 +497,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                 return (
                                     <div
                                         key={task.id}
-                                        className="bg-neutral-50 border border-neutral-100 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6"
+                                        className="glass-card border border-neutral-100 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6"
                                     >
                                         <div className="flex items-center gap-4">
                                             <div className="text-3xl">{getTaskIcon(task.name)}</div>
@@ -523,7 +526,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                                     )}
                                                     <Button
                                                         onClick={() => onSubmitTask(child.id, task)}
-                                                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 rounded-xl shadow-lg shadow-blue-600/20 active:scale-95 transition-all text-sm"
+                                                        className="tactile-button shadow-lg shadow-blue-600/20 active:scale-95 transition-all text-sm"
                                                     >
                                                         Submit for Approval
                                                     </Button>
