@@ -1,4 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { collection, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { mapTransaction } from '@/utils';
 import { Child, Task, Transaction, SavingsGoal } from '@/types';
 import {
     centsToDollars,
@@ -29,7 +32,6 @@ import { householdService } from '@/services/householdService';
 interface ChildDashboardProps {
     child: Child;
     availableTasks: Task[];
-    transactions: Transaction[];
     householdId: string;
     onSubmitTask: (childId: string, task: Task) => void;
     onClaimTask: (childId: string, taskId: string) => void;
@@ -39,7 +41,6 @@ interface ChildDashboardProps {
 const ChildDashboard: React.FC<ChildDashboardProps> = ({
     child,
     availableTasks,
-    transactions,
     householdId,
     onSubmitTask,
     onClaimTask,
@@ -51,6 +52,22 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
     const [showTransferModal, setShowTransferModal] = useState<string | null>(null);
     const [showAddGoalModal, setShowAddGoalModal] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+
+    useEffect(() => {
+        if (!householdId || !child.id) return;
+
+        const q = query(
+            collection(db, `households/${householdId}/profiles/${child.id}/transactions`),
+            orderBy('date', 'desc'),
+            limit(50)
+        );
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const mapped = snapshot.docs.map(doc => mapTransaction(doc.id, householdId, doc.data() as Record<string, unknown>));
+            setTransactions(mapped);
+        });
+        return () => unsubscribe();
+    }, [householdId, child.id]);
 
     // Form states
     const [withdrawAmount, setWithdrawAmount] = useState('');

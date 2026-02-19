@@ -1127,6 +1127,7 @@ function DashboardPage() {
       <ChildDashboard
         child={activeChild}
         availableTasks={openTasks}
+        householdId={familyAuth.householdId!}
         onSubmitTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_APPROVAL', childId })}
         onClaimTask={(childId, taskId) => claimTaskMutation.mutate({ childId, taskId })}
         onSignOut={() => { void familyAuth.signOutUser(); }}
