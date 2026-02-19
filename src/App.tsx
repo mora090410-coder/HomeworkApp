@@ -669,6 +669,7 @@ function DashboardPage() {
         });
       }
     },
+    onError: (error) => console.error('[assignTaskMutation] Failed to assign task:', error),
   });
 
   const createOpenTaskMutation = useMutation({
@@ -692,6 +693,7 @@ function DashboardPage() {
       queryClient.invalidateQueries({ queryKey: ['openTasks'] });
       queryClient.invalidateQueries({ queryKey: ['choreCatalog'] });
     },
+    onError: (error) => console.error('[createOpenTaskMutation] Failed to create open task:', error),
   });
 
   const saveDraftTaskMutation = useMutation({
@@ -715,6 +717,7 @@ function DashboardPage() {
       queryClient.invalidateQueries({ queryKey: ['children'] });
       queryClient.invalidateQueries({ queryKey: ['choreCatalog'] });
     },
+    onError: (error) => console.error('[saveDraftTaskMutation] Failed to save draft task:', error),
   });
 
   const statusTaskMutation = useMutation({
