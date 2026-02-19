@@ -4,7 +4,6 @@ import { X, Lock, GripHorizontal } from 'lucide-react';
 interface PinModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSuccess: () => void;
     title?: string;
     expectedPinHash?: string; // Optional: if provided, validates against this hash
     householdId?: string | null;
@@ -27,7 +26,10 @@ const hashPin = async (pin: string): Promise<string> => {
         .join('');
 };
 
-onClose,
+const PinModal: React.FC<PinModalProps> = ({
+    isOpen,
+    onClose,
+    onAuthorized,
     title = "Enter Parent PIN",
     expectedPinHash,
     householdId,
@@ -37,7 +39,6 @@ onClose,
     profileName,
     canAdminBypass,
     adminMasterPassword,
-    onAuthorized
 }) => {
     const [pin, setPin] = useState(['', '', '', '']);
     const [error, setError] = useState(false);
@@ -90,7 +91,7 @@ onClose,
         if (expectedPinHash) {
             const hashedInput = await hashPin(inputPin);
             if (hashedInput === expectedPinHash) {
-                onSuccess();
+                if (onAuthorized) onAuthorized();
                 onClose();
             } else {
                 triggerError();
@@ -102,7 +103,7 @@ onClose,
             // Let's assume ONLY valid if hash provided for this secure component.
             // But for backward compatibility if used elsewhere without hash:
             if (inputPin === '0000') { // Fallback dev pin
-                onSuccess();
+                if (onAuthorized) onAuthorized();
                 onClose();
             } else {
                 triggerError();
