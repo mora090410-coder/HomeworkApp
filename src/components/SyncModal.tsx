@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { X, Copy, Check, Smartphone, Share2, Info } from 'lucide-react';
-import { Button } from '@/src/components/ui/Button';
+import { Button } from '@/components/ui/Button';
 
 interface SyncModalProps {
   isOpen: boolean;

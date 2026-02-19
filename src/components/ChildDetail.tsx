@@ -24,7 +24,7 @@ import {
   Lightbulb,
   Coins
 } from 'lucide-react';
-import { Button } from '@/src/components/ui/Button';
+import { Button } from '@/components/ui/Button';
 
 interface ChildDetailProps {
   child: Child;

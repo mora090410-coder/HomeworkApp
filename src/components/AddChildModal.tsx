@@ -1,8 +1,8 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { X, ChevronDown, Check, Plus, Trash2 } from 'lucide-react';
-import { Input } from '@/src/components/ui/Input';
-import { Select } from '@/src/components/ui/Select';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 import { Grade } from '../types';
 import { DEFAULT_RATES } from '../constants';
 import { formatCurrency } from '../utils';

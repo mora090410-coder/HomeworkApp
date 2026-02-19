@@ -4,9 +4,9 @@ import { X, Plus, Trash2, Calculator, DollarSign } from 'lucide-react';
 import { Child, Grade, GradeConfig, Subject } from '../types';
 import { DEFAULT_RATES } from '../constants';
 import { calculateHourlyRate, centsToDollars, dollarsToCents, formatCurrency } from '../utils';
-import { Button } from '@/src/components/ui/Button';
-import { Input } from '@/src/components/ui/Input';
-import { Select } from '@/src/components/ui/Select';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 
 interface UpdateGradesModalProps {
   isOpen: boolean;

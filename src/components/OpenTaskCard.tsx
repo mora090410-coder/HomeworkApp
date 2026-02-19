@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Task, Child } from '../types';
 import { Clock, MoreVertical, Trash2, Edit2, UserPlus, ChevronRight } from 'lucide-react';
-import { Button } from '@/src/components/ui/Button';
+import { Button } from '@/components/ui/Button';
 import { getTaskIcon, formatCurrency, centsToDollars } from '../utils';
 
 interface OpenTaskCardProps {

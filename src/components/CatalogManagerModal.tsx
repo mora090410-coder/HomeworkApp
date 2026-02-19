@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Pencil, Trash2, Check, AlertTriangle } from 'lucide-react';
 import { ChoreCatalogItem } from '@/types';
-import { Button } from '@/src/components/ui/Button';
+import { Button } from '@/components/ui/Button';
 
 interface CatalogManagerModalProps {
     isOpen: boolean;

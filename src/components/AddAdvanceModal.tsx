@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { X, ChevronDown } from 'lucide-react';
 import { AdvanceCategory, Child } from '@/types';
 import { parseCurrencyInputToCents } from '@/utils';
-import { Button } from '@/src/components/ui/Button';
-import { Input } from '@/src/components/ui/Input';
-import { Select } from '@/src/components/ui/Select';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 
 interface AddAdvanceModalProps {
   isOpen: boolean;

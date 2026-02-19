@@ -2,9 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { X, Check, AlertTriangle, Download, Upload, RefreshCcw } from 'lucide-react';
 import { Child } from '../types';
-import { Button } from '@/src/components/ui/Button';
-import { Input } from '@/src/components/ui/Input';
-import { Select } from '@/src/components/ui/Select';
+import { Button } from '@/components/ui/Button';
+import { Input } from '@/components/ui/Input';
+import { Select } from '@/components/ui/Select';
 
 interface SettingsModalProps {
   isOpen: boolean;

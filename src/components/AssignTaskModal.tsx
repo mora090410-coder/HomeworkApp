@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { X, Check } from 'lucide-react';
 import { ChoreCatalogItem } from '@/types';
-import { Input } from '@/src/components/ui/Input';
+import { Input } from '@/components/ui/Input';
 
 export interface AssignTaskPayload {
   taskName: string;

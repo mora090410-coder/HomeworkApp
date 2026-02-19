@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowRight, Check } from 'lucide-react';
-import { Button } from '@/src/components/ui/Button';
+import { Button } from '@/components/ui/Button';
 
 interface AdminSetupRailProps {
   completedSteps: number;

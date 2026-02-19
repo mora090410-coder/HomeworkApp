@@ -17,7 +17,7 @@ vi.mock('@/services/householdService', () => {
   };
 });
 
-import App from '@/src/App';
+import App from '@/App';
 
 describe('setup profile route username field', () => {
   beforeEach(() => {

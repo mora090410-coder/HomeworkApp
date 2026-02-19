@@ -2,8 +2,8 @@ import React from 'react';
 import './index.css';
 import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider } from '@/src/context/ThemeContext';
-import { ThemeToggle } from '@/src/components/ThemeToggle';
+import { ThemeProvider } from '@/context/ThemeContext';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import App from './App';
 
 const queryClient = new QueryClient();
