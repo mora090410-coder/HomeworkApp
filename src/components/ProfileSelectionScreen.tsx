@@ -1,5 +1,5 @@
 import React from 'react';
-import { useFamilyAuth } from '@/App'; // Keep using the hook which provides profiles
+import React from 'react';
 import { Child, Profile } from '@/types';
 import { User, LogOut, Plus } from 'lucide-react';
 
@@ -7,12 +7,16 @@ interface ProfileSelectionScreenProps {
     profiles: ((Profile & { id: string }) | Child)[];
     onSelectProfile: (profileId: string) => void;
     onManageProfiles?: () => void;
+    isLoading?: boolean;
+    onSignOut?: () => void;
 }
 
 const ProfileSelectionScreen: React.FC<ProfileSelectionScreenProps> = ({
     profiles,
     onSelectProfile,
-    onManageProfiles
+    onManageProfiles,
+    isLoading = false,
+    onSignOut
 }) => {
     const { logout } = useFamilyAuth();
 
@@ -82,7 +86,7 @@ const ProfileSelectionScreen: React.FC<ProfileSelectionScreenProps> = ({
                 {/* Footer Actions */}
                 <div className="mt-12">
                     <button
-                        onClick={logout}
+                        onClick={onSignOut}
                         className="flex items-center gap-2 text-neutral-400 hover:text-neutral-600 font-bold uppercase tracking-wider text-xs transition-colors px-6 py-3 rounded-full hover:bg-neutral-100"
                     >
                         <LogOut className="w-4 h-4" />
