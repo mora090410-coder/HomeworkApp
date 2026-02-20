@@ -15,7 +15,7 @@ export default function LandingPage() {
             <header className="sticky top-0 w-full z-50 backdrop-blur-xl bg-cream/70 dark:bg-charcoal/70 border-b border-cream-mid dark:border-charcoal-mid transition-colors duration-300">
                 <div className="max-w-[1240px] mx-auto px-6 sm:px-10 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <img src="/images/homework-icon-new.svg" alt="HomeWork" className="h-8 w-auto" />
+                        <img src="/images/HomeWorkAssets/homework-icon-new.svg" alt="HomeWork" className="h-8 w-auto" />
                         <span className="text-xl font-serif text-charcoal dark:text-cream tracking-tight"><span className="font-normal">Home</span><span className="font-bold">Work</span></span>
                     </div>
                     <div className="flex items-center gap-6">
@@ -33,7 +33,7 @@ export default function LandingPage() {
             <main className="relative z-10 flex flex-col items-center pt-24 pb-16 px-6 text-center">
                 <div className="mb-6 flex flex-col items-center gap-4">
                     <img
-                        src="/images/homework-icon-new.svg"
+                        src="/images/HomeWorkAssets/homework-icon-new.svg"
                         alt="HomeWork Icon"
                         className="w-24 md:w-32 h-auto relative z-10"
                     />
