@@ -14,7 +14,7 @@ export default function LandingPage() {
             {/* Header */}
             <header className="absolute top-0 w-full z-50">
                 <div className="max-w-[1240px] mx-auto px-6 sm:px-10 h-24 flex items-center justify-between">
-                    <img src="/images/homework-wordmark.png" alt="HomeWork" className="h-6 w-auto" />
+                    <img src="/images/homework-icon-new.svg" alt="HomeWork" className="h-8 w-auto" />
                     <Link to="/login" className="text-sm font-semibold text-obsidian dark:text-white hover:text-blue-500 transition-colors">
                         Sign In
                     </Link>
@@ -25,7 +25,7 @@ export default function LandingPage() {
             <main className="relative z-10 flex flex-col items-center pt-48 pb-24 px-6 text-center">
                 <div className="mb-12 luminary-glow">
                     <img
-                        src="/images/homework-icon-transparent.png"
+                        src="/images/homework-icon-new.svg"
                         alt="HomeWork Icon"
                         className="w-48 md:w-64 h-auto relative z-10"
                     />

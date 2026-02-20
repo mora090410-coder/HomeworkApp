@@ -1,0 +1,14 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="HomeWork icon">
+    {/* Rounded square container */}
+    <rect x="0" y="0" width="512" height="512" rx="56" ry="56" fill="#8B1A1A" />
+    
+    {/* H mark - financial ledger construction */}
+    {/* Left vertical stroke (accounting column) */}
+    <rect x="126" y="108" width="64" height="296" fill="#F5F0E8" />
+    
+    {/* Right vertical stroke (accounting column) */}
+    <rect x="322" y="108" width="64" height="296" fill="#F5F0E8" />
+    
+    {/* Crossbar / balance line - tilted 4° upward, positioned above mathematical center */}
+    <rect x="126" y="210" width="260" height="64" fill="#F5F0E8" transform="rotate(-4, 256, 242)" />
+</svg>
