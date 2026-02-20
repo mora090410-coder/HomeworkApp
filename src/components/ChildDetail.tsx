@@ -210,7 +210,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
     <div className="space-y-12 animate-in fade-in duration-700 font-sans pb-20">
 
       {/* 1. The Header: Financial Status */}
-      <section className="bg-surface-app dark:bg-surface-elev border border-stroke-base rounded-none p-8 relative overflow-hidden group">
+      <section className="bg-surface-app dark:bg-surface-elev border border-stroke-base rounded-2xl p-8 relative overflow-hidden group">
         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-bl-full pointer-events-none opacity-50" />
 
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
@@ -234,7 +234,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
             <Button
               onClick={onAddAdvance}
               variant="outline"
-              className="gap-2 border-dashed border-stroke-base hover:border-crimson hover:text-crimson hover:bg-surface-2"
+              className="gap-2 border border-gold/30 hover:border-crimson rounded-full px-6 py-2 text-content-primary hover:text-crimson hover:bg-surface-2 transition-all"
             >
               <CreditCard className="w-4 h-4" />
               Add Advance
@@ -347,7 +347,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
       {/* 4. The 'Payable' Section (Ready for Payout) */}
       {isParent && (
-        <section className="bg-charcoal text-white dark:bg-surface-2 dark:border-stroke-highlight p-8 rounded-none border border-charcoal overflow-hidden relative">
+        <section className="bg-charcoal text-white dark:bg-surface-2 dark:border-stroke-highlight p-8 rounded-2xl border border-charcoal overflow-hidden relative">
           <div className="absolute top-0 right-0 p-32 bg-white/5 rounded-full blur-3xl" />
           <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-8">
             <div className="text-center sm:text-left">
@@ -359,7 +359,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
               <Button
                 size="lg"
                 onClick={() => openTransactionModal('PAYOUT')}
-                className="bg-amber-500 text-content-primary hover:bg-yellow-400 border-none font-bold px-8 shadow-lg shadow-primary-gold/20"
+                className="tactile-button shadow-lg shadow-primary-gold/20 !px-8"
               >
                 <Banknote className="w-5 h-5 mr-2" />
                 Record Cash Payment
@@ -380,7 +380,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
         </div>
 
         {inProgressTasks.length === 0 ? (
-          <div className="bg-surface-app dark:bg-surface-elev border border-gold/20 p-8 text-center">
+          <div className="bg-cream border border-gold/20 p-8 text-center rounded-2xl">
             <p className="text-content-subtle font-sans">No tasks currently in progress. Grab one!</p>
           </div>
         ) : (
@@ -452,9 +452,9 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
         </div>
 
         {sortedTransactions.length === 0 ? (
-          <div className="bg-surface-app dark:bg-surface-elev border border-gold/20 p-8 text-center text-content-muted text-sm">No recent transactions.</div>
+          <div className="bg-cream border border-gold/20 p-8 text-center text-content-muted text-sm">No recent transactions.</div>
         ) : (
-          <div className="border border-stroke-base bg-surface-app rounded-none overflow-hidden">
+          <div className="border border-stroke-base bg-cream rounded-2xl overflow-hidden">
             <div className="divide-y divide-stroke-base">
               {sortedTransactions.map(tx => {
                 const amountCents = getTransactionAmountCents(tx);
@@ -473,7 +473,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                 } else if (tx.type === 'GOAL_ALLOCATION') {
                   isPositive = false;
                   Icon = Target;
-                  iconColor = 'bg-blue-100 text-blue-700';
+                  iconColor = 'bg-crimson/10 text-crimson';
                   statusLabel = '(Savings Goal)';
                 }
 
@@ -517,8 +517,8 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
       {taskToComplete && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-neutral-black/50 backdrop-blur-sm" onClick={() => setTaskToComplete(null)} />
-          <div className="relative w-full max-w-sm bg-surface-app rounded-none border border-stroke-base p-8 text-center animate-in zoom-in-95 duration-200 shadow-xl">
-            <div className="mx-auto w-12 h-12 bg-surface-2 rounded-full flex items-center justify-center text-content-subtle mb-3">
+          <div className="relative w-full max-w-sm bg-cream rounded-2xl border border-stroke-base p-8 text-center animate-in zoom-in-95 duration-200 shadow-xl">
+            <div className="mx-auto w-12 h-12 bg-cream-mid rounded-full flex items-center justify-center text-content-subtle mb-3">
               <Check className="w-6 h-6" />
             </div>
             <h3 className="text-xl font-bold font-heading text-content-primary mb-2">{taskToComplete.name}</h3>
