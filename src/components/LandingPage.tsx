@@ -46,7 +46,7 @@ export default function LandingPage() {
             {/* ── Minimal Header ── */}
             <header className="absolute top-0 w-full z-50">
                 <div className="max-w-[1240px] mx-auto px-6 sm:px-10 h-24 flex items-center justify-end">
-                    <Link to="/login" className="text-sm font-bold text-catalyst-blue dark:text-white hover:opacity-80 transition-colors">
+                    <Link to="/login" className="text-sm font-bold text-obsidian dark:text-white hover:opacity-80 transition-colors">
                         Sign In
                     </Link>
                 </div>
@@ -60,11 +60,11 @@ export default function LandingPage() {
                     <div className="flex flex-col items-center max-w-[900px] w-full px-4 animate-fade-in-up space-y-16 py-12">
 
                         {/* Logo Image Container with Glow */}
-                        <div className="relative flex justify-center luminary-glow">
+                        <div className="relative flex justify-center">
                             <img
                                 src="/images/homework-icon-transparent.png"
                                 alt="HomeWork Icon"
-                                className="w-64 h-64 md:w-80 md:h-80 relative z-10 drop-shadow-2xl"
+                                className="w-64 h-64 md:w-64 md:h-64 relative z-10 drop-shadow-2xl luminary-glow"
                             />
                         </div>
 
@@ -84,7 +84,7 @@ export default function LandingPage() {
                             <Link to="/signup" className="tactile-button h-16 px-12 text-xl flex items-center justify-center gap-3 hover:scale-105 transform transition-all duration-300">
                                 Get Started
                             </Link>
-                            <Link to="/login" className="text-catalyst-blue dark:text-white font-semibold hover:opacity-80 transition-colors border-none bg-transparent">
+                            <Link to="/login" className="text-obsidian dark:text-white font-semibold hover:opacity-80 transition-colors border-none bg-transparent">
                                 Sign In
                             </Link>
                         </div>

@@ -56,8 +56,8 @@ export default {
                 'card': '12px',
             },
             fontFamily: {
-                sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro"', '"Helvetica Neue"', 'sans-serif'],
-                heading: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro"', '"Helvetica Neue"', 'sans-serif'],
+                sans: ['"SF Pro Display"', '"-apple-system"', '"BlinkMacSystemFont"', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif', '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"'],
+                heading: ['"SF Pro Display"', '"-apple-system"', '"BlinkMacSystemFont"', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif', '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"'],
             },
             backgroundImage: {
                 'momentum-gradient': `linear-gradient(to right, var(--momentum-start), var(--momentum-end))`,

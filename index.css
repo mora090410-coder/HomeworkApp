@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&display=swap');
-
 /* Design tokens — auto-generated from colors.js */
 @import './src/generated/design-tokens.css';
 
@@ -8,7 +6,7 @@
 
 body {
     margin: 0;
-    font-family: 'Inter', sans-serif;
+    font-family: "SF Pro Display", "-apple-system", "BlinkMacSystemFont", "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     @apply bg-photon-white dark:bg-obsidian;
     color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
@@ -115,7 +113,7 @@ body {
     }
 
     .glass-card {
-        @apply backdrop-blur-xl rounded-3xl bg-white/70 border border-black/5 shadow-xl dark:bg-white/10 dark:border-white/20 dark:shadow-[0_20px_50px_#00000080];
+        @apply bg-white/80 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-3xl;
     }
 
     .tactile-button {
