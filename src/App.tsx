@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { signOut, User, onAuthStateChanged } from 'firebase/auth';
 import { collection, collectionGroup, onSnapshot, query, where } from 'firebase/firestore';
-import { ArrowRight, Briefcase, Calendar, Check, DollarSign, Loader2, LogOut, Plus, Share2, UserPlus, Users } from 'lucide-react';
+import { ArrowRight, Briefcase, Calendar, Check, DollarSign, GraduationCap, Loader2, LogOut, Plus, Share2, UserPlus, Users } from 'lucide-react';
 import { Button } from './components/ui/Button';
 import { Input } from './components/ui/Input';
 import {
@@ -569,6 +569,7 @@ function DashboardPage() {
   const [childForGrades, setChildForGrades] = useState<Child | null>(null);
   const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const [viewingChildId, setViewingChildId] = useState<string | null>(null);
+  const [isSelectChildForGradesOpen, setIsSelectChildForGradesOpen] = useState(false);
 
 
   const effectiveRateMap = useMemo(() => {
@@ -1197,11 +1198,11 @@ function DashboardPage() {
                       Manage Chore Catalog
                     </button>
                     <button
-                      onClick={() => { setIsActionMenuOpen(false); handleGenerateInvite(); }}
+                      onClick={() => { setIsActionMenuOpen(false); setIsSelectChildForGradesOpen(true); }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-primary hover:bg-brand hover:text-white dark:hover:bg-white/10 transition-colors group"
                     >
-                      <Share2 className="w-4 h-4 text-crimson group-hover:text-white transition-colors" />
-                      Invite Device
+                      <GraduationCap className="w-4 h-4 text-crimson group-hover:text-white transition-colors" />
+                      Update Grades
                     </button>
                   </div>
                 </>
@@ -1507,6 +1508,34 @@ function DashboardPage() {
               </div>
             </div>
           </Modal>
+        )}
+
+        {isSelectChildForGradesOpen && (
+          <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsSelectChildForGradesOpen(false)} />
+            <div className="relative w-full max-w-[560px] bg-white rounded-none border border-stroke-base p-8 text-left shadow-xl animate-in zoom-in-95 duration-200">
+              <h3 className="text-xl font-bold mb-2 text-content-primary">Update Grades</h3>
+              <p className="text-content-subtle mb-5 text-sm">Choose a child profile to update grades and payscale.</p>
+              <div className="space-y-2 max-h-[320px] overflow-auto pr-1 custom-scrollbar">
+                {childrenWithRateMap.map((child) => (
+                  <button
+                    key={child.id}
+                    type="button"
+                    onClick={() => {
+                      setIsSelectChildForGradesOpen(false);
+                      setChildForGrades(child);
+                      setIsUpdateGradesModalOpen(true);
+                    }}
+                    className="w-full rounded-none border border-stroke-base bg-surface-app px-4 py-3 text-left hover:bg-white hover:border-primary-500 hover:shadow-md transition-all group"
+                  >
+                    <div className="text-sm font-semibold text-content-primary group-hover:text-primary-600">{child.name}</div>
+                    <div className="text-xs text-content-subtle">{child.gradeLevel}</div>
+                  </button>
+                ))}
+              </div>
+              <button type="button" onClick={() => setIsSelectChildForGradesOpen(false)} className="mt-5 w-full py-3 bg-surface-2 rounded-none font-bold text-content-primary hover:bg-surface-2 transition-colors">Close</button>
+            </div>
+          </div>
         )}
 
         {isInviteModalOpen && (
