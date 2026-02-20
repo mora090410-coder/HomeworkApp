@@ -1166,41 +1166,41 @@ function DashboardPage() {
               {isActionMenuOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setIsActionMenuOpen(false)} />
-                  <div className="absolute right-0 mt-3 w-56 bg-surface dark:bg-elev-1 border border-border-base shadow-2xl z-50 py-2 animate-in fade-in zoom-in-95 duration-200">
+                  <div className="absolute right-0 mt-3 w-56 bg-surface dark:bg-elev-1 border border-border-base shadow-2xl z-[100] py-2 animate-in fade-in zoom-in-95 duration-200">
                     <button
                       onClick={() => { setIsActionMenuOpen(false); setIsAddChildModalOpen(true); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-primary hover:bg-surface-2 dark:hover:bg-white/5 hover:text-crimson transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-primary hover:bg-brand hover:text-white dark:hover:bg-white/10 transition-colors group"
                     >
-                      <UserPlus className="w-4 h-4 text-crimson" />
+                      <UserPlus className="w-4 h-4 text-crimson group-hover:text-white transition-colors" />
                       Add Child
                     </button>
                     <button
                       onClick={() => { setIsActionMenuOpen(false); setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-primary hover:bg-surface-2 dark:hover:bg-white/5 hover:text-crimson transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-primary hover:bg-brand hover:text-white dark:hover:bg-white/10 transition-colors group"
                     >
-                      <Calendar className="w-4 h-4 text-crimson" />
+                      <Calendar className="w-4 h-4 text-crimson group-hover:text-white transition-colors" />
                       Create Open Task
                     </button>
                     <button
                       onClick={() => { setIsActionMenuOpen(false); if (hasChildren) { setSelectedChildId(childrenWithRateMap[0].id); setIsAdvanceModalOpen(true); } }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-primary hover:bg-surface-2 dark:hover:bg-white/5 hover:text-crimson transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-primary hover:bg-brand hover:text-white dark:hover:bg-white/10 transition-colors group"
                     >
-                      <DollarSign className="w-4 h-4 text-crimson" />
+                      <DollarSign className="w-4 h-4 text-crimson group-hover:text-white transition-colors" />
                       Add Advance
                     </button>
                     <div className="h-px bg-surface-2 my-1" />
                     <button
                       onClick={() => { setIsActionMenuOpen(false); setIsCatalogManagerOpen(true); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-primary hover:bg-surface-2 dark:hover:bg-white/5 hover:text-crimson transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-primary hover:bg-brand hover:text-white dark:hover:bg-white/10 transition-colors group"
                     >
-                      <Briefcase className="w-4 h-4 text-crimson" />
+                      <Briefcase className="w-4 h-4 text-crimson group-hover:text-white transition-colors" />
                       Manage Chore Catalog
                     </button>
                     <button
                       onClick={() => { setIsActionMenuOpen(false); handleGenerateInvite(); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-primary hover:bg-surface-2 dark:hover:bg-white/5 hover:text-crimson transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-primary hover:bg-brand hover:text-white dark:hover:bg-white/10 transition-colors group"
                     >
-                      <Share2 className="w-4 h-4 text-crimson" />
+                      <Share2 className="w-4 h-4 text-crimson group-hover:text-white transition-colors" />
                       Invite Device
                     </button>
                   </div>
