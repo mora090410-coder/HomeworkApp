@@ -27,6 +27,10 @@ export default {
                 'charcoal': colors.brand.charcoal,
                 'crimson': colors.brand.crimson,
                 'gold': colors.brand.gold,
+                'momentum-start': colors.brand.momentumStart,
+                'momentum-end': colors.brand.momentumEnd,
+                'photon-white': colors.brand.photonWhite,
+                'vapor-grey': colors.brand.vaporGrey,
                 brand: {
                     DEFAULT: colors.brand.charcoal,
                     white: colors.brand.cream,

@@ -9,6 +9,10 @@ export const colors = {
     charcoal: '#0F0F14',
     crimson: '#8B1A1A',
     gold: '#C9A84C',
+    momentumStart: '#3B82F6',
+    momentumEnd: '#F97316',
+    photonWhite: '#FFFFFF',
+    vaporGrey: '#F3F4F6',
     neutralText: '#6B6B6B',
   },
   neutral: {

@@ -122,6 +122,10 @@ export const colors = {
     charcoal: '${brand.charcoal}',
     crimson: '${brand.crimson}',
     gold: '${brand.gold}',
+    momentumStart: '${brand.momentum_start}',
+    momentumEnd: '${brand.momentum_end}',
+    photonWhite: '${brand.photon_white}',
+    vaporGrey: '${brand.vapor_grey}',
     neutralText: '${tokens.colors.text.secondary}',
   },
   neutral: {

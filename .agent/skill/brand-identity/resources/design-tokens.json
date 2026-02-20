@@ -4,10 +4,8 @@
     "version": "2.0",
     "description": "Design tokens — The Crimson Standard. Replaces v1.0 blue/orange Momentum palette.",
     "deprecated": [
-      "momentum_start",
-      "momentum_end",
-      "photon_white",
-      "vapor_grey"
+      "obsidian",
+      "neutral_text"
     ]
   },
   "colors": {
@@ -19,7 +17,11 @@
       "charcoal": "#0F0F14",
       "charcoal_mid": "#1C1C24",
       "gold": "#C9A84C",
-      "gold_light": "#E2C97E"
+      "gold_light": "#E2C97E",
+      "momentum_start": "#3B82F6",
+      "momentum_end": "#F97316",
+      "photon_white": "#FFFFFF",
+      "vapor_grey": "#F3F4F6"
     },
     "text": {
       "primary": "#0F0F14",
@@ -34,10 +36,6 @@
     },
     "deprecated": {
       "_note": "DO NOT USE — retained only for migration reference",
-      "momentum_start": "#3B82F6",
-      "momentum_end": "#F97316",
-      "photon_white": "#FFFFFF",
-      "vapor_grey": "#F3F4F6",
       "obsidian": "#111827",
       "neutral_text": "#6B7280"
     }
