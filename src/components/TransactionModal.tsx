@@ -96,7 +96,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
 
             <div className="fixed inset-0 flex items-center justify-center p-4">
-                <Dialog.Panel className="w-full max-w-md bg-white rounded-none border border-stroke-base shadow-xl overflow-hidden p-6 animate-in zoom-in-95 duration-200">
+                <Dialog.Panel className="w-full max-w-md bg-cream rounded-none border border-stroke-base shadow-xl overflow-hidden p-6 animate-in zoom-in-95 duration-200">
                     <div className="flex justify-between items-start mb-4">
                         <Dialog.Title className="text-xl font-bold font-heading text-content-primary">
                             {title}
@@ -163,15 +163,15 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                                 type="button"
                                 variant="ghost"
                                 onClick={onClose}
-                                className="flex-1"
+                                className="flex-1 border border-gold/30 text-charcoal rounded-full px-6 py-2"
                                 disabled={isSubmitting}
                             >
                                 Cancel
                             </Button>
                             <Button
                                 type="submit"
-                                variant="primary"
-                                className="flex-1"
+                                variant={isAdvance ? "ghost" : "primary"}
+                                className={`flex-1 ${isAdvance ? 'border-2 border-crimson text-crimson bg-transparent rounded-full hover:bg-crimson/5' : ''}`}
                                 isLoading={isSubmitting}
                             >
                                 Confirm
