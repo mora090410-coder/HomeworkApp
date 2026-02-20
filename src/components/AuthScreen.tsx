@@ -227,7 +227,7 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
       <div className="w-full max-w-md relative z-10 animate-in fade-in zoom-in-95 duration-500">
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-20 h-20 mb-6 luminary-glow rounded-3xl mx-auto">
-            <img src="/images/homework-icon.png" alt="HomeWork App" className="w-12 h-12 object-contain block" />
+            <img src="/images/homework-icon-transparent.png" alt="HomeWork App" className="w-12 h-12 object-contain block" />
           </div>
           <h1 className="text-3xl font-bold font-heading tracking-tight mb-2 text-obsidian dark:text-white">
             {mode === 'LOGIN' ? 'Welcome Back' : 'Create Account'}
