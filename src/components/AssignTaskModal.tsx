@@ -295,21 +295,21 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
               <button
                 type="button"
                 onClick={() => setMultiplier(1.0)}
-                className={`flex-1 py-3.5 rounded-none text-sm font-bold transition-all duration-200 border cursor-pointer ${multiplier === 1.0 ? 'bg-ascendant-gradient text-white border-transparent' : 'border-gold/20 bg-cream text-charcoal hover:bg-surface-app'}`}
+                className={`flex-1 py-3.5 rounded-none text-sm font-bold transition-all duration-200 border cursor-pointer ${multiplier === 1.0 ? 'bg-ascendant-gradient text-white border-transparent' : 'bg-cream border-gold/20 text-charcoal hover:bg-surface-app'}`}
               >
                 1x
               </button>
               <button
                 type="button"
                 onClick={() => setMultiplier(1.5)}
-                className={`flex-1 py-3.5 rounded-none text-sm font-bold transition-all duration-200 border cursor-pointer ${multiplier === 1.5 ? 'bg-amber-500 text-white border-amber-500' : 'border-gold/20 bg-cream text-charcoal hover:bg-surface-app'}`}
+                className={`flex-1 py-3.5 rounded-none text-sm font-bold transition-all duration-200 border cursor-pointer ${multiplier === 1.5 ? 'bg-ascendant-gradient text-white border-transparent' : 'bg-cream border-gold/20 text-charcoal hover:bg-surface-app'}`}
               >
                 1.5x 🔥
               </button>
               <button
                 type="button"
                 onClick={() => setMultiplier(2.0)}
-                className={`flex-1 py-3.5 rounded-none text-sm font-bold transition-all duration-200 border cursor-pointer ${multiplier === 2.0 ? 'bg-brand text-white border-blue-500' : 'border-gold/20 bg-cream text-charcoal hover:bg-surface-app'}`}
+                className={`flex-1 py-3.5 rounded-none text-sm font-bold transition-all duration-200 border cursor-pointer ${multiplier === 2.0 ? 'bg-ascendant-gradient text-white border-transparent' : 'bg-cream border-gold/20 text-charcoal hover:bg-surface-app'}`}
               >
                 2x 🚀
               </button>
