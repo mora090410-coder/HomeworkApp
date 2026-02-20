@@ -218,7 +218,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
         </div>
         <div className="relative z-10 px-8 py-6 border-t border-border-base bg-surface dark:bg-elev-1 transition-colors">
           <div className="flex gap-4">
-            {step > 1 && (<button onClick={handleBack} className="flex-1 py-4 rounded-none font-bold text-charcoal bg-surface dark:bg-elev-1 border border-gold/30 hover:bg-surface-2 dark:hover:bg-white/5 transition-all cursor-pointer uppercase tracking-wider text-sm">Back</button>)}
+            {step > 1 && (<button onClick={handleBack} className="flex-1 py-4 rounded-full font-bold text-charcoal bg-transparent border border-gold/30 hover:bg-surface-2 dark:hover:bg-white/5 transition-all cursor-pointer uppercase tracking-wider text-sm">Back</button>)}
             {step < 3 ? (
               <button onClick={handleNext} disabled={step === 1 && !isValidStep1} className={`flex-1 py-4 rounded-full font-bold text-white transition-all cursor-pointer uppercase tracking-wider text-sm ${(step === 1 && !isValidStep1) ? 'bg-surface-2 dark:bg-white/10 text-muted cursor-not-allowed' : 'bg-gradient-to-br from-crimson to-gold shadow-md'}`}>Next</button>
             ) : (
