@@ -143,7 +143,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-[520px] bg-white rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-stroke-base">
+      <div className="relative w-full max-w-[520px] bg-cream rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-stroke-base">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 p-2 rounded-full hover:bg-surface-app text-content-subtle transition-colors z-20"
@@ -178,7 +178,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                 id="catalogItem"
                 value={selectedCatalogItemId}
                 onChange={handleCatalogSelection}
-                className="w-full px-4 py-3.5 rounded-none bg-white border border-stroke-base text-content-primary text-base outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3.5 rounded-none bg-white border border-gold/30 text-content-primary text-base outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
                 aria-label="Choose a chore template"
               >
                 <option value="">One-off task (not from catalog)</option>
@@ -205,7 +205,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                   ? 'e.g., Wash Car, Mow Lawn, Water Plants'
                   : 'e.g., Clean Room, Do Homework, Take Out Trash'
               }
-              className="px-4 py-3.5 text-base placeholder-neutral-400 rounded-none bg-white border border-stroke-base outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+              className="px-4 py-3.5 text-base placeholder-neutral-400 rounded-none bg-white border border-gold/30 outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
               autoFocus
               aria-label="Task name"
             />
@@ -221,8 +221,8 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                     key={minutes}
                     onClick={() => handleQuickTimeClick(minutes)}
                     className={`py-3.5 rounded-none text-sm font-bold transition-all duration-200 border cursor-pointer ${isSelected
-                      ? 'bg-brand border-blue-500 text-white shadow-sm'
-                      : 'bg-white border-stroke-base text-content-subtle hover:bg-surface-app hover:text-content-primary'
+                      ? 'bg-crimson/10 border-crimson text-crimson shadow-sm'
+                      : 'border-gold/20 bg-cream text-charcoal hover:bg-surface-app hover:text-content-primary'
                       }`}
                     aria-label={`Set baseline time to ${minutes} minutes`}
                   >
@@ -235,8 +235,8 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
             <button
               onClick={handleCustomTimeToggle}
               className={`w-full py-3.5 rounded-none text-sm font-bold transition-all duration-200 border mb-4 cursor-pointer ${isCustomTime
-                ? 'bg-brand border-blue-500 text-white shadow-sm'
-                : 'bg-white border-stroke-base text-content-subtle hover:bg-surface-app hover:text-content-primary'
+                ? 'bg-crimson/10 border-crimson text-crimson shadow-sm'
+                : 'border-gold/20 bg-cream text-charcoal hover:bg-surface-app hover:text-content-primary'
                 }`}
               aria-label="Toggle custom baseline time"
             >
@@ -284,7 +284,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                   const val = parseFloat(e.target.value);
                   setTaskValueCents(Number.isNaN(val) ? undefined : Math.round(val * 100));
                 }}
-                className="w-full pl-7 pr-4 py-3.5 rounded-none border border-stroke-base bg-white text-content-primary placeholder-neutral-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/10 transition-all font-sans outline-none"
+                className="w-full pl-7 pr-4 py-3.5 rounded-none border border-gold/30 bg-white text-content-primary placeholder-neutral-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/10 transition-all font-sans outline-none"
               />
             </div>
           </div>
@@ -295,21 +295,21 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
               <button
                 type="button"
                 onClick={() => setMultiplier(1.0)}
-                className={`flex-1 py-3.5 rounded-none text-sm font-bold transition-all duration-200 border cursor-pointer ${multiplier === 1.0 ? 'bg-neutral-800 text-white border-neutral-800' : 'bg-white border-stroke-base text-content-subtle hover:bg-surface-app'}`}
+                className={`flex-1 py-3.5 rounded-none text-sm font-bold transition-all duration-200 border cursor-pointer ${multiplier === 1.0 ? 'bg-ascendant-gradient text-white border-transparent' : 'border-gold/20 bg-cream text-charcoal hover:bg-surface-app'}`}
               >
                 1x
               </button>
               <button
                 type="button"
                 onClick={() => setMultiplier(1.5)}
-                className={`flex-1 py-3.5 rounded-none text-sm font-bold transition-all duration-200 border cursor-pointer ${multiplier === 1.5 ? 'bg-amber-500 text-white border-amber-500' : 'bg-white border-stroke-base text-content-subtle hover:bg-surface-app'}`}
+                className={`flex-1 py-3.5 rounded-none text-sm font-bold transition-all duration-200 border cursor-pointer ${multiplier === 1.5 ? 'bg-amber-500 text-white border-amber-500' : 'border-gold/20 bg-cream text-charcoal hover:bg-surface-app'}`}
               >
                 1.5x 🔥
               </button>
               <button
                 type="button"
                 onClick={() => setMultiplier(2.0)}
-                className={`flex-1 py-3.5 rounded-none text-sm font-bold transition-all duration-200 border cursor-pointer ${multiplier === 2.0 ? 'bg-brand text-white border-blue-500' : 'bg-white border-stroke-base text-content-subtle hover:bg-surface-app'}`}
+                className={`flex-1 py-3.5 rounded-none text-sm font-bold transition-all duration-200 border cursor-pointer ${multiplier === 2.0 ? 'bg-brand text-white border-blue-500' : 'border-gold/20 bg-cream text-charcoal hover:bg-surface-app'}`}
               >
                 2x 🚀
               </button>
@@ -322,7 +322,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
                 type="checkbox"
                 checked={saveToCatalog}
                 onChange={(event) => setSaveToCatalog(event.target.checked)}
-                className="h-4 w-4 rounded-sm border-stroke-base text-blue-500 focus:ring-amber-500"
+                className="h-4 w-4 rounded-sm border-gold/30 text-blue-500 focus:ring-amber-500"
                 aria-label="Save this one-off task to the household chore catalog"
               />
               <span className="group-hover:text-content-primary transition-colors">Save to household catalog</span>
@@ -333,9 +333,9 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
             <button
               onClick={handleSubmit}
               disabled={!isValid}
-              className={`w-full py-4 rounded-none font-bold text-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 ${isValid
-                ? 'bg-brand text-white shadow-md hover:shadow-lg hover:-translate-y-0.5'
-                : 'bg-surface-2 text-content-subtle cursor-not-allowed opacity-70'
+              className={`w-full py-4 font-bold text-lg transition-all duration-200 cursor-pointer flex items-center justify-center gap-2 ${isValid
+                ? 'bg-ascendant-gradient text-white rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5'
+                : 'rounded-none bg-surface-2 text-content-subtle cursor-not-allowed opacity-70'
                 }`}
               aria-label="Submit task"
             >
