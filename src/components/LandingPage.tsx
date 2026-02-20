@@ -24,7 +24,7 @@ export default function LandingPage() {
             <main className="relative z-10 flex flex-col items-center pt-32 pb-24 px-6 text-center">
                 <div className="mb-16 luminary-glow">
                     <img
-                        src="/images/homework-icon.png"
+                        src="/images/homework-icon-transparent.png"
                         alt="HomeWork"
                         className="w-48 md:w-64 h-auto relative z-10"
                     />
