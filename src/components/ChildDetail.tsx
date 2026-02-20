@@ -37,6 +37,8 @@ import {
   Clock,
   ArrowUpRight,
   ArrowDownLeft,
+  Pencil,
+  Trash2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Popover } from '@headlessui/react';
@@ -118,10 +120,14 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
   const hasDebt = balanceCents < 0;
 
   // Recent Transactions (History)
-  const recentTransactions = transactions.length > 0 ? transactions : (child.history || []);
-  const sortedTransactions = [...recentTransactions]
+  const allHistory = transactions.length > 0 ? transactions : (child.history || []);
+  const financialEvents = allHistory.filter((tx: Transaction) =>
+    !['ASSIGNED', 'PENDING_APPROVAL', 'PENDING_PAYMENT'].includes(tx.type as string)
+  );
+
+  const sortedTransactions = [...financialEvents]
     .sort((left, right) => new Date(right.date).getTime() - new Date(left.date).getTime())
-    .slice(0, 15);
+    .slice(0, 10);
 
   // Helper: Calculate Value
   const getTaskValueCents = (task: Task) => {
@@ -142,7 +148,9 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
   }, [] as Task[]);
 
   const pendingApprovalTasks = allCustomTasks.filter(t => t.status === 'PENDING_APPROVAL');
-  const inProgressTasks = allCustomTasks.filter(t => t.status === 'ASSIGNED'); // Working on (Hustle)
+  const inProgressTasks = allCustomTasks.filter((t) =>
+    ['ASSIGNED', 'PENDING_APPROVAL', 'PENDING_PAYMENT'].includes(t.status)
+  ); // Working on (Hustle)
 
   // Pending Withdrawal Requests (Lien System)
   const pendingWithdrawalRequests = transactions.filter(tx => tx.type === 'WITHDRAWAL_REQUEST' && tx.status === 'PENDING');
@@ -415,24 +423,53 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex gap-3 mt-auto relative z-10">
-                    <Button
-                      onClick={() => setTaskToComplete(task)}
-                      variant="outline"
-                      className="flex-1 border-stroke-base hover:border-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 gap-2"
-                    >
-                      <Check className="w-4 h-4" /> Mark Complete
-                    </Button>
-
-                    {isParent && (
-                      <Button
-                        onClick={() => handleBoost(task, 100)}
-                        variant="ghost"
-                        className="px-2 text-amber-500 hover:bg-orange-50 hover:text-orange-600"
-                        title="Boost +$1.00"
-                      >
-                        <Flame className="w-4 h-4" /> +$1
-                      </Button>
+                  <div className="flex gap-3 mt-auto relative z-10 items-center w-full">
+                    {isParent ? (
+                      task.status === 'ASSIGNED' ? (
+                        <>
+                          <span className="text-sm font-sans text-charcoal/50 flex-1">Waiting for child...</span>
+                          <Button variant="ghost" className="p-2 text-content-subtle hover:text-charcoal bg-transparent hover:bg-surface-hover">
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button variant="ghost" className="p-2 text-content-subtle hover:text-crimson bg-transparent hover:bg-red-50">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </>
+                      ) : task.status === 'PENDING_APPROVAL' ? (
+                        <div className="flex flex-col gap-3 w-full">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 bg-crimson rounded-full animate-pulse" />
+                            <span className="text-sm font-bold text-content-primary">Ready for review</span>
+                          </div>
+                          <div className="flex gap-3 w-full">
+                            <Button
+                              onClick={() => handleQuickReject(task, 'Needs revision')}
+                              variant="outline"
+                              className="flex-1 border border-crimson text-crimson rounded-full hover:bg-crimson/5 bg-transparent"
+                            >
+                              Reject
+                            </Button>
+                            <Button
+                              onClick={() => handleApproveAndDeposit(task)}
+                              className="flex-1 bg-ascendant-gradient text-white rounded-full font-bold shadow-md shadow-crimson/20 border-0"
+                            >
+                              Approve
+                            </Button>
+                          </div>
+                        </div>
+                      ) : task.status === 'PENDING_PAYMENT' ? (
+                        <span className="text-sm font-bold text-semantic-succ">Approved — pay out</span>
+                      ) : null
+                    ) : (
+                      task.status === 'ASSIGNED' && (
+                        <Button
+                          onClick={() => setTaskToComplete(task)}
+                          variant="outline"
+                          className="flex-1 border-stroke-base hover:border-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 gap-2"
+                        >
+                          <Check className="w-4 h-4" /> Mark Complete
+                        </Button>
+                      )
                     )}
                   </div>
                 </div>
@@ -452,52 +489,53 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
         </div>
 
         {sortedTransactions.length === 0 ? (
-          <div className="bg-cream border border-gold/20 p-8 text-center text-content-muted text-sm">No recent transactions.</div>
+          <div className="text-center py-8 text-charcoal/40">No transactions yet</div>
         ) : (
-          <div className="border border-stroke-base bg-cream rounded-2xl overflow-hidden">
-            <div className="divide-y divide-stroke-base">
-              {sortedTransactions.map(tx => {
-                const amountCents = getTransactionAmountCents(tx);
-                const amount = centsToDollars(Math.abs(amountCents));
+          <div className="flex flex-col border border-gold/10 rounded-2xl overflow-hidden bg-cream">
+            {sortedTransactions.map(tx => {
+              const amountCents = getTransactionAmountCents(tx);
+              const amount = centsToDollars(Math.abs(amountCents));
 
-                let isPositive = amountCents > 0;
-                let statusLabel = '';
-                let Icon = isPositive ? ArrowUpRight : ArrowDownLeft;
-                let iconColor = isPositive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
+              let isPositive = amountCents > 0;
+              if (tx.type === 'WITHDRAWAL_REQUEST' || tx.type === 'GOAL_ALLOCATION') {
+                isPositive = false;
+              }
 
-                if (tx.type === 'WITHDRAWAL_REQUEST') {
-                  isPositive = false;
-                  Icon = Banknote;
-                  iconColor = tx.status === 'PENDING' ? 'bg-amber-100 text-amber-700' : 'bg-surface-2 text-content-subtle';
-                  statusLabel = tx.status === 'PENDING' ? '(Pending Payout)' : '(Paid)';
-                } else if (tx.type === 'GOAL_ALLOCATION') {
-                  isPositive = false;
-                  Icon = Target;
-                  iconColor = 'bg-crimson/10 text-crimson';
-                  statusLabel = '(Savings Goal)';
+              let description = tx.memo || (isPositive ? 'Deposit' : 'Withdrawal');
+              let optionalMemo = null;
+
+              if (tx.type === 'ADVANCE') {
+                description = tx.category || 'Advance';
+                if (tx.memo && tx.memo !== tx.category) {
+                  optionalMemo = tx.memo;
                 }
+              } else if (tx.type === 'WITHDRAWAL_REQUEST') {
+                description = 'Cash Withdrawal';
+                optionalMemo = tx.memo;
+              } else if (tx.type === 'GOAL_ALLOCATION') {
+                description = 'Savings Goal';
+                optionalMemo = tx.memo;
+              }
 
-                return (
-                  <div key={tx.id} className="p-4 flex items-center justify-between hover:bg-surface-app transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${iconColor}`}>
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-bold text-content-primary font-sans">
-                          {tx.memo || (isPositive ? 'Deposit' : 'Withdrawal')}
-                          {statusLabel && <span className="ml-2 text-[10px] font-normal opacity-70 uppercase tracking-tighter">{statusLabel}</span>}
-                        </p>
-                        <p className="text-xs text-content-subtle">{new Date(tx.date).toLocaleDateString()} • {new Date(tx.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-                      </div>
-                    </div>
-                    <div className={`text-base font-bold font-heading ${isPositive ? 'text-emerald-700' : 'text-red-700'}`}>
-                      {isPositive ? '+' : '-'}{formatCurrency(amount)}
-                    </div>
+              const dateStr = new Date(tx.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+              return (
+                <div key={tx.id} className="bg-cream border-b border-gold/10 px-6 py-4 flex items-center justify-between rounded-none last:border-b-0">
+                  <div className="flex flex-col">
+                    <p className="text-charcoal font-medium">
+                      {description}
+                    </p>
+                    {optionalMemo && (
+                      <p className="text-charcoal/40 text-sm">{optionalMemo}</p>
+                    )}
+                    <p className="text-charcoal/50 text-sm mt-0.5">{dateStr}</p>
                   </div>
-                );
-              })}
-            </div>
+                  <div className={`font-serif text-lg ${isPositive ? 'text-gold' : 'text-crimson'}`}>
+                    {isPositive ? '+' : '−'}{formatCurrency(amount)}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </section>
