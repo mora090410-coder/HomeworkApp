@@ -35,12 +35,15 @@ export default function LandingPage() {
                 </h1>
 
                 <p className="text-xl text-neutral-text dark:text-neutral-400 leading-loose max-w-[760px] font-light mb-12">
-                    HomeWork is the definitive system for teaching children the value of time and the weight of a dollar. It transforms daily responsibilities into personal capital.
+                    HomeWork is the definitive operating system for teaching children the value of time and the weight of a dollar. Start building their personal capital today with a 7-day free trial.
                 </p>
 
                 <Link to="/signup" className="tactile-button text-lg">
-                    Get Started
+                    Start Free Trial
                 </Link>
+                <p className="text-neutral-text text-xs mt-4">
+                    7-day free trial, then $9.99/mo. Cancel anytime.
+                </p>
             </main>
 
             {/* Features/Pillars */}
