@@ -26,7 +26,7 @@ export default function LandingPage() {
                     <img
                         src="/images/homework-icon-transparent.png"
                         alt="HomeWork"
-                        className="w-48 md:w-64 h-auto relative z-10"
+                        className="w-72 md:w-96 h-auto relative z-10"
                     />
                 </div>
 
