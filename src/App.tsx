@@ -1051,7 +1051,7 @@ function DashboardPage() {
   if (familyAuth.isInitializing) {
     return (
       <div className="min-h-screen bg-surface-app flex items-center justify-center text-content-primary">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-crimson" />
       </div>
     );
   }
@@ -1063,7 +1063,7 @@ function DashboardPage() {
   if (familyAuth.stage === 'HOUSEHOLD_LOADED' || isLoading || !familyAuth.activeProfile) {
     return (
       <div className="min-h-screen bg-surface-app flex items-center justify-center text-content-primary">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-crimson" />
       </div>
     );
   }
@@ -1096,7 +1096,7 @@ function DashboardPage() {
         <div className="min-h-screen bg-surface-app flex items-center justify-center text-content-primary">
           <div className="text-center">
             <p className="text-lg mb-4">Child profile data is still loading.</p>
-            <button type="button" onClick={familyAuth.clearActiveProfileSelection} className="px-4 py-2 rounded-none bg-primary-600 text-white shadow-sm hover:bg-primary-700 transition-colors">Back to Profile Picker</button>
+            <button type="button" onClick={familyAuth.clearActiveProfileSelection} className="px-4 py-2 rounded-none bg-crimson text-white shadow-sm hover:bg-burgundy transition-colors">Back to Profile Picker</button>
           </div>
         </div>
       );
@@ -1123,7 +1123,7 @@ function DashboardPage() {
           background: 'linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-app) 50%, var(--bg-app) 100%)'
         }}
       />
-      <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full blur-[120px] opacity-[0.03] pointer-events-none bg-primary-600" />
+      <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full blur-[120px] opacity-[0.03] pointer-events-none bg-crimson" />
 
       <div className="relative z-10 max-w-[1400px] mx-auto p-6 md:p-8">
         <header className="sticky top-0 z-50 flex justify-between items-center py-4 px-6 md:px-8 -mx-6 md:-mx-8 mb-10 bg-surface/80 dark:bg-app/80 backdrop-blur-md shadow-sm border-b border-border-base transition-colors duration-300">
@@ -1167,7 +1167,7 @@ function DashboardPage() {
               {isActionMenuOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setIsActionMenuOpen(false)} />
-                  <div className="absolute right-0 mt-3 w-56 bg-[#F5F0E8] dark:bg-elev-1 border border-border-base shadow-2xl z-[100] py-2 animate-in fade-in zoom-in-95 duration-200">
+                  <div className="absolute right-0 mt-3 w-56 bg-cream dark:bg-elev-1 border border-border-base shadow-2xl z-[100] py-2 animate-in fade-in zoom-in-95 duration-200">
                     <button
                       onClick={() => { setIsActionMenuOpen(false); setIsAddChildModalOpen(true); }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-primary hover:bg-brand hover:text-white dark:hover:bg-white/10 transition-colors group"
@@ -1292,10 +1292,10 @@ function DashboardPage() {
                         onUndoApproval={(childId, taskId) => statusTaskMutation.mutate({ taskId, status: 'PENDING_APPROVAL', childId })}
                       />
                     ))}
-                    <div className="flex min-h-[200px] items-center justify-center rounded-none border-2 border-dashed border-border-base bg-surface/50 dark:bg-white/5 p-6 hover:border-primary-500/50 hover:bg-surface-2 dark:hover:bg-white/10 transition-all cursor-pointer group" onClick={() => setIsAddChildModalOpen(true)}>
+                    <div className="flex min-h-[200px] items-center justify-center rounded-none border-2 border-dashed border-border-base bg-surface/50 dark:bg-white/5 p-6 hover:border-crimson/50 hover:bg-surface-2 dark:hover:bg-white/10 transition-all cursor-pointer group" onClick={() => setIsAddChildModalOpen(true)}>
                       <div className="text-center group-hover:scale-105 transition-transform duration-200">
-                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface-base dark:bg-elev-1 shadow-sm ring-1 ring-border-base group-hover:ring-primary-200">
-                          <Plus className="h-6 w-6 text-muted group-hover:text-primary-600" />
+                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface-base dark:bg-elev-1 shadow-sm ring-1 ring-border-base group-hover:ring-crimson/20">
+                          <Plus className="h-6 w-6 text-muted group-hover:text-crimson" />
                         </div>
                         <h3 className="text-sm font-bold text-primary">Add Child Profile</h3>
                         <p className="mt-1 text-xs text-muted">Track chores & allowance</p>
@@ -1463,8 +1463,8 @@ function DashboardPage() {
                       setRejectionComment(newComment);
                     }}
                     className={`px-4 py-2 text-xs font-bold uppercase tracking-widest border transition-all ${rejectionComment.includes(tag)
-                      ? 'bg-brand text-white border-blue-500 shadow-md'
-                      : 'bg-white text-content-subtle border-stroke-base hover:border-blue-500 hover:text-blue-500'
+                      ? 'bg-brand text-white border-crimson shadow-md'
+                      : 'bg-white text-content-subtle border-stroke-base hover:border-crimson hover:text-crimson'
                       }`}
                   >
                     {tag}
@@ -1478,7 +1478,7 @@ function DashboardPage() {
                   value={rejectionComment}
                   onChange={(e) => setRejectionComment(e.target.value)}
                   placeholder="Optional notes..."
-                  className="w-full min-h-[80px] p-4 bg-surface-app border border-stroke-base rounded-none text-sm font-sans focus:border-blue-500 outline-none transition-colors resize-none"
+                  className="w-full min-h-[80px] p-4 bg-surface-app border border-stroke-base rounded-none text-sm font-sans focus:border-crimson outline-none transition-colors resize-none"
                 />
               </div>
 
@@ -1513,7 +1513,7 @@ function DashboardPage() {
         {isSelectChildForGradesOpen && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsSelectChildForGradesOpen(false)} />
-            <div className="relative w-full max-w-[560px] bg-white rounded-none border border-stroke-base p-8 text-left shadow-xl animate-in zoom-in-95 duration-200">
+            <div className="relative w-full max-w-[560px] bg-white rounded-2xl border border-stroke-base p-8 text-left shadow-xl animate-in zoom-in-95 duration-200">
               <h3 className="text-xl font-bold mb-2 text-content-primary">Update Grades</h3>
               <p className="text-content-subtle mb-5 text-sm">Choose a child profile to update grades and payscale.</p>
               <div className="space-y-2 max-h-[320px] overflow-auto pr-1 custom-scrollbar">
@@ -1526,9 +1526,9 @@ function DashboardPage() {
                       setChildForGrades(child);
                       setIsUpdateGradesModalOpen(true);
                     }}
-                    className="w-full rounded-none border border-stroke-base bg-surface-app px-4 py-3 text-left hover:bg-white hover:border-primary-500 hover:shadow-md transition-all group"
+                    className="w-full rounded-none border border-stroke-base bg-surface-app px-4 py-3 text-left hover:bg-white hover:border-crimson/50 hover:shadow-md transition-all group"
                   >
-                    <div className="text-sm font-semibold text-content-primary group-hover:text-primary-600">{child.name}</div>
+                    <div className="text-sm font-semibold text-content-primary group-hover:text-crimson">{child.name}</div>
                     <div className="text-xs text-content-subtle">{child.gradeLevel}</div>
                   </button>
                 ))}
@@ -1541,7 +1541,7 @@ function DashboardPage() {
         {isInviteModalOpen && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsInviteModalOpen(false)} />
-            <div className="relative w-full max-w-[560px] bg-white rounded-none border border-stroke-base p-8 text-left shadow-xl animate-in zoom-in-95 duration-200">
+            <div className="relative w-full max-w-[560px] bg-white rounded-2xl border border-stroke-base p-8 text-left shadow-xl animate-in zoom-in-95 duration-200">
               <h3 className="text-xl font-bold mb-2 text-content-primary">Invite Child Device</h3>
               <p className="text-content-subtle mb-5 text-sm">Choose a child profile to generate a unique setup URL.</p>
               <div className="space-y-2 max-h-[320px] overflow-auto pr-1 custom-scrollbar">
@@ -1553,9 +1553,9 @@ function DashboardPage() {
                       void handleGenerateProfileSetupLink(toProfileFromChild(child));
                       setIsInviteModalOpen(false);
                     }}
-                    className="w-full rounded-none border border-stroke-base bg-surface-app px-4 py-3 text-left hover:bg-white hover:border-primary-500 hover:shadow-md transition-all group"
+                    className="w-full rounded-none border border-stroke-base bg-surface-app px-4 py-3 text-left hover:bg-white hover:border-crimson/50 hover:shadow-md transition-all group"
                   >
-                    <div className="text-sm font-semibold text-content-primary group-hover:text-primary-600">{child.name}</div>
+                    <div className="text-sm font-semibold text-content-primary group-hover:text-crimson">{child.name}</div>
                     <div className="text-xs text-content-subtle">{child.gradeLevel}</div>
                   </button>
                 ))}
@@ -1572,7 +1572,7 @@ function DashboardPage() {
               <h3 className="text-xl font-bold mb-4 text-content-primary">Profile Setup Link</h3>
               <p className="text-content-subtle mb-6 text-sm">Send this one-time link so the child can set their own PIN and avatar.</p>
               <div className="flex items-center gap-2 bg-surface-app p-3 rounded-none mb-6 border border-stroke-base">
-                <code className="text-xs text-primary-600 flex-1 truncate font-mono">{profileSetupLink}</code>
+                <code className="text-xs text-crimson flex-1 truncate font-mono">{profileSetupLink}</code>
                 <button type="button" onClick={() => { void navigator.clipboard.writeText(profileSetupLink); }} className="text-xs font-bold bg-white border border-stroke-base px-3 py-1.5 rounded-none hover:bg-surface-app text-content-primary transition-colors shadow-sm">COPY</button>
               </div>
               <button type="button" onClick={() => setProfileSetupLink(null)} className="w-full py-3 bg-surface-2 rounded-none font-bold text-content-primary hover:bg-surface-2 transition-colors">Close</button>
@@ -1697,7 +1697,7 @@ function SetupProfileRoute() {
 
         {isLoading ? (
           <div className="flex items-center justify-center py-16 relative z-10">
-            <Loader2 className="h-6 w-6 animate-spin text-primary-600" />
+            <Loader2 className="h-6 w-6 animate-spin text-crimson" />
           </div>
         ) : isComplete ? (
           <div className="text-center py-6 relative z-10">
@@ -1779,7 +1779,7 @@ function SetupProfileRoute() {
             <button
               type="submit"
               disabled={isSubmitting || !id || !householdId}
-              className="w-full rounded-none bg-primary-600 px-4 py-3.5 text-base font-bold text-white hover:bg-primary-700 disabled:opacity-60 shadow-md shadow-primary-700/20 transition-all hover:-translate-y-0.5"
+              className="w-full rounded-none bg-crimson px-4 py-3.5 text-base font-bold text-white hover:bg-burgundy disabled:opacity-60 shadow-md shadow-primary-700/20 transition-all hover:-translate-y-0.5"
             >
               {isSubmitting ? 'Saving...' : 'Finish Setup'}
             </button>
@@ -1830,7 +1830,7 @@ function PublicOnlyRoute({ children }: { children: React.ReactNode }) {
   if (!isResolved) {
     return (
       <div className="min-h-screen bg-surface-app flex items-center justify-center text-content-primary">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-crimson" />
       </div>
     );
   }
@@ -1864,7 +1864,7 @@ function UnknownRouteHandler() {
   if (!isResolved) {
     return (
       <div className="min-h-screen bg-surface-app flex items-center justify-center text-content-primary">
-        <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-crimson" />
       </div>
     );
   }
