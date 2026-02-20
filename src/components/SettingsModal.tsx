@@ -115,13 +115,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 font-sans text-content-primary">
       <div className="absolute inset-0 bg-neutral-black/60 backdrop-blur-sm transition-opacity duration-300" onClick={onClose} />
-      <div className="relative w-full max-w-[580px] bg-cream rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-stroke-base">
+      <div className="relative w-full max-w-[580px] bg-surface-base rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-stroke-base">
 
         <button onClick={onClose} aria-label="Close" className="absolute top-6 right-6 p-2 rounded-full hover:bg-surface-app text-content-subtle transition-colors z-50 cursor-pointer">
           <X className="w-5 h-5" />
         </button>
 
-        <div className="relative z-20 border-b border-stroke-base pt-10 px-10 pb-0 shrink-0 bg-cream">
+        <div className="relative z-20 border-b border-stroke-base pt-10 px-10 pb-0 shrink-0 bg-surface-base">
           <h2 className="text-3xl font-bold font-heading text-content-primary mb-6">Child Settings</h2>
           <div className="flex gap-2 overflow-x-auto scrollbar-hide">
             {['profile'].map(t => (
@@ -142,7 +142,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
-        <div className="relative z-10 flex-1 overflow-y-auto p-10 scrollbar-hide pb-32 bg-cream">
+        <div className="relative z-10 flex-1 overflow-y-auto p-10 scrollbar-hide pb-32 bg-surface-base">
           {activeTab === 'profile' && (
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
               <div>
@@ -208,7 +208,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 z-20 bg-cream border-t border-stroke-base px-10 py-8 flex gap-4">
+        <div className="absolute bottom-0 left-0 right-0 z-20 bg-surface-base border-t border-stroke-base px-10 py-8 flex gap-4">
           <Button
             onClick={() => setShowDeleteConfirm(true)}
             variant="destructive"
@@ -226,7 +226,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         {showDeleteConfirm && (
-          <div className="absolute inset-0 z-[110] bg-cream flex flex-col items-center justify-center p-10 text-center animate-in fade-in duration-200">
+          <div className="absolute inset-0 z-[110] bg-surface-base flex flex-col items-center justify-center p-10 text-center animate-in fade-in duration-200">
             <div className="w-20 h-20 rounded-full bg-semantic-destructive/10 flex items-center justify-center mb-6 text-semantic-destructive"><AlertTriangle className="w-10 h-10" /></div>
             <h3 className="text-2xl font-bold font-heading text-content-primary mb-2">Delete Profile?</h3>
             <p className="text-content-subtle mb-8">This action is permanent.</p>
