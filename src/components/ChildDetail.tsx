@@ -58,7 +58,7 @@ interface ChildDetailProps {
   onRejectTask: (childId: string, task: Task) => void;
   onPayTask: (childId: string, task: Task) => Promise<void>;
   onClaimTask: (childId: string, taskId: string) => void;
-  onDeleteTask?: (childId: string, taskId: string) => void;
+  onAddAdvance?: () => void;
 }
 
 const ChildDetail: React.FC<ChildDetailProps> = ({
@@ -75,6 +75,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
   onRejectTask,
   onPayTask,
   onClaimTask,
+  onAddAdvance,
 }) => {
   const [taskToComplete, setTaskToComplete] = useState<Task | null>(null);
   const [subCollectionTasks, setSubCollectionTasks] = useState<Task[]>([]);
@@ -209,7 +210,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
     <div className="space-y-12 animate-in fade-in duration-700 font-sans pb-20">
 
       {/* 1. The Header: Financial Status */}
-      <section className="bg-cream border border-stroke-base rounded-none p-8 relative overflow-hidden group">
+      <section className="bg-surface-app dark:bg-surface-elev border border-stroke-base rounded-none p-8 relative overflow-hidden group">
         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-bl-full pointer-events-none opacity-50" />
 
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
@@ -231,12 +232,12 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
           {isParent && (
             <Button
-              onClick={() => openTransactionModal('ADVANCE')}
+              onClick={onAddAdvance}
               variant="outline"
-              className="gap-2 border-dashed border-stroke-base hover:border-crimson hover:text-crimson hover:bg-white"
+              className="gap-2 border-dashed border-stroke-base hover:border-crimson hover:text-crimson hover:bg-surface-2"
             >
               <CreditCard className="w-4 h-4" />
-              Advance Funds
+              Add Advance
             </Button>
           )}
         </div>
@@ -346,7 +347,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
       {/* 4. The 'Payable' Section (Ready for Payout) */}
       {isParent && (
-        <section className="bg-charcoal text-white p-8 rounded-none border border-charcoal overflow-hidden relative">
+        <section className="bg-charcoal text-white dark:bg-surface-2 dark:border-stroke-highlight p-8 rounded-none border border-charcoal overflow-hidden relative">
           <div className="absolute top-0 right-0 p-32 bg-white/5 rounded-full blur-3xl" />
           <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-8">
             <div className="text-center sm:text-left">
@@ -379,7 +380,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
         </div>
 
         {inProgressTasks.length === 0 ? (
-          <div className="bg-cream border border-gold/20 p-8 text-center">
+          <div className="bg-surface-app dark:bg-surface-elev border border-gold/20 p-8 text-center">
             <p className="text-content-subtle font-sans">No tasks currently in progress. Grab one!</p>
           </div>
         ) : (
@@ -451,7 +452,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
         </div>
 
         {sortedTransactions.length === 0 ? (
-          <div className="bg-cream border border-gold/20 p-8 text-center text-content-muted text-sm">No recent transactions.</div>
+          <div className="bg-surface-app dark:bg-surface-elev border border-gold/20 p-8 text-center text-content-muted text-sm">No recent transactions.</div>
         ) : (
           <div className="border border-stroke-base bg-surface-app rounded-none overflow-hidden">
             <div className="divide-y divide-stroke-base">

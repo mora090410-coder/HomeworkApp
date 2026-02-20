@@ -1248,6 +1248,7 @@ function DashboardPage() {
                       void handleGenerateProfileSetupLink(toProfileFromChild(candidate));
                     }}
                     onEditSettings={(candidate) => setChildToEdit(candidate)}
+                    onAddAdvance={() => { setSelectedChildId(activeChild.id); setIsAdvanceModalOpen(true); }}
                     onSubmitTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_APPROVAL', childId })}
                     onApproveTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_PAYMENT', childId })}
                     onApproveAndDeposit={(childId, task, amountCents) => approveAndDepositMutation.mutateAsync({ childId, task, amountCents })}
@@ -1513,7 +1514,7 @@ function DashboardPage() {
         {isSelectChildForGradesOpen && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsSelectChildForGradesOpen(false)} />
-            <div className="relative w-full max-w-[560px] bg-cream rounded-2xl border border-stroke-base p-8 text-left shadow-xl animate-in zoom-in-95 duration-200">
+            <div className="relative w-full max-w-[560px] bg-surface-app dark:bg-surface-elev rounded-2xl border border-stroke-base p-8 text-left shadow-xl animate-in zoom-in-95 duration-200">
               <h3 className="text-xl font-bold mb-2 text-content-primary">Update Grades</h3>
               <p className="text-content-subtle mb-5 text-sm">Choose a child profile to update grades and payscale.</p>
               <div className="space-y-2 max-h-[320px] overflow-auto pr-1 custom-scrollbar">
@@ -1526,14 +1527,14 @@ function DashboardPage() {
                       setChildForGrades(child);
                       setIsUpdateGradesModalOpen(true);
                     }}
-                    className="w-full rounded-none border border-gold/20 bg-cream px-4 py-3 text-left hover:border-crimson/30 hover:shadow-md transition-all group"
+                    className="w-full rounded-none border border-gold/20 bg-surface-app dark:bg-surface-2 px-4 py-3 text-left hover:border-crimson/30 hover:shadow-md transition-all group"
                   >
                     <div className="text-sm font-semibold text-content-primary group-hover:text-crimson">{child.name}</div>
                     <div className="text-xs text-content-subtle">{child.gradeLevel}</div>
                   </button>
                 ))}
               </div>
-              <button type="button" onClick={() => setIsSelectChildForGradesOpen(false)} className="mt-5 w-full py-3 border border-gold/30 text-charcoal rounded-full font-bold transition-colors">Close</button>
+              <button type="button" onClick={() => setIsSelectChildForGradesOpen(false)} className="mt-5 w-full py-3 border border-gold/30 text-content-primary rounded-full font-bold transition-colors">Close</button>
             </div>
           </div>
         )}
@@ -1541,7 +1542,7 @@ function DashboardPage() {
         {isInviteModalOpen && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsInviteModalOpen(false)} />
-            <div className="relative w-full max-w-[560px] bg-white rounded-2xl border border-stroke-base p-8 text-left shadow-xl animate-in zoom-in-95 duration-200">
+            <div className="relative w-full max-w-[560px] bg-surface-app dark:bg-surface-elev rounded-2xl border border-stroke-base p-8 text-left shadow-xl animate-in zoom-in-95 duration-200">
               <h3 className="text-xl font-bold mb-2 text-content-primary">Invite Child Device</h3>
               <p className="text-content-subtle mb-5 text-sm">Choose a child profile to generate a unique setup URL.</p>
               <div className="space-y-2 max-h-[320px] overflow-auto pr-1 custom-scrollbar">

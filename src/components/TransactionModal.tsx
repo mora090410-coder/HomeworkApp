@@ -96,7 +96,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
 
             <div className="fixed inset-0 flex items-center justify-center p-4">
-                <Dialog.Panel className="w-full max-w-md bg-cream rounded-none border border-stroke-base shadow-xl overflow-hidden p-6 animate-in zoom-in-95 duration-200">
+                <Dialog.Panel className="w-full max-w-md bg-surface-app dark:bg-surface-elev rounded-2xl border border-stroke-base shadow-xl overflow-hidden p-6 animate-in zoom-in-95 duration-200">
                     <div className="flex justify-between items-start mb-4">
                         <Dialog.Title className="text-xl font-bold font-heading text-content-primary">
                             {title}
@@ -123,7 +123,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                                     min="0.01"
                                     value={amountStr}
                                     onChange={(e) => setAmountStr(e.target.value)}
-                                    className="w-full pl-7 pr-3 py-2 border border-stroke-base focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all font-sans"
+                                    className="w-full pl-7 pr-3 py-2 bg-transparent text-content-primary placeholder-content-subtle border border-stroke-base focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all font-sans"
                                     placeholder="0.00"
                                     autoFocus
                                 />
@@ -138,7 +138,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                                 type="text"
                                 value={memo}
                                 onChange={(e) => setMemo(e.target.value)}
-                                className="w-full px-3 py-2 border border-stroke-base focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all font-sans"
+                                className="w-full px-3 py-2 bg-transparent text-content-primary placeholder-content-subtle border border-stroke-base focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all font-sans"
                                 placeholder={isAdvance ? "e.g. Movie Ticket" : "Optional note"}
                             />
                         </div>
@@ -163,7 +163,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                                 type="button"
                                 variant="ghost"
                                 onClick={onClose}
-                                className="flex-1 border border-gold/30 text-charcoal rounded-full px-6 py-2"
+                                className="flex-1 border border-gold/30 text-content-primary rounded-full px-6 py-2"
                                 disabled={isSubmitting}
                             >
                                 Cancel
