@@ -209,22 +209,22 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
     <div className="space-y-12 animate-in fade-in duration-700 font-sans pb-20">
 
       {/* 1. The Header: Financial Status */}
-      <section className="bg-white border border-stroke-base rounded-none p-8 relative overflow-hidden group">
+      <section className="bg-cream border border-stroke-base rounded-none p-8 relative overflow-hidden group">
         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-bl-full pointer-events-none opacity-50" />
 
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <h2 className="text-sm font-bold text-content-muted uppercase tracking-widest font-sans">Bank Balance</h2>
+              <h2 className="text-sm font-bold text-content-muted uppercase tracking-widest font-sans">Vault Balance</h2>
               {hasDebt && <span className="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-none font-bold uppercase tracking-wider">Overdraft</span>}
             </div>
-            <div className={`text-6xl font-bold font-heading tracking-tight ${hasDebt ? 'text-red-700' : 'text-content-primary'}`}>
+            <div className={`text-6xl font-bold font-serif font-heading tracking-tight ${hasDebt ? 'text-red-700' : 'text-content-primary'}`}>
               {formatCurrency(balance)}
             </div>
             <p className="text-content-muted mt-2 font-medium font-sans flex items-center gap-2">
               Rate: <span className="text-content-primary font-bold">{formatCurrency(hourlyRate)}/hr</span>
               {isParent && (
-                <Settings className="w-4 h-4 cursor-pointer hover:text-blue-500 transition-colors" onClick={() => onEditSettings(child)} />
+                <Settings className="w-4 h-4 cursor-pointer hover:text-crimson transition-colors" onClick={() => onEditSettings(child)} />
               )}
             </p>
           </div>
@@ -233,7 +233,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
             <Button
               onClick={() => openTransactionModal('ADVANCE')}
               variant="outline"
-              className="gap-2 border-dashed border-stroke-base hover:border-blue-500 hover:text-blue-500 hover:bg-white"
+              className="gap-2 border-dashed border-stroke-base hover:border-crimson hover:text-crimson hover:bg-white"
             >
               <CreditCard className="w-4 h-4" />
               Advance Funds
@@ -255,7 +255,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {pendingWithdrawalRequests.map(tx => (
-              <div key={tx.id} className="bg-white border border-l-4 border-l-amber-500 border-y-neutral-200 border-r-neutral-200 p-6 flex flex-col justify-between shadow-sm">
+              <div key={tx.id} className="bg-surface-app border border-l-4 border-l-amber-500 border-y-stroke-base border-r-stroke-base p-6 flex flex-col justify-between shadow-sm">
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h4 className="text-lg font-bold font-heading text-content-primary">{tx.memo || 'Cash Withdrawal'}</h4>
@@ -296,7 +296,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {pendingApprovalTasks.map(task => (
-              <div key={task.id} className="bg-white border border-stroke-base p-6 shadow-sm flex flex-col justify-between hover:border-amber-400 transition-colors">
+              <div key={task.id} className="bg-surface-app border border-stroke-base p-6 shadow-sm flex flex-col justify-between hover:border-amber-400 transition-colors">
                 <div>
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="text-lg font-bold font-heading text-content-primary">{task.name}</h4>
@@ -314,12 +314,12 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                       <Popover.Button as={Button} variant="destructive" className="w-full text-xs gap-2">
                         <ThumbsDown className="w-3 h-3" /> Reject
                       </Popover.Button>
-                      <Popover.Panel className="absolute bottom-full left-0 mb-2 w-48 bg-white border border-stroke-base shadow-xl p-2 z-50 flex flex-col gap-1 rounded-none">
+                      <Popover.Panel className="absolute bottom-full left-0 mb-2 w-48 bg-surface-app border border-stroke-base shadow-xl p-2 z-50 flex flex-col gap-1 rounded-none">
                         <div className="text-[10px] font-bold text-content-subtle uppercase tracking-wider mb-1 px-2">Quick Reason</div>
                         {['Incomplete', 'Poor Quality', 'Wrong Task'].map(reason => (
                           <button
                             key={reason}
-                            className="text-left px-3 py-2 text-sm text-content-primary hover:bg-red-50 hover:text-red-700 transition-colors rounded-none"
+                            className="text-left px-3 py-2 text-sm text-content-primary hover:bg-surface-hover hover:text-red-700 transition-colors rounded-none"
                             onClick={() => handleQuickReject(task, reason)}
                           >
                             {reason}
@@ -346,7 +346,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
       {/* 4. The 'Payable' Section (Ready for Payout) */}
       {isParent && (
-        <section className="bg-neutral-900 text-white p-8 rounded-none border border-neutral-900 overflow-hidden relative">
+        <section className="bg-charcoal text-white p-8 rounded-none border border-charcoal overflow-hidden relative">
           <div className="absolute top-0 right-0 p-32 bg-white/5 rounded-full blur-3xl" />
           <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-8">
             <div className="text-center sm:text-left">
@@ -371,15 +371,15 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
       {/* 5. The 'Hustle' View (In-Progress Tasks) */}
       <section>
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-8 h-8 bg-blue-100 flex items-center justify-center rounded-none">
-            <TrendingUp className="w-4 h-4 text-blue-600" />
+          <div className="w-8 h-8 bg-crimson/10 flex items-center justify-center rounded-none">
+            <TrendingUp className="w-4 h-4 text-crimson" />
           </div>
           <h3 className="text-xl font-bold font-heading text-content-primary">The Hustle</h3>
           <span className="bg-surface-2 text-neutral-600 px-2 py-0.5 text-xs font-bold rounded-full">{inProgressTasks.length}</span>
         </div>
 
         {inProgressTasks.length === 0 ? (
-          <div className="bg-surface-app border border-dashed border-stroke-base p-8 text-center">
+          <div className="bg-cream border border-gold/20 p-8 text-center">
             <p className="text-content-subtle font-sans">No tasks currently in progress. Grab one!</p>
           </div>
         ) : (
@@ -388,7 +388,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
               const isBoosted = (task.bonusCents || 0) > 0 || (task.multiplier || 1) > 1;
 
               return (
-                <div key={task.id} className="bg-white border border-stroke-base p-6 flex flex-col justify-between group relative overflow-hidden active:scale-[0.98] transition-all">
+                <div key={task.id} className="bg-surface-app border border-stroke-base p-6 flex flex-col justify-between group relative overflow-hidden active:scale-[0.98] transition-all">
                   {isBoosted && <div className="absolute top-0 right-0 w-16 h-16 bg-amber-500/10 rounded-bl-full" />}
 
                   <div>
@@ -398,7 +398,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                         <h4 className="text-lg font-bold font-heading text-content-primary">{task.name}</h4>
                       </div>
                       <div className="flex flex-col items-end">
-                        <span className="text-xl font-bold text-blue-500 font-heading flex items-center gap-1">
+                        <span className="text-xl font-bold text-crimson font-heading flex items-center gap-1">
                           {getTaskDisplayValue(task)}
                           {isBoosted && <Flame className="w-4 h-4 text-orange-500 animate-pulse" fill="currentColor" />}
                         </span>
@@ -444,60 +444,61 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
       {/* 6. The Family Bank Statement (History) */}
       <section>
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-8 h-8 bg-surface-2 flex items-center justify-center rounded-none">
-            <History className="w-4 h-4 text-neutral-600" />
+          <div className="w-8 h-8 bg-crimson/10 flex items-center justify-center rounded-none">
+            <History className="w-4 h-4 text-crimson" />
           </div>
           <h3 className="text-xl font-bold font-heading text-content-primary">Transaction History</h3>
         </div>
 
-        <div className="border border-stroke-base bg-white rounded-none overflow-hidden">
-          {sortedTransactions.length === 0 && (
-            <div className="p-8 text-center text-content-muted text-sm">No recent transactions.</div>
-          )}
-          <div className="divide-y divide-neutral-100">
-            {sortedTransactions.map(tx => {
-              const amountCents = getTransactionAmountCents(tx);
-              const amount = centsToDollars(Math.abs(amountCents));
+        {sortedTransactions.length === 0 ? (
+          <div className="bg-cream border border-gold/20 p-8 text-center text-content-muted text-sm">No recent transactions.</div>
+        ) : (
+          <div className="border border-stroke-base bg-surface-app rounded-none overflow-hidden">
+            <div className="divide-y divide-stroke-base">
+              {sortedTransactions.map(tx => {
+                const amountCents = getTransactionAmountCents(tx);
+                const amount = centsToDollars(Math.abs(amountCents));
 
-              let isPositive = amountCents > 0;
-              let statusLabel = '';
-              let Icon = isPositive ? ArrowUpRight : ArrowDownLeft;
-              let iconColor = isPositive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
+                let isPositive = amountCents > 0;
+                let statusLabel = '';
+                let Icon = isPositive ? ArrowUpRight : ArrowDownLeft;
+                let iconColor = isPositive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
 
-              if (tx.type === 'WITHDRAWAL_REQUEST') {
-                isPositive = false;
-                Icon = Banknote;
-                iconColor = tx.status === 'PENDING' ? 'bg-amber-100 text-amber-700' : 'bg-surface-2 text-content-subtle';
-                statusLabel = tx.status === 'PENDING' ? '(Pending Payout)' : '(Paid)';
-              } else if (tx.type === 'GOAL_ALLOCATION') {
-                isPositive = false;
-                Icon = Target;
-                iconColor = 'bg-blue-100 text-blue-700';
-                statusLabel = '(Savings Goal)';
-              }
+                if (tx.type === 'WITHDRAWAL_REQUEST') {
+                  isPositive = false;
+                  Icon = Banknote;
+                  iconColor = tx.status === 'PENDING' ? 'bg-amber-100 text-amber-700' : 'bg-surface-2 text-content-subtle';
+                  statusLabel = tx.status === 'PENDING' ? '(Pending Payout)' : '(Paid)';
+                } else if (tx.type === 'GOAL_ALLOCATION') {
+                  isPositive = false;
+                  Icon = Target;
+                  iconColor = 'bg-blue-100 text-blue-700';
+                  statusLabel = '(Savings Goal)';
+                }
 
-              return (
-                <div key={tx.id} className="p-4 flex items-center justify-between hover:bg-surface-app transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${iconColor}`}>
-                      <Icon className="w-5 h-5" />
+                return (
+                  <div key={tx.id} className="p-4 flex items-center justify-between hover:bg-surface-app transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${iconColor}`}>
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-content-primary font-sans">
+                          {tx.memo || (isPositive ? 'Deposit' : 'Withdrawal')}
+                          {statusLabel && <span className="ml-2 text-[10px] font-normal opacity-70 uppercase tracking-tighter">{statusLabel}</span>}
+                        </p>
+                        <p className="text-xs text-content-subtle">{new Date(tx.date).toLocaleDateString()} • {new Date(tx.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-content-primary font-sans">
-                        {tx.memo || (isPositive ? 'Deposit' : 'Withdrawal')}
-                        {statusLabel && <span className="ml-2 text-[10px] font-normal opacity-70 uppercase tracking-tighter">{statusLabel}</span>}
-                      </p>
-                      <p className="text-xs text-content-subtle">{new Date(tx.date).toLocaleDateString()} • {new Date(tx.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                    <div className={`text-base font-bold font-heading ${isPositive ? 'text-emerald-700' : 'text-red-700'}`}>
+                      {isPositive ? '+' : '-'}{formatCurrency(amount)}
                     </div>
                   </div>
-                  <div className={`text-base font-bold font-heading ${isPositive ? 'text-emerald-700' : 'text-red-700'}`}>
-                    {isPositive ? '+' : '-'}{formatCurrency(amount)}
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
       </section>
 
       {/* Modal Definitions */}
@@ -515,7 +516,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
       {taskToComplete && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-neutral-black/50 backdrop-blur-sm" onClick={() => setTaskToComplete(null)} />
-          <div className="relative w-full max-w-sm bg-white rounded-none border border-stroke-base p-8 text-center animate-in zoom-in-95 duration-200 shadow-xl">
+          <div className="relative w-full max-w-sm bg-surface-app rounded-none border border-stroke-base p-8 text-center animate-in zoom-in-95 duration-200 shadow-xl">
             <div className="mx-auto w-12 h-12 bg-surface-2 rounded-full flex items-center justify-center text-content-subtle mb-3">
               <Check className="w-6 h-6" />
             </div>
