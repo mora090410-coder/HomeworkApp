@@ -5,22 +5,18 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
-    ({ className, noPadding = false, children, variant = 'default', ...props }, ref) => { // Added variant default value
+    ({ className, noPadding = false, children, ...props }, ref) => {
         const baseClasses = `
-          transition-shadow duration-200
-          rounded-none
+          glass-card
+          transition-all duration-200
+          rounded-3xl
           ${noPadding ? '' : 'p-6'}
         `;
-
-        const variantClasses =
-            variant === 'default'
-                ? `bg-white border border-stroke-base shadow-sm`
-                : `bg-surface-app border border-stroke-base`;
 
         return (
             <div
                 ref={ref}
-                className={`${baseClasses} ${variantClasses} ${className}`}
+                className={`${baseClasses} ${className}`}
                 {...props}
             >
                 {children}

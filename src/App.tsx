@@ -28,7 +28,6 @@ import FamilyActivityFeed from '@/components/FamilyActivityFeed';
 import SettingsModal from '@/components/SettingsModal';
 import AuthScreen from '@/components/AuthScreen';
 import AdminSetupRail from '@/components/AdminSetupRail';
-import ProfileSelectionScreen from '@/components/ProfileSelectionScreen';
 import LandingPage from '@/components/LandingPage';
 import PinModal from '@/components/PinModal';
 import OpenTaskCard from '@/components/OpenTaskCard';
@@ -308,21 +307,19 @@ export function useFamilyAuth(): FamilyAuthState {
           return;
         }
 
-        if (canManageProfiles) {
-          const adminProfile = nextProfiles.find((profile) => profile.role === 'ADMIN') ?? null;
-          if (adminProfile) {
-            if (activeProfileId !== adminProfile.id) {
-              setActiveProfileId(adminProfile.id);
-              persistSession({
-                householdId,
-                familyId: householdId,
-                profileId: adminProfile.id,
-                role: adminProfile.role,
-              });
-            }
-            setStage('AUTHORIZED');
-            return;
+        const adminProfile = nextProfiles.find((profile) => profile.role === 'ADMIN') ?? null;
+        if (adminProfile) {
+          if (activeProfileId !== adminProfile.id) {
+            setActiveProfileId(adminProfile.id);
+            persistSession({
+              householdId,
+              familyId: householdId,
+              profileId: adminProfile.id,
+              role: adminProfile.role,
+            });
           }
+          setStage('AUTHORIZED');
+          return;
         }
 
         if (!activeProfileId) {
@@ -1062,58 +1059,29 @@ function DashboardPage() {
     return <Navigate to="/login" replace />;
   }
 
-  if (familyAuth.stage === 'HOUSEHOLD_LOADED' || familyAuth.stage === 'PROFILE_SELECTED') {
-    const activeProfile = familyAuth.activeProfile;
-    return (
-      <>
-        <ProfileSelectionScreen
-          profiles={familyAuth.profiles}
-          isLoading={familyAuth.isProfilesLoading}
-          onSelectProfile={familyAuth.selectProfile}
-          canAddProfile={familyAuth.canManageProfiles}
-          isAdminUser={familyAuth.canManageProfiles}
-          isCreatingProfile={createProfileMutation.isPending}
-          createProfileError={createProfileError}
-          profilesError={familyAuth.profilesError}
-          onDeleteProfile={handleDeleteProfile}
-          onGenerateSetupLink={handleGenerateProfileSetupLink}
-          onCreateProfile={async ({ name, pin, avatarColor }) => {
-            try {
-              setCreateProfileError(null);
-              const created = await createProfileMutation.mutateAsync({ name, pin, avatarColor });
-              familyAuth.appendCreatedProfile(created);
-            } catch (error) {
-              const message =
-                error instanceof Error ? error.message : 'Unable to create profile right now.';
-              setCreateProfileError(message);
-              throw error;
-            }
-          }}
-          onSignOut={() => {
-            void familyAuth.signOutUser();
-          }}
-        />
-        <PinModal
-          isOpen={familyAuth.stage === 'PROFILE_SELECTED' && !!activeProfile}
-          householdId={familyAuth.householdId}
-          profileId={activeProfile?.id ?? null}
-          profileRole={activeProfile?.role}
-          mode={activeProfile?.pinHash ? 'VERIFY' : 'SETUP'}
-          profileName={activeProfile?.name ?? 'Profile'}
-          canAdminBypass={familyAuth.canManageProfiles}
-          adminMasterPassword={appConfig.admin.masterPassword}
-          onClose={familyAuth.clearActiveProfileSelection}
-          onAuthorized={familyAuth.authorizeActiveProfile}
-        />
-      </>
-    );
-  }
-
-  if (isLoading || !familyAuth.activeProfile) {
+  if (familyAuth.stage === 'HOUSEHOLD_LOADED' || isLoading || !familyAuth.activeProfile) {
     return (
       <div className="min-h-screen bg-surface-app flex items-center justify-center text-content-primary">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
       </div>
+    );
+  }
+
+  if (familyAuth.stage === 'PROFILE_SELECTED') {
+    const activeProfile = familyAuth.activeProfile;
+    return (
+      <PinModal
+        isOpen={familyAuth.stage === 'PROFILE_SELECTED' && !!activeProfile}
+        householdId={familyAuth.householdId}
+        profileId={activeProfile?.id ?? null}
+        profileRole={activeProfile?.role}
+        mode={activeProfile?.pinHash ? 'VERIFY' : 'SETUP'}
+        profileName={activeProfile?.name ?? 'Profile'}
+        canAdminBypass={familyAuth.canManageProfiles}
+        adminMasterPassword={appConfig.admin.masterPassword}
+        onClose={familyAuth.clearActiveProfileSelection}
+        onAuthorized={familyAuth.authorizeActiveProfile}
+      />
     );
   }
 

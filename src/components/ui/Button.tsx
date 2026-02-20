@@ -24,16 +24,19 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         },
         ref
     ) => {
-        const baseStyles =
-            'inline-flex items-center justify-center font-sans font-medium transition-colors duration-200 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 rounded-full';
+        const isPrimary = variant === 'primary';
+
+        const baseStyles = isPrimary
+            ? 'disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2'
+            : 'inline-flex items-center justify-center font-sans font-medium transition-colors duration-200 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 rounded-full';
 
         const variants = {
             primary:
                 'tactile-button',
             secondary:
-                'bg-transparent text-blue-500 hover:bg-blue-50',
+                'bg-white/10 border border-white/20 shadow-sm backdrop-blur-md text-blue-500 hover:bg-white/20 dark:bg-black/10 dark:border-white/10 dark:hover:bg-black/20',
             outline:
-                'bg-transparent border border-stroke-base text-content-primary hover:bg-surface-app',
+                'bg-transparent border border-white/20 shadow-sm backdrop-blur-md text-content-primary hover:bg-surface-app',
             ghost:
                 'bg-transparent text-content-subtle hover:bg-surface-2 hover:text-content-primary',
             destructive:
@@ -49,7 +52,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         return (
             <button
                 ref={ref}
-                className={`${baseStyles} ${variants[variant] || variants.primary} ${sizes[size]} ${className}`}
+                className={`${baseStyles} ${variants[variant] || variants.primary} ${isPrimary ? '' : sizes[size]} ${className}`}
                 disabled={disabled || isLoading}
                 {...props}
             >
