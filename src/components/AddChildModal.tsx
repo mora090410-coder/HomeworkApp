@@ -116,7 +116,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 font-sans">
       <div className="absolute inset-0 bg-neutral-black/60 backdrop-blur-sm transition-opacity duration-300" onClick={onClose} />
-      <div className="relative w-full max-w-[560px] bg-cream dark:bg-elev-1 rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-border-base transition-colors">
+      <div className="relative w-full max-w-[560px] bg-cream dark:bg-surface-elev rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-stroke-base transition-colors">
 
         <div className="relative z-10 px-8 pt-8 pb-6 flex items-center gap-5 border-b border-stroke-base">
           <div className="flex flex-1 gap-2">
@@ -135,22 +135,22 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
           {step === 1 && (
             <div className="animate-in slide-in-from-right-8 fade-in duration-300">
               <div className="text-center mb-10">
-                <h2 className="text-3xl font-bold font-heading text-primary mb-2">Add New Child</h2>
-                <p className="text-muted">Let's start with the basics</p>
+                <h2 className="text-3xl font-bold font-heading text-content-primary mb-2">Add New Child</h2>
+                <p className="text-content-muted">Let's start with the basics</p>
               </div>
               <div className="flex flex-col items-center mb-8">
-                <div className={`w-[80px] h-[80px] rounded-full flex items-center justify-center text-3xl font-bold font-heading transition-all duration-300 ${name.trim() ? 'bg-gradient-to-br from-[#8B1A1A] to-[#C9A84C] text-cream shadow-md' : 'bg-surface-2 dark:bg-white/5 text-muted border border-border-base'
+                <div className={`w-[80px] h-[80px] rounded-full flex items-center justify-center text-3xl font-bold font-heading transition-all duration-300 ${name.trim() ? 'bg-ascendant-gradient text-cream shadow-md' : 'bg-surface-2 dark:bg-white/5 text-content-muted border border-stroke-base'
                   }`}>
                   {name.trim() ? name.trim().charAt(0).toUpperCase() : '?'}
                 </div>
               </div>
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-muted uppercase tracking-wider ml-1">Name</label>
-                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Emily" className="px-4 py-3.5 text-base placeholder-neutral-400 bg-surface dark:bg-elev-1 border-border-base" autoFocus />
+                  <label className="text-sm font-bold text-content-muted uppercase tracking-wider ml-1">Name</label>
+                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Emily" className="px-4 py-3.5 text-base placeholder-neutral-400 bg-surface-base dark:bg-surface-elev border-stroke-base" autoFocus />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-muted uppercase tracking-wider ml-1">Grade Level</label>
+                  <label className="text-sm font-bold text-content-muted uppercase tracking-wider ml-1">Grade Level</label>
                   <Select value={gradeLevel} onChange={(e) => setGradeLevel(e.target.value)} className="w-full">
                     <option value="" disabled>Select grade</option>
                     {SCHOOL_GRADES.map(g => (<option key={g} value={g}>{g}</option>))}
@@ -162,12 +162,12 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
           {step === 2 && (
             <div className="animate-in slide-in-from-right-8 fade-in duration-300">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold font-heading text-primary mb-2">Enter Current Grades</h2>
-                <p className="text-muted">Grades determine the hourly earning rate</p>
+                <h2 className="text-3xl font-bold font-heading text-content-primary mb-2">Enter Current Grades</h2>
+                <p className="text-content-muted">Grades determine the hourly earning rate</p>
               </div>
-              <div className="mb-8 p-6 rounded-none bg-surface-2 dark:bg-white/5 border border-border-base text-center relative overflow-hidden group">
+              <div className="mb-8 p-6 rounded-none bg-surface-2 dark:bg-white/5 border border-stroke-base text-center relative overflow-hidden group">
                 <div className="relative z-10">
-                  <p className="text-xs font-bold text-muted uppercase tracking-widest mb-2">Current Hourly Rate</p>
+                  <p className="text-xs font-bold text-content-muted uppercase tracking-widest mb-2">Current Hourly Rate</p>
                   <div className="text-5xl leading-none font-bold font-heading text-crimson drop-shadow-sm">
                     {formatCurrency(totalHourlyRate)}
                   </div>
@@ -176,15 +176,15 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
               <div className="space-y-4 mb-4">
                 {subjects.map((sub, idx) => (
                   <div key={sub.id} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                    <Input value={sub.name} onChange={(e) => handleUpdateSubject(sub.id, 'name', e.target.value)} placeholder="Subject Name" className="flex-[2] px-4 py-3 text-base placeholder-neutral-400 bg-surface dark:bg-elev-1 border-border-base" />
+                    <Input value={sub.name} onChange={(e) => handleUpdateSubject(sub.id, 'name', e.target.value)} placeholder="Subject Name" className="flex-[2] px-4 py-3 text-base placeholder-neutral-400 bg-surface-base dark:bg-surface-elev border-stroke-base" />
                     <div className="flex items-center gap-3 w-full sm:w-auto flex-1">
                       <div className="relative flex-1">
-                        <Select value={sub.grade} onChange={(e) => handleUpdateSubject(sub.id, 'grade', e.target.value)} className="font-bold bg-surface dark:bg-elev-1 border-border-base">
+                        <Select value={sub.grade} onChange={(e) => handleUpdateSubject(sub.id, 'grade', e.target.value)} className="font-bold bg-surface-base dark:bg-surface-elev border-stroke-base">
                           {LETTER_GRADES.map(g => (<option key={g} value={g}>{g} ({formatCurrency(DEFAULT_RATES[g as Grade])})</option>))}
                         </Select>
                       </div>
                       {subjects.length > 1 && (
-                        <button onClick={() => handleRemoveSubject(sub.id)} aria-label="Remove subject" className="w-11 h-11 flex items-center justify-center rounded-none border border-border-base text-muted hover:bg-semantic-destructive/10 hover:text-semantic-destructive hover:border-semantic-destructive transition-colors cursor-pointer">
+                        <button onClick={() => handleRemoveSubject(sub.id)} aria-label="Remove subject" className="w-11 h-11 flex items-center justify-center rounded-none border border-stroke-base text-content-muted hover:bg-semantic-destructive/10 hover:text-semantic-destructive hover:border-semantic-destructive transition-colors cursor-pointer">
                           <Trash2 className="w-5 h-5" />
                         </button>
                       )}
@@ -192,7 +192,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
                   </div>
                 ))}
               </div>
-              <button onClick={handleAddSubject} className="w-full py-3 border border-dashed border-border-base rounded-none text-muted hover:text-crimson hover:border-crimson hover:bg-brand/5 transition-all flex items-center justify-center gap-2 mb-6 text-sm font-bold cursor-pointer uppercase tracking-wider">
+              <button onClick={handleAddSubject} className="w-full py-3 border border-dashed border-stroke-base rounded-none text-content-muted hover:text-crimson hover:border-crimson hover:bg-brand/5 transition-all flex items-center justify-center gap-2 mb-6 text-sm font-bold cursor-pointer uppercase tracking-wider">
                 <Plus className="w-4 h-4" /> Add Subject
               </button>
             </div>
@@ -202,21 +202,21 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
               <div className="w-20 h-20 rounded-full bg-crimson flex items-center justify-center mx-auto mb-6 shadow-md">
                 <Check className="w-10 h-10 text-white" strokeWidth={3} />
               </div>
-              <h2 className="text-3xl font-bold font-heading text-primary mb-2">{name}'s Profile Ready!</h2>
-              <div className="mb-8 p-6 rounded-none bg-surface-2 dark:bg-white/5 border border-border-base">
-                <p className="text-xs font-bold text-muted uppercase tracking-widest mb-2">Hourly Rate</p>
+              <h2 className="text-3xl font-bold font-heading text-content-primary mb-2">{name}'s Profile Ready!</h2>
+              <div className="mb-8 p-6 rounded-none bg-surface-2 dark:bg-white/5 border border-stroke-base">
+                <p className="text-xs font-bold text-content-muted uppercase tracking-widest mb-2">Hourly Rate</p>
                 <div className="text-5xl leading-none font-bold font-heading text-gold font-serif">
                   {formatCurrency(totalHourlyRate)}
                 </div>
               </div>
-              <div className="flex flex-col gap-3 p-4 border border-border-base bg-surface-base dark:bg-white/5 rounded-sm">
-                <div className="flex justify-between items-center text-sm"><span className="text-muted">Profile Status</span><span className="text-primary font-bold">Invite Pending</span></div>
-                <div className="flex justify-between items-center text-sm"><span className="text-muted">Grade Level</span><span className="text-primary font-bold">{gradeLevel}</span></div>
+              <div className="flex flex-col gap-3 p-4 border border-stroke-base bg-surface-base dark:bg-white/5 rounded-sm">
+                <div className="flex justify-between items-center text-sm"><span className="text-content-muted">Profile Status</span><span className="text-content-primary font-bold">Invite Pending</span></div>
+                <div className="flex justify-between items-center text-sm"><span className="text-content-muted">Grade Level</span><span className="text-content-primary font-bold">{gradeLevel}</span></div>
               </div>
             </div>
           )}
         </div>
-        <div className="relative z-10 px-8 py-6 border-t border-border-base bg-surface dark:bg-elev-1 transition-colors">
+        <div className="relative z-10 px-8 py-6 border-t border-stroke-base bg-surface-base dark:bg-surface-elev transition-colors">
           <div className="flex gap-4">
             {step > 1 && (<button onClick={handleBack} className="flex-1 py-4 rounded-full font-bold text-charcoal bg-transparent border border-gold/30 hover:bg-surface-2 dark:hover:bg-white/5 transition-all cursor-pointer uppercase tracking-wider text-sm">Back</button>)}
             {step < 3 ? (
