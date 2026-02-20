@@ -116,7 +116,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 font-sans">
       <div className="absolute inset-0 bg-neutral-black/60 backdrop-blur-sm transition-opacity duration-300" onClick={onClose} />
-      <div className="relative w-full max-w-[560px] bg-surface dark:bg-elev-1 rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-border-base transition-colors">
+      <div className="relative w-full max-w-[560px] bg-[#F5F0E8] dark:bg-elev-1 rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-border-base transition-colors">
 
         <div className="relative z-10 px-8 pt-8 pb-6 flex items-center gap-5 border-b border-stroke-base">
           <div className="flex flex-1 gap-2">

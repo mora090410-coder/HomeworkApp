@@ -1166,7 +1166,7 @@ function DashboardPage() {
               {isActionMenuOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setIsActionMenuOpen(false)} />
-                  <div className="absolute right-0 mt-3 w-56 bg-surface dark:bg-elev-1 border border-border-base shadow-2xl z-[100] py-2 animate-in fade-in zoom-in-95 duration-200">
+                  <div className="absolute right-0 mt-3 w-56 bg-[#F5F0E8] dark:bg-elev-1 border border-border-base shadow-2xl z-[100] py-2 animate-in fade-in zoom-in-95 duration-200">
                     <button
                       onClick={() => { setIsActionMenuOpen(false); setIsAddChildModalOpen(true); }}
                       className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-primary hover:bg-brand hover:text-white dark:hover:bg-white/10 transition-colors group"
