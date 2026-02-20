@@ -69,7 +69,7 @@ body {
     .luminary-glow:not([data-text])::after {
         content: '';
         position: absolute;
-        inset: -20%;
+        inset: 10%;
         background-image: linear-gradient(to right, #3b82f6, #f97316);
         filter: blur(60px);
         opacity: 0.4;
