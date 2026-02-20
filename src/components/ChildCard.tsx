@@ -174,12 +174,12 @@ const ChildCard: React.FC<ChildCardProps> = ({
 
           {/* REVIEW BADGE (Conditional) */}
           {awaitingApproval.length > 0 && (
-            <div className="mb-6 flex items-center gap-3 px-4 py-3 bg-white/60 backdrop-blur-md border border-blue-500/10 rounded-xl shadow-sm animate-in fade-in slide-in-from-top-1">
+            <div className="mb-6 flex items-center gap-3 px-4 py-3 bg-white/40 dark:bg-white/5 backdrop-blur-md border border-brand/20 rounded-xl shadow-sm animate-in fade-in slide-in-from-top-1 transition-colors">
               <div className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand"></span>
               </div>
-              <span className="text-xs font-black uppercase tracking-[0.1em] text-blue-500">
+              <span className="text-xs font-black uppercase tracking-[0.1em] text-brand">
                 {awaitingApproval.length} {awaitingApproval.length === 1 ? 'Task' : 'Tasks'} to Review
               </span>
             </div>

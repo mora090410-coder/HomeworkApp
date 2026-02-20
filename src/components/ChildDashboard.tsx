@@ -227,12 +227,12 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
     const avatarColor = child.avatarColor || '#3b82f6';
 
     return (
-        <div className="min-h-screen bg-white text-content-primary font-sans selection:bg-primary-100">
+        <div className="min-h-screen bg-app text-primary font-sans selection:bg-primary/10 transition-colors duration-300">
             {/* 1. The Personal Vault (Atmospheric Header) */}
             <section
                 className="relative pt-12 pb-24 px-6 overflow-hidden"
                 style={{
-                    background: `linear-gradient(135deg, ${avatarColor}1a 0%, #ffffff 50%, #ffffff 100%)`
+                    background: `linear-gradient(135deg, ${avatarColor}1a 0%, transparent 50%, transparent 100%)`
                 }}
             >
                 <div
@@ -258,13 +258,13 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={() => setShowWithdrawModal(true)}
-                                className="flex items-center gap-2 px-4 py-2 bg-white/50 backdrop-blur-sm border border-stroke-base rounded-full text-sm font-bold text-content-primary hover:bg-white transition-all shadow-sm"
+                                className="flex items-center gap-2 px-4 py-2 bg-surface/50 backdrop-blur-sm border border-border-base rounded-full text-sm font-bold text-primary hover:bg-surface transition-all shadow-sm"
                             >
                                 <CreditCard className="w-4 h-4" /> Cash Out
                             </button>
                             <button
                                 onClick={onSignOut}
-                                className="p-2 text-content-subtle hover:text-content-primary transition-colors"
+                                className="p-2 text-muted hover:text-primary transition-colors"
                                 title="Sign Out"
                             >
                                 <LogOut className="w-5 h-5" />
@@ -274,24 +274,24 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
 
                     <div className="text-center">
                         <div className="inline-block relative group">
-                            <div className="absolute inset-0 bg-white/40 backdrop-blur-md rounded-3xl -m-6 border border-white/50 shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]" />
+                            <div className="absolute inset-0 bg-surface/40 backdrop-blur-md rounded-3xl -m-6 border border-white/10 shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]" />
 
                             <div className="relative">
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-content-subtle mb-2">Total Capital</p>
-                                <h1 className="text-7xl md:text-8xl font-sans font-extrabold tracking-tighter text-content-primary flex items-center justify-center gap-1">
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-2">Total Capital</p>
+                                <h1 className="text-7xl md:text-8xl font-sans font-extrabold tracking-tighter text-primary flex items-center justify-center gap-1">
                                     <span className="text-4xl md:text-5xl opacity-30 -mt-4">$</span>
                                     {balance.toFixed(2)}
                                 </h1>
                                 {pendingWithdrawalCents > 0 && (
                                     <div className="mt-4 flex flex-col items-center animate-in fade-in slide-in-from-top-2 duration-700">
-                                        <div className="flex items-center gap-2 text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-100 shadow-sm">
+                                        <div className="flex items-center gap-2 text-amber-600 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 shadow-sm">
                                             <TrendingUp className="w-3.5 h-3.5" />
                                             <span className="text-[10px] font-bold uppercase tracking-widest">
                                                 Lien: -{formatCurrency(centsToDollars(pendingWithdrawalCents))}
                                             </span>
                                         </div>
-                                        <p className="text-xs font-bold text-content-subtle mt-2 uppercase tracking-wide">
-                                            Spendable: <span className="text-content-primary font-mono">{formatCurrency(spendableBalance)}</span>
+                                        <p className="text-xs font-bold text-muted mt-2 uppercase tracking-wide">
+                                            Spendable: <span className="text-primary font-mono">{formatCurrency(spendableBalance)}</span>
                                         </p>
                                     </div>
                                 )}
@@ -299,8 +299,8 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                         </div>
 
                         <div className="mt-12 flex flex-col items-center">
-                            <h2 className="text-2xl font-bold font-heading text-content-primary">{child.name}</h2>
-                            <p className="text-sm font-medium text-content-subtle mt-1 flex items-center gap-2">
+                            <h2 className="text-2xl font-bold font-heading text-primary">{child.name}</h2>
+                            <p className="text-sm font-medium text-muted mt-1 flex items-center gap-2">
                                 <Sparkles className="w-3.5 h-3.5" style={{ color: avatarColor }} />
                                 Level: {child.gradeLevel}
                             </p>
@@ -313,32 +313,32 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                 {/* Savings Goals Section */}
                 <section>
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-bold font-heading flex items-center gap-2 text-neutral-800">
+                        <h3 className="text-lg font-bold font-heading flex items-center gap-2 text-primary">
                             <PiggyBank className="w-5 h-5 text-pink-500" />
                             Savings Goals
                         </h3>
                         <Button
                             onClick={() => setShowAddGoalModal(true)}
-                            className="bg-surface-app hover:bg-surface-2 text-neutral-600 border border-stroke-base rounded-full px-4 py-1.5 text-xs font-bold h-auto shadow-none"
+                            className="bg-surface hover:bg-surface-2 text-muted border border-border-base rounded-full px-4 py-1.5 text-xs font-bold h-auto shadow-none"
                         >
                             <Plus className="w-3.5 h-3.5 mr-1" /> New Goal
                         </Button>
                     </div>
 
                     {goals.length === 0 ? (
-                        <div className="bg-surface-app/50 border border-stroke-base border-dashed rounded-3xl p-10 text-center relative overflow-hidden group">
-                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        <div className="bg-surface border border-border-base border-dashed rounded-3xl p-10 text-center relative overflow-hidden group">
+                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/10 to-purple-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                             <div className="relative z-10 flex flex-col items-center">
-                                <div className="w-16 h-16 bg-white rounded-2xl shadow-sm border border-stroke-base flex items-center justify-center mb-4 transform group-hover:-translate-y-1 transition-transform">
+                                <div className="w-16 h-16 bg-surface rounded-2xl shadow-sm border border-border-base flex items-center justify-center mb-4 transform group-hover:-translate-y-1 transition-transform">
                                     <Sparkles className="w-8 h-8 text-indigo-400" />
                                 </div>
-                                <h4 className="text-xl font-bold text-content-primary mb-2 font-heading">Start a New Goal</h4>
-                                <p className="text-sm text-content-subtle max-w-sm mb-8 leading-relaxed">
+                                <h4 className="text-xl font-bold text-primary mb-2 font-heading">Start a New Goal</h4>
+                                <p className="text-sm text-muted max-w-sm mb-8 leading-relaxed">
                                     What are you working toward? A new game? A softball bat? Start your first goal here.
                                 </p>
                                 <Button
                                     onClick={() => setShowAddGoalModal(true)}
-                                    className="bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-4 px-8 rounded-2xl shadow-xl shadow-neutral-900/10 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                                    className="bg-primary hover:bg-primary/90 text-app font-bold py-4 px-8 rounded-2xl shadow-xl shadow-primary/10 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
                                 >
                                     <Plus className="w-5 h-5" />
                                     Create First Goal
@@ -352,24 +352,24 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                 const isComplete = progress >= 100;
 
                                 return (
-                                    <div key={goal.id} className="glass-card mb-4 border border-stroke-base rounded-2xl p-6 hover:shadow-md transition-all group overflow-hidden relative">
+                                    <div key={goal.id} className="glass-card mb-4 border border-border-base rounded-2xl p-6 hover:shadow-md transition-all group overflow-hidden relative">
                                         <div className="flex justify-between items-start mb-4">
                                             <div className="flex items-center gap-2">
-                                                <h4 className="font-bold text-content-primary">{goal.name}</h4>
+                                                <h4 className="font-bold text-primary">{goal.name}</h4>
                                                 <button
                                                     onClick={() => openEditGoalModal(goal)}
-                                                    className="p-1 text-content-subtle hover:text-content-primary transition-colors opacity-0 group-hover:opacity-100"
+                                                    className="p-1 text-muted hover:text-primary transition-colors opacity-0 group-hover:opacity-100"
                                                     title="Edit Goal"
                                                 >
                                                     <Edit2 className="w-3.5 h-3.5" />
                                                 </button>
                                             </div>
                                             <div className="text-right">
-                                                <span className="text-xl font-mono font-bold text-content-primary">{Math.floor(progress)}%</span>
+                                                <span className="text-xl font-mono font-bold text-primary">{Math.floor(progress)}%</span>
                                             </div>
                                         </div>
 
-                                        <div className="w-full h-4 bg-surface-2 rounded-full mb-2 overflow-hidden border border-neutral-50 shadow-inner">
+                                        <div className="w-full h-4 bg-surface-2 rounded-full mb-2 overflow-hidden border border-border-base/10 shadow-inner">
                                             <div
                                                 className="h-full rounded-full transition-all duration-1000 ease-out relative shadow-[0_0_10px_rgba(0,0,0,0.1)]"
                                                 style={{
@@ -381,7 +381,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                                 <div className="absolute inset-0 bg-white/20 animate-pulse" />
                                             </div>
                                         </div>
-                                        <p className="text-xs font-bold text-content-subtle text-center mb-6">
+                                        <p className="text-xs font-bold text-muted text-center mb-6">
                                             {formatCurrency(centsToDollars(goal.currentAmountCents))} of {formatCurrency(centsToDollars(goal.targetAmountCents))} saved. Only {formatCurrency(centsToDollars(goal.targetAmountCents - goal.currentAmountCents))} to go!
                                         </p>
 
@@ -396,7 +396,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                             ) : (
                                                 <Button
                                                     onClick={() => setShowTransferModal(goal.id)}
-                                                    className="flex-1 bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-2 rounded-xl border-none"
+                                                    className="flex-1 bg-primary hover:bg-primary/90 text-app font-bold py-2 rounded-xl border-none"
                                                 >
                                                     Transfer Funds
                                                 </Button>
@@ -412,36 +412,36 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                 {/* 2. Available Bounties (Market) */}
                 <section>
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-bold font-heading flex items-center gap-2">
+                        <h3 className="text-lg font-bold font-heading flex items-center gap-2 text-primary">
                             <Zap className="w-5 h-5 text-amber-500" />
                             Available Bounties
                         </h3>
-                        <span className="text-[10px] font-bold text-content-subtle uppercase tracking-widest bg-surface-2 px-2 py-1 rounded">
+                        <span className="text-[10px] font-bold text-muted uppercase tracking-widest bg-surface-2 px-2 py-1 rounded">
                             {openBounties.length} Markets
                         </span>
                     </div>
 
                     {openBounties.length === 0 ? (
-                        <div className="bg-surface-app border border-stroke-base border-dashed rounded-2xl p-12 text-center">
-                            <p className="text-lg font-medium text-neutral-600">The Market is currently quiet.</p>
-                            <p className="text-sm text-content-subtle mt-1">Check back soon for new opportunities.</p>
+                        <div className="bg-surface border border-border-base border-dashed rounded-2xl p-12 text-center">
+                            <p className="text-lg font-medium text-primary">The Market is currently quiet.</p>
+                            <p className="text-sm text-muted mt-1">Check back soon for new opportunities.</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {openBounties.map((task: Task) => (
                                 <div
                                     key={task.id}
-                                    className="group glass-card border border-stroke-base rounded-2xl p-6 hover:shadow-xl hover:border-stroke-base transition-all duration-300 relative overflow-hidden"
+                                    className="group glass-card border border-border-base rounded-2xl p-6 hover:shadow-xl transition-all duration-300 relative overflow-hidden"
                                 >
                                     <div className="flex justify-between items-start">
                                         <div className="flex-1">
                                             <div className="text-3xl mb-3 group-hover:scale-110 transition-transform duration-300">{getTaskIcon(task.name)}</div>
-                                            <h4 className="text-sm font-bold text-content-subtle uppercase tracking-wide mb-1 line-clamp-1">{task.name}</h4>
-                                            <p className="text-xs text-content-subtle font-medium">{task.baselineMinutes}m investment</p>
+                                            <h4 className="text-sm font-bold text-muted uppercase tracking-wide mb-1 line-clamp-1">{task.name}</h4>
+                                            <p className="text-xs text-muted font-medium">{task.baselineMinutes}m investment</p>
                                         </div>
                                         <div className="text-right">
                                             <div
-                                                className="luminary-glow inline-block text-3xl font-mono font-bold"
+                                                className="luminary-glow inline-block text-3xl font-mono font-bold text-primary"
                                                 data-text={getTaskDisplayValue(task).replace('$', '')}
                                             >
                                                 {getTaskDisplayValue(task).replace('$', '')}
@@ -477,18 +477,18 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                 {/* 3. My Hustle (Work in Progress) */}
                 <section>
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-lg font-bold font-heading flex items-center gap-2 text-blue-600">
-                            <Briefcase className="w-5 h-5" />
+                        <h3 className="text-lg font-bold font-heading flex items-center gap-2 text-primary">
+                            <Briefcase className="w-5 h-5 text-blue-500" />
                             Current Hustle
                         </h3>
-                        <span className="text-[10px] font-bold text-content-subtle uppercase tracking-widest bg-surface-2 px-2 py-1 rounded">
+                        <span className="text-[10px] font-bold text-muted uppercase tracking-widest bg-surface-2 px-2 py-1 rounded">
                             {myHustle.length} Working
                         </span>
                     </div>
 
                     {myHustle.length === 0 ? (
-                        <div className="bg-surface-app/50 border border-stroke-base rounded-2xl p-8 text-center">
-                            <p className="text-sm text-content-subtle italic">No tasks currently being worked on. Explore the marketplace!</p>
+                        <div className="bg-surface border border-border-base rounded-2xl p-8 text-center">
+                            <p className="text-sm text-muted italic">No tasks currently being worked on. Explore the marketplace!</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 gap-4">
@@ -497,15 +497,15 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                 return (
                                     <div
                                         key={task.id}
-                                        className="glass-card border border-stroke-base rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6"
+                                        className="glass-card border border-border-base rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6"
                                     >
                                         <div className="flex items-center gap-4">
                                             <div className="text-3xl">{getTaskIcon(task.name)}</div>
                                             <div>
-                                                <h4 className="text-base font-bold text-content-primary">{task.name}</h4>
+                                                <h4 className="text-base font-bold text-primary">{task.name}</h4>
                                                 <div className="flex items-center gap-2 mt-0.5">
-                                                    <span className="text-xs font-medium text-content-subtle">{task.baselineMinutes}m</span>
-                                                    <span className="w-1 h-1 bg-neutral-300 rounded-full" />
+                                                    <span className="text-xs font-medium text-muted">{task.baselineMinutes}m</span>
+                                                    <span className="w-1 h-1 bg-border-base rounded-full" />
                                                     <span className="text-sm font-mono font-bold text-emerald-600">{getTaskDisplayValue(task)}</span>
                                                 </div>
                                             </div>
@@ -513,7 +513,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
 
                                         <div className="flex items-center gap-3">
                                             {isPending ? (
-                                                <div className="flex items-center gap-2 px-4 py-2 bg-white border border-stroke-base rounded-full text-xs font-bold text-content-subtle uppercase tracking-wider shadow-sm">
+                                                <div className="flex items-center gap-2 px-4 py-2 bg-surface border border-border-base rounded-full text-xs font-bold text-muted uppercase tracking-wider shadow-sm">
                                                     <TrendingUp className="w-3.5 h-3.5 animate-pulse" /> Sent for Review
                                                 </div>
                                             ) : (
@@ -543,40 +543,40 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
 
             {/* Modals */}
             {showWithdrawModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-neutral-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-surface rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border border-white/5">
                         <div className="p-8">
                             <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-2xl font-bold font-heading">Request Payout</h3>
-                                <button onClick={() => setShowWithdrawModal(false)} className="text-content-subtle hover:text-content-primary p-2">&times;</button>
+                                <h3 className="text-2xl font-bold font-heading text-primary">Request Payout</h3>
+                                <button onClick={() => setShowWithdrawModal(false)} className="text-muted hover:text-primary p-2">&times;</button>
                             </div>
 
                             <form onSubmit={handleRequestWithdrawal} className="space-y-6">
-                                <div className="p-4 bg-surface-app rounded-2xl border border-stroke-base">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-content-subtle mb-1">Available to Withdraw</p>
-                                    <p className="text-2xl font-mono font-bold text-content-primary">{formatCurrency(spendableBalance)}</p>
+                                <div className="p-4 bg-surface-2 rounded-2xl border border-border-base">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted mb-1">Available to Withdraw</p>
+                                    <p className="text-2xl font-mono font-bold text-primary">{formatCurrency(spendableBalance)}</p>
                                 </div>
 
                                 <div>
-                                    <label className="block text-[10px] font-black uppercase tracking-widest text-content-subtle mb-2">Amount ($)</label>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-2">Amount ($)</label>
                                     <input
                                         type="number"
                                         step="0.01"
                                         required
                                         value={withdrawAmount}
                                         onChange={(e) => setWithdrawAmount(e.target.value)}
-                                        className="w-full bg-surface-app border border-stroke-base rounded-xl px-5 py-4 font-mono text-xl focus:ring-2 focus:ring-neutral-900 focus:outline-none"
+                                        className="w-full bg-surface-2 border border-border-base rounded-xl px-5 py-4 font-mono text-xl text-primary focus:ring-2 focus:ring-amber-500 focus:outline-none placeholder:text-muted"
                                         placeholder="0.00"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-[10px] font-black uppercase tracking-widest text-content-subtle mb-2">What is it for?</label>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-2">What is it for?</label>
                                     <input
                                         type="text"
                                         value={withdrawMemo}
                                         onChange={(e) => setWithdrawMemo(e.target.value)}
-                                        className="w-full bg-surface-app border border-stroke-base rounded-xl px-5 py-4 text-sm focus:ring-2 focus:ring-neutral-900 focus:outline-none"
+                                        className="w-full bg-surface-2 border border-border-base rounded-xl px-5 py-4 text-sm text-primary focus:ring-2 focus:ring-amber-500 focus:outline-none placeholder:text-muted"
                                         placeholder="Toys, robux, snacks..."
                                     />
                                 </div>
@@ -584,7 +584,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                 <Button
                                     type="submit"
                                     disabled={isProcessing || !withdrawAmount || dollarsToCents(parseFloat(withdrawAmount)) > spendableBalanceCents}
-                                    className="w-full bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-4 rounded-2xl shadow-xl shadow-neutral-900/20 active:scale-[0.98] transition-all"
+                                    className="w-full bg-primary hover:bg-primary/90 text-app font-bold py-4 rounded-2xl shadow-xl shadow-primary/20 active:scale-[0.98] transition-all"
                                 >
                                     {isProcessing ? 'Processing...' : 'Send Request to Parent'}
                                 </Button>
@@ -595,30 +595,30 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
             )}
 
             {showTransferModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-neutral-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-surface rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border border-white/5">
                         <div className="p-8">
                             <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-2xl font-bold font-heading">Allocate Capital</h3>
-                                <button onClick={() => setShowTransferModal(null)} className="text-content-subtle hover:text-content-primary p-2">&times;</button>
+                                <h3 className="text-2xl font-bold font-heading text-primary">Allocate Capital</h3>
+                                <button onClick={() => setShowTransferModal(null)} className="text-muted hover:text-primary p-2">&times;</button>
                             </div>
 
-                            <div className="p-4 bg-surface-app rounded-2xl border border-stroke-base mb-6">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-content-subtle mb-1">Available to Transfer</p>
-                                <p className="text-2xl font-mono font-bold text-content-primary">{formatCurrency(spendableBalance)}</p>
+                            <div className="p-4 bg-surface-2 rounded-2xl border border-border-base mb-6">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-muted mb-1">Available to Transfer</p>
+                                <p className="text-2xl font-mono font-bold text-primary">{formatCurrency(spendableBalance)}</p>
                             </div>
 
                             <div className="space-y-6">
                                 <div>
-                                    <label className="block text-[10px] font-black uppercase tracking-widest text-content-subtle mb-2">Amount ($)</label>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-2">Amount ($)</label>
                                     <input
                                         type="number"
                                         step="0.01"
                                         value={transferAmount}
                                         onChange={(e) => setTransferAmount(e.target.value)}
-                                        className={`w-full bg-surface-app border rounded-xl px-5 py-4 font-mono text-xl focus:ring-2 focus:outline-none ${parseFloat(transferAmount) > spendableBalance
-                                            ? 'border-red-300 focus:ring-red-500 text-red-900'
-                                            : 'border-stroke-base focus:ring-neutral-900'
+                                        className={`w-full bg-surface-2 border rounded-xl px-5 py-4 font-mono text-xl text-primary focus:ring-2 focus:outline-none placeholder:text-muted ${parseFloat(transferAmount) > spendableBalance
+                                            ? 'border-red-500/50 focus:ring-red-500 text-red-500'
+                                            : 'border-border-base focus:ring-amber-500'
                                             }`}
                                         placeholder="0.00"
                                     />
@@ -633,7 +633,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                 <Button
                                     onClick={() => handleTransferToGoal(showTransferModal)}
                                     disabled={isProcessing || !transferAmount || dollarsToCents(parseFloat(transferAmount)) > spendableBalanceCents}
-                                    className="w-full bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-4 rounded-2xl shadow-xl shadow-neutral-900/20"
+                                    className="w-full bg-primary hover:bg-primary/90 text-app font-bold py-4 rounded-2xl shadow-xl shadow-primary/20"
                                 >
                                     {isProcessing ? 'Processing...' : 'Securely Allocate to Goal'}
                                 </Button>
@@ -644,36 +644,36 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
             )}
 
             {showAddGoalModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-neutral-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-surface rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border border-white/5">
                         <div className="p-8">
                             <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-2xl font-bold font-heading">New Savings Goal</h3>
-                                <button onClick={() => setShowAddGoalModal(false)} className="text-content-subtle hover:text-content-primary p-2">&times;</button>
+                                <h3 className="text-2xl font-bold font-heading text-primary">New Savings Goal</h3>
+                                <button onClick={() => setShowAddGoalModal(false)} className="text-muted hover:text-primary p-2">&times;</button>
                             </div>
 
                             <form onSubmit={handleAddGoal} className="space-y-6">
                                 <div>
-                                    <label className="block text-[10px] font-black uppercase tracking-widest text-content-subtle mb-2">Goal Name</label>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-2">Goal Name</label>
                                     <input
                                         type="text"
                                         required
                                         value={newGoalName}
                                         onChange={(e) => setNewGoalName(e.target.value)}
-                                        className="w-full bg-surface-app border border-stroke-base rounded-xl px-5 py-4 text-base focus:ring-2 focus:ring-neutral-900 focus:outline-none"
+                                        className="w-full bg-surface-2 border border-border-base rounded-xl px-5 py-4 text-base text-primary focus:ring-2 focus:ring-amber-500 focus:outline-none placeholder:text-muted"
                                         placeholder="e.g., New Bat"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-[10px] font-black uppercase tracking-widest text-content-subtle mb-2">Target Amount ($)</label>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-2">Target Amount ($)</label>
                                     <input
                                         type="number"
                                         step="0.01"
                                         required
                                         value={newGoalTarget}
                                         onChange={(e) => setNewGoalTarget(e.target.value)}
-                                        className="w-full bg-surface-app border border-stroke-base rounded-xl px-5 py-4 font-mono text-xl focus:ring-2 focus:ring-neutral-900 focus:outline-none"
+                                        className="w-full bg-surface-2 border border-border-base rounded-xl px-5 py-4 font-mono text-xl text-primary focus:ring-2 focus:ring-amber-500 focus:outline-none placeholder:text-muted"
                                         placeholder="e.g., 150"
                                     />
                                 </div>
@@ -681,7 +681,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                 <Button
                                     type="submit"
                                     disabled={isProcessing || !newGoalName || !newGoalTarget}
-                                    className="w-full bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-4 rounded-2xl shadow-xl shadow-neutral-900/20"
+                                    className="w-full bg-primary hover:bg-primary/90 text-app font-bold py-4 rounded-2xl shadow-xl shadow-primary/20"
                                 >
                                     {isProcessing ? 'Creating...' : 'Establish Savings Goal'}
                                 </Button>
@@ -692,36 +692,36 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
             )}
 
             {showEditGoalModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-neutral-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-surface rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border border-white/5">
                         <div className="p-8">
                             <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-2xl font-bold font-heading">Edit Savings Goal</h3>
-                                <button onClick={() => setShowEditGoalModal(null)} className="text-content-subtle hover:text-content-primary p-2">&times;</button>
+                                <h3 className="text-2xl font-bold font-heading text-primary">Edit Savings Goal</h3>
+                                <button onClick={() => setShowEditGoalModal(null)} className="text-muted hover:text-primary p-2">&times;</button>
                             </div>
 
                             <form onSubmit={handleEditGoal} className="space-y-6">
                                 <div>
-                                    <label className="block text-[10px] font-black uppercase tracking-widest text-content-subtle mb-2">Goal Name</label>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-2">Goal Name</label>
                                     <input
                                         type="text"
                                         required
                                         value={editGoalName}
                                         onChange={(e) => setEditGoalName(e.target.value)}
-                                        className="w-full bg-surface-app border border-stroke-base rounded-xl px-5 py-4 text-base focus:ring-2 focus:ring-neutral-900 focus:outline-none"
+                                        className="w-full bg-surface-2 border border-border-base rounded-xl px-5 py-4 text-base text-primary focus:ring-2 focus:ring-amber-500 focus:outline-none placeholder:text-muted"
                                         placeholder="e.g., New Bat"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-[10px] font-black uppercase tracking-widest text-content-subtle mb-2">Target Amount ($)</label>
+                                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-2">Target Amount ($)</label>
                                     <input
                                         type="number"
                                         step="0.01"
                                         required
                                         value={editGoalTarget}
                                         onChange={(e) => setEditGoalTarget(e.target.value)}
-                                        className="w-full bg-surface-app border border-stroke-base rounded-xl px-5 py-4 font-mono text-xl focus:ring-2 focus:ring-neutral-900 focus:outline-none"
+                                        className="w-full bg-surface-2 border border-border-base rounded-xl px-5 py-4 font-mono text-xl text-primary focus:ring-2 focus:ring-amber-500 focus:outline-none placeholder:text-muted"
                                         placeholder="e.g., 150"
                                     />
                                 </div>
@@ -739,7 +739,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                     <Button
                                         type="submit"
                                         disabled={isProcessing || !editGoalName || !editGoalTarget}
-                                        className="flex-1 bg-neutral-900 hover:bg-neutral-800 text-white font-bold py-4 rounded-2xl shadow-xl shadow-neutral-900/20 active:scale-[0.98] transition-all"
+                                        className="flex-1 bg-primary hover:bg-primary/90 text-app font-bold py-4 rounded-2xl shadow-xl shadow-primary/20 active:scale-[0.98] transition-all"
                                     >
                                         {isProcessing ? 'Saving...' : 'Save Changes'}
                                     </Button>

@@ -222,17 +222,17 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
   };
 
   return (
-    <div className="min-h-screen bg-photon-white dark:bg-obsidian flex flex-col items-center justify-center p-6 text-content-primary font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-app flex flex-col items-center justify-center p-6 text-primary font-sans relative overflow-hidden transition-colors duration-300">
 
       <div className="w-full max-w-md relative z-10 animate-in fade-in zoom-in-95 duration-500">
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-32 h-32 mb-6 luminary-glow rounded-[2rem] mx-auto">
             <img src="/images/HomeWorkAssets/homework-icon-new.png" alt="HomeWork App" className="w-[15rem] h-[15rem] object-contain block transform scale-[2.5]" />
           </div>
-          <h1 className="text-3xl font-bold font-heading tracking-tight mb-2 text-obsidian dark:text-white">
+          <h1 className="text-3xl font-bold font-heading tracking-tight mb-2 text-primary">
             {mode === 'LOGIN' ? 'Welcome Back' : 'Create Account'}
           </h1>
-          <p className="text-content-subtle">
+          <p className="text-muted">
             {mode === 'LOGIN' ? 'Sign in to manage your family economy' : 'Start your household workspace'}
           </p>
         </div>
@@ -240,12 +240,12 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
         <div className="glass-card p-8">
           {mode === 'LOGIN' && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-1 rounded-full bg-neutral-100 dark:bg-white/10 p-1">
+              <div className="grid grid-cols-2 gap-1 rounded-full bg-surface-2 p-1">
                 <button
                   type="button"
                   className={`px-3 py-2.5 text-sm font-bold tracking-wide transition-all duration-300 rounded-full ${loginVariant === 'PARENT'
-                    ? 'bg-white shadow-sm dark:bg-white/20 text-obsidian dark:text-white'
-                    : 'text-content-subtle hover:text-content-primary hover:bg-white/50 dark:hover:bg-white/5'
+                    ? 'bg-surface shadow-sm text-primary'
+                    : 'text-muted hover:text-primary hover:bg-white/5'
                     }`}
                   onClick={() => {
                     setLoginVariant('PARENT');
@@ -258,8 +258,8 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
                 <button
                   type="button"
                   className={`px-3 py-2.5 text-sm font-bold tracking-wide transition-all duration-300 rounded-full ${loginVariant === 'CHILD'
-                    ? 'bg-white shadow-sm dark:bg-white/20 text-obsidian dark:text-white'
-                    : 'text-content-subtle hover:text-content-primary hover:bg-white/50 dark:hover:bg-white/5'
+                    ? 'bg-surface shadow-sm text-primary'
+                    : 'text-muted hover:text-primary hover:bg-white/5'
                     }`}
                   onClick={() => {
                     setLoginVariant('CHILD');
@@ -275,7 +275,7 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
                 <form onSubmit={handleLogin} className="space-y-5">
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-[11px] font-bold uppercase tracking-widest text-content-subtle mb-2">Email</label>
+                      <label className="block text-[11px] font-bold uppercase tracking-widest text-muted mb-2">Email</label>
                       <Input
                         type="email"
                         value={email}
@@ -286,7 +286,7 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-bold uppercase tracking-widest text-content-subtle mb-2">Password</label>
+                      <label className="block text-[11px] font-bold uppercase tracking-widest text-muted mb-2">Password</label>
                       <Input
                         type="password"
                         value={password}
@@ -314,7 +314,7 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
                   </Button>
 
                   <div className="text-center pt-2">
-                    <Link to="/signup" className="text-sm text-content-subtle hover:text-blue-500 transition-colors">
+                    <Link to="/signup" className="text-sm text-muted hover:text-blue-500 transition-colors">
                       Don&apos;t have an account? <span className="text-blue-500 font-semibold underline decoration-primary-cardinal/30 underline-offset-4">Sign Up</span>
                     </Link>
                   </div>
@@ -323,7 +323,7 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
                 <form onSubmit={handleChildLogin} className="space-y-5">
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-[11px] font-bold uppercase tracking-widest text-content-subtle mb-2">Username</label>
+                      <label className="block text-[11px] font-bold uppercase tracking-widest text-muted mb-2">Username</label>
                       <Input
                         type="text"
                         value={childUsername}
@@ -335,7 +335,7 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-bold uppercase tracking-widest text-content-subtle mb-2">PIN (4 digits)</label>
+                      <label className="block text-[11px] font-bold uppercase tracking-widest text-muted mb-2">PIN (4 digits)</label>
                       <Input
                         type="password"
                         value={childPin}
@@ -371,26 +371,26 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
 
           {mode === 'SIGNUP_INIT' && (
             <div className="space-y-4">
-              <button onClick={() => setMode('SIGNUP_CREATE')} className="w-full p-5 bg-surface-app border border-stroke-base text-left hover:bg-surface-2 hover:border-stroke-base transition-all group relative overflow-hidden">
+              <button onClick={() => setMode('SIGNUP_CREATE')} className="w-full p-5 bg-surface border border-border-base text-left hover:bg-surface-2 transition-all group relative overflow-hidden">
                 <div className="relative z-10">
-                  <div className="font-bold text-content-primary mb-1.5 flex items-center justify-between text-lg">
+                  <div className="font-bold text-primary mb-1.5 flex items-center justify-between text-lg">
                     New Household <ArrowRight className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
                   </div>
-                  <div className="text-sm text-content-subtle">Set up a family workspace from scratch</div>
+                  <div className="text-sm text-muted">Set up a family workspace from scratch</div>
                 </div>
               </button>
 
-              <button onClick={() => setMode('SIGNUP_JOIN')} className="w-full p-5 bg-surface-app border border-stroke-base text-left hover:bg-surface-2 hover:border-stroke-base transition-all group relative overflow-hidden">
+              <button onClick={() => setMode('SIGNUP_JOIN')} className="w-full p-5 bg-surface border border-border-base text-left hover:bg-surface-2 transition-all group relative overflow-hidden">
                 <div className="relative z-10">
-                  <div className="font-bold text-content-primary mb-1.5 flex items-center justify-between text-lg">
+                  <div className="font-bold text-primary mb-1.5 flex items-center justify-between text-lg">
                     Join Household <ArrowRight className="w-5 h-5 opacity-50 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0" />
                   </div>
-                  <div className="text-sm text-content-subtle">I have an invite code</div>
+                  <div className="text-sm text-muted">I have an invite code</div>
                 </div>
               </button>
 
               <div className="text-center mt-8">
-                <Link to="/login" className="text-sm text-content-subtle hover:text-blue-500 transition-colors">
+                <Link to="/login" className="text-sm text-muted hover:text-blue-500 transition-colors">
                   Already have an account? <span className="text-blue-500 font-semibold underline decoration-primary-cardinal/30 underline-offset-4">Log In</span>
                 </Link>
               </div>
@@ -401,31 +401,31 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
             <form onSubmit={handleSignUp} className="space-y-5">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-widest text-content-subtle mb-2">Full Name</label>
+                  <label className="block text-[11px] font-bold uppercase tracking-widest text-muted mb-2">Full Name</label>
                   <Input type="text" value={name} onChange={(event) => setName(event.target.value)} className="w-full rounded-xl" placeholder="John Doe" required />
                 </div>
 
                 {mode === 'SIGNUP_CREATE' && (
                   <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-widest text-content-subtle mb-2">Household Name</label>
+                    <label className="block text-[11px] font-bold uppercase tracking-widest text-muted mb-2">Household Name</label>
                     <Input type="text" value={householdName} onChange={(event) => setHouseholdName(event.target.value)} className="w-full rounded-xl" placeholder="The Smith Family" required />
                   </div>
                 )}
 
                 {mode === 'SIGNUP_JOIN' && (
                   <div>
-                    <label className="block text-[11px] font-bold uppercase tracking-widest text-content-subtle mb-2">Invite Code</label>
+                    <label className="block text-[11px] font-bold uppercase tracking-widest text-muted mb-2">Invite Code</label>
                     <Input type="text" value={inviteCode} onChange={(event) => setInviteCode(event.target.value)} className="w-full rounded-xl" placeholder="Enter code" required />
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-widest text-content-subtle mb-2">Email</label>
+                  <label className="block text-[11px] font-bold uppercase tracking-widest text-muted mb-2">Email</label>
                   <Input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="w-full rounded-xl" placeholder="name@example.com" required />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-widest text-content-subtle mb-2">Password</label>
+                  <label className="block text-[11px] font-bold uppercase tracking-widest text-muted mb-2">Password</label>
                   <Input type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="w-full rounded-xl" placeholder="min. 6 characters" required minLength={6} />
                 </div>
               </div>
@@ -446,7 +446,7 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
               </Button>
 
               <div className="text-center mt-2">
-                <button type="button" onClick={() => setMode('SIGNUP_INIT')} className="text-sm text-content-subtle hover:text-content-primary transition-colors">
+                <button type="button" onClick={() => setMode('SIGNUP_INIT')} className="text-sm text-muted hover:text-primary transition-colors">
                   Back
                 </button>
               </div>

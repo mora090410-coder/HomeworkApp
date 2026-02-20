@@ -10,16 +10,16 @@ const PillarCard: React.FC<{ title: string; body: string }> = ({ title, body }) 
 
 export default function LandingPage() {
     return (
-        <div className="relative min-h-screen w-full bg-cream dark:bg-charcoal selection:bg-crimson/30 overflow-x-hidden text-neutral-text dark:text-neutral-400 leading-relaxed font-sans">
+        <div className="relative min-h-screen w-full bg-app selection:bg-crimson/30 overflow-x-hidden text-primary leading-relaxed font-sans transition-colors duration-300">
             {/* Header */}
-            <header className="sticky top-0 w-full z-50 backdrop-blur-xl bg-cream/70 dark:bg-charcoal/70 border-b border-cream-mid dark:border-charcoal-mid transition-colors duration-300">
+            <header className="sticky top-0 w-full z-50 backdrop-blur-xl bg-app/70 border-b border-border-base transition-colors duration-300">
                 <div className="max-w-[1240px] mx-auto px-6 sm:px-10 h-20 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <img src="/images/HomeWorkAssets/homework-icon-new.svg" alt="HomeWork" className="h-8 w-auto" />
                         <span className="text-xl font-serif text-charcoal dark:text-cream tracking-tight"><span className="font-normal">Home</span><span className="font-bold">Work</span></span>
                     </div>
                     <div className="flex items-center gap-6">
-                        <Link to="/login" className="text-sm font-semibold text-charcoal dark:text-cream hover:text-crimson transition-colors">
+                        <Link to="/login" className="text-sm font-semibold text-primary hover:text-crimson transition-colors">
                             Sign In
                         </Link>
                         <Link to="/signup" className="text-sm font-bold bg-crimson text-white px-5 py-2.5 rounded-full hover:bg-burgundy transition-colors shadow-sm hidden sm:inline-block">
@@ -37,16 +37,16 @@ export default function LandingPage() {
                         alt="HomeWork Icon"
                         className="w-24 md:w-32 h-auto relative z-10"
                     />
-                    <span className="text-4xl md:text-5xl font-serif text-charcoal dark:text-cream tracking-tight leading-none">
+                    <span className="text-4xl md:text-5xl font-serif text-primary tracking-tight leading-none">
                         <span className="font-normal">Home</span><span className="font-bold">Work</span>
                     </span>
                 </div>
 
-                <h1 className="text-xl text-neutral-text font-light mb-2 font-sans tracking-tighter">
+                <h1 className="text-xl text-muted font-light mb-2 font-sans tracking-tighter">
                     "Can I have money?"
                 </h1>
 
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-charcoal dark:text-cream font-sans tracking-tighter max-w-4xl leading-tight">
+                <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-primary font-sans tracking-tighter max-w-4xl leading-tight">
                     HomeWork turns that question into a contract.
                 </h2>
 
@@ -58,7 +58,7 @@ export default function LandingPage() {
                     Start Free Trial
                 </Link>
 
-                <p className="text-neutral-400 dark:text-neutral-500 text-xs mt-6 font-light tracking-wide leading-relaxed">
+                <p className="text-muted text-xs mt-6 font-light tracking-wide leading-relaxed">
                     14 days free, then $14.99/mo. Cancel anytime.
                 </p>
             </main>
@@ -66,12 +66,12 @@ export default function LandingPage() {
             {/* 2. THE SHIFT */}
             <section className="w-full py-32 px-6 bg-transparent flex flex-col items-center border-t border-b border-cream-mid dark:border-white/5">
                 <div className="max-w-4xl text-center">
-                    <h2 className="text-3xl md:text-5xl font-bold text-charcoal dark:text-cream mb-8 font-sans tracking-tighter">
+                    <h2 className="text-3xl md:text-5xl font-bold text-primary mb-8 font-sans tracking-tighter">
                         Your child doesn't lack motivation.
                     </h2>
-                    <p className="text-2xl md:text-3xl text-neutral-text dark:text-neutral-400 leading-relaxed font-sans tracking-tighter">
+                    <p className="text-2xl md:text-3xl text-primary leading-relaxed font-sans tracking-tighter">
                         They lack a system where effort has visible, immediate value.<br />
-                        <span className="text-charcoal dark:text-cream font-bold">HomeWork is that system.</span><br />
+                        <span className="text-primary font-bold">HomeWork is that system.</span><br />
                         Parents assign contracts. Children earn capital. Everyone understands why.
                     </p>
                 </div>
@@ -79,10 +79,10 @@ export default function LandingPage() {
 
             {/* 3. HOW IT WORKS */}
             <section className="w-full max-w-[1240px] mx-auto px-6 py-32">
-                <h2 className="text-4xl md:text-5xl font-bold text-charcoal dark:text-cream text-center mb-6 font-sans tracking-tighter">
+                <h2 className="text-4xl md:text-5xl font-bold text-primary text-center mb-6 font-sans tracking-tighter">
                     For you. Done in under a minute.
                 </h2>
-                <p className="text-center text-xl text-neutral-text dark:text-neutral-400 mb-20 font-sans tracking-tight">
+                <p className="text-center text-xl text-muted mb-20 font-sans tracking-tight">
                     That's the whole system. It runs itself.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -95,8 +95,8 @@ export default function LandingPage() {
                             <span className="text-7xl font-black bg-ascendant-gradient bg-clip-text text-transparent mb-8 leading-none">
                                 {step.num}
                             </span>
-                            <h3 className="text-2xl font-bold text-obsidian dark:text-white mb-4 font-sans tracking-tighter">{step.title}</h3>
-                            <p className="text-lg text-neutral-text dark:text-neutral-400 leading-relaxed">{step.desc}</p>
+                            <h3 className="text-2xl font-bold text-primary mb-4 font-sans tracking-tighter">{step.title}</h3>
+                            <p className="text-lg text-primary leading-relaxed">{step.desc}</p>
                         </div>
                     ))}
                 </div>
@@ -139,13 +139,13 @@ export default function LandingPage() {
                         One plan. One family. Everything included.
                     </h2>
                     <div className="flex items-baseline justify-center mb-16">
-                        <span className="text-8xl md:text-[10rem] font-black text-charcoal dark:text-cream tracking-tighter font-sans leading-none">
+                        <span className="text-8xl md:text-[10rem] font-black text-primary tracking-tighter font-sans leading-none">
                             $14.99
                         </span>
                         <span className="text-3xl text-neutral-500 ml-4 font-sans tracking-tight">/mo</span>
                     </div>
 
-                    <div className="flex flex-col md:flex-row flex-wrap justify-center gap-x-12 gap-y-6 text-xl text-charcoal dark:text-cream font-medium mb-16 leading-relaxed max-w-4xl text-left md:text-center">
+                    <div className="flex flex-col md:flex-row flex-wrap justify-center gap-x-12 gap-y-6 text-xl text-primary font-medium mb-16 leading-relaxed max-w-4xl text-left md:text-center">
                         <span className="flex items-center"><span className="text-gold mr-2">✦</span> Unlimited children</span>
                         <span className="flex items-center"><span className="text-gold mr-2">✦</span> Full contract catalog</span>
                         <span className="flex items-center"><span className="text-gold mr-2">✦</span> Capital allocation system</span>
@@ -157,7 +157,7 @@ export default function LandingPage() {
                         Start Your Family's Free Trial
                     </Link>
 
-                    <p className="text-neutral-500 dark:text-neutral-400 text-sm font-medium leading-relaxed">
+                    <p className="text-muted text-sm font-medium leading-relaxed">
                         14 days free. No credit card required to start.<br />
                         Cancel before day 14 and pay nothing. Ever.
                     </p>
@@ -166,16 +166,16 @@ export default function LandingPage() {
 
             {/* 7. CLOSING CTA (Gradient Transition) */}
             <section className="w-full py-48 px-6 flex flex-col items-center text-center mt-12 bg-cream-to-charcoal">
-                <h2 className="text-5xl md:text-7xl font-bold text-charcoal dark:text-cream mb-10 font-sans tracking-tighter max-w-4xl leading-tight">
+                <h2 className="text-5xl md:text-7xl font-bold text-primary mb-10 font-sans tracking-tighter max-w-4xl leading-tight">
                     The habits formed at 10 determine the decisions made at 30.
                 </h2>
 
-                <p className="text-2xl md:text-3xl text-neutral-text dark:text-neutral-400 font-sans tracking-tighter max-w-3xl leading-relaxed mb-16">
+                <p className="text-2xl md:text-3xl text-primary font-sans tracking-tighter max-w-3xl leading-relaxed mb-16">
                     Most parents hope their kids figure it out.<br />
-                    <span className="text-charcoal dark:text-cream font-bold">HomeWork parents build the system that makes it inevitable.</span>
+                    <span className="text-primary font-bold">HomeWork parents build the system that makes it inevitable.</span>
                 </p>
 
-                <h3 className="text-3xl font-bold text-charcoal dark:text-cream mb-8 font-sans tracking-tighter">
+                <h3 className="text-3xl font-bold text-primary mb-8 font-sans tracking-tighter">
                     Start building today.
                 </h3>
 
@@ -183,7 +183,7 @@ export default function LandingPage() {
                     Start Free Trial →
                 </Link>
 
-                <p className="text-neutral-400 dark:text-neutral-500 text-sm font-medium tracking-wide leading-relaxed">
+                <p className="text-muted text-sm font-medium tracking-wide leading-relaxed">
                     14 days free · $14.99/month after · Cancel anytime
                 </p>
             </section>

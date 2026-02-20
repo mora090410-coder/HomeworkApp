@@ -1114,27 +1114,27 @@ function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface-app text-content-primary relative pb-12 font-sans overflow-hidden">
+    <div className="min-h-screen bg-app text-primary relative pb-12 font-sans overflow-hidden transition-colors duration-300">
       {/* 1. Atmospheric Background Gradient (Ive Lens) */}
       <div
-        className="absolute top-0 left-0 w-full h-[500px] pointer-events-none opacity-40"
+        className="absolute top-0 left-0 w-full h-[500px] pointer-events-none opacity-40 transition-opacity duration-1000"
         style={{
-          background: 'linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #ffffff 100%)'
+          background: 'linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-app) 50%, var(--bg-app) 100%)'
         }}
       />
       <div className="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] rounded-full blur-[120px] opacity-[0.03] pointer-events-none bg-primary-600" />
 
       <div className="relative z-10 max-w-[1400px] mx-auto p-6 md:p-8">
-        <header className="sticky top-0 z-50 flex justify-between items-center py-4 px-6 md:px-8 -mx-6 md:-mx-8 mb-10 bg-white/80 backdrop-blur-md shadow-sm border-b border-white/50">
+        <header className="sticky top-0 z-50 flex justify-between items-center py-4 px-6 md:px-8 -mx-6 md:-mx-8 mb-10 bg-surface/80 dark:bg-app/80 backdrop-blur-md shadow-sm border-b border-border-base transition-colors duration-300">
           <div className="flex items-center gap-6">
             <img src="/images/homework-wordmark.png" alt="HomeWork" className="h-10 w-auto" />
             <div className="hidden md:flex flex-col relative group">
               {/* Glassmorphism Container for Net Worth */}
-              <div className="absolute inset-0 bg-white/40 backdrop-blur-md rounded-2xl -m-3 border border-white/50 shadow-sm transition-all duration-300 group-hover:shadow-md" />
+              <div className="absolute inset-0 bg-surface/40 dark:bg-white/5 backdrop-blur-md rounded-2xl -m-3 border border-border-base shadow-sm transition-all duration-300 group-hover:shadow-md" />
 
               <div className="relative">
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-content-subtle mb-1 block">Household Net Worth</span>
-                <span className="text-2xl font-mono font-bold tracking-tighter text-content-primary">
+                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-1 block">Household Net Worth</span>
+                <span className="text-2xl font-mono font-bold tracking-tighter text-primary">
                   <span className="text-lg opacity-30 mr-0.5">$</span>
                   {centsToDollars(totalHouseholdNetWorth).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
@@ -1147,7 +1147,7 @@ function DashboardPage() {
               <Button
                 variant="outline"
                 onClick={() => setViewingChildId(null)}
-                className="gap-2 border-stroke-base hover:bg-surface-2"
+                className="gap-2 border-border-base hover:bg-surface-2 dark:hover:bg-elev-1"
               >
                 <ArrowRight className="w-4 h-4 rotate-180" /> Back to Dashboard
               </Button>
@@ -1165,24 +1165,24 @@ function DashboardPage() {
               {isActionMenuOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setIsActionMenuOpen(false)} />
-                  <div className="absolute right-0 mt-3 w-56 bg-white border border-stroke-base shadow-2xl z-50 py-2 animate-in fade-in zoom-in-95 duration-200">
+                  <div className="absolute right-0 mt-3 w-56 bg-surface dark:bg-elev-1 border border-border-base shadow-2xl z-50 py-2 animate-in fade-in zoom-in-95 duration-200">
                     <button
                       onClick={() => { setIsActionMenuOpen(false); setIsAddChildModalOpen(true); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-content-primary hover:bg-surface-app hover:text-blue-500 transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-primary hover:bg-surface-2 dark:hover:bg-white/5 hover:text-blue-500 transition-colors"
                     >
                       <UserPlus className="w-4 h-4 text-blue-500" />
                       Add Child
                     </button>
                     <button
                       onClick={() => { setIsActionMenuOpen(false); setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-content-primary hover:bg-surface-app hover:text-blue-500 transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-primary hover:bg-surface-2 dark:hover:bg-white/5 hover:text-blue-500 transition-colors"
                     >
                       <Calendar className="w-4 h-4 text-blue-500" />
                       Create Open Task
                     </button>
                     <button
                       onClick={() => { setIsActionMenuOpen(false); if (hasChildren) { setSelectedChildId(childrenWithRateMap[0].id); setIsAdvanceModalOpen(true); } }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-content-primary hover:bg-surface-app hover:text-blue-500 transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-primary hover:bg-surface-2 dark:hover:bg-white/5 hover:text-blue-500 transition-colors"
                     >
                       <DollarSign className="w-4 h-4 text-blue-500" />
                       Add Advance
@@ -1190,14 +1190,14 @@ function DashboardPage() {
                     <div className="h-px bg-surface-2 my-1" />
                     <button
                       onClick={() => { setIsActionMenuOpen(false); setIsCatalogManagerOpen(true); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-content-primary hover:bg-surface-app hover:text-blue-500 transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-primary hover:bg-surface-2 dark:hover:bg-white/5 hover:text-blue-500 transition-colors"
                     >
                       <Briefcase className="w-4 h-4 text-blue-500" />
                       Manage Chore Catalog
                     </button>
                     <button
                       onClick={() => { setIsActionMenuOpen(false); handleGenerateInvite(); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-content-primary hover:bg-surface-app hover:text-blue-500 transition-colors"
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-primary hover:bg-surface-2 dark:hover:bg-white/5 hover:text-blue-500 transition-colors"
                     >
                       <Share2 className="w-4 h-4 text-blue-500" />
                       Invite Device
@@ -1207,15 +1207,15 @@ function DashboardPage() {
               )}
             </div>
 
-            <Button variant="ghost" onClick={() => { void familyAuth.signOutUser(); }} className="text-content-subtle hover:text-content-primary border border-stroke-base rounded-full w-10 h-10 p-0 flex items-center justify-center">
+            <Button variant="ghost" onClick={() => { void familyAuth.signOutUser(); }} className="text-muted hover:text-primary border border-border-base rounded-full w-10 h-10 p-0 flex items-center justify-center">
               <LogOut className="w-4 h-4" />
             </Button>
           </div>
         </header>
 
-        <div className="md:hidden mb-8 bg-white border border-stroke-base p-4 flex justify-between items-center">
-          <span className="text-xs font-bold uppercase tracking-wider text-content-subtle">Household Net Worth</span>
-          <span className="text-lg font-bold text-emerald-700">{formatCurrency(centsToDollars(totalHouseholdNetWorth))}</span>
+        <div className="md:hidden mb-8 bg-surface dark:bg-elev-1 border border-border-base p-4 flex justify-between items-center transition-colors">
+          <span className="text-xs font-bold uppercase tracking-wider text-muted">Household Net Worth</span>
+          <span className="text-lg font-bold text-primary">{formatCurrency(centsToDollars(totalHouseholdNetWorth))}</span>
         </div>
 
         {taskStreamError && (
@@ -1290,13 +1290,13 @@ function DashboardPage() {
                         onUndoApproval={(childId, taskId) => statusTaskMutation.mutate({ taskId, status: 'PENDING_APPROVAL', childId })}
                       />
                     ))}
-                    <div className="flex min-h-[200px] items-center justify-center rounded-none border-2 border-dashed border-stroke-base bg-surface-app/50 p-6 hover:border-stroke-base hover:bg-surface-2 transition-colors cursor-pointer group" onClick={() => setIsAddChildModalOpen(true)}>
+                    <div className="flex min-h-[200px] items-center justify-center rounded-none border-2 border-dashed border-border-base bg-surface/50 dark:bg-white/5 p-6 hover:border-primary-500/50 hover:bg-surface-2 dark:hover:bg-white/10 transition-all cursor-pointer group" onClick={() => setIsAddChildModalOpen(true)}>
                       <div className="text-center group-hover:scale-105 transition-transform duration-200">
-                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-neutral-200 group-hover:ring-primary-200">
-                          <Plus className="h-6 w-6 text-content-subtle group-hover:text-primary-600" />
+                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface-base dark:bg-elev-1 shadow-sm ring-1 ring-border-base group-hover:ring-primary-200">
+                          <Plus className="h-6 w-6 text-muted group-hover:text-primary-600" />
                         </div>
-                        <h3 className="text-sm font-bold text-content-primary">Add Child Profile</h3>
-                        <p className="mt-1 text-xs text-content-subtle">Track chores & allowance</p>
+                        <h3 className="text-sm font-bold text-primary">Add Child Profile</h3>
+                        <p className="mt-1 text-xs text-muted">Track chores & allowance</p>
                       </div>
                     </div>
                   </div>
@@ -1306,20 +1306,20 @@ function DashboardPage() {
                   {/* Open Tasks Column */}
                   <div className="relative">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-bold font-heading text-content-primary flex items-center gap-2">
+                      <h3 className="text-lg font-bold font-heading text-primary flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full bg-semantic-success animate-pulse"></span>
                         Bounty Board
                       </h3>
-                      <span className="px-2 py-0.5 bg-surface-2 text-neutral-600 text-xs font-bold rounded-none border border-stroke-base">
+                      <span className="px-2 py-0.5 bg-surface-2 dark:bg-elev-1 text-muted text-xs font-bold rounded-none border border-border-base">
                         {openTasks.length} Active
                       </span>
                     </div>
 
                     <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-neutral-200 scrollbar-track-transparent">
                       {!loadingTasks && openTasks.length === 0 ? (
-                        <div className="p-8 bg-white border border-stroke-base border-dashed rounded-none text-center">
-                          <p className="text-content-primary font-bold mb-1">No open bounties</p>
-                          <p className="text-content-subtle text-sm mb-4">Create tasks that any child can claim.</p>
+                        <div className="p-8 bg-surface-base dark:bg-elev-1 border border-border-base border-dashed rounded-none text-center">
+                          <p className="text-primary font-bold mb-1">No open bounties</p>
+                          <p className="text-muted text-sm mb-4">Create tasks that any child can claim.</p>
                           <Button variant="secondary" size="sm" onClick={() => { setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }} className="w-full">
                             <Plus className="w-4 h-4 mr-2" />
                             Create Bounty

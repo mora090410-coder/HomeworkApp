@@ -78,7 +78,7 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
     <div className={`flex flex-col p-6 glass-card relative overflow-visible transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 ${isBounty ? 'ring-2 ring-amber-100/50' : ''}`}>
       {isBounty && (
         <div className="absolute top-0 right-0 z-10">
-          <div className="bg-amber-100/80 backdrop-blur-md text-amber-900 text-[8px] font-black uppercase tracking-[0.3em] px-4 py-1.5 shadow-sm border-l border-b border-amber-200/50 rounded-bl-xl">
+          <div className="bg-amber-100/80 dark:bg-amber-900/40 backdrop-blur-md text-amber-900 dark:text-amber-100 text-[8px] font-black uppercase tracking-[0.3em] px-4 py-1.5 shadow-sm border-l border-b border-amber-200/50 dark:border-amber-500/20 rounded-bl-xl transition-colors">
             Priority Bounty
           </div>
         </div>
@@ -112,7 +112,7 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
           </Button>
 
           {isMenuOpen && (
-            <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-neutral-lightGray rounded-none shadow-xl z-50 animate-in fade-in zoom-in-95 duration-200">
+            <div className="absolute right-0 top-full mt-2 w-48 bg-surface dark:bg-elev-1 border border-border-base rounded-none shadow-xl z-50 animate-in fade-in zoom-in-95 duration-200">
               <div className="p-1">
                 <div className="relative">
                   <button
@@ -129,7 +129,7 @@ const OpenTaskCard: React.FC<OpenTaskCardProps> = ({
 
                   {showAssignSubmenu && (
                     <div
-                      className="absolute left-full top-0 w-44 bg-white border border-neutral-lightGray rounded-none shadow-xl overflow-hidden z-[60] ml-1 animate-in slide-in-from-left-2 duration-200"
+                      className="absolute left-full top-0 w-44 bg-surface dark:bg-elev-1 border border-border-base rounded-none shadow-xl overflow-hidden z-[60] ml-1 animate-in slide-in-from-left-2 duration-200"
                     >
                       {children.length > 0 ? children.map(child => (
                         <button

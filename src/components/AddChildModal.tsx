@@ -116,17 +116,17 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 font-sans">
       <div className="absolute inset-0 bg-neutral-black/60 backdrop-blur-sm transition-opacity duration-300" onClick={onClose} />
-      <div className="relative w-full max-w-[560px] bg-white rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-stroke-base">
+      <div className="relative w-full max-w-[560px] bg-surface dark:bg-elev-1 rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-border-base transition-colors">
 
         <div className="relative z-10 px-8 pt-8 pb-6 flex items-center gap-5 border-b border-stroke-base">
           <div className="flex flex-1 gap-2">
             {[1, 2, 3].map(i => (
-              <div key={i} className="h-1.5 flex-1 rounded-full bg-surface-2 overflow-hidden">
+              <div key={i} className="h-1.5 flex-1 rounded-full bg-surface-2 dark:bg-white/10 overflow-hidden">
                 <div className={`h-full w-full bg-brand transition-transform duration-500 ease-out origin-left ${step >= i ? 'scale-x-100' : 'scale-x-0'}`} />
               </div>
             ))}
           </div>
-          <button onClick={onClose} aria-label="Close" className="p-2 rounded-full hover:bg-surface-app text-content-subtle transition-colors cursor-pointer">
+          <button onClick={onClose} aria-label="Close" className="p-2 rounded-full hover:bg-surface-2 dark:hover:bg-white/5 text-muted transition-colors cursor-pointer">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -135,22 +135,22 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
           {step === 1 && (
             <div className="animate-in slide-in-from-right-8 fade-in duration-300">
               <div className="text-center mb-10">
-                <h2 className="text-3xl font-bold font-heading text-content-primary mb-2">Add New Child</h2>
-                <p className="text-content-subtle">Let's start with the basics</p>
+                <h2 className="text-3xl font-bold font-heading text-primary mb-2">Add New Child</h2>
+                <p className="text-muted">Let's start with the basics</p>
               </div>
               <div className="flex flex-col items-center mb-8">
-                <div className={`w-[80px] h-[80px] rounded-full flex items-center justify-center text-3xl font-bold font-heading transition-all duration-300 ${name.trim() ? 'bg-brand text-white shadow-md' : 'bg-surface-app text-content-subtle border border-stroke-base'
+                <div className={`w-[80px] h-[80px] rounded-full flex items-center justify-center text-3xl font-bold font-heading transition-all duration-300 ${name.trim() ? 'bg-brand text-white shadow-md' : 'bg-surface-2 dark:bg-white/5 text-muted border border-border-base'
                   }`}>
                   {name.trim() ? name.trim().charAt(0).toUpperCase() : '?'}
                 </div>
               </div>
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-content-subtle uppercase tracking-wider ml-1">Name</label>
-                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Emily" className="px-4 py-3.5 text-base placeholder-neutral-400" autoFocus />
+                  <label className="text-sm font-bold text-muted uppercase tracking-wider ml-1">Name</label>
+                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Emily" className="px-4 py-3.5 text-base placeholder-neutral-400 bg-surface dark:bg-elev-1 border-border-base" autoFocus />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-content-subtle uppercase tracking-wider ml-1">Grade Level</label>
+                  <label className="text-sm font-bold text-muted uppercase tracking-wider ml-1">Grade Level</label>
                   <Select value={gradeLevel} onChange={(e) => setGradeLevel(e.target.value)} className="w-full">
                     <option value="" disabled>Select grade</option>
                     {SCHOOL_GRADES.map(g => (<option key={g} value={g}>{g}</option>))}
@@ -162,13 +162,13 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
           {step === 2 && (
             <div className="animate-in slide-in-from-right-8 fade-in duration-300">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold font-heading text-content-primary mb-2">Enter Current Grades</h2>
-                <p className="text-content-subtle">Grades determine the hourly earning rate</p>
+                <h2 className="text-3xl font-bold font-heading text-primary mb-2">Enter Current Grades</h2>
+                <p className="text-muted">Grades determine the hourly earning rate</p>
               </div>
-              <div className="mb-8 p-6 rounded-none bg-surface-app border border-stroke-base text-center relative overflow-hidden group">
+              <div className="mb-8 p-6 rounded-none bg-surface-2 dark:bg-white/5 border border-border-base text-center relative overflow-hidden group">
                 <div className="relative z-10">
-                  <p className="text-xs font-bold text-content-subtle uppercase tracking-widest mb-2">Current Hourly Rate</p>
-                  <div className="text-5xl leading-none font-bold font-heading text-blue-500 drop-shadow-sm">
+                  <p className="text-xs font-bold text-muted uppercase tracking-widest mb-2">Current Hourly Rate</p>
+                  <div className="text-5xl leading-none font-bold font-heading text-brand drop-shadow-sm">
                     {formatCurrency(totalHourlyRate)}
                   </div>
                 </div>
@@ -176,15 +176,15 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
               <div className="space-y-4 mb-4">
                 {subjects.map((sub, idx) => (
                   <div key={sub.id} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-                    <Input value={sub.name} onChange={(e) => handleUpdateSubject(sub.id, 'name', e.target.value)} placeholder="Subject Name" className="flex-[2] px-4 py-3 text-base placeholder-neutral-400" />
+                    <Input value={sub.name} onChange={(e) => handleUpdateSubject(sub.id, 'name', e.target.value)} placeholder="Subject Name" className="flex-[2] px-4 py-3 text-base placeholder-neutral-400 bg-surface dark:bg-elev-1 border-border-base" />
                     <div className="flex items-center gap-3 w-full sm:w-auto flex-1">
                       <div className="relative flex-1">
-                        <Select value={sub.grade} onChange={(e) => handleUpdateSubject(sub.id, 'grade', e.target.value)} className="font-bold">
+                        <Select value={sub.grade} onChange={(e) => handleUpdateSubject(sub.id, 'grade', e.target.value)} className="font-bold bg-surface dark:bg-elev-1 border-border-base">
                           {LETTER_GRADES.map(g => (<option key={g} value={g}>{g} ({formatCurrency(DEFAULT_RATES[g as Grade])})</option>))}
                         </Select>
                       </div>
                       {subjects.length > 1 && (
-                        <button onClick={() => handleRemoveSubject(sub.id)} aria-label="Remove subject" className="w-11 h-11 flex items-center justify-center rounded-none border border-stroke-base text-content-subtle hover:bg-semantic-destructive/10 hover:text-semantic-destructive hover:border-semantic-destructive transition-colors cursor-pointer">
+                        <button onClick={() => handleRemoveSubject(sub.id)} aria-label="Remove subject" className="w-11 h-11 flex items-center justify-center rounded-none border border-border-base text-muted hover:bg-semantic-destructive/10 hover:text-semantic-destructive hover:border-semantic-destructive transition-colors cursor-pointer">
                           <Trash2 className="w-5 h-5" />
                         </button>
                       )}
@@ -192,35 +192,35 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
                   </div>
                 ))}
               </div>
-              <button onClick={handleAddSubject} className="w-full py-3 border border-dashed border-stroke-base rounded-none text-content-subtle hover:text-blue-500 hover:border-blue-500 hover:bg-brand/5 transition-all flex items-center justify-center gap-2 mb-6 text-sm font-bold cursor-pointer uppercase tracking-wider">
+              <button onClick={handleAddSubject} className="w-full py-3 border border-dashed border-border-base rounded-none text-muted hover:text-blue-500 hover:border-blue-500 hover:bg-brand/5 transition-all flex items-center justify-center gap-2 mb-6 text-sm font-bold cursor-pointer uppercase tracking-wider">
                 <Plus className="w-4 h-4" /> Add Subject
               </button>
             </div>
           )}
           {step === 3 && (
             <div className="animate-in zoom-in-95 fade-in duration-500 text-center">
-              <div className="w-20 h-20 rounded-full bg-primary-success flex items-center justify-center mx-auto mb-6 shadow-md">
+              <div className="w-20 h-20 rounded-full bg-semantic-success flex items-center justify-center mx-auto mb-6 shadow-md">
                 <Check className="w-10 h-10 text-white" strokeWidth={3} />
               </div>
-              <h2 className="text-3xl font-bold font-heading text-content-primary mb-2">{name}'s Profile Ready!</h2>
-              <div className="mb-8 p-6 rounded-none bg-surface-app border border-stroke-base">
-                <p className="text-xs font-bold text-content-subtle uppercase tracking-widest mb-2">Hourly Rate</p>
+              <h2 className="text-3xl font-bold font-heading text-primary mb-2">{name}'s Profile Ready!</h2>
+              <div className="mb-8 p-6 rounded-none bg-surface-2 dark:bg-white/5 border border-border-base">
+                <p className="text-xs font-bold text-muted uppercase tracking-widest mb-2">Hourly Rate</p>
                 <div className="text-5xl leading-none font-bold font-heading text-blue-500">
                   {formatCurrency(totalHourlyRate)}
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 border border-stroke-base bg-surface-app/50 rounded-sm">
-                <div className="h-10 w-10 shrink-0 flex items-center justify-center rounded-full bg-brand/10 text-blue-500"><span className="text-content-subtle">Profile Security</span><span className="text-content-primary font-bold">Child sets PIN via invite</span></div>
-                <div className="flex justify-between px-4 py-3 border-b border-stroke-base"><span className="text-content-subtle">Grade Level</span><span className="text-content-primary font-bold">{gradeLevel}</span></div>
+              <div className="flex flex-col gap-3 p-4 border border-border-base bg-surface-base dark:bg-white/5 rounded-sm">
+                <div className="flex justify-between items-center text-sm"><span className="text-muted">Profile Status</span><span className="text-primary font-bold">Invite Pending</span></div>
+                <div className="flex justify-between items-center text-sm"><span className="text-muted">Grade Level</span><span className="text-primary font-bold">{gradeLevel}</span></div>
               </div>
             </div>
           )}
         </div>
-        <div className="relative z-10 px-8 py-6 border-t border-stroke-base bg-surface-app">
+        <div className="relative z-10 px-8 py-6 border-t border-border-base bg-surface dark:bg-elev-1 transition-colors">
           <div className="flex gap-4">
-            {step > 1 && (<button onClick={handleBack} className="flex-1 py-4 rounded-none font-bold text-content-subtle bg-white border border-stroke-base hover:bg-surface-2 transition-all cursor-pointer uppercase tracking-wider text-sm">Back</button>)}
+            {step > 1 && (<button onClick={handleBack} className="flex-1 py-4 rounded-none font-bold text-muted bg-surface dark:bg-elev-1 border border-border-base hover:bg-surface-2 dark:hover:bg-white/5 transition-all cursor-pointer uppercase tracking-wider text-sm">Back</button>)}
             {step < 3 ? (
-              <button onClick={handleNext} disabled={step === 1 && !isValidStep1} className={`flex-1 py-4 rounded-none font-bold text-white transition-all cursor-pointer uppercase tracking-wider text-sm ${(step === 1 && !isValidStep1) ? 'bg-surface-2 text-content-subtle cursor-not-allowed' : 'bg-brand hover:bg-brand/90 shadow-md'}`}>Next</button>
+              <button onClick={handleNext} disabled={step === 1 && !isValidStep1} className={`flex-1 py-4 rounded-none font-bold text-white transition-all cursor-pointer uppercase tracking-wider text-sm ${(step === 1 && !isValidStep1) ? 'bg-surface-2 dark:bg-white/10 text-muted cursor-not-allowed' : 'bg-brand hover:bg-brand/90 shadow-md'}`}>Next</button>
             ) : (
               <button onClick={handleFinish} className="flex-1 py-4 rounded-none font-bold text-white bg-brand hover:bg-brand/90 shadow-md transition-all cursor-pointer uppercase tracking-wider text-sm">Go to Dashboard</button>
             )}
