@@ -1305,26 +1305,31 @@ function DashboardPage() {
 
                 <div className="xl:col-span-1 space-y-8">
                   {/* Open Tasks Column */}
-                  <div className="relative">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-bold font-heading text-primary flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full bg-semantic-success animate-pulse"></span>
-                        Bounty Board
-                      </h3>
-                      <span className="px-2 py-0.5 bg-surface-2 dark:bg-elev-1 text-muted text-xs font-bold rounded-none border border-border-base">
-                        {openTasks.length} Active
-                      </span>
+                  <div className="bg-white dark:bg-elev-1 border border-border-base p-6 rounded-2xl shadow-lg relative">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-lg font-bold font-heading text-primary flex items-center gap-2">
+                          <span className="w-2.5 h-2.5 rounded-full bg-semantic-success animate-pulse"></span>
+                          Bounty Board
+                        </h3>
+                        <span className="px-2 py-0.5 bg-surface-2 dark:bg-white/5 text-muted text-xs font-bold rounded-full border border-border-base">
+                          {openTasks.length} Active
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => { setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }}
+                        className="text-sm font-bold text-crimson hover:text-crimson/80 flex items-center gap-1 transition-colors"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Create Bounty
+                      </button>
                     </div>
 
                     <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-neutral-200 scrollbar-track-transparent">
                       {!loadingTasks && openTasks.length === 0 ? (
-                        <div className="p-8 bg-surface-base dark:bg-elev-1 border border-border-base border-dashed rounded-none text-center">
+                        <div className="p-8 border border-border-base border-dashed rounded-xl text-center bg-surface-app dark:bg-white/5">
                           <p className="text-primary font-bold mb-1">No open bounties</p>
-                          <p className="text-muted text-sm mb-4">Create tasks that any child can claim.</p>
-                          <Button variant="secondary" size="sm" onClick={() => { setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }} className="w-full">
-                            <Plus className="w-4 h-4 mr-2" />
-                            Create Bounty
-                          </Button>
+                          <p className="text-muted text-sm pb-2">Create tasks that any child can claim.</p>
                         </div>
                       ) : (
                         openTasks.map(task => (
