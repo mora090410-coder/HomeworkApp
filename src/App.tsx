@@ -477,6 +477,8 @@ export function useFamilyAuth(): FamilyAuthState {
 
 function DashboardPage() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const location = useLocation();
   const familyAuth = useFamilyAuth();
   const householdId = familyAuth.householdId;
 
@@ -1047,6 +1049,21 @@ function DashboardPage() {
       familyAuth.activeProfile.id,
     );
   }, [familyAuth.stage, familyAuth.activeProfile?.id, familyAuth.householdId]);
+
+  React.useEffect(() => {
+    if (familyAuth.stage !== 'AUTHORIZED' || !familyAuth.activeProfile) {
+      return;
+    }
+
+    if (familyAuth.activeProfile.role === 'ADMIN' && location.pathname !== '/admin-dashboard') {
+      navigate('/admin-dashboard', { replace: true });
+      return;
+    }
+
+    if (familyAuth.activeProfile.role === 'CHILD' && location.pathname !== '/child-dashboard') {
+      navigate('/child-dashboard', { replace: true });
+    }
+  }, [familyAuth.stage, familyAuth.activeProfile, location.pathname, navigate]);
 
   if (familyAuth.isInitializing) {
     return (
@@ -1913,6 +1930,7 @@ export default function App() {
           />
           <Route path="/setup-profile/:id" element={<SetupProfileRoute />} />
           <Route path="/admin-dashboard" element={<DashboardPage />} />
+          <Route path="/child-dashboard" element={<DashboardPage />} />
           <Route path="*" element={<UnknownRouteHandler />} />
         </Routes>
       </BrowserRouter>
