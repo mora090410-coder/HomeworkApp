@@ -1305,7 +1305,7 @@ function DashboardPage() {
 
                 <div className="xl:col-span-1 space-y-8">
                   {/* Open Tasks Column */}
-                  <div className="bg-white dark:bg-elev-1 border border-border-base p-6 rounded-2xl shadow-lg relative">
+                  <div className="bg-white dark:bg-[#1A1A24] border border-border-base p-6 rounded-2xl shadow-lg relative">
                     <div className="flex items-center justify-between mb-6">
                       <div className="flex items-center gap-2">
                         <h3 className="text-lg font-bold font-heading text-primary flex items-center gap-2">
