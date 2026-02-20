@@ -106,7 +106,8 @@ const CatalogManagerModal: React.FC<CatalogManagerModalProps> = ({
                     <div>
                         <h2 className="text-2xl font-bold font-heading text-content-primary">Chore Catalog</h2>
                         <p className="text-sm text-content-subtle mt-0.5">
-                            {items.length} {items.length === 1 ? 'item' : 'items'} — click the pencil to edit
+                            {items.length} {items.length === 1 ? 'item' : 'items'}
+                            {items.length > 0 && ' — click the pencil to edit'}
                         </p>
                     </div>
                     <button
