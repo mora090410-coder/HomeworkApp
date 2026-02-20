@@ -307,21 +307,6 @@ export function useFamilyAuth(): FamilyAuthState {
           return;
         }
 
-        const adminProfile = nextProfiles.find((profile) => profile.role === 'ADMIN') ?? null;
-        if (adminProfile) {
-          if (activeProfileId !== adminProfile.id) {
-            setActiveProfileId(adminProfile.id);
-            persistSession({
-              householdId,
-              familyId: householdId,
-              profileId: adminProfile.id,
-              role: adminProfile.role,
-            });
-          }
-          setStage('AUTHORIZED');
-          return;
-        }
-
         if (!activeProfileId) {
           return;
         }
