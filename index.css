@@ -89,7 +89,7 @@ body {
     }
 
     .dark .glass-card {
-        @apply bg-white/5 border-white/10 shadow-[0_20px_50px_rgba(0, 0, 0, 0.5)];
+        @apply bg-white/5 border-white/10 shadow-[0_20px_50px_#00000080];
     }
 
     /* The Tactile Button */
