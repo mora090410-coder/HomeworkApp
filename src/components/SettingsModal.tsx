@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Check, AlertTriangle, Download, Upload, RefreshCcw } from 'lucide-react';
+import { X, AlertTriangle } from 'lucide-react';
 import { Child } from '../types';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -42,8 +42,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   const [gradeLevel, setGradeLevel] = useState('');
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [importText, setImportText] = useState('');
-  const [copySuccess, setCopySuccess] = useState(false);
   const [resetPinValue, setResetPinValue] = useState('');
   const [confirmResetPinValue, setConfirmResetPinValue] = useState('');
   const [credentialMessage, setCredentialMessage] = useState<string | null>(null);
@@ -57,8 +55,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
 
       setActiveTab('profile');
       setShowDeleteConfirm(false);
-      setImportText('');
-      setCopySuccess(false);
       setResetPinValue('');
       setConfirmResetPinValue('');
       setCredentialMessage(null);
@@ -69,22 +65,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   }, [child, isOpen]);
 
 
-
-  const handleExport = () => {
-    const data = localStorage.getItem('homework-app-v2');
-    if (data) {
-      navigator.clipboard.writeText(data);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
-    }
-  };
-
-  const handleImport = () => {
-    if (importText.trim() && onImportAll) {
-      onImportAll(importText.trim());
-      onClose();
-    }
-  };
 
   const handleSave = () => {
     if (!child) return;
@@ -135,24 +115,24 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 font-sans text-content-primary">
       <div className="absolute inset-0 bg-neutral-black/60 backdrop-blur-sm transition-opacity duration-300" onClick={onClose} />
-      <div className="relative w-full max-w-[580px] bg-white rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-stroke-base">
+      <div className="relative w-full max-w-[580px] bg-cream rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-stroke-base">
 
         <button onClick={onClose} aria-label="Close" className="absolute top-6 right-6 p-2 rounded-full hover:bg-surface-app text-content-subtle transition-colors z-50 cursor-pointer">
           <X className="w-5 h-5" />
         </button>
 
-        <div className="relative z-20 border-b border-stroke-base pt-10 px-10 pb-0 shrink-0 bg-white">
-          <h2 className="text-3xl font-bold font-heading text-content-primary mb-6">Parent Settings</h2>
+        <div className="relative z-20 border-b border-stroke-base pt-10 px-10 pb-0 shrink-0 bg-cream">
+          <h2 className="text-3xl font-bold font-heading text-content-primary mb-6">Child Settings</h2>
           <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-            {['profile', 'data'].map(t => (
+            {['profile'].map(t => (
               <button
                 key={t}
                 onClick={() => setActiveTab(t as any)}
                 className={`
                   px-5 py-3 text-sm font-bold border-b-2 transition-all shrink-0 cursor-pointer uppercase tracking-wider
                   ${activeTab === t
-                    ? 'border-blue-500 text-blue-500'
-                    : 'border-transparent text-content-subtle hover:text-content-primary hover:border-stroke-base'
+                    ? 'border-crimson text-crimson'
+                    : 'border-transparent text-charcoal/40 hover:text-content-primary hover:border-stroke-base'
                   }
                 `}
               >
@@ -162,7 +142,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
-        <div className="relative z-10 flex-1 overflow-y-auto p-10 scrollbar-hide pb-32 bg-white">
+        <div className="relative z-10 flex-1 overflow-y-auto p-10 scrollbar-hide pb-32 bg-cream">
           {activeTab === 'profile' && (
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-6">
               <div>
@@ -226,55 +206,9 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             </div>
           )}
 
-          {activeTab === 'data' && (
-            <div className="animate-in fade-in slide-in-from-bottom-2 duration-300 space-y-8">
-              <div className="p-5 rounded-none bg-surface-app border border-stroke-base">
-                <h4 className="text-content-primary font-bold mb-2 flex items-center gap-2 font-heading">
-                  <Download className="w-4 h-4 text-blue-500" /> Export Data
-                </h4>
-                <p className="text-sm text-content-subtle mb-4">Copy your entire family setup to move it to another phone or tablet.</p>
-                <Button
-                  onClick={handleExport}
-                  variant={copySuccess ? "secondary" : "secondary"}
-                  className={`w-full ${copySuccess ? 'text-semantic-success border-semantic-success' : ''}`}
-                  leftIcon={copySuccess ? <Check className="w-4 h-4" /> : <Download className="w-4 h-4" />}
-                >
-                  {copySuccess ? 'Copied to Clipboard!' : 'Copy Export Code'}
-                </Button>
-              </div>
-
-              <div className="p-5 rounded-none bg-surface-app border border-stroke-base">
-                <h4 className="text-content-primary font-bold mb-2 flex items-center gap-2 font-heading">
-                  <Upload className="w-4 h-4 text-blue-500" /> Import Data
-                </h4>
-                <Button
-                  onClick={handleImport}
-                  disabled={!importText.trim()}
-                  variant="secondary"
-                  className="w-full"
-                >
-                  Import Code
-                </Button>
-              </div>
-
-              <div className="p-5 rounded-none bg-semantic-destructive/5 border border-semantic-destructive/20">
-                <h4 className="text-semantic-destructive font-bold mb-2 flex items-center gap-2 font-heading">
-                  <RefreshCcw className="w-4 h-4" /> Reset App
-                </h4>
-                <p className="text-sm text-content-subtle mb-4">Clear all children, tasks, and history. Use this to start a fresh real-world trial.</p>
-                <Button
-                  onClick={() => { if (confirm("Are you sure? This deletes everything.")) onResetAll?.(); }}
-                  variant="destructive"
-                  className="w-full"
-                >
-                  Clear All Family Data
-                </Button>
-              </div>
-            </div>
-          )}
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 z-20 bg-white border-t border-stroke-base px-10 py-8 flex gap-4">
+        <div className="absolute bottom-0 left-0 right-0 z-20 bg-cream border-t border-stroke-base px-10 py-8 flex gap-4">
           <Button
             onClick={() => setShowDeleteConfirm(true)}
             variant="destructive"
@@ -292,7 +226,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
         </div>
 
         {showDeleteConfirm && (
-          <div className="absolute inset-0 z-[110] bg-white flex flex-col items-center justify-center p-10 text-center animate-in fade-in duration-200">
+          <div className="absolute inset-0 z-[110] bg-cream flex flex-col items-center justify-center p-10 text-center animate-in fade-in duration-200">
             <div className="w-20 h-20 rounded-full bg-semantic-destructive/10 flex items-center justify-center mb-6 text-semantic-destructive"><AlertTriangle className="w-10 h-10" /></div>
             <h3 className="text-2xl font-bold font-heading text-content-primary mb-2">Delete Profile?</h3>
             <p className="text-content-subtle mb-8">This action is permanent.</p>
