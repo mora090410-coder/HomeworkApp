@@ -4,7 +4,7 @@ import {
   signInWithCustomToken,
   signInWithEmailAndPassword,
 } from 'firebase/auth';
-import { ArrowRight, Loader2, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
@@ -222,14 +222,14 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
   };
 
   return (
-    <div className="min-h-screen bg-surface-app flex flex-col items-center justify-center p-6 text-content-primary font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-photon-white dark:bg-obsidian flex flex-col items-center justify-center p-6 text-content-primary font-sans relative overflow-hidden">
 
       <div className="w-full max-w-md relative z-10 animate-in fade-in zoom-in-95 duration-500">
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-none bg-white border border-stroke-base mb-6 shadow-sm">
-            <ShieldCheck className="w-8 h-8 text-blue-500" />
+          <div className="inline-flex items-center justify-center w-20 h-20 mb-6 luminary-glow rounded-3xl mx-auto">
+            <img src="/images/homework-icon.png" alt="HomeWork App" className="w-12 h-12 object-contain block" />
           </div>
-          <h1 className="text-3xl font-bold font-heading track-tight mb-2 text-blue-500">
+          <h1 className="text-3xl font-bold font-heading tracking-tight mb-2 text-obsidian dark:text-white">
             {mode === 'LOGIN' ? 'Welcome Back' : 'Create Account'}
           </h1>
           <p className="text-content-subtle">
@@ -237,15 +237,15 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
           </p>
         </div>
 
-        <div className="bg-white border border-stroke-base rounded-none p-8 shadow-xl">
+        <div className="glass-card p-8">
           {mode === 'LOGIN' && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-0 border border-stroke-base bg-surface-app p-1">
+              <div className="grid grid-cols-2 gap-1 rounded-full bg-neutral-100 dark:bg-white/10 p-1">
                 <button
                   type="button"
-                  className={`px-3 py-2.5 text-xs font-bold uppercase tracking-wide transition-all duration-300 ${loginVariant === 'PARENT'
-                    ? 'bg-white text-blue-500 shadow-sm border border-stroke-base'
-                    : 'text-content-subtle hover:text-content-primary hover:bg-white/50'
+                  className={`px-3 py-2.5 text-sm font-bold tracking-wide transition-all duration-300 rounded-full ${loginVariant === 'PARENT'
+                    ? 'bg-white shadow-sm dark:bg-white/20 text-obsidian dark:text-white'
+                    : 'text-content-subtle hover:text-content-primary hover:bg-white/50 dark:hover:bg-white/5'
                     }`}
                   onClick={() => {
                     setLoginVariant('PARENT');
@@ -257,9 +257,9 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
                 </button>
                 <button
                   type="button"
-                  className={`px-3 py-2.5 text-xs font-bold uppercase tracking-wide transition-all duration-300 ${loginVariant === 'CHILD'
-                    ? 'bg-white text-blue-500 shadow-sm border border-stroke-base'
-                    : 'text-content-subtle hover:text-content-primary hover:bg-white/50'
+                  className={`px-3 py-2.5 text-sm font-bold tracking-wide transition-all duration-300 rounded-full ${loginVariant === 'CHILD'
+                    ? 'bg-white shadow-sm dark:bg-white/20 text-obsidian dark:text-white'
+                    : 'text-content-subtle hover:text-content-primary hover:bg-white/50 dark:hover:bg-white/5'
                     }`}
                   onClick={() => {
                     setLoginVariant('CHILD');
@@ -280,7 +280,7 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
                         type="email"
                         value={email}
                         onChange={(event) => setEmail(event.target.value)}
-                        className="w-full"
+                        className="w-full rounded-xl"
                         placeholder="name@example.com"
                         required
                       />
@@ -291,7 +291,7 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
                         type="password"
                         value={password}
                         onChange={(event) => setPassword(event.target.value)}
-                        className="w-full"
+                        className="w-full rounded-xl"
                         placeholder="••••••••"
                         required
                       />
@@ -328,7 +328,7 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
                         type="text"
                         value={childUsername}
                         onChange={(event) => setChildUsername(event.target.value)}
-                        className="w-full"
+                        className="w-full rounded-xl"
                         placeholder="Your username"
                         required
                         aria-label="Child username"
@@ -342,7 +342,7 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
                         onChange={(event) => setChildPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
                         inputMode="numeric"
                         maxLength={4}
-                        className="w-full font-mono tracking-widest text-center text-lg"
+                        className="w-full rounded-xl font-mono tracking-widest text-center text-lg"
                         placeholder="••••"
                         required
                         aria-label="Child PIN"
@@ -402,31 +402,31 @@ export default function AuthScreen({ onSuccess, initialMode = 'LOGIN' }: AuthScr
               <div className="space-y-4">
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-widest text-content-subtle mb-2">Full Name</label>
-                  <Input type="text" value={name} onChange={(event) => setName(event.target.value)} className="w-full" placeholder="John Doe" required />
+                  <Input type="text" value={name} onChange={(event) => setName(event.target.value)} className="w-full rounded-xl" placeholder="John Doe" required />
                 </div>
 
                 {mode === 'SIGNUP_CREATE' && (
                   <div>
                     <label className="block text-[11px] font-bold uppercase tracking-widest text-content-subtle mb-2">Household Name</label>
-                    <Input type="text" value={householdName} onChange={(event) => setHouseholdName(event.target.value)} className="w-full" placeholder="The Smith Family" required />
+                    <Input type="text" value={householdName} onChange={(event) => setHouseholdName(event.target.value)} className="w-full rounded-xl" placeholder="The Smith Family" required />
                   </div>
                 )}
 
                 {mode === 'SIGNUP_JOIN' && (
                   <div>
                     <label className="block text-[11px] font-bold uppercase tracking-widest text-content-subtle mb-2">Invite Code</label>
-                    <Input type="text" value={inviteCode} onChange={(event) => setInviteCode(event.target.value)} className="w-full" placeholder="Enter code" required />
+                    <Input type="text" value={inviteCode} onChange={(event) => setInviteCode(event.target.value)} className="w-full rounded-xl" placeholder="Enter code" required />
                   </div>
                 )}
 
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-widest text-content-subtle mb-2">Email</label>
-                  <Input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="w-full" placeholder="name@example.com" required />
+                  <Input type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="w-full rounded-xl" placeholder="name@example.com" required />
                 </div>
 
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-widest text-content-subtle mb-2">Password</label>
-                  <Input type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="w-full" placeholder="min. 6 characters" required minLength={6} />
+                  <Input type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="w-full rounded-xl" placeholder="min. 6 characters" required minLength={6} />
                 </div>
               </div>
 
