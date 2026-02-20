@@ -143,10 +143,10 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-[600px] bg-white rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-stroke-base">
+      <div className="relative w-full max-w-[600px] bg-surface-base rounded-none shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-300 border border-stroke-base">
 
         {/* Header */}
-        <div className="px-8 py-6 border-b border-stroke-base flex justify-between items-center bg-white z-20">
+        <div className="px-8 py-6 border-b border-stroke-base flex justify-between items-center bg-surface-base z-20">
           <div>
             <h2 className="text-2xl font-bold font-heading text-content-primary">Grade Command Center</h2>
             <p className="text-sm text-content-subtle">Update subjects, grades, and the global payscale.</p>
@@ -161,31 +161,29 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({
         </div>
 
         {/* Tab Bar */}
-        <div className="flex border-b border-stroke-base bg-white z-10 shrink-0">
+        <div className="flex border-b border-stroke-base bg-surface-base z-10 shrink-0">
           <button
             onClick={() => setActiveTab('subjects')}
-            className={`flex-1 py-3 text-sm font-bold uppercase tracking-widest transition-colors ${
-              activeTab === 'subjects'
+            className={`flex-1 py-3 text-sm font-bold uppercase tracking-widest transition-colors ${activeTab === 'subjects'
                 ? 'text-blue-500 border-b-2 border-blue-500'
                 : 'text-content-subtle hover:text-neutral-600'
-            }`}
+              }`}
           >
             Subjects
           </button>
           <button
             onClick={() => setActiveTab('payscale')}
-            className={`flex-1 py-3 text-sm font-bold uppercase tracking-widest transition-colors ${
-              activeTab === 'payscale'
+            className={`flex-1 py-3 text-sm font-bold uppercase tracking-widest transition-colors ${activeTab === 'payscale'
                 ? 'text-blue-500 border-b-2 border-blue-500'
                 : 'text-content-subtle hover:text-neutral-600'
-            }`}
+              }`}
           >
             Payscale
           </button>
         </div>
 
         {/* Live Rate Display — always visible */}
-        <div className="px-8 pt-6 pb-2 bg-white shrink-0">
+        <div className="px-8 pt-6 pb-2 bg-surface-base shrink-0">
           <div className="p-4 rounded-none bg-surface-app border border-stroke-base text-center relative overflow-hidden group">
             <div className="relative z-10">
               <div className="flex items-center justify-center gap-2 mb-1">
@@ -220,7 +218,7 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({
                       value={subject.name}
                       onChange={(e) => handleNameChange(subject.id, e.target.value)}
                       placeholder="e.g. Math"
-                      className="w-full font-bold text-content-primary h-12 px-4 bg-white border-stroke-base focus:border-blue-500 transition-colors shadow-sm"
+                      className="w-full font-bold text-content-primary h-12 px-4 bg-surface-app border-stroke-base focus:border-blue-500 transition-colors shadow-sm"
                       autoFocus={index === subjects.length - 1 && subject.name === ''}
                     />
                   </div>
@@ -232,7 +230,7 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({
                     <Select
                       value={subject.grade}
                       onChange={(e) => handleGradeChange(subject.id, e.target.value as Grade)}
-                      className="w-full font-black text-xl h-12 text-center bg-white border-stroke-base focus:border-blue-500 transition-colors shadow-sm"
+                      className="w-full font-black text-xl h-12 text-center bg-surface-app border-stroke-base focus:border-blue-500 transition-colors shadow-sm"
                     >
                       {GRADE_OPTIONS.map((grade) => (
                         <option key={grade} value={grade}>
@@ -288,7 +286,7 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({
                         step="0.25"
                         value={centsToDollars(cfg.valueCents).toFixed(2)}
                         onChange={(e) => handlePayscaleChange(cfg.grade, e.target.value)}
-                        className="w-full h-11 pl-8 font-bold text-content-primary bg-white border-stroke-base focus:border-blue-500 transition-colors shadow-sm"
+                        className="w-full h-11 pl-8 font-bold text-content-primary bg-surface-app border-stroke-base focus:border-blue-500 transition-colors shadow-sm"
                         placeholder="0.00"
                       />
                     </div>
@@ -306,7 +304,7 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 bg-white border-t border-stroke-base z-20 flex justify-end">
+        <div className="absolute bottom-0 left-0 right-0 p-6 bg-surface-base border-t border-stroke-base z-20 flex justify-end">
           <div className="flex gap-3 w-full">
             <Button
               onClick={onClose}

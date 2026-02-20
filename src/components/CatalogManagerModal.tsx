@@ -100,7 +100,7 @@ const CatalogManagerModal: React.FC<CatalogManagerModalProps> = ({
                 onClick={onClose}
             />
 
-            <div className="relative w-full max-w-[600px] bg-cream rounded-none shadow-2xl flex flex-col max-h-[85vh] border border-stroke-base animate-in zoom-in-95 duration-300">
+            <div className="relative w-full max-w-[600px] bg-surface-base rounded-none shadow-2xl flex flex-col max-h-[85vh] border border-stroke-base animate-in zoom-in-95 duration-300">
                 {/* Header */}
                 <div className="flex items-center justify-between px-8 py-6 border-b border-stroke-base shrink-0">
                     <div>
@@ -171,7 +171,7 @@ const CatalogManagerModal: React.FC<CatalogManagerModalProps> = ({
                                             type="text"
                                             value={row.name}
                                             onChange={(e) => setRow(item.id, { name: e.target.value })}
-                                            className="flex-1 px-3 py-2 border border-amber-500/70 rounded-none text-sm font-medium text-content-primary bg-white outline-none focus:ring-2 focus:ring-amber-500/20"
+                                            className="flex-1 px-3 py-2 border border-amber-500/70 rounded-none text-sm font-medium text-content-primary bg-surface-app outline-none focus:ring-2 focus:ring-amber-500/20"
                                             autoFocus
                                             aria-label="Edit catalog item name"
                                             onKeyDown={(e) => { if (e.key === 'Enter') handleSave(item); if (e.key === 'Escape') handleCancelEdit(item); }}
@@ -183,7 +183,7 @@ const CatalogManagerModal: React.FC<CatalogManagerModalProps> = ({
                                                 max="240"
                                                 value={row.baselineMinutes}
                                                 onChange={(e) => setRow(item.id, { baselineMinutes: Number.parseInt(e.target.value, 10) || 0 })}
-                                                className="w-16 px-2 py-2 border border-amber-500/70 rounded-none text-sm text-center text-content-primary bg-white outline-none focus:ring-2 focus:ring-amber-500/20"
+                                                className="w-16 px-2 py-2 border border-amber-500/70 rounded-none text-sm text-center text-content-primary bg-surface-app outline-none focus:ring-2 focus:ring-amber-500/20"
                                                 aria-label="Edit baseline minutes"
                                             />
                                             <span className="text-xs text-content-subtle ml-1">min</span>

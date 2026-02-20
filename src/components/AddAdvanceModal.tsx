@@ -74,7 +74,7 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-[520px] bg-cream rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300 border border-stroke-base">
+      <div className="relative w-full max-w-[520px] bg-surface-base rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-300 border border-stroke-base">
 
         {/* Close Button */}
         <button
@@ -105,7 +105,7 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
               <Select
                 value={childId}
                 onChange={(e) => setChildId(e.target.value)}
-                className="w-full rounded-none bg-white border border-gold/30"
+                className="w-full rounded-none bg-surface-app border border-gold/30"
               >
                 {childrenData.map(child => (
                   <option key={child.id} value={child.id}>{child.name}</option>
@@ -125,7 +125,7 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="0.00"
-                    className="pl-9 pr-4 py-3.5 text-lg font-bold placeholder-neutral-400 rounded-none bg-white border border-gold/30"
+                    className="pl-9 pr-4 py-3.5 text-lg font-bold placeholder-neutral-400 rounded-none bg-surface-app border border-gold/30"
                   />
                 </div>
               </div>
@@ -135,7 +135,7 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
                 <Select
                   value={category}
                   onChange={(e) => setCategory(e.target.value as AdvanceCategory)}
-                  className="w-full rounded-none bg-white border border-gold/30"
+                  className="w-full rounded-none bg-surface-app border border-gold/30"
                 >
                   {CATEGORIES.map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
@@ -152,7 +152,7 @@ const AddAdvanceModal: React.FC<AddAdvanceModalProps> = ({
                 value={memo}
                 onChange={(e) => setMemo(e.target.value)}
                 placeholder="e.g. Starbucks, Robux, Uber"
-                className="px-4 py-3.5 text-base placeholder-neutral-400 rounded-none bg-white border border-gold/30"
+                className="px-4 py-3.5 text-base placeholder-neutral-400 rounded-none bg-surface-app border border-gold/30"
               />
             </div>
 
