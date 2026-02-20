@@ -34,7 +34,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             primary:
                 'tactile-button',
             secondary:
-                'bg-white/10 border border-white/20 shadow-sm backdrop-blur-md text-blue-500 hover:bg-white/20 dark:bg-black/10 dark:border-white/10 dark:hover:bg-black/20',
+                'bg-white/10 border border-white/20 shadow-sm backdrop-blur-md text-crimson hover:bg-white/20 dark:bg-black/10 dark:border-white/10 dark:hover:bg-black/20',
             outline:
                 'bg-transparent border border-white/20 shadow-sm backdrop-blur-md text-primary hover:bg-surface',
             ghost:

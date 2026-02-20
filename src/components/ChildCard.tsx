@@ -115,20 +115,20 @@ const ChildCard: React.FC<ChildCardProps> = ({
   const allTasks = Array.from(taskMap.values()).filter(t => t.status !== 'DELETED');
   const awaitingApproval = allTasks.filter(t => t.status === 'PENDING_APPROVAL');
 
-  // Bank Balance Logic (Green if positive, Red if negative)
+  // Bank Balance Logic (Crimson if negative, following brand)
   // Use balanceCents if reliable, or derived balance
   const currentBalance = child.balance;
   const isNegativeBalance = currentBalance < 0;
-  const balanceColorClass = isNegativeBalance ? 'text-blue-500' : 'text-emerald-700';
+  const balanceColorClass = isNegativeBalance ? 'text-crimson' : 'text-emerald-700';
 
   return (
     <div className="flex flex-col gap-3 font-sans w-full">
       <Card
-        className="group relative overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 glass-card"
+        className={`group relative overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 glass-card border border-glass-border ${awaitingApproval.length > 0
+            ? 'border-t-4 border-t-crimson'
+            : 'hover:border-t-4 hover:border-t-crimson'
+          }`}
         noPadding
-        style={{
-          borderTop: `4px solid ${child.avatarColor || '#E2E8F0'}`,
-        }}
         onClick={() => onClick?.(child)}
       >
         <div className="p-6">
@@ -136,8 +136,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
             <div className="flex items-center gap-4">
               {/* AVATAR */}
               <div
-                className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold text-white shadow-xl ring-4 ring-white/50"
-                style={{ backgroundColor: child.avatarColor || '#94A3B8' }}
+                className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold bg-ascendant-gradient text-cream shadow-xl ring-4 ring-white/10 dark:ring-white/5"
               >
                 {child.name.charAt(0)}
               </div>
@@ -149,7 +148,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
                   <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-content-subtle">
                     <span>{child.gradeLevel}</span>
                     <span className="w-0.5 h-0.5 rounded-full bg-neutral-300" />
-                    <span className={setupStatus === 'SETUP_COMPLETE' ? 'text-emerald-600' : 'text-blue-500'}>
+                    <span className={setupStatus === 'SETUP_COMPLETE' ? 'text-emerald-600' : 'text-crimson'}>
                       {setupLabel}
                     </span>
                   </div>
