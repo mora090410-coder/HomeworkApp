@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Pencil, Trash2, Check, AlertTriangle } from 'lucide-react';
+import { X, Pencil, Trash2, Check, AlertTriangle, Briefcase } from 'lucide-react';
 import { ChoreCatalogItem } from '@/types';
 import { Button } from '@/components/ui/Button';
 
@@ -100,7 +100,7 @@ const CatalogManagerModal: React.FC<CatalogManagerModalProps> = ({
                 onClick={onClose}
             />
 
-            <div className="relative w-full max-w-[600px] bg-white rounded-none shadow-2xl flex flex-col max-h-[85vh] border border-stroke-base animate-in zoom-in-95 duration-300">
+            <div className="relative w-full max-w-[600px] bg-cream rounded-none shadow-2xl flex flex-col max-h-[85vh] border border-stroke-base animate-in zoom-in-95 duration-300">
                 {/* Header */}
                 <div className="flex items-center justify-between px-8 py-6 border-b border-stroke-base shrink-0">
                     <div>
@@ -121,8 +121,12 @@ const CatalogManagerModal: React.FC<CatalogManagerModalProps> = ({
                 {/* List */}
                 <div className="overflow-y-auto flex-1 divide-y divide-neutral-100">
                     {items.length === 0 ? (
-                        <div className="py-16 text-center text-content-subtle text-sm">
-                            No catalog items yet. Save a task to the catalog when assigning.
+                        <div className="py-20 flex flex-col items-center justify-center text-center px-8">
+                            <Briefcase className="w-12 h-12 text-charcoal/20 mb-4" />
+                            <h3 className="text-charcoal font-bold text-lg">No catalog items yet</h3>
+                            <p className="text-charcoal/50 text-sm max-w-[280px] mt-1">
+                                Tasks you save while assigning will appear here for reuse.
+                            </p>
                         </div>
                     ) : (
                         items.map((item) => {
@@ -214,7 +218,7 @@ const CatalogManagerModal: React.FC<CatalogManagerModalProps> = ({
                                             {item.name}
                                         </span>
                                     </div>
-                                    <span className="text-xs font-medium text-content-subtle shrink-0 bg-surface-2 px-2 py-0.5 rounded-none">
+                                    <span className="text-xs font-medium text-charcoal shrink-0 bg-cream-mid border border-gold/20 px-2 py-0.5 rounded-none">
                                         {item.baselineMinutes} min
                                     </span>
                                     <button
@@ -238,8 +242,12 @@ const CatalogManagerModal: React.FC<CatalogManagerModalProps> = ({
                 </div>
 
                 {/* Footer */}
-                <div className="px-8 py-4 border-t border-stroke-base shrink-0">
-                    <Button variant="secondary" onClick={onClose} className="w-full">
+                <div className="px-8 py-6 border-t border-stroke-base shrink-0 flex justify-center">
+                    <Button
+                        variant="ghost"
+                        onClick={onClose}
+                        className="border border-gold/30 text-charcoal rounded-full px-8 py-2"
+                    >
                         Done
                     </Button>
                 </div>
