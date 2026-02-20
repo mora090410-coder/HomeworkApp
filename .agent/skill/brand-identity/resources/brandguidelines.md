@@ -1,115 +1,207 @@
-HomeWork: Brand Identity & Interface Guidelines
-Version 1.0 | The "Cupertino" Aesthetic
+HOMEWORK
+Brand Identity & Design System
 
-01. The Core Philosophy
-The Manifesto of Essentialism
+Version 2.0  —  The Crimson Standard
+February 2026  |  Confidential
 
-HomeWork is not a utility for chore management. It is a friction-free operating system for the family economy. It exists to distill complex concepts—effort, value, delayed gratification—into a singular, intuitive interface that requires zero cognitive load to understand.
+"The Family Economy. Redefined."
+HomeWork is not a chore tracker. It is a friction-free operating system for the family economy—distilling the concepts of effort, value, and capital formation into an interface that requires zero cognitive load to understand.
 
-Our design ethos is "Subtractive." We do not add features; we remove barriers to understanding. If an element does not directly contribute to the "aha moment" of realizing the connection between work and reward, it must be eliminated. The resulting experience should feel inevitable, as if it were the only natural way to solve this problem.
+01  Core Philosophy
 
-The Emotional Promise
+The Subtractive Manifesto
+We do not add features. We remove barriers to understanding. Every element must earn its place by contributing to the core "aha moment"—the instant a child realizes that effort creates visible, real capital. If it doesn't serve that moment, it is eliminated.
 
-We are selling clarity and optimism. For the parent, HomeWork is the relief of an automated, fair system. For the child, it is the dignity of agency and visible progress. The visual language must reflect this dual promise: authoritative enough to be trusted, yet warm enough to be embraced in the intimate setting of a home.
+The Dual Emotional Promise
+FOR THE PARENT
+Relief. An automated, fair system running quietly in the background. No arguments about fairness. No manual tracking. The confidence of a structured economy, not a negotiation. FOR THE CHILD
+Dignity. The agency of a real worker with a real rate. Visible progress in their Vault. The feeling that effort has tangible, immediate consequence. Capital they control.
 
-12. Voice and Tone
-The HomeWork voice is that of a quiet, competent partner. It never nags, cajoles, or celebrates excessively. It presents reality with beautiful precision.
+Voice & Tone
+HomeWork speaks as a quiet, competent partner. It never nags, cajoles, or celebrates excessively. It presents reality with beautiful precision.
 
-Confident, Not Arrogant: We state facts. "Balance: $12.50." We do not need exclamation points to make financial progress exciting; the data is exciting on its own.
+What We Say
+"Balance: $12.50"
+"Claim your bounty."
+"Build. Earn. Progress."
+"Your contract is ready." What We Never Say
+"Great job! 🎉"
+"You owe chores."
+"Don't forget!"
+"Allowance time!"
 
-Restrained & Clairvoyant: We anticipate the user's next move. The interface offers the right action at the right time (e.g., the "Claim Bounty" button appearing only when relevant). The copy is minimal. If a visual element can communicate the message, do not use text.
+02  Color System
 
-Optimistic: The vocabulary should lean toward growth. Use words like "Build," "Earn," "Progress," and "Claim," rather than "Debt," "Owe," or "Chore."
+The previous "Momentum" gradient (Catalyst Blue → Kinetic Orange) has been retired. It communicated the wrong product category—fintech utilities and delivery apps. The new "Crimson Standard" palette communicates what HomeWork actually is: earned authority, domestic warmth, and aspirational growth.
 
-13. Visual Identity System
-The Logomark: "The Domestic Ascendant"
+Primary Palette
+THE IDENTITY COLORS
 
-The HomeWork icon is a unified glyph representing the fusion of domestic life and economic upward mobility. It is constructed with strict geometric precision.
+Crimson
+# 8B1A1A Burgundy
+# 6B0F0F Warm Cream
+# F5F0E8 Charcoal
+# 0F0F14
 
-Construction: The mark is composed of a stylized domicile outline integrated with a rising bar graph that culminates in an arrow. The stroke width is uniform. The corners are rounded using a continuous curvature (squircle geometry) to appear friendly and approachable, avoiding sharp, aggressive angles.
+Secondary Palette
+ACCENT & REWARD COLORS
 
-The Container: The glyph always resides within an Apple-standard superellipse container. It is never allowed to float freely without its bounding box in app contexts.
+Champagne Gold
+# C9A84C Gold Light
+# E2C97E Cream Mid
+# EDE7D9 Charcoal Mid
+# 1C1C24
 
-Clear Space: The minimum clear space around the logo is equal to 25% of the container's height on all sides. No other graphic elements may intrude into this zone.
+Semantic Colors
+SYSTEM STATES
 
-The Color System: "Luminescent Energy"
+Success
+# 2D7D4F Destructive
+# B03030 Neutral Mid
+# 6B6B6B Neutral Light
+# A0A0A0
 
-Our color palette is not flat; it is made of light. The primary identity is defined by a specific, vibrant gradient that suggests the transition from clarity to energy.
+The "Ascendant" Gradient
+This gradient replaces the deprecated Momentum blend. It is used for the primary CTA button, progress rings, and reward moment animations. It communicates the arc from structure (Crimson/authority) to reward (Champagne Gold/aspiration).
 
-Primary Gradient: The "Momentum" Blend
-This gradient is the soul of the brand. It is used for the app icon, the primary action buttons, and the progress indicators. It should always be rendered with a subtle inner glow, making it appear to emit light.
+Crimson  #8B1A1A   →   Champagne Gold  #C9A84C
+The "Ascendant" Gradient  |  135° angle  |  CTA buttons, progress rings, reward states
 
-Start (Top Left/Blue): "Catalyst Blue"
+Color Usage Rules
+Token Value Usage
+Crimson (#8B1A1A) Primary brand color Logo container, primary headings, CTA text, active nav states
+Warm Cream (#F5F0E8) Background — light mode Page backgrounds, card fills, section backgrounds (NOT pure white)
+Charcoal (#0F0F14) Background — dark mode Dark sections, premium CTAs, footer, pricing panels
+Champagne Gold (#C9A84C) Accent & reward Section dividers, milestone markers, "earned" states, hover accents
+Burgundy (#6B0F0F) Pressed/dark state Button press states, active card borders, focus rings
+Gradient: Ascendant Primary action CTA buttons, progress rings, celebration animations only
 
-Hex: #3B82F6 (Approximate based on visual)
+03  Typography
 
-Represents: Trust, clarity, structure, the "Home."
+Typography is unchanged from v1.0 in structure. The primary face remains SF Pro (system font on Apple, Helvetica Neue fallback for web). What changes is the application: type now lives on cream and charcoal backgrounds, not white and blue-gray.
 
-End (Bottom Right/Orange): "Kinetic Orange"
+Type Scale
+Token Value Usage
+H1 3rem / -0.02em / Heavy 800 Hero headlines, major section openers
+H2 2.25rem / -0.015em / Bold 700 Section headings
+H3 1.75rem / -0.01em / Bold 700 Card titles, subsection labels
+H4 1.375rem / -0.005em / Medium 500 Feature labels, step titles
+Body 1rem / 1.5 / Regular 400 Paragraph text, explanations
+Small 0.875rem / 1.45 / Regular 400 Supporting text, metadata
+Caption 0.75rem / 1.35 / Regular 400 Timestamps, fine print, labels
+Label (Caps) 0.75rem / +0.08em tracked / Bold 700 ALL CAPS section category labels
 
-Hex: #F97316 (Approximate based on visual)
+Critical Type Rules
+•  Financial figures ($12.50, $14.99) are always Hero—largest element on screen, Heavy weight.
+•  Labels act as scaffolding—smaller, tracked, Neutral color. They frame data, never compete with it.
+•  Never use pure black (#000000). Use Charcoal (#0F0F14) on light backgrounds only.
+•  On dark (Charcoal) backgrounds: primary text is Warm Cream (#F5F0E8), secondary is Neutral Light.
+•  Headline tracking: tighten to -0.02em on H1 for impact. Loosen Label caps to +0.08em for scan.
 
-Represents: Action, warmth, reward, the "Work."
+04  Design Tokens (v2.0)
 
-Secondary Palette: The Canvas
-The environment in which the gradient lives must be obsessively clean to allow the primary colors to "pop."
+The following tokens replace all v1.0 tokens. Update your tokens.json, Tailwind config, and CSS variables to match. The deprecated blue/orange gradient variables should be removed entirely.
 
-Photon White: #FFFFFF - The absolute background.
+Colors
+Token Value Usage
+--color-crimson #8B1A1A Primary brand color. CTA borders, logo, accents.
+--color-burgundy #6B0F0F Pressed state for crimson elements.
+--color-cream #F5F0E8 Light mode background. Replaces pure #FFFFFF.
+--color-cream-mid #EDE7D9 Card backgrounds on cream. Subtle layering.
+--color-charcoal #0F0F14 Dark mode background. Text on light.
+--color-charcoal-mid #1C1C24 Dark card fills. Sections within dark bg.
+--color-gold #C9A84C Champagne accent. Dividers, milestones, earned.
+--color-gold-light #E2C97E Lighter gold. Hover states on gold elements.
+--color-text-primary #0F0F14 Primary text on cream backgrounds.
+--color-text-secondary #6B6B6B Supporting text. Replaces old neutral_text.
+--color-text-cream #F5F0E8 Text on dark/charcoal backgrounds.
+--color-success #2D7D4F Success states. Darker than v1 for contrast.
+--color-destructive #B03030 Error/delete states.
 
-Vapor Grey: #F3F4F6 - Used for subtle layering, secondary cards, and unselected states.
+Gradients
+Token Value Usage
+--gradient-ascendant linear-gradient(135deg, #8B1A1A, #C9A84C) CTA buttons, progress rings. Replaces Momentum.
+--gradient-ascendant-hover linear-gradient(135deg, #6B0F0F, #E2C97E) Hover state of Ascendant gradient.
+--gradient-dark-fade linear-gradient(180deg, #0F0F14, #1C1C24) Dark section backgrounds. Subtle depth.
 
-Obsidian text: #111827 - For primary data and headlines. Never pure black; a deep, rich charcoal.
+UI & Spacing
+Token Value Usage
+--radius-card 12px Card border radius. Unchanged from v1.
+--radius-button 9999px Pill-shaped CTA buttons.
+--radius-chip 6px Small tag/chip elements.
+--shadow-ambient 0 20px 40px -10px rgba(0,0,0,0.12) Card float shadow. Slightly stronger than v1.
+--shadow-button 0 8px 24px -4px rgba(139,26,26,0.35) Crimson glow under CTA buttons.
+--border-card 1px solid rgba(201,168,76,0.2) Subtle gold card borders on cream bg.
+--border-card-dark 1px solid rgba(201,168,76,0.15) Gold borders on dark backgrounds.
 
-Neutral Text: #6B7280 - For secondary labels and timestamps.
+05  Key Component Specs
 
-Typography: "Invisible Precision"
+Primary CTA Button
+The CTA button is the single most important UI element. It must feel like a physical, pressable object—not a flat rectangle.
 
-Typography must be functional above all else. It should be so clean that the user doesn't notice the font, only the information it conveys.
+Token Value Usage
+Background var(--gradient-ascendant) Crimson → Champagne Gold at 135°
+Border Radius 9999px (pill) Never square, never rounded-lg. Always pill.
+Padding 14px 32px Generous horizontal padding for presence.
+Text White / SF Pro Bold / 1rem Never cream on gradient—use pure white.
+Box Shadow var(--shadow-button) Crimson glow. Makes it float off the surface.
+Hover State var(--gradient-ascendant-hover) Darker gradient + slightly larger shadow.
+Active/Press scale(0.97) + darken Physical press feel. 150ms ease-out.
 
-Primary Typeface: SF Pro (San Francisco). If SF Pro is unavailable (e.g., non-Apple web environments), Helvetica Neue is the mandated fallback.
+Cards
+Token Value Usage
+Background (light) var(--color-cream) or #FFFFFF Use cream-mid for nested cards.
+Background (dark) var(--color-charcoal-mid) Cards within dark sections.
+Border var(--border-card) Subtle gold border. 1px at 20% opacity.
+Border Radius 12px Consistent with --radius-card.
+Shadow var(--shadow-ambient) Large diffused float shadow.
+Padding 24px–32px Generous interior breathing room.
 
-Hierarchy & Weight:
+Progress Ring (Child Vault)
+The Luminary Ring is unchanged in behavior. The color changes from the Momentum gradient to the Ascendant gradient.
+Token Value Usage
+Active arc var(--gradient-ascendant) Crimson base → gold at completion
+Track (empty) rgba(201,168,76,0.15) Barely-visible gold track
+Glow box-shadow: 0 0 16px rgba(139,26,26,0.4) Crimson radiated glow at progress tip
+Cap style round Rounded ends. No hard stops.
 
-Data is Hero: Financial figures (e.g., "$12.50") are the most important visual element on any screen. They should be rendered in a heavy weight (Bold or Heavy) and large scale.
+06  Landing Page — Immediate Changes
 
-Labels act as scaffolding: Labels like "Balance" or "New Bounty!" should be significantly smaller, using Medium or Regular weights in the Neutral Text color.
+Based on the v1 build review, the following changes are required before launch. Ordered by priority.
 
-Kerning: Tracking should be slightly tightened on large headlines for a dense, impactful feel, and slightly loosened on small caps labels for readability.
+P0 — Ship Today
+Token Value Usage
+Background: all white sections Replace #FFFFFF → #F5F0E8 (Warm Cream) White feels clinical. Cream feels domestic.
+Background: dark sections Replace #1a2035 → #0F0F14 (Charcoal) Current dark blue reads as corporate/SaaS
+CTA Button gradient Replace blue→orange → Ascendant (#8B1A1A→#C9A84C) This is the most visible wrong-brand signal
+"THE FAMILY ECONOMY. REDEFINED." Color → #C9A84C (Gold). Remove blue tracking. Gold, not blue. This is a HomeWork line.
+Step numbers 01/02/03 Replace blue/orange gradient → #8B1A1A (Crimson) Or solid Crimson. Either works. No blue.
 
-14. Interface Guidelines (The Tactile UX)
-The HomeWork interface is not a flat picture; it is a layered, tactile environment composed of light and premium materials.
+P1 — Before Launch
+Token Value Usage
+Logo placement Move to nav top-left. Remove center halo glow. Hero logo with glow reads as loading screen.
+Sticky nav Add: Logo left | Sign In (ghost) + Start Free Trial (crimson) right Parents who scroll need a re-entry CTA.
+Hero dead space Collapse 200px gap between logo and headline. Quote → Headline → CTA as single tight block.
+"THE FAMILY ECONOMY" subhead If kept, render in Gold small caps. Remove blue tracking. Naval: let the headline breathe.
 
-The "Luminary" Progress Ring
+P2 — Polish Pass
+Token Value Usage
+Section transitions Add cream-to-charcoal gradient bridge between halves Current jump is jarring. One narrative arc.
+Agency/Worth/Growth cards Add gold left-border accent (4px, #C9A84C) No identity markers currently.
+Testimonial attribution Verify or note as placeholder until real review Fictional quotes carry legal/trust risk.
 
-As seen in the child dashboard, progress is not shown as a static bar. It is a glowing, cyclical ring using the "Momentum" gradient.
+07  Deprecated — Remove Immediately
 
-Behavior: The ring must feel alive. The colored portion should have a soft, radiated glow, appearing to cast colored light onto the white background beneath it.
+The following v1.0 tokens and patterns are deprecated. They should not appear anywhere in the codebase after the v2.0 migration.
 
-Cap & Track: The ends of the progress arc are rounded. The "empty" track behind it is a subtle, translucent Vapor Grey.
+Token Value Usage
+momentum_start: #3B82F6 DEPRECATED Catalyst Blue. Remove all references.
+momentum_end: #F97316 DEPRECATED Kinetic Orange. Remove all references.
+photon_white: #FFFFFF as bg DEPRECATED Use --color-cream (#F5F0E8) for bg surfaces.
+vapor_grey: #F3F4F6 DEPRECATED Use --color-cream-mid (#EDE7D9) instead.
+Blue accent text DEPRECATED Any blue used as accent → Gold (#C9A84C)
+neutral_text: #6B7280 REPLACED Use --color-text-secondary (#6B6B6B)
+Gradient: blue→orange on CTAs DEPRECATED Replace with Ascendant gradient.
 
-Materiality & Layering
-
-Glassmorphism: The interface uses subtle translucency and background blurring (glassmorphism) to establish hierarchy. Primary cards or modals should feel like panes of frosted glass sliding over the background, giving a sense of depth.
-
-Soft Shadows: We do not use harsh drop shadows. Depth is created using large, highly diffused, soft ambient shadows that make elements feel like they are floating millimeters above the surface.
-
-The Button as Object: The primary action button (e.g., "Claim Bounty") is not a flat rectangle. It is a pill-shaped object with the "Momentum" gradient. It must have a subtle specular highlight on the top edge, making it look like a physical, pressable lozenge.
-
-Ecosystem Continuity
-
-The experience must be seamless across devices.
-
-Phone (Child Focus): Immediate, singular focus. Large data, single primary action.
-
-Tablet (Parent Focus): Dashboard architecture. Clean grids, scannable lists, data density balanced by white space.
-
-Watch (Notification Focus): Glanceable. High-contrast text against deep black. The icon and the core message only.
-
-15. Imagery and Context
-How HomeWork is presented in the world is as important as the app itself. The context must reinforce the premium, aspirational nature of the product.
-
-Environment: The app is always shown in idealized, sunlit domestic spaces. Think architectural digest modernism—light oak wood surfaces, minimalist furniture, abundant natural light. No clutter.
-
-Hardware: The app is only ever presented on the latest generation Apple hardware (iPhone Pro models, iPad Pro, Apple Watch Ultra). The hardware colors should be neutral (Silver, Titanium) so as not to compete with the app's gradient.
-
-Photography Style: High-key lighting, shallow depth of field (focus sharp on the screen, background beautifully blurred), obsessive attention to reflections on the device screen. The product is the hero; the environment is the supporting cast.
+The Crimson Standard
+HomeWork v2.0 Brand Identity  |  February 2026

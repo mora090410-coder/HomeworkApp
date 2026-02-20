@@ -23,12 +23,14 @@ export default {
     theme: {
         extend: {
             colors: {
-                'photon-white': colors.brand.photonWhite,
-                'obsidian': colors.brand.obsidian,
+                'cream': colors.brand.cream,
+                'charcoal': colors.brand.charcoal,
+                'crimson': colors.brand.crimson,
+                'gold': colors.brand.gold,
                 brand: {
-                    DEFAULT: colors.brand.obsidian,
-                    white: colors.brand.photonWhite,
-                    grey: colors.brand.vaporGrey,
+                    DEFAULT: colors.brand.charcoal,
+                    white: colors.brand.cream,
+                    grey: colors.brand.neutralText,
                     text: colors.brand.neutralText,
                     ...colors.brand,
                 },
@@ -60,7 +62,8 @@ export default {
                 heading: ['"SF Pro Display"', '"-apple-system"', '"BlinkMacSystemFont"', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif', '"Apple Color Emoji"', '"Segoe UI Emoji"', '"Segoe UI Symbol"'],
             },
             backgroundImage: {
-                'momentum-gradient': `linear-gradient(to right, var(--momentum-start), var(--momentum-end))`,
+                'ascendant-gradient': `linear-gradient(135deg, ${colors.brand.crimson} 0%, ${colors.brand.gold} 100%)`,
+                'cream-to-charcoal': `linear-gradient(180deg, ${colors.brand.cream} 0%, ${colors.brand.charcoal} 100%)`,
             },
             boxShadow: {
                 'sm': 'var(--shadow-sm)',

@@ -1,32 +1,87 @@
 {
   "meta": {
     "brand_name": "HomeWork",
-    "description": "Core design tokens for HomeWork brand."
+    "version": "2.0",
+    "description": "Design tokens — The Crimson Standard. Replaces v1.0 blue/orange Momentum palette.",
+    "deprecated": [
+      "momentum_start",
+      "momentum_end",
+      "photon_white",
+      "vapor_grey"
+    ]
   },
   "colors": {
     "brand": {
+      "crimson": "#8B1A1A",
+      "burgundy": "#6B0F0F",
+      "cream": "#F5F0E8",
+      "cream_mid": "#EDE7D9",
+      "charcoal": "#0F0F14",
+      "charcoal_mid": "#1C1C24",
+      "gold": "#C9A84C",
+      "gold_light": "#E2C97E"
+    },
+    "text": {
+      "primary": "#0F0F14",
+      "secondary": "#6B6B6B",
+      "light": "#A0A0A0",
+      "on_dark": "#F5F0E8",
+      "on_dark_muted": "#A0A0A0"
+    },
+    "semantic": {
+      "success": "#2D7D4F",
+      "destructive": "#B03030"
+    },
+    "deprecated": {
+      "_note": "DO NOT USE — retained only for migration reference",
+      "momentum_start": "#3B82F6",
+      "momentum_end": "#F97316",
       "photon_white": "#FFFFFF",
       "vapor_grey": "#F3F4F6",
       "obsidian": "#111827",
       "neutral_text": "#6B7280"
+    }
+  },
+  "gradients": {
+    "ascendant": {
+      "value": "linear-gradient(135deg, #8B1A1A 0%, #C9A84C 100%)",
+      "usage": "Primary CTA buttons, progress rings, reward animations",
+      "angle": "135deg",
+      "stops": [
+        "#8B1A1A",
+        "#C9A84C"
+      ]
     },
-    "semantic": {
-      "success": "#10B981",
-      "destructive": "#EF4444"
+    "ascendant_hover": {
+      "value": "linear-gradient(135deg, #6B0F0F 0%, #E2C97E 100%)",
+      "usage": "Hover state for Ascendant gradient elements"
     },
-    "gradients": {
-      "momentum_start": "#3B82F6",
-      "momentum_end": "#F97316"
+    "dark_fade": {
+      "value": "linear-gradient(180deg, #0F0F14 0%, #1C1C24 100%)",
+      "usage": "Dark section backgrounds, subtle depth layering"
+    },
+    "cream_to_charcoal": {
+      "value": "linear-gradient(180deg, #F5F0E8 0%, #0F0F14 100%)",
+      "usage": "Section transitions between light and dark zones"
     }
   },
   "typography": {
-    "font_family_sans": [
-      "-apple-system",
-      "BlinkMacSystemFont",
-      "SF Pro",
-      "Helvetica Neue",
-      "sans-serif"
-    ],
+    "font_family": {
+      "primary": [
+        "-apple-system",
+        "BlinkMacSystemFont",
+        "SF Pro Display",
+        "SF Pro Text",
+        "Helvetica Neue",
+        "Arial",
+        "sans-serif"
+      ],
+      "mono": [
+        "SF Mono",
+        "Menlo",
+        "monospace"
+      ]
+    },
     "weights": {
       "regular": 400,
       "medium": 500,
@@ -34,45 +89,125 @@
       "heavy": 800
     },
     "scale": {
+      "hero": {
+        "size": "4rem",
+        "line_height": "1.0",
+        "letter_spacing": "-0.03em",
+        "weight": 800,
+        "usage": "Financial figures in Vault ($12.50), single-stat hero displays"
+      },
       "h1": {
         "size": "3rem",
         "line_height": "1.05",
-        "letter_spacing": "-0.02em"
+        "letter_spacing": "-0.02em",
+        "weight": 800,
+        "usage": "Landing page hero headlines"
       },
       "h2": {
         "size": "2.25rem",
         "line_height": "1.10",
-        "letter_spacing": "-0.015em"
+        "letter_spacing": "-0.015em",
+        "weight": 700,
+        "usage": "Section headings"
       },
       "h3": {
         "size": "1.75rem",
         "line_height": "1.15",
-        "letter_spacing": "-0.01em"
+        "letter_spacing": "-0.01em",
+        "weight": 700,
+        "usage": "Card titles, feature headers"
       },
       "h4": {
         "size": "1.375rem",
         "line_height": "1.20",
-        "letter_spacing": "-0.005em"
+        "letter_spacing": "-0.005em",
+        "weight": 500,
+        "usage": "Step titles, sub-feature labels"
       },
       "body": {
         "size": "1rem",
-        "line_height": "1.5"
+        "line_height": "1.6",
+        "letter_spacing": "0em",
+        "weight": 400,
+        "usage": "Paragraph text, explanations"
       },
       "small": {
         "size": "0.875rem",
-        "line_height": "1.45"
+        "line_height": "1.45",
+        "weight": 400,
+        "usage": "Supporting text, metadata"
       },
       "caption": {
         "size": "0.75rem",
-        "line_height": "1.35"
+        "line_height": "1.35",
+        "weight": 400,
+        "usage": "Timestamps, fine print"
+      },
+      "label": {
+        "size": "0.75rem",
+        "line_height": "1.35",
+        "letter_spacing": "0.08em",
+        "weight": 700,
+        "transform": "uppercase",
+        "usage": "Section category labels, e.g. 'THE FAMILY ECONOMY'"
       }
     }
   },
   "ui": {
-    "border_radius_card": "12px",
-    "border_width_card": "1px",
+    "border_radius": {
+      "card": "12px",
+      "button": "9999px",
+      "chip": "6px",
+      "input": "8px"
+    },
+    "borders": {
+      "card_light": "1px solid rgba(201, 168, 76, 0.20)",
+      "card_dark": "1px solid rgba(201, 168, 76, 0.15)",
+      "input": "1px solid rgba(139, 26, 26, 0.25)"
+    },
     "shadows": {
-      "soft_ambient": "0 20px 40px -10px rgba(0,0,0,0.1)"
+      "ambient": "0 20px 40px -10px rgba(0, 0, 0, 0.12)",
+      "button": "0 8px 24px -4px rgba(139, 26, 26, 0.35)",
+      "card_hover": "0 28px 56px -12px rgba(0, 0, 0, 0.18)"
+    },
+    "transitions": {
+      "default": "150ms ease-out",
+      "slow": "300ms ease-out",
+      "button": "150ms ease-out"
+    }
+  },
+  "components": {
+    "cta_button": {
+      "background": "var(--gradient-ascendant)",
+      "background_hover": "var(--gradient-ascendant-hover)",
+      "color": "#FFFFFF",
+      "border_radius": "9999px",
+      "padding": "14px 32px",
+      "font_weight": 700,
+      "font_size": "1rem",
+      "box_shadow": "var(--shadow-button)",
+      "transform_active": "scale(0.97)",
+      "transition": "150ms ease-out"
+    },
+    "progress_ring": {
+      "active_color": "var(--gradient-ascendant)",
+      "track_color": "rgba(201, 168, 76, 0.15)",
+      "glow": "0 0 16px rgba(139, 26, 26, 0.4)",
+      "stroke_cap": "round"
+    },
+    "card_light": {
+      "background": "#F5F0E8",
+      "border": "1px solid rgba(201, 168, 76, 0.20)",
+      "border_radius": "12px",
+      "box_shadow": "var(--shadow-ambient)",
+      "padding": "24px"
+    },
+    "card_dark": {
+      "background": "#1C1C24",
+      "border": "1px solid rgba(201, 168, 76, 0.15)",
+      "border_radius": "12px",
+      "box_shadow": "var(--shadow-ambient)",
+      "padding": "24px"
     }
   }
 }
