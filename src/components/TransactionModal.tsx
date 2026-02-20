@@ -158,12 +158,12 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                             </p>
                         )}
 
-                        <div className="flex gap-3 pt-2">
+                        <div className="flex gap-3 pt-4">
                             <Button
                                 type="button"
                                 variant="ghost"
                                 onClick={onClose}
-                                className="flex-1 border border-gold/30 text-content-primary rounded-full px-6 py-2"
+                                className="flex-1 h-12 border border-gold/30 text-content-primary rounded-full"
                                 disabled={isSubmitting}
                             >
                                 Cancel
@@ -171,7 +171,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                             <Button
                                 type="submit"
                                 variant={isAdvance ? "ghost" : "primary"}
-                                className={`flex-1 ${isAdvance ? 'border-2 border-crimson text-crimson bg-transparent rounded-full hover:bg-crimson/5' : ''}`}
+                                className={`flex-1 h-12 !py-0 rounded-full ${isAdvance ? 'border-2 border-crimson text-crimson bg-transparent hover:bg-crimson/5' : ''}`}
                                 isLoading={isSubmitting}
                             >
                                 Confirm
