@@ -46,6 +46,7 @@ import { Popover } from '@headlessui/react';
 import { TransactionModal } from './TransactionModal';
 import { householdService } from '@/services/householdService';
 import { ledgerService } from '@/services/ledgerService';
+import { PayNowModal } from './PayNowModal';
 
 interface ChildDetailProps {
   child: Child;
@@ -133,6 +134,8 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
   const [transactionModalOpen, setTransactionModalOpen] = useState(false);
   const [transactionType, setTransactionType] = useState<'ADVANCE' | 'PAYOUT'>('ADVANCE');
   const [isProcessingPayout, setIsProcessingPayout] = useState<string | null>(null);
+  const [showPayNowModal, setShowPayNowModal] = useState(false);
+  const [paymentTask, setPaymentTask] = useState<Task | null>(null);
 
   // Real-time listener for tasks in sub-collection
   useEffect(() => {
@@ -218,6 +221,31 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
       console.error("Failed to approve and deposit", err);
       const message = err?.message || "Please check the ledger or try again.";
       alert(`Approve & Deposit failed: ${message}`);
+    }
+  };
+
+  const handleApproveAndPayNow = async (task: Task) => {
+    try {
+      // 1. Approve the task (same as Approve & Deposit status update)
+      await householdService.updateTaskStatus(child.householdId!, task.id, 'PENDING_PAYMENT', child.id);
+
+      // 2. Open payment method selector modal
+      setPaymentTask(task);
+      setShowPayNowModal(true);
+    } catch (err: any) {
+      console.error("Failed to approve and pay now", err);
+      alert(`Approval failed: ${err.message || "Try again."}`);
+    }
+  };
+
+  const handleRecordCashPayment = async (task: Task) => {
+    try {
+      await onPayTask(child.id, task);
+      setShowPayNowModal(false);
+      setPaymentTask(null);
+    } catch (err: any) {
+      console.error("Failed to record cash payment", err);
+      alert(`Payment failed: ${err.message || "Try again."}`);
     }
   };
 
@@ -516,11 +544,17 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                 </div>
 
                 {isParent && (
-                  <div className="flex gap-3 mt-auto w-full items-center">
+                  <div className="flex items-center gap-2 mt-4 flex-wrap">
                     <RejectDropdown task={task} onReject={(taskId, reason) => handleQuickReject(task, reason)} />
                     <button
+                      onClick={() => handleApproveAndPayNow(task)}
+                      className="border border-gold/40 text-gold bg-transparent rounded-full px-4 py-2 text-sm hover:bg-gold/5 transition-colors flex items-center gap-2 font-sans"
+                    >
+                      <Zap className="w-3 h-3" /> Pay Now
+                    </button>
+                    <button
                       onClick={() => handleApproveAndDeposit(task)}
-                      className="flex-[2] bg-ascendant-gradient text-white rounded-full px-5 py-2 text-sm font-semibold border-0 flex items-center justify-center gap-2"
+                      className="bg-ascendant-gradient text-white rounded-full px-5 py-2 text-sm font-semibold border-0 flex items-center justify-center gap-2"
                     >
                       <ThumbsUp className="w-4 h-4" /> Approve & Deposit
                     </button>
@@ -601,41 +635,73 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                     </div>
                   </div>
 
-                  <div className="flex gap-3 mt-auto relative z-10 items-center w-full">
+                  <div className="flex flex-col gap-3 mt-auto relative z-10 w-full">
                     {isParent ? (
-                      <>
-                        <div className="flex items-center gap-3 w-full">
-                          {isPending && (
-                            <>
-                              <RejectDropdown task={task} onReject={(taskId, reason) => handleQuickReject(task, reason)} />
-                              <button
-                                onClick={() => handleApproveAndDeposit(task)}
-                                className="flex-[2] bg-ascendant-gradient text-white rounded-full px-5 py-2 text-sm font-semibold border-0 flex items-center justify-center gap-2"
-                              >
-                                <ThumbsUp className="w-4 h-4" /> Approve & Deposit
-                              </button>
-                            </>
-                          )}
-                          {isAssigned && (
-                            <Button
-                              onClick={() => onSubmitTask(child.id, { ...task, status: 'OPEN' })}
-                              variant="ghost"
-                              className="border border-crimson/40 text-crimson bg-transparent rounded-full px-5 py-2 text-sm hover:bg-crimson/5 transition-colors shadow-none flex-1"
+                      <div className="w-full">
+                        {isPending && (
+                          <div className="flex items-center gap-2 flex-wrap w-full">
+                            <RejectDropdown task={task} onReject={(taskId, reason) => handleQuickReject(task, reason)} />
+                            <button
+                              onClick={() => handleApproveAndPayNow(task)}
+                              className="border border-gold/40 text-gold bg-transparent rounded-full px-4 py-2 text-sm hover:bg-gold/5 transition-colors flex items-center gap-2 font-sans"
                             >
-                              Mark Started
-                            </Button>
-                          )}
-                          {!isPending && !isAssigned && (
-                            <Button
-                              onClick={() => onSubmitTask(child.id, task)}
-                              className="bg-ascendant-gradient text-white rounded-full px-5 py-2 text-sm shadow-md hover:shadow-lg transition-all flex-1"
+                              <Zap className="w-3 h-3" /> Pay Now
+                            </button>
+                            <button
+                              onClick={() => handleApproveAndDeposit(task)}
+                              className="bg-ascendant-gradient text-white rounded-full px-5 py-2 text-sm font-semibold border-0 flex items-center justify-center gap-2"
                             >
-                              ✓ I'm Done
-                            </Button>
-                          )}
-                        </div>
-                      </>
-                    ) : null}
+                              <ThumbsUp className="w-4 h-4" /> Approve & Deposit
+                            </button>
+                          </div>
+                        )}
+                        {(isAssigned || task.status === 'REJECTED') && (
+                          <div className="flex flex-col">
+                            <div className="text-charcoal/40 text-sm italic">
+                              Waiting for child...
+                            </div>
+                            <div className="flex items-center gap-3 mt-2">
+                              <Pencil className="w-4 h-4 text-charcoal/30 cursor-pointer hover:text-charcoal/60" onClick={() => onEditSettings(child)} />
+                              <Trash2 className="w-4 h-4 text-charcoal/30 cursor-pointer hover:text-crimson/60" onClick={() => householdService.deleteTaskById(task.id, child.id)} />
+                            </div>
+                          </div>
+                        )}
+                        {task.status === 'PENDING_PAYMENT' && (
+                          <div className="flex flex-col gap-3 w-full">
+                            <span className="text-gold text-sm font-serif font-bold italic">Approved — pay out</span>
+                            <button
+                              onClick={() => handleRecordCashPayment(task)}
+                              className="bg-ascendant-gradient text-white rounded-full px-5 py-3 text-sm font-semibold flex items-center justify-center gap-2 shadow-md"
+                            >
+                              <CreditCard className="w-4 h-4" />
+                              Record Cash Payment
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-3 w-full">
+                        {/* Child-facing buttons moved here if needed, but the requirement only specified parent-side display logic for The Hustle */}
+                        {!isPending && task.status === 'ASSIGNED' && (
+                          <Button
+                            onClick={() => setTaskStates(prev => ({ ...prev, [task.id]: 'IN_PROGRESS' }))}
+                            variant="ghost"
+                            className="border border-crimson/40 text-crimson bg-transparent rounded-full px-5 py-2 text-sm hover:bg-crimson/5 transition-colors shadow-none flex-1"
+                          >
+                            Mark Started
+                          </Button>
+                        )}
+                        {!isPending && task.status === 'IN_PROGRESS' && (
+                          <Button
+                            onClick={() => onSubmitTask(child.id, task)}
+                            className="bg-ascendant-gradient text-white rounded-full px-5 py-2 text-sm shadow-md hover:shadow-lg transition-all flex-1"
+                          >
+                            ✓ I'm Done
+                          </Button>
+                        )}
+                        {/* etc other child states already handled in isParent ? logic if we were consistent, but let's stick to user request */}
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -748,6 +814,17 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {showPayNowModal && paymentTask && (
+        <PayNowModal
+          task={paymentTask}
+          onClose={() => {
+            setShowPayNowModal(false);
+            setPaymentTask(null);
+          }}
+          onRecordCash={() => handleRecordCashPayment(paymentTask)}
+        />
       )}
 
     </div>
