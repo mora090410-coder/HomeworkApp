@@ -64,6 +64,52 @@ interface ChildDetailProps {
   onAddAdvance?: () => void;
 }
 
+const REJECT_REASONS = ['Incomplete', 'Poor Quality', 'Wrong Task', 'Try Again'];
+
+const RejectDropdown = ({ task, onReject }: { task: Task, onReject: (taskId: string, reason: string) => void }) => {
+  const [showRejectMenu, setShowRejectMenu] = useState(false);
+
+  return (
+    <div className="relative flex-1">
+      <button
+        onClick={() => setShowRejectMenu(!showRejectMenu)}
+        className="w-full border border-crimson/40 text-crimson bg-transparent rounded-full px-5 py-2 text-sm hover:bg-crimson/5 transition-colors flex items-center justify-center gap-2"
+      >
+        <ThumbsDown className="w-3 h-3" /> Reject
+      </button>
+
+      {showRejectMenu && (
+        <>
+          {/* backdrop to close on outside click */}
+          <div
+            className="fixed inset-0 z-10"
+            onClick={() => setShowRejectMenu(false)}
+          />
+
+          <div className="absolute bottom-full mb-2 left-0 z-20 bg-cream border border-gold/20 rounded-2xl shadow-md py-2 min-w-[180px]">
+            <p className="text-xs tracking-widest text-charcoal/40 uppercase px-4 pt-2 pb-2 font-sans">Quick Reason</p>
+
+            <div className="border-b border-gold/10 mx-4 mb-1" />
+
+            {REJECT_REASONS.map((reason) => (
+              <button
+                key={reason}
+                onClick={() => {
+                  onReject(task.id, reason);
+                  setShowRejectMenu(false);
+                }}
+                className="w-full text-left px-4 py-3 text-sm text-charcoal hover:bg-crimson/5 hover:text-crimson cursor-pointer transition-colors font-sans"
+              >
+                {reason}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
 const ChildDetail: React.FC<ChildDetailProps> = ({
   child,
   isParent,
@@ -343,14 +389,16 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                         <span className="text-gold text-sm font-serif whitespace-nowrap font-bold">✅ Approved! Payout coming.</span>
                       )}
                       {displayStatus === 'REJECTED' && (
-                        <div className="flex flex-col items-end gap-1">
+                        <div className="flex flex-col items-end gap-2">
+                          <span className="bg-crimson/10 text-crimson text-xs font-semibold px-3 py-1 rounded-full">
+                            REDO: {task.rejectionComment || 'Needs Revision'}
+                          </span>
                           <button
                             onClick={() => setTaskStates(prev => ({ ...prev, [task.id]: 'IN_PROGRESS' }))}
                             className="border border-crimson text-crimson rounded-full px-5 py-2 bg-transparent text-sm font-bold whitespace-nowrap active:scale-95 transition-transform"
                           >
                             Try Again
                           </button>
-                          <span className="text-crimson/60 text-xs text-right whitespace-nowrap">Needs revision</span>
                         </div>
                       )}
                     </div>
@@ -468,33 +516,14 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                 </div>
 
                 {isParent && (
-                  <div className="flex gap-3 mt-auto">
-                    <Popover className="relative flex-1">
-                      <Popover.Button as={Button} variant="ghost" className="border border-crimson/40 text-crimson bg-transparent rounded-full px-5 py-2 text-sm flex items-center justify-center gap-2 hover:bg-crimson/5 transition-colors w-full">
-                        <ThumbsDown className="w-4 h-4" /> Reject
-                      </Popover.Button>
-                      <Popover.Panel className="absolute bottom-full left-0 mb-2 bg-cream border border-gold/20 rounded-2xl shadow-md py-2 min-w-[180px] z-50 flex flex-col">
-                        <div className="text-xs tracking-widest text-charcoal/40 uppercase px-4 pt-3 pb-2 font-sans">QUICK REASON</div>
-                        {['Incomplete', 'Poor Quality', 'Wrong Task'].map((reason, idx, arr) => (
-                          <React.Fragment key={reason}>
-                            <button
-                              className="px-4 py-3 text-sm text-charcoal hover:bg-crimson/5 hover:text-crimson cursor-pointer transition-colors font-sans w-full text-left"
-                              onClick={() => handleQuickReject(task, reason)}
-                            >
-                              {reason}
-                            </button>
-                            {idx < arr.length - 1 && <div className="border-b border-gold/10 mx-4" />}
-                          </React.Fragment>
-                        ))}
-                      </Popover.Panel>
-                    </Popover>
-
-                    <Button
+                  <div className="flex gap-3 mt-auto w-full items-center">
+                    <RejectDropdown task={task} onReject={(taskId, reason) => handleQuickReject(task, reason)} />
+                    <button
                       onClick={() => handleApproveAndDeposit(task)}
-                      className="flex-[2] bg-ascendant-gradient text-white rounded-full text-xs gap-2 border-0 shadow-sm"
+                      className="flex-[2] bg-ascendant-gradient text-white rounded-full px-5 py-2 text-sm font-semibold border-0 flex items-center justify-center gap-2"
                     >
-                      <ThumbsUp className="w-3 h-3" /> Approve & Deposit
-                    </Button>
+                      <ThumbsUp className="w-4 h-4" /> Approve & Deposit
+                    </button>
                   </div>
                 )}
                 {!isParent && <p className="text-sm text-content-subtle italic">Parent will review this soon.</p>}
@@ -506,26 +535,22 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
       {/* 4. The 'Payable' Section (Ready for Payout) */}
       {isParent && (
-        <section className="bg-charcoal text-white dark:bg-surface-2 dark:border-stroke-highlight p-8 rounded-2xl border border-charcoal overflow-hidden relative">
-          <div className="absolute top-0 right-0 p-32 bg-white/5 rounded-full blur-3xl" />
-          <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-8">
-            <div className="text-center sm:text-left">
-              <h3 className="text-sm font-bold text-content-subtle uppercase tracking-widest mb-2 font-sans">Ready for Payout</h3>
-              <div className="text-5xl font-bold font-heading mb-1">{formatCurrency(balance > 0 ? balance : 0)}</div>
-              <p className="text-content-subtle text-sm">Total payable balance available for cash withdrawal.</p>
-            </div>
-            <div>
-              <Button
-                size="lg"
-                onClick={() => openTransactionModal('PAYOUT')}
-                className="tactile-button shadow-lg shadow-primary-gold/20 !px-8"
-              >
-                <Banknote className="w-5 h-5 mr-2" />
-                Record Cash Payment
-              </Button>
-            </div>
+        <div className="bg-charcoal border border-gold/20 rounded-2xl px-6 py-5 flex flex-col sm:flex-row items-center justify-between mx-4 shadow-sm">
+          <div className="text-center sm:text-left mb-4 sm:mb-0">
+            <p className="text-xs tracking-widest text-gold/50 uppercase font-sans mb-1">Ready for Payout</p>
+            <p className="font-serif text-gold text-4xl font-bold">{formatCurrency(balance > 0 ? balance : 0)}</p>
+            <p className="text-charcoal/40 text-xs mt-1 text-white/40">
+              Total payable balance available for cash withdrawal.
+            </p>
           </div>
-        </section>
+          <button
+            onClick={() => openTransactionModal('PAYOUT')}
+            className="bg-ascendant-gradient text-white rounded-full px-5 py-3 text-sm font-semibold flex items-center justify-center gap-2"
+          >
+            <CreditCard className="w-4 h-4" />
+            Record Cash Payment
+          </button>
+        </div>
       )}
 
       {/* 5. The 'Hustle' View (In-Progress Tasks) */}
@@ -579,17 +604,23 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                   <div className="flex gap-3 mt-auto relative z-10 items-center w-full">
                     {isParent ? (
                       <>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 w-full">
                           {isPending && (
-                            <span className="bg-crimson/5 border border-crimson/20 text-crimson text-xs font-semibold px-4 py-2 rounded-full flex items-center gap-2">
-                              <Clock className="w-3 h-3" /> Sent for Review
-                            </span>
+                            <>
+                              <RejectDropdown task={task} onReject={(taskId, reason) => handleQuickReject(task, reason)} />
+                              <button
+                                onClick={() => handleApproveAndDeposit(task)}
+                                className="flex-[2] bg-ascendant-gradient text-white rounded-full px-5 py-2 text-sm font-semibold border-0 flex items-center justify-center gap-2"
+                              >
+                                <ThumbsUp className="w-4 h-4" /> Approve & Deposit
+                              </button>
+                            </>
                           )}
                           {isAssigned && (
                             <Button
                               onClick={() => onSubmitTask(child.id, { ...task, status: 'OPEN' })}
                               variant="ghost"
-                              className="border border-crimson/40 text-crimson bg-transparent rounded-full px-5 py-2 text-sm hover:bg-crimson/5 transition-colors shadow-none"
+                              className="border border-crimson/40 text-crimson bg-transparent rounded-full px-5 py-2 text-sm hover:bg-crimson/5 transition-colors shadow-none flex-1"
                             >
                               Mark Started
                             </Button>
@@ -597,7 +628,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                           {!isPending && !isAssigned && (
                             <Button
                               onClick={() => onSubmitTask(child.id, task)}
-                              className="bg-ascendant-gradient text-white rounded-full px-5 py-2 text-sm shadow-md hover:shadow-lg transition-all"
+                              className="bg-ascendant-gradient text-white rounded-full px-5 py-2 text-sm shadow-md hover:shadow-lg transition-all flex-1"
                             >
                               ✓ I'm Done
                             </Button>
