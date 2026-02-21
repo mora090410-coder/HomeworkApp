@@ -286,7 +286,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
         <div className="mb-10 w-full max-w-md mx-auto">
           <div className="flex items-center justify-between px-4 mb-3">
             <div className="flex items-center gap-2">
-              <Briefcase className="text-crimson w-4 h-4" />
+              <Briefcase className="text-gold w-4 h-4" />
               <p className="font-semibold text-charcoal text-base">Current Hustle</p>
             </div>
             <span className="bg-charcoal/5 text-charcoal/50 text-xs rounded-full px-3 py-1 font-bold">
@@ -306,7 +306,10 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                 const valueDisplay = `$${centsToDollars(getTaskValueCents(task)).toFixed(2)}`;
 
                 return (
-                  <div key={task.id} className="bg-cream border border-gold/10 rounded-2xl px-5 py-4 flex items-center justify-between mx-4 mb-3 shadow-sm hover:border-gold/30 transition-colors">
+                  <div
+                    key={task.id}
+                    className="bg-cream border border-gold/10 rounded-2xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 transition-all mx-4 mb-3 shadow-sm hover:border-gold/30"
+                  >
                     <div className="flex items-center gap-3 w-full">
                       <span className="text-2xl flex-shrink-0">{getTaskIcon(task.name)}</span>
                       <div className="flex flex-col flex-1 items-start w-full">
@@ -543,6 +546,8 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {inProgressTasks.map(task => {
               const isBoosted = (task.bonusCents || 0) > 0 || (task.multiplier || 1) > 1;
+              const isPending = task.status === 'PENDING_APPROVAL';
+              const isAssigned = task.status === 'ASSIGNED';
 
               return (
                 <div key={task.id} className="bg-surface-app border border-stroke-base p-6 flex flex-col justify-between group relative overflow-hidden active:scale-[0.98] transition-all">
@@ -573,41 +578,32 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
                   <div className="flex gap-3 mt-auto relative z-10 items-center w-full">
                     {isParent ? (
-                      task.status === 'ASSIGNED' ? (
-                        <>
-                          <span className="text-sm font-sans text-charcoal/50 flex-1">Waiting for child...</span>
-                          <Button variant="ghost" className="p-2 text-content-subtle hover:text-charcoal bg-transparent hover:bg-surface-hover">
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" className="p-2 text-content-subtle hover:text-crimson bg-transparent hover:bg-red-50">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </>
-                      ) : task.status === 'PENDING_APPROVAL' ? (
-                        <div className="flex flex-col gap-3 w-full">
-                          <div className="flex items-center gap-2">
-                            <span className="w-2 h-2 bg-crimson rounded-full animate-pulse" />
-                            <span className="text-sm font-bold text-content-primary">Ready for review</span>
-                          </div>
-                          <div className="flex gap-3 w-full">
+                      <>
+                        <div className="flex items-center gap-3">
+                          {isPending && (
+                            <span className="bg-crimson/5 border border-crimson/20 text-crimson text-xs font-semibold px-4 py-2 rounded-full flex items-center gap-2">
+                              <Clock className="w-3 h-3" /> Sent for Review
+                            </span>
+                          )}
+                          {isAssigned && (
                             <Button
-                              onClick={() => handleQuickReject(task, 'Needs revision')}
-                              variant="outline"
-                              className="flex-1 border border-crimson text-crimson rounded-full hover:bg-crimson/5 bg-transparent"
+                              onClick={() => onSubmitTask(child.id, { ...task, status: 'OPEN' })}
+                              variant="ghost"
+                              className="border border-crimson/40 text-crimson bg-transparent rounded-full px-5 py-2 text-sm hover:bg-crimson/5 transition-colors shadow-none"
                             >
-                              Reject
+                              Mark Started
                             </Button>
+                          )}
+                          {!isPending && !isAssigned && (
                             <Button
-                              onClick={() => handleApproveAndDeposit(task)}
-                              className="flex-1 bg-ascendant-gradient text-white rounded-full font-bold shadow-md shadow-crimson/20 border-0"
+                              onClick={() => onSubmitTask(child.id, task)}
+                              className="bg-ascendant-gradient text-white rounded-full px-5 py-2 text-sm shadow-md hover:shadow-lg transition-all"
                             >
-                              Approve
+                              ✓ I'm Done
                             </Button>
-                          </div>
+                          )}
                         </div>
-                      ) : task.status === 'PENDING_PAYMENT' ? (
-                        <span className="text-sm font-bold text-semantic-succ">Approved — pay out</span>
-                      ) : null
+                      </>
                     ) : null}
                   </div>
                 </div>

@@ -497,7 +497,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                 return (
                                     <div
                                         key={task.id}
-                                        className="glass-card border border-border-base rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6"
+                                        className="bg-cream border border-gold/10 rounded-2xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6"
                                     >
                                         <div className="flex items-center gap-4">
                                             <div className="text-3xl">{getTaskIcon(task.name)}</div>
