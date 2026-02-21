@@ -105,7 +105,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
     setupStatus === 'INVITE_SENT'
       ? 'Invite Sent'
       : setupStatus === 'SETUP_COMPLETE'
-        ? 'Active'
+        ? 'ACTIVE'
         : 'Setup Pending';
 
   // 3. Task Merging for Stats
@@ -119,14 +119,14 @@ const ChildCard: React.FC<ChildCardProps> = ({
   // Use balanceCents if reliable, or derived balance
   const currentBalance = child.balance;
   const isNegativeBalance = currentBalance < 0;
-  const balanceColorClass = isNegativeBalance ? 'text-crimson' : 'text-emerald-700';
+  const balanceColorClass = isNegativeBalance ? 'text-crimson font-serif' : 'text-gold font-serif';
 
   return (
     <div className="flex flex-col gap-3 font-sans w-full">
       <Card
         className={`group relative overflow-hidden transition-all duration-500 hover:shadow-2xl hover:-translate-y-1 glass-card border border-glass-border ${awaitingApproval.length > 0
-            ? 'border-t-4 border-t-crimson'
-            : 'hover:border-t-4 hover:border-t-crimson'
+          ? 'border-t-4 border-t-crimson'
+          : 'hover:border-t-4 hover:border-t-crimson'
           }`}
         noPadding
         onClick={() => onClick?.(child)}
@@ -136,7 +136,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
             <div className="flex items-center gap-4">
               {/* AVATAR */}
               <div
-                className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold bg-ascendant-gradient text-cream shadow-xl ring-4 ring-white/10 dark:ring-white/5"
+                className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold bg-ascendant-gradient text-cream shadow-xl ring-4 ring-white/10 dark:ring-white/5 font-serif"
               >
                 {child.name.charAt(0)}
               </div>
@@ -148,7 +148,7 @@ const ChildCard: React.FC<ChildCardProps> = ({
                   <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[0.2em] text-content-subtle">
                     <span>{child.gradeLevel}</span>
                     <span className="w-0.5 h-0.5 rounded-full bg-neutral-300" />
-                    <span className={setupStatus === 'SETUP_COMPLETE' ? 'text-emerald-600' : 'text-crimson'}>
+                    <span className={setupStatus === 'SETUP_COMPLETE' ? 'bg-gold/10 text-gold text-xs px-2 py-0.5 rounded-full font-sans tracking-wide' : 'text-crimson'}>
                       {setupLabel}
                     </span>
                   </div>
@@ -162,8 +162,8 @@ const ChildCard: React.FC<ChildCardProps> = ({
 
             {/* BANK BALANCE */}
             <div className="text-right">
-              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-content-subtle block mb-1">Bank Balance</span>
-              <span className={`text-2xl font-sans font-extrabold tracking-tighter ${balanceColorClass}`}>
+              <span className="text-xs tracking-widest text-charcoal/40 uppercase font-sans block mb-1">Bank Balance</span>
+              <span className={`text-2xl font-extrabold tracking-tighter ${balanceColorClass}`}>
                 <span className="text-sm opacity-30 mr-0.5">$</span>
                 {Math.abs(currentBalance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 {isNegativeBalance && <span className="ml-1 opacity-50">-</span>}
@@ -173,13 +173,10 @@ const ChildCard: React.FC<ChildCardProps> = ({
 
           {/* REVIEW BADGE (Conditional) */}
           {awaitingApproval.length > 0 && (
-            <div className="mb-6 flex items-center gap-3 px-4 py-3 bg-white/40 dark:bg-white/5 backdrop-blur-md border border-brand/20 rounded-xl shadow-sm animate-in fade-in slide-in-from-top-1 transition-colors">
-              <div className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand"></span>
-              </div>
-              <span className="text-xs font-black uppercase tracking-[0.1em] text-brand">
-                {awaitingApproval.length} {awaitingApproval.length === 1 ? 'Task' : 'Tasks'} to Review
+            <div className="mb-6 flex items-center bg-crimson/5 border border-crimson/20 text-crimson text-xs font-semibold px-4 py-2 rounded-full animate-in fade-in slide-in-from-top-1 transition-colors">
+              <span className="w-2 h-2 rounded-full bg-crimson animate-pulse inline-block mr-2" />
+              <span className="tracking-wide">
+                {awaitingApproval.length} {awaitingApproval.length === 1 ? 'TASK' : 'TASKS'} TO REVIEW
               </span>
             </div>
           )}

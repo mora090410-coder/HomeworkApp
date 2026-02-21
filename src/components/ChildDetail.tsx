@@ -452,14 +452,14 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {pendingApprovalTasks.map(task => (
-              <div key={task.id} className="bg-surface-app border border-stroke-base p-6 shadow-sm flex flex-col justify-between hover:border-amber-400 transition-colors">
+              <div key={task.id} className="bg-cream border border-crimson/20 rounded-2xl px-5 py-4 flex flex-col justify-between">
                 <div>
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="text-lg font-bold font-heading text-content-primary">{task.name}</h4>
                     <span className="text-xl font-bold text-gold font-heading">{getTaskDisplayValue(task)}</span>
                   </div>
-                  <p className="text-sm text-content-subtle mb-6 font-sans flex items-center gap-2">
-                    <span className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
+                  <p className="text-crimson/70 text-xs mb-6 font-sans flex items-center">
+                    <span className="w-2 h-2 rounded-full bg-crimson animate-pulse inline-block mr-2" />
                     Awaiting Review
                   </p>
                 </div>
@@ -467,26 +467,28 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                 {isParent && (
                   <div className="flex gap-3 mt-auto">
                     <Popover className="relative flex-1">
-                      <Popover.Button as={Button} variant="destructive" className="w-full text-xs gap-2">
-                        <ThumbsDown className="w-3 h-3" /> Reject
+                      <Popover.Button as={Button} className="border border-crimson/40 text-crimson bg-transparent rounded-full px-5 py-2 text-sm flex items-center justify-center gap-2 hover:bg-crimson/5 transition-colors w-full">
+                        <ThumbsDown className="w-4 h-4" /> Reject
                       </Popover.Button>
-                      <Popover.Panel className="absolute bottom-full left-0 mb-2 w-48 bg-surface-app border border-stroke-base shadow-xl p-2 z-50 flex flex-col gap-1 rounded-none">
-                        <div className="text-[10px] font-bold text-content-subtle uppercase tracking-wider mb-1 px-2">Quick Reason</div>
-                        {['Incomplete', 'Poor Quality', 'Wrong Task'].map(reason => (
-                          <button
-                            key={reason}
-                            className="text-left px-3 py-2 text-sm text-content-primary hover:bg-surface-hover hover:text-red-700 transition-colors rounded-none"
-                            onClick={() => handleQuickReject(task, reason)}
-                          >
-                            {reason}
-                          </button>
+                      <Popover.Panel className="absolute bottom-full left-0 mb-2 bg-cream border border-gold/20 rounded-2xl shadow-md py-2 min-w-[180px] z-50 flex flex-col">
+                        <div className="text-xs tracking-widest text-charcoal/40 uppercase px-4 pt-3 pb-2 font-sans">QUICK REASON</div>
+                        {['Incomplete', 'Poor Quality', 'Wrong Task'].map((reason, idx, arr) => (
+                          <React.Fragment key={reason}>
+                            <button
+                              className="px-4 py-3 text-sm text-charcoal hover:bg-crimson/5 hover:text-crimson cursor-pointer transition-colors font-sans w-full text-left"
+                              onClick={() => handleQuickReject(task, reason)}
+                            >
+                              {reason}
+                            </button>
+                            {idx < arr.length - 1 && <div className="border-b border-gold/10 mx-4" />}
+                          </React.Fragment>
                         ))}
                       </Popover.Panel>
                     </Popover>
 
                     <Button
                       onClick={() => handleApproveAndDeposit(task)}
-                      className="flex-[2] bg-ascendant-gradient text-white text-xs gap-2 border-0 shadow-sm"
+                      className="flex-[2] bg-ascendant-gradient text-white rounded-full text-xs gap-2 border-0 shadow-sm"
                     >
                       <ThumbsUp className="w-3 h-3" /> Approve & Deposit
                     </Button>

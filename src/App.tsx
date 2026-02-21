@@ -1011,7 +1011,7 @@ function DashboardPage() {
   if (!isFirebaseConfigured) {
     return (
       <div className="min-h-screen bg-surface-app flex items-center justify-center text-content-primary p-6 transition-colors duration-300">
-        <div className="max-w-lg w-full bg-white p-8 rounded-none border border-stroke-base text-center shadow-xl">
+        <div className="max-w-lg w-full bg-cream p-8 rounded-none border border-stroke-base text-center shadow-xl">
           <h2 className="text-2xl font-bold mb-4">Firebase Setup Required</h2>
           <p className="text-neutral-600 mb-2">Phase 2 requires Firebase Auth and Firestore configuration.</p>
           <p className="text-content-subtle text-sm">Add `VITE_FIREBASE_*` keys in `.env` and restart the app.</p>
@@ -1309,7 +1309,7 @@ function DashboardPage() {
 
                 <div className="xl:col-span-1 space-y-8">
                   {/* Open Tasks Column */}
-                  <div className="bg-white dark:bg-[#1A1A24] border border-border-base p-6 rounded-2xl shadow-lg relative">
+                  <div className="bg-cream dark:bg-[#1A1A24] border border-border-base p-6 rounded-2xl shadow-lg relative">
                     <div className="flex items-center justify-between mb-6">
                       <div className="flex items-center gap-2">
                         <h3 className="text-lg font-bold font-heading text-primary flex items-center gap-2">
@@ -1571,7 +1571,7 @@ function DashboardPage() {
         {profileSetupLink && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setProfileSetupLink(null)} />
-            <div className="relative w-full max-w-[560px] bg-white rounded-none border border-stroke-base p-10 text-center shadow-xl animate-in zoom-in-95 duration-200">
+            <div className="relative w-full max-w-[560px] bg-cream rounded-none border border-stroke-base p-10 text-center shadow-xl animate-in zoom-in-95 duration-200">
               <h3 className="text-xl font-bold mb-4 text-content-primary">Profile Setup Link</h3>
               <p className="text-content-subtle mb-6 text-sm">Send this one-time link so the child can set their own PIN and avatar.</p>
               <div className="flex items-center gap-2 bg-surface-app p-3 rounded-none mb-6 border border-stroke-base">
@@ -1694,7 +1694,7 @@ function SetupProfileRoute() {
 
   return (
     <div className="min-h-screen bg-surface-app flex items-center justify-center p-6 transition-colors duration-300">
-      <div className="w-full max-w-md rounded-none border border-stroke-base bg-white p-6 shadow-xl relative overflow-hidden">
+      <div className="w-full max-w-md rounded-none border border-stroke-base bg-cream p-6 shadow-xl relative overflow-hidden">
         {/* Decorative background element */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
