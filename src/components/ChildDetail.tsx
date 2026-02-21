@@ -39,6 +39,7 @@ import {
   ArrowDownLeft,
   Pencil,
   Trash2,
+  Zap,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Popover } from '@headlessui/react';
@@ -80,6 +81,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
   onAddAdvance,
 }) => {
   const [taskToComplete, setTaskToComplete] = useState<Task | null>(null);
+  const [taskStates, setTaskStates] = useState<Record<string, string>>({});
   const [subCollectionTasks, setSubCollectionTasks] = useState<Task[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [transactionModalOpen, setTransactionModalOpen] = useState(false);
@@ -214,12 +216,157 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
   // --- Render Sections ---
 
+  if (!isParent) {
+    return (
+      <div className="animate-in fade-in duration-700 bg-cream min-h-screen font-sans pb-20 pt-6">
+
+        {/* SECTION 1 — VAULT CARD */}
+        <div className="flex flex-col items-center mb-10 mt-2">
+          <div className="bg-cream border border-gold/20 rounded-2xl shadow-sm px-8 py-6 text-center mx-4 w-full max-w-sm">
+            <p className="text-xs tracking-widest text-charcoal/50 uppercase font-sans mb-2">Total Capital</p>
+            <p className="font-serif text-charcoal text-6xl font-bold">
+              <span className="text-gold text-3xl align-top mt-3 inline-block">$</span>{balance.toFixed(2)}
+            </p>
+          </div>
+          <p className="font-serif text-charcoal text-xl font-semibold mt-4">{child.name}</p>
+          <span className="bg-gold/10 text-gold text-xs px-3 py-1 rounded-full mt-1 inline-block">
+            Level: {child.gradeLevel || '5th Grade'}
+          </span>
+        </div>
+
+        {/* SECTION 2 — AVAILABLE BOUNTIES */}
+        <div className="mb-10 w-full max-w-md mx-auto">
+          <div className="flex items-center justify-between px-4 mb-3">
+            <div className="flex items-center gap-2">
+              <Zap className="w-4 h-4 text-gold" fill="currentColor" />
+              <p className="font-semibold text-charcoal text-base">Available Bounties</p>
+            </div>
+            <span className="bg-charcoal/5 text-charcoal/50 text-xs rounded-full px-3 py-1 font-bold">
+              {availableTasks.length} MARKETS
+            </span>
+          </div>
+
+          {availableTasks.length === 0 ? (
+            <div className="border border-gold/20 rounded-2xl bg-cream/50 px-6 py-10 text-center mx-4 shadow-sm">
+              <p className="text-charcoal/60 text-sm font-sans">The Market is currently quiet.</p>
+              <p className="text-charcoal/40 text-xs mt-1">Check back soon for new opportunities.</p>
+            </div>
+          ) : (
+            <div>
+              {availableTasks.map(task => {
+                const valueDisplay = `$${centsToDollars(getTaskValueCents(task)).toFixed(2)}`;
+                return (
+                  <div key={task.id} className="bg-cream border border-gold/10 rounded-2xl px-5 py-4 flex items-center justify-between mx-4 mb-3 shadow-sm active:scale-[0.98] transition-transform">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{getTaskIcon(task.name)}</span>
+                      <div className="flex flex-col items-start">
+                        <p className="font-semibold text-charcoal text-base">{task.name}</p>
+                        <p className="text-charcoal/50 text-sm">
+                          {task.baselineMinutes} mins · <span className="text-gold font-serif">{valueDisplay}</span>
+                        </p>
+                      </div>
+                    </div>
+                    <div>
+                      <Button
+                        onClick={() => onClaimTask(child.id, task.id)}
+                        variant="ghost"
+                        className="border border-gold/50 text-gold font-bold hover:bg-gold/10 rounded-full px-5 py-2 text-sm"
+                      >
+                        Claim
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* SECTION 3 — CURRENT HUSTLE TASK CARDS */}
+        <div className="mb-10 w-full max-w-md mx-auto">
+          <div className="flex items-center justify-between px-4 mb-3">
+            <div className="flex items-center gap-2">
+              <Briefcase className="text-crimson w-4 h-4" />
+              <p className="font-semibold text-charcoal text-base">Current Hustle</p>
+            </div>
+            <span className="bg-charcoal/5 text-charcoal/50 text-xs rounded-full px-3 py-1 font-bold">
+              {inProgressTasks.length} WORKING
+            </span>
+          </div>
+
+          {inProgressTasks.length === 0 ? (
+            <div className="border border-gold/20 rounded-2xl bg-cream/50 px-6 py-10 text-center mx-4 shadow-sm">
+              <p className="text-charcoal/60 text-sm font-sans">Your hustle is quiet.</p>
+              <p className="text-charcoal/40 text-xs mt-1">Claim a bounty to get started.</p>
+            </div>
+          ) : (
+            <div>
+              {inProgressTasks.map(task => {
+                const displayStatus = taskStates[task.id] || task.status;
+                const valueDisplay = `$${centsToDollars(getTaskValueCents(task)).toFixed(2)}`;
+
+                return (
+                  <div key={task.id} className="bg-cream border border-gold/10 rounded-2xl px-5 py-4 flex items-center justify-between mx-4 mb-3 shadow-sm hover:border-gold/30 transition-colors">
+                    <div className="flex items-center gap-3 w-full">
+                      <span className="text-2xl flex-shrink-0">{getTaskIcon(task.name)}</span>
+                      <div className="flex flex-col flex-1 items-start w-full">
+                        <p className="font-semibold text-charcoal text-base truncate w-full text-left">{task.name}</p>
+                        <p className="text-charcoal/50 text-sm text-left">
+                          {task.baselineMinutes} mins · <span className="text-gold font-serif">{valueDisplay}</span>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex-shrink-0 ml-3">
+                      {displayStatus === 'ASSIGNED' && (
+                        <button
+                          onClick={() => setTaskStates(prev => ({ ...prev, [task.id]: 'IN_PROGRESS' }))}
+                          className="border border-crimson/40 text-crimson rounded-full px-5 py-2 text-sm font-bold bg-transparent whitespace-nowrap active:scale-95 transition-transform"
+                        >
+                          Mark Started
+                        </button>
+                      )}
+                      {displayStatus === 'IN_PROGRESS' && (
+                        <button
+                          onClick={() => onSubmitTask(child.id, task)}
+                          className="bg-ascendant-gradient text-white rounded-full px-5 py-2 text-sm font-bold border-0 whitespace-nowrap shadow-md active:scale-95 transition-transform"
+                        >
+                          ✓ I'm Done
+                        </button>
+                      )}
+                      {displayStatus === 'PENDING_APPROVAL' && (
+                        <span className="italic text-charcoal/40 text-sm whitespace-nowrap">⏳ Waiting for approval...</span>
+                      )}
+                      {displayStatus === 'PENDING_PAYMENT' && (
+                        <span className="text-gold text-sm font-serif whitespace-nowrap font-bold">✅ Approved! Payout coming.</span>
+                      )}
+                      {displayStatus === 'REJECTED' && (
+                        <div className="flex flex-col items-end gap-1">
+                          <button
+                            onClick={() => setTaskStates(prev => ({ ...prev, [task.id]: 'IN_PROGRESS' }))}
+                            className="border border-crimson text-crimson rounded-full px-5 py-2 bg-transparent text-sm font-bold whitespace-nowrap active:scale-95 transition-transform"
+                          >
+                            Try Again
+                          </button>
+                          <span className="text-crimson/60 text-xs text-right whitespace-nowrap">Needs revision</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-12 animate-in fade-in duration-700 font-sans pb-20">
 
       {/* 1. The Header: Financial Status */}
       <section className="bg-surface-app dark:bg-surface-elev border border-stroke-base rounded-2xl p-8 relative overflow-hidden group">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-bl-full pointer-events-none opacity-50" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gold/10 rounded-bl-full pointer-events-none opacity-50" />
 
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div>
@@ -227,7 +374,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
               <h2 className="text-sm font-bold text-content-muted uppercase tracking-widest font-sans">Vault Balance</h2>
               {hasDebt && <span className="text-[10px] bg-red-100 text-red-700 px-2 py-0.5 rounded-none font-bold uppercase tracking-wider">Overdraft</span>}
             </div>
-            <div className={`text-6xl font-bold font-serif font-heading tracking-tight ${hasDebt ? 'text-red-700' : 'text-content-primary'}`}>
+            <div className={`text-6xl font-bold font-serif font-heading tracking-tight ${hasDebt ? 'text-crimson' : 'text-content-primary'}`}>
               {formatCurrency(balance)}
             </div>
             <p className="text-content-muted mt-2 font-medium font-sans flex items-center gap-2">
@@ -309,7 +456,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                 <div>
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="text-lg font-bold font-heading text-content-primary">{task.name}</h4>
-                    <span className="text-xl font-bold text-emerald-700 font-heading">{getTaskDisplayValue(task)}</span>
+                    <span className="text-xl font-bold text-gold font-heading">{getTaskDisplayValue(task)}</span>
                   </div>
                   <p className="text-sm text-content-subtle mb-6 font-sans flex items-center gap-2">
                     <span className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
@@ -339,8 +486,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
 
                     <Button
                       onClick={() => handleApproveAndDeposit(task)}
-                      variant="primary"
-                      className="flex-[2] !bg-emerald-600 border-emerald-600 hover:!bg-emerald-700 text-white text-xs gap-2"
+                      className="flex-[2] bg-ascendant-gradient text-white text-xs gap-2 border-0 shadow-sm"
                     >
                       <ThumbsUp className="w-3 h-3" /> Approve & Deposit
                     </Button>
@@ -460,17 +606,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                       ) : task.status === 'PENDING_PAYMENT' ? (
                         <span className="text-sm font-bold text-semantic-succ">Approved — pay out</span>
                       ) : null
-                    ) : (
-                      task.status === 'ASSIGNED' && (
-                        <Button
-                          onClick={() => setTaskToComplete(task)}
-                          variant="outline"
-                          className="flex-1 border-stroke-base hover:border-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 gap-2"
-                        >
-                          <Check className="w-4 h-4" /> Mark Complete
-                        </Button>
-                      )
-                    )}
+                    ) : null}
                   </div>
                 </div>
               );
@@ -561,13 +697,13 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
             </div>
             <h3 className="text-xl font-bold font-heading text-content-primary mb-2">{taskToComplete.name}</h3>
             <p className="text-content-muted mb-6 text-sm font-sans">
-              Submit for parent approval to earn <span className="text-emerald-700 font-bold">{getTaskDisplayValue(taskToComplete)}</span>.
+              Submit for parent approval to earn <span className="text-gold font-bold">{getTaskDisplayValue(taskToComplete)}</span>.
             </p>
             <div className="flex gap-3">
               <Button
                 onClick={() => setTaskToComplete(null)}
                 variant="ghost"
-                className="flex-1"
+                className="flex-1 border border-gold/30 text-charcoal rounded-full"
               >
                 Cancel
               </Button>
@@ -576,7 +712,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                   onSubmitTask(child.id, taskToComplete);
                   setTaskToComplete(null);
                 }}
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm border-none"
+                className="flex-1 bg-ascendant-gradient hover:opacity-90 transition-opacity text-white shadow-sm border-none rounded-full"
               >
                 Complete
               </Button>
