@@ -467,7 +467,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                 {isParent && (
                   <div className="flex gap-3 mt-auto">
                     <Popover className="relative flex-1">
-                      <Popover.Button as={Button} className="border border-crimson/40 text-crimson bg-transparent rounded-full px-5 py-2 text-sm flex items-center justify-center gap-2 hover:bg-crimson/5 transition-colors w-full">
+                      <Popover.Button as={Button} variant="ghost" className="border border-crimson/40 text-crimson bg-transparent rounded-full px-5 py-2 text-sm flex items-center justify-center gap-2 hover:bg-crimson/5 transition-colors w-full">
                         <ThumbsDown className="w-4 h-4" /> Reject
                       </Popover.Button>
                       <Popover.Panel className="absolute bottom-full left-0 mb-2 bg-cream border border-gold/20 rounded-2xl shadow-md py-2 min-w-[180px] z-50 flex flex-col">
