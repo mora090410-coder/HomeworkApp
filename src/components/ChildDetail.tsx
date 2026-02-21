@@ -225,11 +225,11 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
           <div className="bg-cream border border-gold/20 rounded-2xl shadow-sm px-8 py-6 text-center mx-4 w-full max-w-sm">
             <p className="text-xs tracking-widest text-charcoal/50 uppercase font-sans mb-2">Total Capital</p>
             <p className="font-serif text-charcoal text-6xl font-bold">
-              <span className="text-gold text-3xl align-top mt-3 inline-block">$</span>{balance.toFixed(2)}
+              <span className="text-gold text-3xl align-top mt-3 inline-block font-serif">$</span>{balance.toFixed(2)}
             </p>
           </div>
           <p className="font-serif text-charcoal text-xl font-semibold mt-4">{child.name}</p>
-          <span className="bg-gold/10 text-gold text-xs px-3 py-1 rounded-full mt-1 inline-block">
+          <span className="bg-gold/10 text-gold text-xs px-3 py-1 rounded-full mt-1 inline-block font-sans">
             Level: {child.gradeLevel || '5th Grade'}
           </span>
         </div>
@@ -247,7 +247,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
           </div>
 
           {availableTasks.length === 0 ? (
-            <div className="border border-gold/20 rounded-2xl bg-cream/50 px-6 py-10 text-center mx-4 shadow-sm">
+            <div className="border border-gold/20 rounded-2xl bg-cream/50 px-6 py-10 text-center mx-4">
               <p className="text-charcoal/60 text-sm font-sans">The Market is currently quiet.</p>
               <p className="text-charcoal/40 text-xs mt-1">Check back soon for new opportunities.</p>
             </div>
@@ -262,7 +262,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                       <div className="flex flex-col items-start">
                         <p className="font-semibold text-charcoal text-base">{task.name}</p>
                         <p className="text-charcoal/50 text-sm">
-                          {task.baselineMinutes} mins · <span className="text-gold font-serif">{valueDisplay}</span>
+                          {task.baselineMinutes} mins · <span className="text-gold font-serif text-base">{valueDisplay}</span>
                         </p>
                       </div>
                     </div>
@@ -312,7 +312,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                       <div className="flex flex-col flex-1 items-start w-full">
                         <p className="font-semibold text-charcoal text-base truncate w-full text-left">{task.name}</p>
                         <p className="text-charcoal/50 text-sm text-left">
-                          {task.baselineMinutes} mins · <span className="text-gold font-serif">{valueDisplay}</span>
+                          {task.baselineMinutes} mins · <span className="text-gold font-serif text-base">{valueDisplay}</span>
                         </p>
                       </div>
                     </div>
@@ -320,7 +320,7 @@ const ChildDetail: React.FC<ChildDetailProps> = ({
                       {displayStatus === 'ASSIGNED' && (
                         <button
                           onClick={() => setTaskStates(prev => ({ ...prev, [task.id]: 'IN_PROGRESS' }))}
-                          className="border border-crimson/40 text-crimson rounded-full px-5 py-2 text-sm font-bold bg-transparent whitespace-nowrap active:scale-95 transition-transform"
+                          className="border border-crimson/40 text-crimson text-sm rounded-full px-5 py-2 bg-transparent hover:bg-crimson/5 transition-colors"
                         >
                           Mark Started
                         </button>
