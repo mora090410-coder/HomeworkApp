@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { X, Check } from 'lucide-react';
-import { ChoreCatalogItem } from '@/types';
+import { ChoreCatalogItem, Task } from '@/types';
 import { Input } from '@/components/ui/Input';
 
 export interface AssignTaskPayload {
@@ -11,6 +11,7 @@ export interface AssignTaskPayload {
   saveToCatalog?: boolean;
   valueCents?: number;
   multiplier?: number;
+  emoji?: string;
 }
 
 interface AssignTaskModalProps {
@@ -19,7 +20,7 @@ interface AssignTaskModalProps {
   childName?: string;
   isOpenTask?: boolean;
   catalogItems?: ChoreCatalogItem[];
-  initialTask?: { name: string; minutes: number };
+  editTask?: Task;
   onAssign: (payload: AssignTaskPayload) => void;
 }
 
@@ -31,11 +32,11 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
   childName,
   isOpenTask,
   catalogItems = [],
-  initialTask,
+  editTask,
   onAssign,
 }) => {
-  const [taskName, setTaskName] = React.useState(initialTask?.name ?? '');
-  const [minutes, setMinutes] = React.useState(initialTask?.minutes ?? 15);
+  const [taskName, setTaskName] = React.useState('');
+  const [minutes, setMinutes] = React.useState(15);
   const [taskValueCents, setTaskValueCents] = React.useState<number | undefined>(undefined);
   const [selectedMinutes, setSelectedMinutes] = useState<number | null>(null);
   const [isCustomTime, setIsCustomTime] = useState(false);
@@ -43,15 +44,19 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
   const [selectedCatalogItemId, setSelectedCatalogItemId] = React.useState<string | undefined>(undefined);
   const [saveToCatalog, setSaveToCatalog] = useState(false);
   const [multiplier, setMultiplier] = useState(1.0);
+  const [emoji, setEmoji] = useState('📝');
 
   useEffect(() => {
     if (isOpen) {
-      if (initialTask) {
-        setTaskName(initialTask.name);
-        setSelectedMinutes(initialTask.minutes);
-        if (!QUICK_TIMES.includes(initialTask.minutes)) {
+      if (editTask) {
+        setTaskName(editTask.name);
+        setSelectedMinutes(editTask.baselineMinutes);
+        setTaskValueCents(editTask.valueCents);
+        setMultiplier(editTask.multiplier || 1.0);
+        setEmoji(editTask.emoji || '📝');
+        if (!QUICK_TIMES.includes(editTask.baselineMinutes)) {
           setIsCustomTime(true);
-          setCustomMinutes(initialTask.minutes);
+          setCustomMinutes(editTask.baselineMinutes);
         } else {
           setIsCustomTime(false);
         }
@@ -60,10 +65,12 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
         setSelectedMinutes(null);
         setIsCustomTime(false);
         setCustomMinutes(30);
+        setTaskValueCents(undefined);
+        setMultiplier(1.0);
+        setEmoji('📝');
       }
       setSelectedCatalogItemId('');
       setSaveToCatalog(false);
-      setMultiplier(1.0);
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -71,7 +78,7 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen, initialTask]);
+  }, [isOpen, editTask]);
 
   const handleQuickTimeClick = (mins: number): void => {
     setSelectedMinutes(mins);
@@ -125,12 +132,13 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
       saveToCatalog: Boolean(saveToCatalog && !selectedCatalogItemId),
       valueCents: taskValueCents,
       multiplier,
+      emoji,
     });
     onClose();
   };
 
   const isValid = taskName.trim().length > 0 && selectedMinutes !== null && selectedMinutes > 0;
-  const isEditing = Boolean(initialTask);
+  const isEditing = Boolean(editTask);
 
   if (!isOpen) {
     return null;
@@ -209,6 +217,34 @@ const AssignTaskModal: React.FC<AssignTaskModalProps> = ({
               autoFocus
               aria-label="Task name"
             />
+          </div>
+
+          <div className="mb-8">
+            <label htmlFor="emoji" className="block text-sm font-bold text-content-subtle uppercase tracking-wider mb-3">
+              Task Emoji
+            </label>
+            <div className="flex gap-2">
+              <Input
+                id="emoji"
+                type="text"
+                value={emoji}
+                onChange={(event) => setEmoji(event.target.value)}
+                placeholder="📝"
+                className="w-20 px-4 py-3.5 text-center text-xl rounded-none bg-surface-app border border-gold/30 outline-none transition-all"
+                aria-label="Task emoji"
+              />
+              <div className="flex-1 grid grid-cols-6 gap-2">
+                {['🧹', '🧽', '🐕', '🗑️', '📚', '🌱', '👕', '🚗', '🪴', '🍳', '🛒', '🧸'].map((e) => (
+                  <button
+                    key={e}
+                    onClick={() => setEmoji(e)}
+                    className={`h-12 flex items-center justify-center text-xl rounded-md border transition-all ${emoji === e ? 'bg-crimson/10 border-crimson' : 'bg-surface-app border-gold/10 hover:border-gold/30'}`}
+                  >
+                    {e}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className="mb-8">

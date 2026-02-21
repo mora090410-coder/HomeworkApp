@@ -905,6 +905,7 @@ function DashboardPage() {
       catalogItemId: catalogItem?.id ?? null,
       valueCents: payload.valueCents,
       multiplier: payload.multiplier,
+      emoji: payload.emoji,
     };
 
     const mutationOptions = {
@@ -1257,6 +1258,13 @@ function DashboardPage() {
                     onPayTask={handlePayTask}
                     onRejectTask={handleRejectTask}
                     onClaimTask={(childId, taskId) => claimTaskMutation.mutate({ childId, taskId })}
+                    onEditTask={(task) => { setEditingTask({ childId: activeChild.id, task }); setIsAddTaskModalOpen(true); }}
+                    onDeleteTask={(childId, taskId) => {
+                      householdService
+                        .deleteTaskById(taskId, childId)
+                        .then(() => queryClient.invalidateQueries({ queryKey: ['children'] }))
+                        .catch((err: unknown) => console.error('[onDeleteTask] Failed to delete task:', err));
+                    }}
                   />
                 );
               })()
@@ -1425,7 +1433,8 @@ function DashboardPage() {
           childName={childrenWithRateMap.find((child) => child.id === (editingTask?.childId || selectedChildId))?.name}
           isOpenTask={isOpenTaskMode}
           catalogItems={choreCatalog}
-          initialTask={editingTask ? { name: editingTask.task.name, minutes: editingTask.task.baselineMinutes } : undefined}
+          initialTask={undefined} // No longer used, using editTask instead
+          editTask={editingTask?.task}
           onAssign={handleSaveTask}
         />
         <CatalogManagerModal

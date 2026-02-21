@@ -65,6 +65,7 @@ export interface Task {
   isRecurring?: boolean;
   multiplier?: number; // 1.0 default
   bonusCents?: number; // Extra manually added value
+  emoji?: string;
 }
 
 export interface ChoreCatalogItem {
@@ -78,6 +79,7 @@ export interface ChoreCatalogItem {
   valueCents?: number;
   createdAt?: string;
   updatedAt?: string;
+  emoji?: string;
 }
 
 export type AdvanceCategory =

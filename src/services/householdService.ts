@@ -2616,6 +2616,10 @@ export const householdService = {
     } catch (error) {
       throw normalizeError('Failed to boost task', error);
     }
+  },
+
+  async updateTaskStatus(householdId: string, taskId: string, status: string, profileId?: string): Promise<void> {
+    return this.updateTaskById(taskId, { status: status as any }, profileId);
   }
 };
 
@@ -2640,4 +2644,13 @@ export const saveGradeConfigs = async (
   configs: GradeConfig[],
 ): Promise<void> => {
   return householdService.saveGradeConfigs(householdId, configs);
+};
+
+export const updateTaskStatus = async (
+  householdId: string,
+  taskId: string,
+  status: string,
+  profileId?: string,
+): Promise<void> => {
+  return householdService.updateTaskStatus(householdId, taskId, status, profileId);
 };

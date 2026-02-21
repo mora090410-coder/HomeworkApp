@@ -138,6 +138,14 @@ export const getTaskIcon = (name: string): string => {
   return '📝';
 };
 
+/**
+ * Returns the icon for a task, prioritizing the explicitly set emoji if available.
+ */
+export const getTaskIconForTask = (task: Task): string => {
+  if (task.emoji) return task.emoji;
+  return getTaskIcon(task.name);
+};
+
 export const parseTaskStatus = (value: unknown): TaskStatus => {
   const supported: TaskStatus[] = [
     'DRAFT',
@@ -220,6 +228,7 @@ export const mapTask = (taskId: string, householdId: string, source: Record<stri
     valueCents: typeof source.valueCents === 'number' ? source.valueCents : undefined,
     multiplier: typeof source.multiplier === 'number' ? source.multiplier : 1.0,
     bonusCents: typeof source.bonusCents === 'number' ? source.bonusCents : 0,
+    emoji: typeof source.emoji === 'string' ? source.emoji : undefined,
     createdAt: typeof source.createdAt === 'string'
       ? source.createdAt
       : (source.createdAt && typeof source.createdAt === 'object' && 'toDate' in source.createdAt)
