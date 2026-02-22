@@ -42,7 +42,9 @@ export const parseTaskStatus = (value: unknown): TaskStatus => {
     'ASSIGNED',
     'PENDING_APPROVAL',
     'PENDING_PAYMENT',
+    'PENDING_WITHDRAWAL',
     'PAID',
+    'REJECTED',
     'DELETED',
   ];
 
@@ -131,7 +133,7 @@ export const buildRateMapFromGradeConfigs = (
   configs: GradeConfig[]
 ): Record<Grade, number> => {
   return configs.reduce((map, config) => {
-    map[config.grade] = config.ratePerHour;
+    map[config.grade] = centsToDollars(config.valueCents);
     return map;
   }, {} as Record<Grade, number>);
 };

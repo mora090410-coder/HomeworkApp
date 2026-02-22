@@ -544,6 +544,7 @@ const mapTransaction = (
     memo: typeof source.memo === 'string' ? source.memo : '',
     type:
       source.type === 'ADVANCE' || source.type === 'ADJUSTMENT' || source.type === 'EARNING'
+        || source.type === 'WITHDRAWAL_REQUEST' || source.type === 'GOAL_ALLOCATION'
         ? source.type
         : 'EARNING',
     category: parseAdvanceCategory(source.category),
