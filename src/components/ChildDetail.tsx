@@ -3,6 +3,8 @@ import { Child, StandardTask, Task, Transaction } from '@/types';
 import { db } from '@/services/firebase';
 import { collection, onSnapshot, query, doc, orderBy, limit } from 'firebase/firestore';
 import {
+  calculateHourlyRate,
+  calculateTaskValue,
   calculateTaskValueCents,
   centsToDollars,
   dollarsToCents,
