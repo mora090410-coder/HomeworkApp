@@ -26,19 +26,17 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ) => {
         const isPrimary = variant === 'primary';
 
-        const baseStyles = isPrimary
-            ? 'disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2'
-            : 'inline-flex items-center justify-center font-sans font-medium transition-colors duration-200 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 rounded-full';
+        const baseStyles = 'inline-flex items-center justify-center font-sans font-bold transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 rounded-full';
 
         const variants = {
             primary:
-                'tactile-button',
+                'bg-ascendant-gradient text-white shadow-md hover:shadow-lg hover:opacity-95',
             secondary:
-                'bg-white/10 border border-white/20 shadow-sm backdrop-blur-md text-crimson hover:bg-white/20 dark:bg-black/10 dark:border-white/10 dark:hover:bg-black/20',
+                'bg-transparent border border-gold/40 text-gold hover:bg-gold/5',
             outline:
-                'bg-transparent border border-white/20 shadow-sm backdrop-blur-md text-content-primary hover:bg-surface',
+                'bg-transparent border border-stroke-base text-content-primary hover:bg-surface-app',
             ghost:
-                'bg-transparent text-muted hover:bg-surface-2 hover:text-content-primary',
+                'bg-transparent border border-gold/20 text-charcoal hover:bg-gold/5',
             destructive:
                 'bg-cream text-semantic-destructive border border-semantic-destructive hover:bg-semantic-destructive/5',
         };
@@ -52,7 +50,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         return (
             <button
                 ref={ref}
-                className={`${baseStyles} ${variants[variant] || variants.primary} ${isPrimary ? '' : sizes[size]} ${className}`}
+                className={`${baseStyles} ${variants[variant] || variants.primary} ${sizes[size]} ${className}`}
                 disabled={disabled || isLoading}
                 {...props}
             >
