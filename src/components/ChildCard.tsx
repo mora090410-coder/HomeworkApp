@@ -195,17 +195,16 @@ const ChildCard: React.FC<ChildCardProps> = ({
               <Settings className="w-5 h-5" />
             </Button>
 
-            <Button
-              variant="primary"
+            <button
               onClick={(e) => {
                 e.stopPropagation();
                 onAssignTask(child);
               }}
-              className="flex-1 h-12 uppercase tracking-[0.2em] text-[10px] w-full"
+              className="flex-1 w-full bg-ascendant-gradient text-white font-semibold rounded-full px-6 py-3 text-sm hover:opacity-90 transition-opacity flex items-center justify-center"
             >
               <Plus className="w-4 h-4 mr-2" />
               Assign Task
-            </Button>
+            </button>
           </div>
         </div>
       </Card>
