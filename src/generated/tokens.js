@@ -1,41 +1,37 @@
 /* AUTO-GENERATED — DO NOT EDIT
- * Source of truth: .agent/skill/brand-identity/resources/design-tokens.json
+ * Source of truth: design-tokens.json
  * Regenerate: node scripts/generate-tokens.js
  */
 
-export const colors = {
-  brand: {
-    cream: '#F5F0E8',
-    charcoal: '#0F0F14',
-    crimson: '#8B1A1A',
-    burgundy:    '#6B0F0F',
-goldLight:   '#E2C97E',
-creamMid:    '#EDE7D9',
-charcoalMid: '#1C1C24',
-    gold: '#C9A84C',
-    neutralText: '#6B6B6B',
-  },
-  neutral: {
-    // Tailwind slate scale — keeps neutral-50 … neutral-950 working
-  '50': '#f8fafc',
-  '100': '#f1f5f9',
-  '200': '#e2e8f0',
-  '300': '#cbd5e1',
-  '400': '#94a3b8',
-  '500': '#64748b',
-  '600': '#475569',
-  '700': '#334155',
-  '800': '#1e293b',
-  '900': '#0f172a',
-  '950': '#020617',
-  },
-  semantic: {
-    success: '#2D7D4F',
-    destructive: '#B03030',
-  },
+export default {
+  colors: {
+  "crimson": "#8B0000",
+  "burgundy": "#6B0F0F",
+  "gold": "#C9A84C",
+  "goldLight": "#E2C97E",
+  "cream": "#EDE7D9",
+  "creamMid": "#E8E0CE",
+  "background": "#F5F0E8",
+  "charcoal": "#1C1C24",
+  "charcoalMid": "#2C2C38",
+  "white": "#FFFFFF"
+},
   gradients: {
-    ascendant: 'linear-gradient(135deg, #8B1A1A 0%, #C9A84C 100%)',
-    ascendantHover: 'linear-gradient(135deg, #6B0F0F 0%, #E2C97E 100%)',
-    creamToCharcoal: 'linear-gradient(180deg, #F5F0E8 0%, #0F0F14 100%)',
-  },
+  "ascendant": "linear-gradient(135deg, #8B0000, #C9A84C)"
+},
+  typography: {
+  "serif": "Playfair Display",
+  "sans": "Inter"
+},
+  radius: {
+  "sm": "0.5rem",
+  "md": "1rem",
+  "lg": "1.5rem",
+  "full": "9999px"
+},
+  shadow: {
+  "sm": "0 1px 3px rgba(0,0,0,0.06)",
+  "md": "0 4px 12px rgba(0,0,0,0.08)",
+  "lg": "0 8px 24px rgba(0,0,0,0.10)"
+},
 };

@@ -125,7 +125,7 @@ const PinModal: React.FC<PinModalProps> = ({
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
             <div
-                className={`bg-white rounded-none shadow-2xl w-full max-w-sm overflow-hidden ${shake ? 'animate-shake' : ''}`}
+                className={`bg-cream rounded-none shadow-2xl w-full max-w-sm overflow-hidden ${shake ? 'animate-shake' : ''}`}
                 role="dialog"
                 aria-modal="true"
             >
@@ -168,7 +168,7 @@ const PinModal: React.FC<PinModalProps> = ({
                                 onChange={(e) => handlePinChange(index, e.target.value)}
                                 onKeyDown={(e) => handleKeyDown(index, e)}
                                 aria-label={`Digit ${index + 1}`}
-                                className={`w-12 h-16 text-center text-2xl font-bold bg-surface-app border-2 rounded-lg transition-all outline-none focus:bg-white
+                                className={`w-12 h-16 text-center text-2xl font-bold bg-surface-app border-2 rounded-lg transition-all outline-none focus:bg-creamMid
                     ${error
                                         ? 'border-red-300 text-red-600 focus:border-red-500 focus:ring-4 focus:ring-red-500/10'
                                         : 'border-stroke-base text-content-primary focus:border-neutral-900 focus:ring-4 focus:ring-neutral-900/5'

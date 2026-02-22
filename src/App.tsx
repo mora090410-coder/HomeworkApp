@@ -1565,7 +1565,7 @@ function DashboardPage() {
                       void handleGenerateProfileSetupLink(toProfileFromChild(child));
                       setIsInviteModalOpen(false);
                     }}
-                    className="w-full rounded-none border border-stroke-base bg-surface-app px-4 py-3 text-left hover:bg-white hover:border-crimson/50 hover:shadow-md transition-all group"
+                    className="w-full rounded-none border border-stroke-base bg-surface-app px-4 py-3 text-left hover:bg-creamMid hover:border-crimson/50 hover:shadow-md transition-all group"
                   >
                     <div className="text-sm font-semibold text-content-primary group-hover:text-crimson">{child.name}</div>
                     <div className="text-xs text-content-subtle">{child.gradeLevel}</div>

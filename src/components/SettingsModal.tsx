@@ -152,7 +152,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-content-subtle uppercase mb-2 ml-1">Grade Level</label>
-                  <Select value={gradeLevel} onChange={(e) => setGradeLevel(e.target.value)} className="w-full [&>option]:bg-white">
+                  <Select value={gradeLevel} onChange={(e) => setGradeLevel(e.target.value)} className="w-full [&>option]:bg-cream">
                     {SCHOOL_GRADES.map(g => (<option key={g} value={g}>{g}</option>))}
                   </Select>
                 </div>

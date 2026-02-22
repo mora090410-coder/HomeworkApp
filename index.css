@@ -1,104 +1,120 @@
-/* Design tokens — auto-generated from colors.js */
-@import './src/generated/design-tokens.css';
+/* ─── FONT IMPORTS ─────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
 
-@import "tailwindcss";
-@config "./tailwind.config.js";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-body {
-    margin: 0;
-    font-family: "SF Pro Display", "-apple-system", "BlinkMacSystemFont", "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    background-color: var(--bg-app);
-    color: var(--text-primary);
+/* ─── BASE STYLES ───────────────────────────────────────────────────── */
+@layer base {
+  html {
+    font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-charcoal;
+  }
+
+  /* Serif = Playfair Display — financial figures, display headings */
+  .font-serif {
+    font-family: 'Playfair Display', serif;
+  }
+
+  /* Sans = Inter — all UI text, labels, body copy */
+  .font-sans {
+    font-family: 'Inter', sans-serif;
+  }
 }
 
-/* Accessibility & Focus */
-:focus-visible {
-    @apply outline-none ring-2 ring-orange-400 ring-offset-2;
-    --tw-ring-offset-color: var(--bg-app);
-}
-
-/* Scrollbar */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background-color: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-    background-color: var(--border-base);
-    border-radius: 9999px;
-    border: 2px solid transparent;
-    /* padding around thumb */
-    background-clip: content-box;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background-color: var(--text-subtle);
-}
-
-/* ========================================
-   PREMIUM COMPONENT UTILITIES (Refactored)
-   ======================================== */
+/* ─── COMPONENT PATTERNS ────────────────────────────────────────────── */
 @layer components {
 
-    /* --- Standard Card (Clean White) --- */
-    .card-base {
-        @apply bg-surface-base border border-stroke-base shadow-sm transition-shadow duration-200 rounded-card;
-    }
+  /* Cards */
+  .card {
+    @apply bg-cream border border-gold/10 rounded-2xl;
+  }
 
-    .card-hover {
-        @apply hover:shadow-md;
-    }
+  .card-action {
+    @apply bg-cream border border-crimson/20 rounded-2xl;
+  }
 
-    /* --- New HomeWork Aesthetic (Phase 1) --- */
+  /* Buttons — Primary */
+  .btn-primary {
+    @apply bg-ascendant-gradient text-white font-semibold 
+           rounded-full px-6 py-3 text-sm transition-opacity 
+           hover:opacity-90;
+  }
 
-    /* The Luminary Glow Anchor */
-    .luminary-glow {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
+  /* Buttons — Ghost Gold */
+  .btn-ghost-gold {
+    @apply border border-gold/40 text-gold bg-transparent 
+           rounded-full px-5 py-2 text-sm hover:bg-gold/5 
+           transition-colors;
+  }
 
-    /* Image Container Glow Version (Hero Icon) */
-    .luminary-glow:not([data-text])::after {
-        content: '';
-        position: absolute;
-        inset: 10%;
-        background-image: linear-gradient(135deg, rgba(139, 26, 26, 0.4), rgba(201, 168, 76, 0.4));
-        filter: blur(60px);
-        opacity: 0.2;
-        z-index: -1;
-        border-radius: 50%;
-        pointer-events: none;
-    }
+  /* Buttons — Ghost Crimson (debt / reject / danger) */
+  .btn-ghost-crimson {
+    @apply border border-crimson/40 text-crimson bg-transparent 
+           rounded-full px-5 py-2 text-sm hover:bg-crimson/5 
+           transition-colors;
+  }
 
-    .dark .luminary-glow:not([data-text])::after {
-        opacity: 0.4;
-    }
+  /* Buttons — Ghost Neutral */
+  .btn-ghost-neutral {
+    @apply border border-gold/30 text-charcoal bg-transparent 
+           rounded-full px-5 py-2 text-sm hover:bg-gold/5 
+           transition-colors;
+  }
 
-    /* The Definitive Glass Card */
-    .glass-card {
-        @apply backdrop-blur-xl rounded-3xl shadow-2xl transition-all duration-300;
-        @apply bg-white/70 border border-white/40;
-    }
+  /* Financial figures — always gold serif */
+  .amount {
+    @apply font-serif text-gold;
+  }
 
-    .dark .glass-card {
-        @apply bg-white/5 border-white/10 shadow-[0_20px_50px_#00000080];
-    }
+  .amount-negative {
+    @apply font-serif text-crimson;
+  }
 
-    /* The Tactile Button */
-    .tactile-button {
-        @apply rounded-full bg-ascendant-gradient text-white font-bold transition-all duration-200 active:scale-95 px-10 py-4 inline-flex items-center justify-center cursor-pointer;
-        box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.4), 0 4px 15px rgba(139, 26, 26, 0.2);
-    }
+  /* Section headers */
+  .section-label {
+    @apply text-xs tracking-widest text-charcoal/40 uppercase font-sans;
+  }
 
-    .tactile-button:hover {
-        @apply brightness-110 shadow-lg -translate-y-0.5;
-    }
+  /* Status badges */
+  .badge-gold {
+    @apply bg-gold/10 text-gold text-xs px-3 py-1 rounded-full font-sans;
+  }
+
+  .badge-crimson {
+    @apply bg-crimson/10 text-crimson text-xs px-3 py-1 rounded-full font-sans;
+  }
+
+  .badge-neutral {
+    @apply bg-charcoal/5 text-charcoal/50 text-xs px-3 py-1 rounded-full font-sans;
+  }
+
+  /* Pulsing status dot */
+  .dot-crimson {
+    @apply w-2 h-2 rounded-full bg-crimson animate-pulse inline-block;
+  }
+
+  .dot-gold {
+    @apply w-2 h-2 rounded-full bg-gold inline-block;
+  }
+
+  /* Empty states */
+  .empty-state {
+    @apply border border-gold/20 rounded-2xl bg-cream/50 px-6 py-10 text-center;
+  }
+
+  /* Modal overlay */
+  .modal-overlay {
+    @apply fixed inset-0 bg-charcoal/40 flex items-center justify-center z-50;
+  }
+
+  .modal-container {
+    @apply bg-cream border border-gold/20 rounded-2xl p-6 mx-6 max-w-sm w-full;
+  }
 }
