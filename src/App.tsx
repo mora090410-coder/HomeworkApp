@@ -560,7 +560,7 @@ function DashboardPage() {
 
 
   const effectiveRateMap = useMemo(() => {
-    return buildRateMapFromGradeConfigs(gradeConfigs, DEFAULT_RATES);
+    return buildRateMapFromGradeConfigs(gradeConfigs);
   }, [gradeConfigs]);
 
   const childrenWithRateMap = useMemo(() => {
@@ -1253,7 +1253,7 @@ function DashboardPage() {
                     onEditSettings={(candidate) => setChildToEdit(candidate)}
                     onAddAdvance={() => { setSelectedChildId(activeChild.id); setIsAdvanceModalOpen(true); }}
                     onSubmitTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_APPROVAL', childId })}
-                    onApproveTask={(childId, task) => statusTaskMutation.mutate({ taskId: task.id, status: 'PENDING_PAYMENT', childId })}
+                    onApproveTask={async (childId, task) => { await statusTaskMutation.mutateAsync({ taskId: task.id, status: 'PENDING_PAYMENT', childId }); }}
                     onApproveAndDeposit={(childId, task, amountCents) => approveAndDepositMutation.mutateAsync({ childId, task, amountCents })}
                     onPayTask={handlePayTask}
                     onRejectTask={handleRejectTask}
@@ -1303,10 +1303,10 @@ function DashboardPage() {
                         onUndoApproval={(childId, taskId) => statusTaskMutation.mutate({ taskId, status: 'PENDING_APPROVAL', childId })}
                       />
                     ))}
-                    <div className="flex min-h-[200px] items-center justify-center rounded-none border-2 border-dashed border-border-base bg-surface/50 dark:bg-white/5 p-6 hover:border-crimson/50 hover:bg-surface-2 dark:hover:bg-white/10 transition-all cursor-pointer group" onClick={() => setIsAddChildModalOpen(true)}>
+                    <div className="flex min-h-[200px] items-center justify-center border border-gold/20 bg-cream p-6 hover:border-gold/40 hover:bg-gold/5 transition-all cursor-pointer group rounded-2xl" onClick={() => setIsAddChildModalOpen(true)}>
                       <div className="text-center group-hover:scale-105 transition-transform duration-200">
-                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface-base dark:bg-elev-1 shadow-sm ring-1 ring-border-base group-hover:ring-crimson/20">
-                          <Plus className="h-6 w-6 text-muted group-hover:text-crimson" />
+                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-surface-base dark:bg-elev-1 shadow-sm ring-1 ring-border-base group-hover:ring-gold/40">
+                          <Plus className="h-6 w-6 text-muted group-hover:text-gold" />
                         </div>
                         <h3 className="text-sm font-bold text-primary">Add Child Profile</h3>
                         <p className="mt-1 text-xs text-muted">Track chores & allowance</p>
@@ -1330,16 +1330,16 @@ function DashboardPage() {
                       </div>
                       <button
                         onClick={() => { setIsOpenTaskMode(true); setIsAddTaskModalOpen(true); }}
-                        className="text-sm font-bold text-crimson hover:text-crimson/80 flex items-center gap-1 transition-colors"
+                        className="bg-ascendant-gradient text-white font-semibold rounded-full px-6 py-3 text-sm hover:opacity-90 transition-opacity flex items-center justify-center"
                       >
-                        <Plus className="w-4 h-4" />
+                        <Plus className="w-4 h-4 mr-1" />
                         Create Bounty
                       </button>
                     </div>
 
                     <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-neutral-200 scrollbar-track-transparent">
                       {!loadingTasks && openTasks.length === 0 ? (
-                        <div className="p-8 border border-border-base border-dashed rounded-xl text-center bg-surface-app dark:bg-white/5">
+                        <div className="p-8 border border-gold/20 rounded-2xl text-center bg-cream">
                           <p className="text-primary font-bold mb-1">No open bounties</p>
                           <p className="text-muted text-sm pb-2">Create tasks that any child can claim.</p>
                         </div>
@@ -1433,7 +1433,6 @@ function DashboardPage() {
           childName={childrenWithRateMap.find((child) => child.id === (editingTask?.childId || selectedChildId))?.name}
           isOpenTask={isOpenTaskMode}
           catalogItems={choreCatalog}
-          initialTask={undefined} // No longer used, using editTask instead
           editTask={editingTask?.task}
           onAssign={handleSaveTask}
         />

@@ -256,7 +256,7 @@ const UpdateGradesModal: React.FC<UpdateGradesModalProps> = ({
               <Button
                 onClick={handleAddSubject}
                 variant="secondary"
-                className="w-full border-dashed py-6 mt-4 hover:border-stroke-base hover:bg-surface-app text-content-subtle"
+                className="w-full border border-gold/20 rounded-full py-6 mt-4 hover:border-gold/40 hover:bg-gold/5 text-charcoal bg-transparent font-semibold shadow-none"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Another Subject

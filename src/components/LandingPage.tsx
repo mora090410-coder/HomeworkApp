@@ -22,7 +22,7 @@ export default function LandingPage() {
                         <Link to="/login" className="text-sm font-semibold text-primary hover:text-crimson transition-colors">
                             Sign In
                         </Link>
-                        <Link to="/signup" className="text-sm font-bold bg-crimson text-white px-5 py-2.5 rounded-full hover:bg-burgundy transition-colors shadow-sm hidden sm:inline-block">
+                        <Link to="/signup" className="text-base font-semibold bg-ascendant-gradient text-white rounded-full px-8 py-4 hover:opacity-90 transition-opacity hidden sm:inline-block">
                             Start Free Trial
                         </Link>
                     </div>
@@ -50,15 +50,15 @@ export default function LandingPage() {
                     HomeWork turns that question into a contract.
                 </h2>
 
-                <h3 className="text-sm tracking-[0.2em] font-semibold text-gold mb-12 font-sans uppercase">
+                <h3 className="text-sm tracking-widest text-gold mb-12 uppercase">
                     The Family Economy. Redefined.
                 </h3>
 
-                <Link to="/signup" className="tactile-button text-xl px-12 py-5">
+                <Link to="/signup" className="bg-ascendant-gradient text-white font-semibold rounded-full px-8 py-4 text-base hover:opacity-90 transition-opacity">
                     Start Free Trial
                 </Link>
 
-                <p className="text-muted text-xs mt-6 font-light tracking-wide leading-relaxed">
+                <p className="text-charcoal/50 text-sm mt-6 leading-relaxed">
                     14 days free, then $14.99/mo. Cancel anytime.
                 </p>
             </main>
@@ -153,11 +153,11 @@ export default function LandingPage() {
                         <span className="flex items-center"><span className="text-gold mr-2">✦</span> Vault dashboard for every child</span>
                     </div>
 
-                    <Link to="/signup" className="tactile-button text-2xl px-20 py-6 mb-4">
+                    <Link to="/signup" className="bg-ascendant-gradient text-white font-semibold rounded-full px-8 py-4 text-base hover:opacity-90 transition-opacity mb-4">
                         Start Your Family's Free Trial
                     </Link>
 
-                    <p className="text-muted text-sm font-medium leading-relaxed">
+                    <p className="text-charcoal/50 text-sm leading-relaxed">
                         14 days free. No credit card required to start.<br />
                         Cancel before day 14 and pay nothing. Ever.
                     </p>
@@ -179,11 +179,11 @@ export default function LandingPage() {
                     Start building today.
                 </h3>
 
-                <Link to="/signup" className="tactile-button text-2xl px-16 py-6 mb-6">
+                <Link to="/signup" className="bg-ascendant-gradient text-white font-semibold rounded-full px-8 py-4 text-base hover:opacity-90 transition-opacity mb-6">
                     Start Free Trial →
                 </Link>
 
-                <p className="text-muted text-sm font-medium tracking-wide leading-relaxed">
+                <p className="text-charcoal/50 text-sm leading-relaxed">
                     14 days free · $14.99/month after · Cancel anytime
                 </p>
             </section>

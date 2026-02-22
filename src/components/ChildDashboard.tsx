@@ -258,7 +258,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={() => setShowWithdrawModal(true)}
-                                className="flex items-center gap-2 px-4 py-2 bg-surface/50 backdrop-blur-sm border border-border-base rounded-full text-sm font-bold text-primary hover:bg-surface transition-all shadow-sm"
+                                className="flex items-center gap-2 border border-gold/40 text-gold bg-transparent rounded-full px-5 py-2 text-sm hover:bg-gold/5 transition-colors shadow-sm"
                             >
                                 <CreditCard className="w-4 h-4" /> Cash Out
                             </button>
@@ -278,8 +278,8 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
 
                             <div className="relative">
                                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted mb-2">Total Capital</p>
-                                <h1 className="text-7xl md:text-8xl font-sans font-extrabold tracking-tighter text-primary flex items-center justify-center gap-1">
-                                    <span className="text-4xl md:text-5xl opacity-30 -mt-4">$</span>
+                                <h1 className="text-7xl md:text-8xl font-serif tracking-tighter text-charcoal flex items-center justify-center gap-1">
+                                    <span className="text-4xl md:text-5xl text-gold font-serif -mt-4">$</span>
                                     {balance.toFixed(2)}
                                 </h1>
                                 {pendingWithdrawalCents > 0 && (
@@ -300,8 +300,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
 
                         <div className="mt-12 flex flex-col items-center">
                             <h2 className="text-2xl font-bold font-heading text-primary">{child.name}</h2>
-                            <p className="text-sm font-medium text-muted mt-1 flex items-center gap-2">
-                                <Sparkles className="w-3.5 h-3.5" style={{ color: avatarColor }} />
+                            <p className="bg-gold/10 text-gold text-xs px-3 py-1 rounded-full mt-2 inline-block">
                                 Level: {child.gradeLevel}
                             </p>
                         </div>
@@ -314,19 +313,19 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                 <section>
                     <div className="flex items-center justify-between mb-6">
                         <h3 className="text-lg font-bold font-heading flex items-center gap-2 text-primary">
-                            <PiggyBank className="w-5 h-5 text-pink-500" />
+                            <PiggyBank className="w-5 h-5 text-gold" />
                             Savings Goals
                         </h3>
-                        <Button
+                        <button
                             onClick={() => setShowAddGoalModal(true)}
-                            className="bg-surface hover:bg-surface-2 text-muted border border-border-base rounded-full px-4 py-1.5 text-xs font-bold h-auto shadow-none"
+                            className="bg-ascendant-gradient text-white font-semibold rounded-full px-6 py-3 text-sm hover:opacity-90 transition-opacity flex items-center"
                         >
                             <Plus className="w-3.5 h-3.5 mr-1" /> New Goal
-                        </Button>
+                        </button>
                     </div>
 
                     {goals.length === 0 ? (
-                        <div className="bg-surface border border-border-base border-dashed rounded-3xl p-10 text-center relative overflow-hidden group">
+                        <div className="bg-cream border border-gold/20 rounded-2xl p-10 text-center relative overflow-hidden group">
                             <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/10 to-purple-50/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                             <div className="relative z-10 flex flex-col items-center">
                                 <div className="w-16 h-16 bg-surface rounded-2xl shadow-sm border border-border-base flex items-center justify-center mb-4 transform group-hover:-translate-y-1 transition-transform">
@@ -336,13 +335,13 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                                 <p className="text-sm text-muted max-w-sm mb-8 leading-relaxed">
                                     What are you working toward? A new game? A softball bat? Start your first goal here.
                                 </p>
-                                <Button
+                                <button
                                     onClick={() => setShowAddGoalModal(true)}
-                                    className="bg-primary hover:bg-primary/90 text-app font-bold py-4 px-8 rounded-2xl shadow-xl shadow-primary/10 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                                    className="bg-ascendant-gradient text-white font-semibold rounded-full px-6 py-3 text-sm hover:opacity-90 transition-opacity flex items-center gap-2"
                                 >
                                     <Plus className="w-5 h-5" />
                                     Create First Goal
-                                </Button>
+                                </button>
                             </div>
                         </div>
                     ) : (
@@ -422,7 +421,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                     </div>
 
                     {openBounties.length === 0 ? (
-                        <div className="bg-surface border border-border-base border-dashed rounded-2xl p-12 text-center">
+                        <div className="bg-cream border border-gold/20 rounded-2xl p-12 text-center">
                             <p className="text-lg font-medium text-primary">The Market is currently quiet.</p>
                             <p className="text-sm text-muted mt-1">Check back soon for new opportunities.</p>
                         </div>
@@ -487,7 +486,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
                     </div>
 
                     {myHustle.length === 0 ? (
-                        <div className="bg-surface border border-border-base rounded-2xl p-8 text-center">
+                        <div className="bg-cream border border-gold/20 rounded-2xl p-8 text-center">
                             <p className="text-sm text-muted italic">No tasks currently being worked on. Explore the marketplace!</p>
                         </div>
                     ) : (
@@ -645,7 +644,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
 
             {showAddGoalModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-surface rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border border-white/5">
+                    <div className="bg-cream border border-gold/20 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
                         <div className="p-8">
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="text-2xl font-bold font-heading text-primary">New Savings Goal</h3>
@@ -654,37 +653,37 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
 
                             <form onSubmit={handleAddGoal} className="space-y-6">
                                 <div>
-                                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-2">Goal Name</label>
+                                    <label className="block text-xs tracking-widest text-charcoal/40 uppercase mb-2">Goal Name</label>
                                     <input
                                         type="text"
                                         required
                                         value={newGoalName}
                                         onChange={(e) => setNewGoalName(e.target.value)}
-                                        className="w-full bg-surface-2 border border-border-base rounded-xl px-5 py-4 text-base text-primary focus:ring-2 focus:ring-amber-500 focus:outline-none placeholder:text-muted"
+                                        className="w-full bg-creamMid border border-gold/20 rounded-xl px-5 py-4 text-base text-primary focus:ring-2 focus:ring-amber-500 focus:outline-none placeholder:text-charcoal/40"
                                         placeholder="e.g., New Bat"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-2">Target Amount ($)</label>
+                                    <label className="block text-xs tracking-widest text-charcoal/40 uppercase mb-2">Target Amount ($)</label>
                                     <input
                                         type="number"
                                         step="0.01"
                                         required
                                         value={newGoalTarget}
                                         onChange={(e) => setNewGoalTarget(e.target.value)}
-                                        className="w-full bg-surface-2 border border-border-base rounded-xl px-5 py-4 font-mono text-xl text-primary focus:ring-2 focus:ring-amber-500 focus:outline-none placeholder:text-muted"
+                                        className="w-full bg-creamMid border border-gold/20 rounded-xl px-5 py-4 font-mono text-xl text-primary focus:ring-2 focus:ring-amber-500 focus:outline-none placeholder:text-charcoal/40"
                                         placeholder="e.g., 150"
                                     />
                                 </div>
 
-                                <Button
+                                <button
                                     type="submit"
                                     disabled={isProcessing || !newGoalName || !newGoalTarget}
-                                    className="w-full bg-primary hover:bg-primary/90 text-app font-bold py-4 rounded-2xl shadow-xl shadow-primary/20"
+                                    className="w-full bg-ascendant-gradient text-white font-semibold rounded-full px-6 py-3 text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
                                 >
                                     {isProcessing ? 'Creating...' : 'Establish Savings Goal'}
-                                </Button>
+                                </button>
                             </form>
                         </div>
                     </div>
@@ -693,7 +692,7 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
 
             {showEditGoalModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="bg-surface rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300 border border-white/5">
+                    <div className="bg-cream border border-gold/20 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
                         <div className="p-8">
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="text-2xl font-bold font-heading text-primary">Edit Savings Goal</h3>
@@ -702,47 +701,47 @@ const ChildDashboard: React.FC<ChildDashboardProps> = ({
 
                             <form onSubmit={handleEditGoal} className="space-y-6">
                                 <div>
-                                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-2">Goal Name</label>
+                                    <label className="block text-xs tracking-widest text-charcoal/40 uppercase mb-2">Goal Name</label>
                                     <input
                                         type="text"
                                         required
                                         value={editGoalName}
                                         onChange={(e) => setEditGoalName(e.target.value)}
-                                        className="w-full bg-surface-2 border border-border-base rounded-xl px-5 py-4 text-base text-primary focus:ring-2 focus:ring-amber-500 focus:outline-none placeholder:text-muted"
+                                        className="w-full bg-creamMid border border-gold/20 rounded-xl px-5 py-4 text-base text-primary focus:ring-2 focus:ring-amber-500 focus:outline-none placeholder:text-charcoal/40"
                                         placeholder="e.g., New Bat"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-[10px] font-black uppercase tracking-widest text-muted mb-2">Target Amount ($)</label>
+                                    <label className="block text-xs tracking-widest text-charcoal/40 uppercase mb-2">Target Amount ($)</label>
                                     <input
                                         type="number"
                                         step="0.01"
                                         required
                                         value={editGoalTarget}
                                         onChange={(e) => setEditGoalTarget(e.target.value)}
-                                        className="w-full bg-surface-2 border border-border-base rounded-xl px-5 py-4 font-mono text-xl text-primary focus:ring-2 focus:ring-amber-500 focus:outline-none placeholder:text-muted"
+                                        className="w-full bg-creamMid border border-gold/20 rounded-xl px-5 py-4 font-mono text-xl text-primary focus:ring-2 focus:ring-amber-500 focus:outline-none placeholder:text-charcoal/40"
                                         placeholder="e.g., 150"
                                     />
                                 </div>
 
                                 <div className="flex gap-4">
-                                    <Button
+                                    <button
                                         type="button"
                                         onClick={handleDeleteGoal}
                                         disabled={isProcessing}
-                                        className="bg-red-50 hover:bg-red-100 text-red-600 font-bold py-4 rounded-2xl shadow-none active:scale-[0.98] transition-all flex items-center justify-center px-4"
+                                        className="border border-gold/30 text-charcoal bg-transparent rounded-full px-5 py-2 text-sm hover:bg-gold/5 transition-colors flex items-center justify-center disabled:opacity-50"
                                         title="Delete Goal"
                                     >
                                         <Trash2 className="w-5 h-5" />
-                                    </Button>
-                                    <Button
+                                    </button>
+                                    <button
                                         type="submit"
                                         disabled={isProcessing || !editGoalName || !editGoalTarget}
-                                        className="flex-1 bg-primary hover:bg-primary/90 text-app font-bold py-4 rounded-2xl shadow-xl shadow-primary/20 active:scale-[0.98] transition-all"
+                                        className="flex-1 bg-ascendant-gradient text-white font-semibold rounded-full px-6 py-3 text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
                                     >
                                         {isProcessing ? 'Saving...' : 'Save Changes'}
-                                    </Button>
+                                    </button>
                                 </div>
                             </form>
                         </div>

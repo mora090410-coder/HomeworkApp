@@ -192,7 +192,7 @@ const AddChildModal: React.FC<AddChildModalProps> = ({ isOpen, onClose, onAdd })
                   </div>
                 ))}
               </div>
-              <button onClick={handleAddSubject} className="w-full py-3 border border-dashed border-stroke-base rounded-none text-content-muted hover:text-crimson hover:border-crimson hover:bg-brand/5 transition-all flex items-center justify-center gap-2 mb-6 text-sm font-bold cursor-pointer uppercase tracking-wider">
+              <button onClick={handleAddSubject} className="w-full py-3 border border-gold/20 rounded-full text-gold bg-transparent hover:bg-gold/5 transition-all flex items-center justify-center gap-2 mb-6 text-sm font-bold cursor-pointer uppercase tracking-wider">
                 <Plus className="w-4 h-4" /> Add Subject
               </button>
             </div>
