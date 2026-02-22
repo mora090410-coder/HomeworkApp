@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { Dialog } from '@headlessui/react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { centsToDollars, dollarsToCents, formatCurrency } from '@/utils';
@@ -29,6 +28,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
     const [memo, setMemo] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const overlayRef = useRef<HTMLDivElement>(null);
 
     const isAdvance = type === 'ADVANCE';
     const title = isAdvance ? 'Advance Funds' : 'Record Cash Payment';
@@ -39,6 +39,16 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
     const amount = parseFloat(amountStr);
     const amountCents = isNaN(amount) ? 0 : dollarsToCents(amount);
     const willCauseDebt = currentBalanceCents - amountCents < 0;
+
+    /** Close on Escape key press. */
+    useEffect(() => {
+        if (!isOpen) return;
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, onClose]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -91,16 +101,27 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         }
     };
 
+    if (!isOpen) return null;
+
     return (
-        <Dialog open={isOpen} onClose={onClose} className="relative z-50">
+        <div className="relative z-50">
             <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
 
-            <div className="fixed inset-0 flex items-center justify-center p-4">
-                <Dialog.Panel className="w-full max-w-md bg-surface-app dark:bg-surface-elev rounded-2xl border border-stroke-base shadow-xl overflow-hidden p-6 animate-in zoom-in-95 duration-200">
+            <div
+                ref={overlayRef}
+                className="fixed inset-0 flex items-center justify-center p-4"
+                onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
+            >
+                <div
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="transaction-modal-title"
+                    className="w-full max-w-md bg-surface-app dark:bg-surface-elev rounded-2xl border border-stroke-base shadow-xl overflow-hidden p-6 animate-in zoom-in-95 duration-200"
+                >
                     <div className="flex justify-between items-start mb-4">
-                        <Dialog.Title className="text-xl font-bold font-heading text-content-primary">
+                        <h2 id="transaction-modal-title" className="text-xl font-bold font-heading text-content-primary">
                             {title}
-                        </Dialog.Title>
+                        </h2>
                         <button onClick={onClose} className="text-content-subtle hover:text-content-subtle">
                             <X className="w-5 h-5" />
                         </button>
@@ -178,8 +199,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                             </Button>
                         </div>
                     </form>
-                </Dialog.Panel>
+                </div>
             </div>
-        </Dialog>
+        </div>
     );
 };

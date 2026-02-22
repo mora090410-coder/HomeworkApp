@@ -43,7 +43,6 @@ import {
   Zap,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { Popover } from '@headlessui/react';
 import { TransactionModal } from './TransactionModal';
 import { householdService, updateTaskStatus } from '@/services/householdService';
 import { ledgerService } from '@/services/ledgerService';
