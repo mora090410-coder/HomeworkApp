@@ -125,3 +125,10 @@ export const mapTask = (taskId: string, householdId: string, source: Record<stri
         : undefined,
   };
 };
+
+export const parseCurrencyInputToCents = (value: string): number => {
+  const cleaned = value.replace(/[^0-9.]/g, '');
+  const parsed = parseFloat(cleaned);
+  if (isNaN(parsed)) return 0;
+  return Math.round(parsed * 100);
+};
