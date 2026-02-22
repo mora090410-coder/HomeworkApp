@@ -1476,7 +1476,7 @@ function DashboardPage() {
                     }}
                     className={`px-4 py-2 text-xs font-bold uppercase tracking-widest border transition-all ${rejectionComment.includes(tag)
                       ? 'bg-brand text-white border-crimson shadow-md'
-                      : 'bg-white text-content-subtle border-stroke-base hover:border-crimson hover:text-crimson'
+                      : 'bg-cream text-content-subtle border-stroke-base hover:border-crimson hover:text-crimson'
                       }`}
                   >
                     {tag}
@@ -1585,7 +1585,7 @@ function DashboardPage() {
               <p className="text-content-subtle mb-6 text-sm">Send this one-time link so the child can set their own PIN and avatar.</p>
               <div className="flex items-center gap-2 bg-surface-app p-3 rounded-none mb-6 border border-stroke-base">
                 <code className="text-xs text-crimson flex-1 truncate font-mono">{profileSetupLink}</code>
-                <button type="button" onClick={() => { void navigator.clipboard.writeText(profileSetupLink); }} className="text-xs font-bold bg-white border border-stroke-base px-3 py-1.5 rounded-none hover:bg-surface-app text-content-primary transition-colors shadow-sm">COPY</button>
+                <button type="button" onClick={() => { void navigator.clipboard.writeText(profileSetupLink); }} className="text-xs font-bold bg-cream border border-stroke-base px-3 py-1.5 rounded-none hover:bg-surface-app text-content-primary transition-colors shadow-sm">COPY</button>
               </div>
               <button type="button" onClick={() => setProfileSetupLink(null)} className="w-full py-3 bg-surface-2 rounded-none font-bold text-content-primary hover:bg-surface-2 transition-colors">Close</button>
             </div>
@@ -1750,7 +1750,7 @@ function SetupProfileRoute() {
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
                 maxLength={24}
-                className="w-full px-4 py-3 rounded-none border border-stroke-base bg-white text-content-primary placeholder-neutral-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/10 transition-all font-sans"
+                className="w-full px-4 py-3 rounded-none border border-stroke-base bg-surface-app text-content-primary placeholder-neutral-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/10 transition-all font-sans"
                 placeholder="emma_01"
                 aria-label="Setup Username"
               />
@@ -1765,7 +1765,7 @@ function SetupProfileRoute() {
                 onChange={(event) => setPin(event.target.value.replace(/\D/g, '').slice(0, 4))}
                 inputMode="numeric"
                 maxLength={4}
-                className="w-full px-4 py-3 rounded-none border border-stroke-base bg-white text-content-primary placeholder-neutral-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/10 transition-all font-mono tracking-widest text-center text-lg hidden-cursor"
+                className="w-full px-4 py-3 rounded-none border border-stroke-base bg-surface-app text-content-primary placeholder-neutral-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/10 transition-all font-mono tracking-widest text-center text-lg hidden-cursor"
                 placeholder="0000"
                 aria-label="Setup PIN"
               />

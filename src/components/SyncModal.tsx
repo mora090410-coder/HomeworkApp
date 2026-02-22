@@ -30,7 +30,7 @@ const SyncModal: React.FC<SyncModalProps> = ({ isOpen, onClose, exportData }) =>
         onClick={onClose}
       />
 
-      <div className="relative w-full max-w-[480px] bg-white rounded-none shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-stroke-base">
+      <div className="relative w-full max-w-[480px] bg-cream rounded-none shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-stroke-base">
 
         {/* Close Button */}
         <button
@@ -46,7 +46,7 @@ const SyncModal: React.FC<SyncModalProps> = ({ isOpen, onClose, exportData }) =>
             <p className="text-content-subtle text-sm">Transfer your family setup to another phone</p>
           </div>
 
-          <div className="bg-white p-4 rounded-none border border-stroke-base mb-8 shadow-sm">
+          <div className="bg-creamMid p-4 rounded-none border border-stroke-base mb-8 shadow-sm">
             <img
               src={qrUrl}
               alt="Sync QR Code"

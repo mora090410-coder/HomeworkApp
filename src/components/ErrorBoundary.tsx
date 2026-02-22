@@ -32,7 +32,7 @@ class ErrorBoundary extends Component<Props, State> {
         if (this.state.hasError) {
             return (
                 <div className="min-h-screen bg-red-50 flex items-center justify-center p-6 text-red-900 font-sans">
-                    <div className="max-w-3xl w-full bg-white border border-red-200 shadow-xl rounded-none p-8 relative overflow-hidden">
+                    <div className="max-w-3xl w-full bg-cream border border-gold/20 shadow-xl rounded-none p-8 relative overflow-hidden">
                         <div className="absolute top-0 left-0 w-full h-1 bg-red-500" />
                         <h1 className="text-2xl font-bold mb-4 flex items-center gap-2">
                             <span className="text-3xl">💥</span>

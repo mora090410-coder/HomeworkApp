@@ -40,7 +40,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             ghost:
                 'bg-transparent text-muted hover:bg-surface-2 hover:text-content-primary',
             destructive:
-                'bg-white text-semantic-destructive border border-semantic-destructive hover:bg-semantic-destructive/5',
+                'bg-cream text-semantic-destructive border border-semantic-destructive hover:bg-semantic-destructive/5',
         };
 
         const sizes = {
