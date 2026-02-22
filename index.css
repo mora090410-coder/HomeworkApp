@@ -250,3 +250,97 @@ body {
     font-family: 'Inter', sans-serif;
   }
 }
+
+/* CRITICAL UTILITY OVERRIDES — outside all layers */
+.bg-ascendant-gradient {
+  background-image: linear-gradient(135deg, #8B0000, #C9A84C) !important;
+}
+
+.bg-cream {
+  background-color: #EDE7D9 !important;
+}
+
+.bg-background {
+  background-color: #F5F0E8 !important;
+}
+
+.bg-charcoal {
+  background-color: #1C1C24 !important;
+}
+
+.bg-crimson {
+  background-color: #8B0000 !important;
+}
+
+.text-gold {
+  color: #C9A84C !important;
+}
+
+.text-crimson {
+  color: #8B0000 !important;
+}
+
+.text-charcoal {
+  color: #1C1C24 !important;
+}
+
+.border-gold {
+  border-color: #C9A84C !important;
+}
+
+.border-crimson {
+  border-color: #8B0000 !important;
+}
+
+.font-serif {
+  font-family: 'Playfair Display', serif !important;
+}
+
+/* Opacity variants */
+.bg-crimson\/10 {
+  background-color: rgba(139, 0, 0, 0.1) !important;
+}
+
+.bg-crimson\/5 {
+  background-color: rgba(139, 0, 0, 0.05) !important;
+}
+
+.bg-gold\/10 {
+  background-color: rgba(201, 168, 76, 0.1) !important;
+}
+
+.bg-gold\/5 {
+  background-color: rgba(201, 168, 76, 0.05) !important;
+}
+
+.text-crimson\/40 {
+  color: rgba(139, 0, 0, 0.4) !important;
+}
+
+.text-gold\/50 {
+  color: rgba(201, 168, 76, 0.5) !important;
+}
+
+.text-charcoal\/50 {
+  color: rgba(28, 28, 36, 0.5) !important;
+}
+
+.text-charcoal\/40 {
+  color: rgba(28, 28, 36, 0.4) !important;
+}
+
+.border-gold\/20 {
+  border-color: rgba(201, 168, 76, 0.2) !important;
+}
+
+.border-gold\/10 {
+  border-color: rgba(201, 168, 76, 0.1) !important;
+}
+
+.border-crimson\/40 {
+  border-color: rgba(139, 0, 0, 0.4) !important;
+}
+
+.border-crimson\/20 {
+  border-color: rgba(139, 0, 0, 0.2) !important;
+}

@@ -692,23 +692,23 @@ invites/{inviteId}                      (root-level collection)
 
 ## SECTION 6: KNOWN CONFLICTS & FIXES
 
-### CONFLICT 1: `buildRateMapFromGradeConfigs` accesses non-existent property ⚠ BUILD-BREAKING
+### CONFLICT 1: `buildRateMapFromGradeConfigs` accesses non-existent property ✅ RESOLVED
 
-- **Description:** `src/utils.ts:134` reads `config.ratePerHour` but `GradeConfig` is `{ grade: Grade; valueCents: number }`. There is no `ratePerHour` property. This produces `undefined` in the resulting map and will cause incorrect rate calculations at runtime.
+- **Description:** `src/utils.ts:134` previously read `config.ratePerHour` but `GradeConfig` is `{ grade: Grade; valueCents: number }`. There is no `ratePerHour` property.
 - **Files affected:** `src/utils.ts`, `src/components/UpdateGradesModal.tsx`, `src/App.tsx`
-- **Fix:** Change `config.ratePerHour` → `centsToDollars(config.valueCents)` (since `rates` are stored in dollars, we must convert from cents).
+- **Fix applied:** Changed `config.ratePerHour` → `centsToDollars(config.valueCents)`. Resolved 2026-02-21.
 
-### CONFLICT 2: `parseTaskStatus` missing valid statuses ⚠ DATA-LOSS RISK
+### CONFLICT 2: `parseTaskStatus` missing valid statuses ✅ RESOLVED
 
-- **Description:** `src/utils.ts:39-54` does not include `'REJECTED'` or `'PENDING_WITHDRAWAL'` in its allowlist. Any task or transaction with status `REJECTED` will be silently downgraded to `'OPEN'` when mapTask() is called.
+- **Description:** `src/utils.ts:39-54` previously did not include `'REJECTED'` or `'PENDING_WITHDRAWAL'` in its allowlist.
 - **Files affected:** `src/utils.ts`, `src/services/householdService.ts` (mapTask uses parseTaskStatus)
-- **Fix:** Add `'REJECTED'` and `'PENDING_WITHDRAWAL'` to the `supported` array.
+- **Fix applied:** Added `'REJECTED'` and `'PENDING_WITHDRAWAL'` to the `supported` array. All 9 TaskStatus values now recognized. Resolved 2026-02-21.
 
-### CONFLICT 3: Duplicate `mapTransaction` with divergent logic
+### CONFLICT 3: Duplicate `mapTransaction` with divergent logic ✅ RESOLVED
 
-- **Description:** `mapTransaction` exists in BOTH `src/utils.ts:66-104` AND `src/services/householdService.ts:520-560`. The `utils.ts` version accepts `WITHDRAWAL_REQUEST` and `GOAL_ALLOCATION` as valid `type` values (via passthrough). The `householdService.ts` version restricts `type` to only `'ADVANCE' | 'ADJUSTMENT' | 'EARNING'` — silently defaulting everything else to `'EARNING'`. This means `WITHDRAWAL_REQUEST` and `GOAL_ALLOCATION` transactions lose their type when loaded via the service's mapper.
+- **Description:** `mapTransaction` exists in BOTH `src/utils.ts:66-104` AND `src/services/householdService.ts:520-560`. The `householdService.ts` version previously restricted `type` to only `'ADVANCE' | 'ADJUSTMENT' | 'EARNING'`.
 - **Files affected:** `src/utils.ts`, `src/services/householdService.ts`
-- **Fix:** Update `householdService.ts` mapTransaction to accept all 5 valid transaction types from the `Transaction` interface.
+- **Fix applied:** Updated `householdService.ts` mapTransaction to accept all 5 valid transaction types (`EARNING`, `ADVANCE`, `ADJUSTMENT`, `WITHDRAWAL_REQUEST`, `GOAL_ALLOCATION`). Resolved 2026-02-21.
 
 ### CONFLICT 4: Duplicate `GRADE_VALUES` / `DEFAULT_RATES`
 
