@@ -23,7 +23,7 @@ export const centsToDollars = (amountCents: number): number => {
 /**
  * Calculates the overall hourly rate for a child based on their subject proficiency/grades.
  */
-export const calculateHourlyRate = (
+export const calculateHourlyRateFromGrades = (
     subjects: Subject[],
     rates: Record<Grade, number>,
 ): number => {

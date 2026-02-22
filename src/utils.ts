@@ -4,7 +4,7 @@ import { Grade, GradeConfig, Subject, Task, TaskStatus, Transaction } from '@/ty
 const DEFAULT_RATE_MAP: Record<Grade, number> = GRADE_VALUES;
 
 export * from './utils/calculations';
-import { centsToDollars } from './utils/calculations';
+import { centsToDollars, calculateHourlyRateFromGrades } from './utils/calculations';
 
 export const getNextGrade = (current: Grade): Grade => {
   const grades = Object.values(Grade);
@@ -125,6 +125,33 @@ export const mapTask = (taskId: string, householdId: string, source: Record<stri
         : undefined,
   };
 };
+
+
+export const buildRateMapFromGradeConfigs = (
+  configs: GradeConfig[]
+): Record<Grade, number> => {
+  return configs.reduce((map, config) => {
+    map[config.grade] = config.ratePerHour;
+    return map;
+  }, {} as Record<Grade, number>);
+};
+
+/**
+ * Overloaded function to calculate hourly rate.
+ * Supports both (subjects, rates) from grades and (amount, duration) from task effectiveness.
+ */
+export function calculateHourlyRate(subjects: Subject[], rates: Record<Grade, number>): number;
+export function calculateHourlyRate(amount: number, durationMinutes: number): number;
+export function calculateHourlyRate(arg1: any, arg2: any): number {
+  if (Array.isArray(arg1)) {
+    return calculateHourlyRateFromGrades(arg1, arg2);
+  }
+  if (typeof arg1 === 'number' && typeof arg2 === 'number') {
+    if (!arg2 || arg2 === 0) return 0;
+    return (arg1 / arg2) * 60;
+  }
+  return 0;
+}
 
 export const parseCurrencyInputToCents = (value: string): number => {
   const cleaned = value.replace(/[^0-9.]/g, '');
